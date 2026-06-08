@@ -36,6 +36,7 @@ import {
 import { MEMORY_TEST, CORSI_TEST, type MemoryResult } from "@core/ability/memory";
 import { PROCESSING_TEST, type SpeedResult } from "@core/ability/processing";
 import { chcFromDomains } from "@core/ability/chc";
+import { useI18n, LanguageSwitcher } from "./i18n";
 import {
   completedInstrumentIds,
   createProfile,
@@ -53,6 +54,7 @@ const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavio
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
 
 export default function App() {
+  const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
@@ -371,10 +373,11 @@ export default function App() {
               <span className="name">Psyche <b>Atlas</b></span>
             </div>
             <nav className="navlinks">
-              <button className={view === "home" || view === "intro" ? "active" : ""} onClick={goHome}>Assessments</button>
-              {hasHistory && <button className={view === "integrated" ? "active" : ""} onClick={goIntegrated}>Integrated</button>}
-              {hasHistory && <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>Journey</button>}
-              <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>Compatibility</button>
+              <button className={view === "home" || view === "intro" ? "active" : ""} onClick={goHome}>{t("nav.assessments")}</button>
+              {hasHistory && <button className={view === "integrated" ? "active" : ""} onClick={goIntegrated}>{t("nav.integrated")}</button>}
+              {hasHistory && <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>{t("nav.journey")}</button>}
+              <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>{t("nav.compatibility")}</button>
+              <LanguageSwitcher />
             </nav>
           </div>
         </header>
