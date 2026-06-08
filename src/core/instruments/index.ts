@@ -24,6 +24,10 @@ import { derailers } from "./derailers";
 import { eq } from "./eq";
 import { chronotype } from "./chronotype";
 import { perma } from "./perma";
+import { mood } from "./mood";
+import { worry } from "./worry";
+import { vark } from "./vark";
+import { kolb } from "./kolb";
 import { adhd } from "./adhd";
 import { autism } from "./autism";
 import { darkTriad } from "./darktriad";
@@ -57,6 +61,10 @@ export const INSTRUMENTS: Instrument[] = [
   eq,
   chronotype,
   perma,
+  mood,
+  worry,
+  vark,
+  kolb,
   adhd,
   autism,
   darkTriad,
@@ -101,6 +109,10 @@ export {
   eq,
   chronotype,
   perma,
+  mood,
+  worry,
+  vark,
+  kolb,
   adhd,
   autism,
   darkTriad,

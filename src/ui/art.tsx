@@ -200,6 +200,15 @@ const EMBLEMS: Record<string, EmblemFn> = {
       <Sparkle x={39} y={12} r={2} />
     </>
   ),
+  // Learning & Thinking — an open book with a spark of insight.
+  learning: () => (
+    <>
+      <path d="M24,15 C20,12 13,12 8,14 L8,35 C13,33 20,33 24,36 Z" />
+      <path d="M24,15 C28,12 35,12 40,14 L40,35 C35,33 28,33 24,36 Z" />
+      <line x1="24" y1="15" x2="24" y2="36" />
+      <Sparkle x={24} y={9} r={2.1} />
+    </>
+  ),
 };
 
 export function CategoryEmblem({ id, className = "" }: { id: string; className?: string }) {
@@ -524,6 +533,47 @@ Object.assign(GLYPHS, {
         return <circle key={d} cx={24 + 10 * Math.cos(a)} cy={24 + 10 * Math.sin(a)} r="5" />;
       })}
       <circle className="gold gold-fill" cx="24" cy="24" r="3.4" />
+    </>
+  ),
+  // VARK — four input channels converging.
+  "vark-learning": () => (
+    <>
+      <path d="M24,9 L24,18 M21,15 L24,18 L27,15" />
+      <path d="M39,24 L30,24 M33,21 L30,24 L33,27" />
+      <path d="M24,39 L24,30 M21,33 L24,30 L27,33" />
+      <path d="M9,24 L18,24 M15,21 L18,24 L15,27" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="3" />
+    </>
+  ),
+  // Kolb — the experiential learning cycle.
+  "kolb-learning": () => (
+    <>
+      <circle cx="24" cy="24" r="15" />
+      <polygon className="gold gold-fill" points="21,4 30,9 21,14" />
+      <circle cx="39" cy="24" r="2" />
+      <circle cx="24" cy="39" r="2" />
+      <circle cx="9" cy="24" r="2" />
+    </>
+  ),
+  // Mood Check-in — a rising dawn.
+  "mood-checkin": () => (
+    <>
+      <line x1="8" y1="32" x2="40" y2="32" />
+      <path className="gold" d="M15,32 A9,9 0 0 1 33,32" />
+      <g className="gold">
+        <line x1="24" y1="14" x2="24" y2="10" />
+        <line x1="13" y1="19" x2="10" y2="16" />
+        <line x1="35" y1="19" x2="38" y2="16" />
+      </g>
+    </>
+  ),
+  // Worry Check-in — calm, settling ripples.
+  "worry-checkin": () => (
+    <>
+      <circle className="ink-faint" cx="24" cy="24" r="17" />
+      <circle className="ink-soft" cx="24" cy="24" r="11" />
+      <circle cx="24" cy="24" r="5.5" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2.4" />
     </>
   ),
 });

@@ -48,6 +48,12 @@ export const CATEGORIES: Category[] = [
     icon: "🫀",
   },
   {
+    id: "learning",
+    name: "Learning & Thinking",
+    blurb: "How you take in, process, and act on information — popular models, held to honest scientific scrutiny.",
+    icon: "📖",
+  },
+  {
     id: "mind",
     name: "Mind & Neurodivergence",
     blurb: "Educational self-screens for how your brain is wired. Insight, never a diagnosis.",
