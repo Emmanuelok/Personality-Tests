@@ -3,11 +3,14 @@ import { bigFive } from "./bigfive";
 import { hexaco } from "./hexaco";
 import { eysenck } from "./eysenck";
 import { sixteenPf } from "./sixteenpf";
+import { bigFiveAspects } from "./bigfiveaspects";
 import { jungTypes } from "./jung";
 import { keirsey } from "./keirsey";
 import { enneagram } from "./enneagram";
 import { disc } from "./disc";
 import { temperaments } from "./fourtemperaments";
+import { colorStyles } from "./colorstyles";
+import { socionics } from "./socionics";
 import { attachment } from "./attachment";
 import { loveLanguages } from "./lovelanguages";
 import { conflictStyle } from "./conflictstyle";
@@ -15,9 +18,12 @@ import { via } from "./via";
 import { values } from "./values";
 import { grit } from "./grit";
 import { moralFoundations } from "./moralfoundations";
+import { rokeach } from "./rokeach";
 import { riasec } from "./riasec";
+import { derailers } from "./derailers";
 import { eq } from "./eq";
 import { chronotype } from "./chronotype";
+import { perma } from "./perma";
 import { adhd } from "./adhd";
 import { autism } from "./autism";
 import { darkTriad } from "./darktriad";
@@ -30,11 +36,14 @@ export const INSTRUMENTS: Instrument[] = [
   hexaco,
   eysenck,
   sixteenPf,
+  bigFiveAspects,
   jungTypes,
   keirsey,
   enneagram,
   disc,
   temperaments,
+  colorStyles,
+  socionics,
   attachment,
   loveLanguages,
   conflictStyle,
@@ -42,9 +51,12 @@ export const INSTRUMENTS: Instrument[] = [
   values,
   grit,
   moralFoundations,
+  rokeach,
   riasec,
+  derailers,
   eq,
   chronotype,
+  perma,
   adhd,
   autism,
   darkTriad,
@@ -68,11 +80,14 @@ export {
   hexaco,
   eysenck,
   sixteenPf,
+  bigFiveAspects,
   jungTypes,
   keirsey,
   enneagram,
   disc,
   temperaments,
+  colorStyles,
+  socionics,
   attachment,
   loveLanguages,
   conflictStyle,
@@ -80,9 +95,12 @@ export {
   values,
   grit,
   moralFoundations,
+  rokeach,
   riasec,
+  derailers,
   eq,
   chronotype,
+  perma,
   adhd,
   autism,
   darkTriad,

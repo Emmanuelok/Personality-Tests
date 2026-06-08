@@ -467,6 +467,67 @@ Object.assign(GLYPHS, {
   ),
 });
 
+// --- glyphs for the depth / type / workplace / values / wellbeing wave ---
+Object.assign(GLYPHS, {
+  // Big Five Aspects — ten aspects as nested pentagons.
+  "big-five-aspects": () => (
+    <>
+      <polygon points="24,8 39.2,19.1 33.4,37 14.6,37 8.8,19.1" />
+      <polygon className="gold" points="28.7,17.5 31.6,26.5 24,32 16.4,26.5 19.3,17.5" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2.4" />
+    </>
+  ),
+  // Four Color Styles — four distinct shapes for four styles.
+  "color-styles": () => (
+    <>
+      <rect x="10" y="10" width="12" height="12" rx="2.5" />
+      <circle cx="32" cy="16" r="6" />
+      <polygon points="16,28 10,38 22,38" />
+      <polygon className="gold gold-fill" points="32,26 38,32 32,38 26,32" />
+    </>
+  ),
+  // Socionics — an eight-function ring.
+  "socionics-16": () => (
+    <>
+      <circle cx="24" cy="24" r="17" />
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((d) => {
+        const a = (d * Math.PI) / 180;
+        return <circle key={d} cx={24 + 12 * Math.cos(a)} cy={24 + 12 * Math.sin(a)} r="1.7" />;
+      })}
+      <circle className="gold gold-fill" cx="24" cy="24" r="3" />
+    </>
+  ),
+  // Career Derailers — a climb that overshoots and crashes.
+  "career-derailers": () => (
+    <>
+      <polyline points="8,32 16,18 24,26 31,11" />
+      <path className="gold" d="M31,11 L40,40" />
+      <circle className="gold gold-fill" cx="31" cy="11" r="2.4" />
+    </>
+  ),
+  // Rokeach Values — a ladder of priorities.
+  "rokeach-values": () => (
+    <>
+      <line x1="17" y1="8" x2="17" y2="42" />
+      <line x1="31" y1="8" x2="31" y2="42" />
+      <line className="gold" x1="17" y1="14" x2="31" y2="14" />
+      <line x1="17" y1="22" x2="31" y2="22" />
+      <line x1="17" y1="30" x2="31" y2="30" />
+      <line x1="17" y1="38" x2="31" y2="38" />
+    </>
+  ),
+  // PERMA Flourishing — a five-petal blossom.
+  "perma-flourishing": () => (
+    <>
+      {[-90, -18, 54, 126, 198].map((d) => {
+        const a = (d * Math.PI) / 180;
+        return <circle key={d} cx={24 + 10 * Math.cos(a)} cy={24 + 10 * Math.sin(a)} r="5" />;
+      })}
+      <circle className="gold gold-fill" cx="24" cy="24" r="3.4" />
+    </>
+  ),
+});
+
 export function InstrumentGlyph({
   id,
   category,
