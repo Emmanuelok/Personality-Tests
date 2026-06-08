@@ -29,14 +29,14 @@ export function BriefResult({
   const top = [...report.traits].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50)).slice(0, 3);
 
   return (
-    <div className="container">
+    <div className="container view-enter">
       <div className="report-head">
-        <div className="supertitle">{instrument.name} · Your Free Snapshot</div>
+        <div className="supertitle">{instrument.name} · Free snapshot</div>
         <h1>{report.title}</h1>
         <div className="subtitle">{report.subtitle}</div>
       </div>
 
-      <div className="report-grid">
+      <div className="report-grid stagger">
         <section className="panel">
           {report.type && (
             <div className="type-card" style={{ marginBottom: 18 }}>

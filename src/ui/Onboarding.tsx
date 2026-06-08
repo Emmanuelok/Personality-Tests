@@ -26,8 +26,7 @@ export function Onboarding({ onDone }: { onDone: (name: string, focus: string[])
           Let's make this <span className="grad">about you</span>.
         </h1>
         <p className="sub">
-          Your reports will speak to you by name, remember your journey, and grow more personal and more
-          intelligent with every assessment you take. First — what should we call you?
+          Reports that speak to you by name. A space that remembers your journey. First — what should we call you?
         </p>
         <input
           className="name-input"

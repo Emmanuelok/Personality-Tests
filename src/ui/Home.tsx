@@ -13,9 +13,8 @@ export function Home({ onStart, onCompatibility }: { onStart: (instrument: Instr
           <br /> Then choose who you become.
         </h1>
         <p className="lead">
-          Take rigorously-grounded personality assessments and receive a report composed uniquely for
-          you — from every answer you give, not just your final type. Then turn the same data toward
-          growth, with an evidence-based plan from where you are to where you want to be.
+          {INSTRUMENTS.length} science-backed assessments. One report that's <b>uniquely yours</b> — then a plan
+          to actually grow.
         </p>
         <div className="pillars">
           <span className="pill">📚 Built on <b>original, authoritative</b> research</span>
@@ -80,29 +79,16 @@ export function Home({ onStart, onCompatibility }: { onStart: (instrument: Instr
       <h2 className="section-title">How it works</h2>
       <div className="panel">
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-          <Step n="01" title="Answer honestly">
-            Each instrument uses items drawn from, or grounded in, the original scientific literature — no
-            pop-quiz filler.
-          </Step>
-          <Step n="02" title="Get a one-of-a-kind report">
-            Your report is composed from your full response pattern and a unique generation seed, so it is
-            literally never the same twice — even for two people of the same type.
-          </Step>
-          <Step n="03" title="See yourself clearly">
-            Continuous scores, percentiles, trait interplay, strengths, blind spots, and the specific answers
-            that make your profile yours.
-          </Step>
-          <Step n="04" title="Plan your growth">
-            Set where you want to be on each trait and receive an evidence-based development plan — because
-            personality is changeable with deliberate practice.
-          </Step>
+          <Step n="01" title="Answer honestly">Real science — no pop-quiz filler.</Step>
+          <Step n="02" title="One-of-a-kind report">Never the same twice — even for your exact type.</Step>
+          <Step n="03" title="See yourself clearly">Scores, strengths, blind spots — the real you.</Step>
+          <Step n="04" title="Actually grow">An evidence-based plan to change, on purpose.</Step>
         </div>
       </div>
 
       <p className="note" style={{ marginTop: 24 }}>
-        <b>An honest note.</b> These assessments are tools for self-understanding and growth, not clinical
-        diagnoses. Traits describe tendencies, not destiny. Percentiles are estimates from community norms.
-        Use the insight as a mirror and a map — never a verdict.
+        <b>An honest note.</b> These are tools for insight and growth, not clinical diagnoses — a mirror and a
+        map, never a verdict.
       </p>
 
       <div className="footer">

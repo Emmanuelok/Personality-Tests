@@ -51,7 +51,7 @@ export function Report({
   };
 
   return (
-    <div className="container" style={{ ["--accent"]: `hsl(${hue} 85% 72%)` } as unknown as CSSProperties}>
+    <div className="container view-enter" style={{ ["--accent"]: `hsl(${hue} 85% 72%)` } as unknown as CSSProperties}>
       <div className="report-head">
         <div className="supertitle">{instrument.name} · Personal Report</div>
         <h1>{report.title}</h1>
@@ -79,7 +79,7 @@ export function Report({
         <button className="btn ghost" onClick={onRestart}>↩ Take another</button>
       </div>
 
-      <div className="report-grid">
+      <div className="report-grid stagger">
         {/* Overview */}
         <section className="panel">
           {report.overview.map((p, i) => (

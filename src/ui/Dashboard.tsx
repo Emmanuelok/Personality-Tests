@@ -129,7 +129,7 @@ export function Dashboard({
             <div className="eyebrow2" style={{ color: "var(--accent-2)", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>The whole you</div>
             <h3 style={{ margin: "8px 0 6px", fontFamily: "var(--serif)", fontSize: 22 }}>Your Integrated Self</h3>
             <p style={{ color: "var(--text-dim)", margin: "0 0 6px", fontSize: 14 }}>
-              One portrait woven from <b>every</b> test you take — the themes, strengths, tensions, and your personal operating manual.
+              One portrait woven from <b>every</b> test you take.
             </p>
             <div className="depth-meter"><i style={{ width: `${depth}%` }} /></div>
             <div style={{ fontSize: 12.5, color: "var(--text-faint)", marginBottom: 10 }}>
