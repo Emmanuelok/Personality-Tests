@@ -669,6 +669,61 @@ Object.assign(GLYPHS, {
   ),
 });
 
+// --- glyphs for the validated multi-trait / motivation wave ---
+Object.assign(GLYPHS, {
+  // TCI — a double helix (nature and nurture).
+  "tci-cloninger": () => (
+    <>
+      <path d="M17,8 C31,15 31,17 17,24 C31,31 31,33 17,40" />
+      <path d="M31,8 C17,15 17,17 31,24 C17,31 17,33 31,40" />
+      <line x1="20.5" y1="12" x2="27.5" y2="12" />
+      <line className="gold" x1="20" y1="24" x2="28" y2="24" />
+      <line x1="20.5" y1="36" x2="27.5" y2="36" />
+    </>
+  ),
+  // ZKPQ — the Alternative Five as five rays.
+  "zkpq-alt5": () => (
+    <>
+      {[-90, -18, 54, 126, 198].map((d) => {
+        const a = (d * Math.PI) / 180;
+        return <line key={d} x1="24" y1="24" x2={24 + 16 * Math.cos(a)} y2={24 + 16 * Math.sin(a)} />;
+      })}
+      <circle className="gold gold-fill" cx="24" cy="24" r="3" />
+    </>
+  ),
+  // Career Anchors — a briefcase.
+  "career-anchors": () => (
+    <>
+      <rect x="8" y="16" width="32" height="22" rx="3" />
+      <path d="M18,16 L18,12 C18,11 19,10 20,10 L28,10 C29,10 30,11 30,12 L30,16" />
+      <line className="gold" x1="8" y1="25" x2="40" y2="25" />
+      <rect className="gold gold-fill" x="21" y="23" width="6" height="4" rx="1" />
+    </>
+  ),
+  // Leadership — a vision pennant rallying the group.
+  "leadership-styles": () => (
+    <>
+      <line x1="14" y1="8" x2="14" y2="40" />
+      <path className="gold gold-fill" d="M14,9 L34,15 L14,21 Z" />
+      <circle className="gold gold-fill" cx="14" cy="8" r="2" />
+      <circle cx="8" cy="40" r="2" />
+      <circle cx="14" cy="40" r="2" />
+      <circle cx="20" cy="40" r="2" />
+    </>
+  ),
+  // McClelland — three motives.
+  "mcclelland-needs": () => (
+    <>
+      <path d="M24,9 L37,33 L11,33 Z" />
+      <circle className="gold gold-fill" cx="24" cy="9" r="3" />
+      <circle className="paper-fill" cx="37" cy="33" r="3" />
+      <circle cx="37" cy="33" r="3" />
+      <circle className="paper-fill" cx="11" cy="33" r="3" />
+      <circle cx="11" cy="33" r="3" />
+    </>
+  ),
+});
+
 export function InstrumentGlyph({
   id,
   category,

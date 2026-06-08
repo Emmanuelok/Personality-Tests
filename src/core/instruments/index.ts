@@ -4,6 +4,11 @@ import { hexaco } from "./hexaco";
 import { eysenck } from "./eysenck";
 import { sixteenPf } from "./sixteenpf";
 import { bigFiveAspects } from "./bigfiveaspects";
+import { tci } from "./tci";
+import { zkpq } from "./zkpq";
+import { anchors } from "./anchors";
+import { leadership } from "./leadership";
+import { mcclelland } from "./mcclelland";
 import { jungTypes } from "./jung";
 import { keirsey } from "./keirsey";
 import { enneagram } from "./enneagram";
@@ -50,6 +55,8 @@ export const INSTRUMENTS: Instrument[] = [
   eysenck,
   sixteenPf,
   bigFiveAspects,
+  tci,
+  zkpq,
   jungTypes,
   keirsey,
   enneagram,
@@ -65,8 +72,11 @@ export const INSTRUMENTS: Instrument[] = [
   grit,
   moralFoundations,
   rokeach,
+  mcclelland,
   riasec,
   derailers,
+  anchors,
+  leadership,
   eq,
   chronotype,
   perma,
@@ -107,6 +117,8 @@ export {
   eysenck,
   sixteenPf,
   bigFiveAspects,
+  tci,
+  zkpq,
   jungTypes,
   keirsey,
   enneagram,
@@ -122,8 +134,11 @@ export {
   grit,
   moralFoundations,
   rokeach,
+  mcclelland,
   riasec,
   derailers,
+  anchors,
+  leadership,
   eq,
   chronotype,
   perma,
