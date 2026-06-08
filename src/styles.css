@@ -586,6 +586,21 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
   padding: 0.02em 0.14em 0 0; color: var(--gold);
 }
 
+/* ---- Trait mini-icons (one little mark per scale row) ---- */
+.trait-icon {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; flex: none;
+  margin-right: 9px; vertical-align: -7px; border-radius: 50%;
+  color: var(--gold); background: var(--bg); border: 1px solid var(--border-soft);
+}
+.trait-icon svg { width: 15px; height: 15px; }
+.trait .thead h4 { display: inline-flex; align-items: center; }
+
+/* ---- Faint celestial backdrop behind the landing ---- */
+.page-backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; color: var(--text); opacity: 0.06; }
+.page-backdrop svg { width: 100%; height: 100%; }
+.page-backdrop .bd-contour { fill: none; }
+.page-backdrop .gold, .page-backdrop .gold-fill { color: var(--gold); }
+
 /* ---- Ornamental flourish divider ---- */
 .flourish { display: flex; align-items: center; gap: 16px; justify-content: center; margin: 40px auto; max-width: 520px; color: var(--text-faint); }
 .flourish .fl-line { height: 1px; flex: 1; background: linear-gradient(90deg, transparent, var(--border), transparent); }
@@ -644,4 +659,5 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
   .lead-para, .sec p, .trait .narr, .sw ul, .area .rationale { color: #222; }
   .hero-art, .card-watermark { animation: none; }
   .report-seal { box-shadow: none; }
+  .page-backdrop { display: none !important; }
 }

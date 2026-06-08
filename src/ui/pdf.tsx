@@ -1,30 +1,75 @@
-import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Svg, G, Circle, Line, Polygon, pdf } from "@react-pdf/renderer";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildGrowthPlan, suggestTargets, type GrowthPlan } from "@core/improvement/plan";
 
 const C = {
-  ink: "#14162b",
-  body: "#2b2f4a",
-  sub: "#5b6080",
-  faint: "#8a90b0",
-  accent: "#6a5cff",
-  accent2: "#13b3a3",
-  line: "#e6e7f2",
-  band: "#1b1e3a",
-  chip: "#f1f1fb",
+  ink: "#2b2418",
+  body: "#3a3120",
+  sub: "#6c5d44",
+  faint: "#8a7a5e",
+  accent: "#9a7b2e",   // gold
+  accent2: "#27776f",  // teal
+  line: "#d9c9a6",
+  band: "#efe4cb",     // light parchment header panel
+  chip: "#f1e7cf",
+  paper: "#f3ead6",
+  card: "#fbf6ea",
 };
 
+/** A celestial astrolabe seal, drawn natively with react-pdf SVG primitives. */
+function CoverSeal({ size = 132 }: { size?: number }) {
+  const c = 60;
+  const ticks = Array.from({ length: 36 }, (_, i) => {
+    const a = (i / 36) * Math.PI * 2 - Math.PI / 2;
+    const long = i % 3 === 0;
+    const r2 = long ? 47 : 50;
+    return {
+      x1: c + 54 * Math.cos(a), y1: c + 54 * Math.sin(a),
+      x2: c + r2 * Math.cos(a), y2: c + r2 * Math.sin(a),
+      w: long ? 1.1 : 0.6,
+    };
+  });
+  const rays = Array.from({ length: 16 }, (_, i) => {
+    const a = (i / 16) * Math.PI * 2;
+    return { x1: c + 15 * Math.cos(a), y1: c + 15 * Math.sin(a), x2: c + (i % 2 ? 23 : 20) * Math.cos(a), y2: c + (i % 2 ? 23 : 20) * Math.sin(a) };
+  });
+  const star = (x: number, y: number, r: number) =>
+    `${x},${y - r} ${x + r * 0.32},${y - r * 0.32} ${x + r},${y} ${x + r * 0.32},${y + r * 0.32} ${x},${y + r} ${x - r * 0.32},${y + r * 0.32} ${x - r},${y} ${x - r * 0.32},${y - r * 0.32}`;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 120 120">
+      <Circle cx={c} cy={c} r={56} stroke={C.accent} strokeWidth={1.2} fill="none" />
+      <Circle cx={c} cy={c} r={44} stroke={C.line} strokeWidth={1} fill="none" />
+      {ticks.map((t, i) => (
+        <Line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={C.ink} strokeWidth={t.w} />
+      ))}
+      <G>
+        {rays.map((r, i) => (
+          <Line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} stroke={C.accent} strokeWidth={1.1} />
+        ))}
+      </G>
+      <Polygon points="60,28 64,60 60,64 56,60" fill={C.accent} />
+      <Polygon points="60,92 64,60 60,56 56,60" fill={C.sub} />
+      <Circle cx={c} cy={c} r={13} fill={C.card} stroke={C.ink} strokeWidth={1.2} />
+      <Circle cx={c} cy={c} r={4} fill={C.accent} />
+      <Polygon points={star(60, 4, 4)} fill={C.accent} />
+      <Polygon points={star(60, 116, 3)} fill={C.accent} />
+      <Polygon points={star(4, 60, 3)} fill={C.accent} />
+      <Polygon points={star(116, 60, 3)} fill={C.accent} />
+    </Svg>
+  );
+}
+
 const s = StyleSheet.create({
-  page: { paddingTop: 54, paddingBottom: 64, paddingHorizontal: 52, fontFamily: "Helvetica", fontSize: 10.5, color: C.body, lineHeight: 1.5 },
-  cover: { paddingTop: 0, paddingBottom: 0, paddingHorizontal: 0, fontFamily: "Helvetica", color: C.body },
-  band: { backgroundColor: C.band, color: "#fff", paddingTop: 84, paddingBottom: 54, paddingHorizontal: 52 },
-  brand: { fontSize: 11, letterSpacing: 3, color: "#9fa6d8", fontFamily: "Helvetica-Bold" },
-  coverTitle: { fontFamily: "Times-Bold", fontSize: 40, color: "#ffffff", marginTop: 18, lineHeight: 1.05 },
-  coverSub: { fontSize: 13, color: "#c7cbf0", marginTop: 10 },
-  coverMeta: { fontSize: 9.5, color: "#8e95cf", marginTop: 22 },
-  coverBody: { paddingHorizontal: 52, paddingTop: 30 },
-  accentRule: { height: 4, width: 64, backgroundColor: C.accent2, marginTop: 22, borderRadius: 2 },
+  page: { paddingTop: 54, paddingBottom: 64, paddingHorizontal: 52, fontFamily: "Helvetica", fontSize: 10.5, color: C.body, lineHeight: 1.5, backgroundColor: C.paper },
+  cover: { paddingTop: 0, paddingBottom: 0, paddingHorizontal: 0, fontFamily: "Helvetica", color: C.body, backgroundColor: C.paper },
+  band: { alignItems: "center", paddingTop: 64, paddingBottom: 26, paddingHorizontal: 52 },
+  brand: { fontSize: 11, letterSpacing: 3, color: C.accent, fontFamily: "Helvetica-Bold" },
+  coverTitle: { fontFamily: "Times-Bold", fontSize: 38, color: C.ink, marginTop: 16, lineHeight: 1.05, textAlign: "center" },
+  coverSub: { fontSize: 13, color: C.sub, marginTop: 10, textAlign: "center" },
+  coverMeta: { fontSize: 9.5, color: C.faint, marginTop: 18, textAlign: "center" },
+  coverBody: { paddingHorizontal: 60, paddingTop: 22 },
+  accentRule: { height: 3, width: 70, backgroundColor: C.accent, marginTop: 20, borderRadius: 2 },
 
   h2: { fontFamily: "Times-Bold", fontSize: 17, color: C.ink, marginTop: 18, marginBottom: 7 },
   h3: { fontFamily: "Helvetica-Bold", fontSize: 11.5, color: C.ink, marginTop: 11, marginBottom: 3 },
@@ -109,7 +154,8 @@ function ReportDoc({
       {/* Cover */}
       <Page size="A4" style={s.cover}>
         <View style={s.band}>
-          <Text style={s.brand}>PSYCHE ATLAS</Text>
+          <CoverSeal size={128} />
+          <Text style={[s.brand, { marginTop: 16 }]}>PSYCHE ATLAS</Text>
           <Text style={s.coverTitle}>{report.title}</Text>
           <Text style={s.coverSub}>{report.subtitle}</Text>
           <View style={s.accentRule} />
@@ -254,26 +300,30 @@ function PosterDoc({ instrument, report }: { instrument: Instrument; report: Per
   return (
     <Document title={`Psyche Atlas — ${report.title} (poster)`}>
       <Page size="A3" style={s.posterWrap}>
-        <View style={{ backgroundColor: C.band, flex: 1, padding: 64, justifyContent: "space-between" }}>
-          <View>
-            <Text style={[s.brand, { fontSize: 14 }]}>PSYCHE ATLAS</Text>
-            <Text style={{ fontFamily: "Times-Bold", fontSize: 64, color: "#fff", marginTop: 24, lineHeight: 1.04 }}>{report.title}</Text>
-            <Text style={{ fontSize: 18, color: "#c7cbf0", marginTop: 12 }}>{report.subtitle}</Text>
+        <View style={{ backgroundColor: C.paper, flex: 1, padding: 64, justifyContent: "space-between" }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <View style={{ flex: 1, paddingRight: 24 }}>
+              <Text style={[s.brand, { fontSize: 14 }]}>PSYCHE ATLAS</Text>
+              <Text style={{ fontFamily: "Times-Bold", fontSize: 62, color: C.ink, marginTop: 22, lineHeight: 1.04 }}>{report.title}</Text>
+              <Text style={{ fontSize: 18, color: C.sub, marginTop: 12 }}>{report.subtitle}</Text>
+              <View style={{ height: 3, width: 90, backgroundColor: C.accent, marginTop: 20, borderRadius: 2 }} />
+            </View>
+            <CoverSeal size={150} />
           </View>
           <View>
             {report.traits.map((t) => (
               <View key={t.scaleId} style={{ marginBottom: 14 }}>
                 <View style={s.rowBetween}>
-                  <Text style={{ color: "#eef0ff", fontFamily: "Helvetica-Bold", fontSize: 13 }}>{t.name}</Text>
-                  <Text style={{ color: "#9fa6d8", fontSize: 11 }}>{Math.round(t.percentile)}th</Text>
+                  <Text style={{ color: C.ink, fontFamily: "Helvetica-Bold", fontSize: 13 }}>{t.name}</Text>
+                  <Text style={{ color: C.faint, fontSize: 11 }}>{Math.round(t.percentile)}th</Text>
                 </View>
-                <View style={{ height: 9, backgroundColor: "#2a2e55", borderRadius: 5, marginTop: 6 }}>
-                  <View style={{ height: 9, width: `${t.normalized}%`, backgroundColor: C.accent2, borderRadius: 5 }} />
+                <View style={{ height: 9, backgroundColor: C.chip, borderRadius: 5, marginTop: 6 }}>
+                  <View style={{ height: 9, width: `${t.normalized}%`, backgroundColor: C.accent, borderRadius: 5 }} />
                 </View>
               </View>
             ))}
           </View>
-          <Text style={{ color: "#8e95cf", fontSize: 10 }}>
+          <Text style={{ color: C.faint, fontSize: 10 }}>
             {instrument.name}{report.type ? ` · ${report.type.code}` : ""} · #{report.reportId}
           </Text>
         </View>
@@ -291,13 +341,23 @@ function triggerDownload(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function downloadReportPdf(instrument: Instrument, result: AssessmentResult, report: PersonalityReport) {
+/** Build the designed report document element (exposed for rendering/tests). */
+export function makeReportDoc(instrument: Instrument, result: AssessmentResult, report: PersonalityReport) {
   const plan = buildGrowthPlan(instrument, result, suggestTargets(instrument, result), { seed: 101 });
-  const blob = await pdf(<ReportDoc instrument={instrument} report={report} plan={plan} />).toBlob();
+  return <ReportDoc instrument={instrument} report={report} plan={plan} />;
+}
+
+/** Build the poster document element (exposed for rendering/tests). */
+export function makePosterDoc(instrument: Instrument, report: PersonalityReport) {
+  return <PosterDoc instrument={instrument} report={report} />;
+}
+
+export async function downloadReportPdf(instrument: Instrument, result: AssessmentResult, report: PersonalityReport) {
+  const blob = await pdf(makeReportDoc(instrument, result, report)).toBlob();
   triggerDownload(blob, `psyche-atlas-${report.reportId}.pdf`);
 }
 
 export async function downloadPosterPdf(instrument: Instrument, _result: AssessmentResult, report: PersonalityReport) {
-  const blob = await pdf(<PosterDoc instrument={instrument} report={report} />).toBlob();
+  const blob = await pdf(makePosterDoc(instrument, report)).toBlob();
   triggerDownload(blob, `psyche-atlas-poster-${report.reportId}.pdf`);
 }

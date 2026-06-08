@@ -416,6 +416,57 @@ const GLYPHS: Record<string, EmblemFn> = {
   ),
 };
 
+// --- additional glyphs for the second wave of instruments ---
+Object.assign(GLYPHS, {
+  // Eysenck PEN — three dimensions as ascending bars.
+  "eysenck-pen": () => (
+    <>
+      <line x1="13" y1="34" x2="13" y2="26" />
+      <line x1="24" y1="34" x2="24" y2="18" />
+      <line className="gold" x1="35" y1="34" x2="35" y2="22" />
+      <line x1="8" y1="34" x2="40" y2="34" />
+      <circle className="gold gold-fill" cx="24" cy="18" r="2.4" />
+      <circle cx="13" cy="26" r="2" />
+      <circle cx="35" cy="22" r="2" />
+    </>
+  ),
+  // 16PF — sixteen primary factors as a 4×4 lattice.
+  "sixteen-pf": () => (
+    <>
+      {[12, 20, 28, 36].map((y) =>
+        [12, 20, 28, 36].map((x) => (
+          <circle key={`${x}-${y}`} cx={x} cy={y} r="2"
+            className={x === 28 && y === 20 ? "gold gold-fill" : undefined} />
+        )),
+      )}
+    </>
+  ),
+  // Keirsey temperaments — a four-lobed quatrefoil.
+  "keirsey-temperaments": () => (
+    <>
+      <path d="M24,24 C24,16 16,16 16,21 C12,18 8,24 14,26 C8,28 12,34 16,31 C16,36 24,34 24,24 Z" />
+      <path d="M24,24 C24,16 32,16 32,21 C36,18 40,24 34,26 C40,28 36,34 32,31 C32,36 24,34 24,24 Z" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2.6" />
+    </>
+  ),
+  // Dark Tetrad — four interlocked rings.
+  "dark-tetrad-18": () => (
+    <>
+      <circle cx="18" cy="18" r="8.5" />
+      <circle cx="30" cy="18" r="8.5" />
+      <circle cx="18" cy="30" r="8.5" />
+      <circle className="gold" cx="30" cy="30" r="8.5" />
+    </>
+  ),
+  // PID-5 — five maladaptive domains, a pentagon with a fault line.
+  "pid5-maladaptive": () => (
+    <>
+      <polygon points="24,8 38,18.5 32.5,35 15.5,35 10,18.5" />
+      <path className="gold" d="M16,13 L26,24 L21,29 L33,33" />
+    </>
+  ),
+});
+
 export function InstrumentGlyph({
   id,
   category,
@@ -523,5 +574,75 @@ export function Asterism({ className = "" }: { className?: string }) {
       <path className="gold gold-fill"
         d="M12,1 C12.7,7 17,11.3 23,12 C17,12.7 12.7,17 12,23 C11.3,17 7,12.7 1,12 C7,11.3 11.3,7 12,1 Z" />
     </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Trait mini-icons — a small editorial mark beside each scale row.    */
+/* ------------------------------------------------------------------ */
+
+const TRAIT_MARKS: EmblemFn[] = [
+  () => (<><circle cx="12" cy="12" r="8" /><circle className="gold gold-fill" cx="12" cy="12" r="2.6" /></>),
+  () => (<path className="gold gold-fill" d="M12,3 C15,8 17,10 17,14 A5,5 0 0 1 7,14 C7,11 9,10 10,7 C11,9 12,9 12,11 C13.5,10 13,6 12,3 Z" />),
+  () => (<path d="M12,3 C16,10 17,13 17,16 A5,5 0 0 1 7,16 C7,13 8,10 12,3 Z" />),
+  () => (<path d="M12,19 C5,15 6,7 12,6 C12,11 18,11 17,16 C16,19 14,19.5 12,19 Z" />),
+  () => (<path d="M3,19 L10,7 L14,14 L17,9 L21,19 Z" />),
+  () => (<path className="gold" d="M3,14 Q7,9 11,14 T19,14" />),
+  () => (<path className="gold gold-fill" d="M12,2 C12.6,8 16,11.4 22,12 C16,12.6 12.6,16 12,22 C11.4,16 8,12.6 2,12 C8,11.4 11.4,8 12,2 Z" />),
+  () => (<><polygon points="12,3 19,12 12,21 5,12" /><line x1="12" y1="3" x2="12" y2="21" /></>),
+  () => (<path d="M16,12 A4,4 0 1 1 12,8 A6,6 0 1 1 18,14" />),
+  () => (<><line x1="12" y1="20" x2="12" y2="5" /><path d="M6,11 L12,5 L18,11" /></>),
+  () => (<path className="gold gold-fill" d="M19,13 A8,8 0 1 1 19,5 A6,6 0 1 0 19,13 Z" />),
+  () => (<polygon className="gold gold-fill" points="13,3 6,13 11,13 9,21 18,10 12,10" />),
+];
+
+function pickMark(seed: string): number {
+  let h = 5381;
+  for (let i = 0; i < seed.length; i++) h = ((h << 5) + h + seed.charCodeAt(i)) >>> 0;
+  return h % TRAIT_MARKS.length;
+}
+
+/** A deterministic little symbol for a scale, stable across renders. */
+export function TraitIcon({ seed, className = "" }: { seed: string; className?: string }) {
+  const draw = TRAIT_MARKS[pickMark(seed)];
+  return (
+    <span className={`trait-icon ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+           strokeLinejoin="round" strokeLinecap="round">
+        {draw()}
+      </svg>
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hero backdrop — a faint celestial contour map behind the landing.   */
+/* ------------------------------------------------------------------ */
+
+export function HeroBackdrop() {
+  const rings = [60, 130, 200, 270, 340, 410];
+  const stars = [
+    [180, 120, 2.4], [520, 90, 1.8], [880, 160, 2.6], [1120, 110, 1.6],
+    [120, 360, 1.8], [760, 300, 2], [1040, 380, 2.4], [300, 520, 1.6],
+    [620, 560, 2.2], [980, 600, 1.8], [200, 700, 2], [1160, 720, 2.4],
+  ] as const;
+  return (
+    <div className="page-backdrop" aria-hidden="true">
+      <svg viewBox="0 0 1280 820" preserveAspectRatio="xMidYMin slice" fill="none">
+        <g className="bd-contour" stroke="currentColor" strokeWidth="1">
+          {rings.map((r, i) => (
+            <ellipse key={i} cx="1050" cy="120" rx={r} ry={r * 0.74} />
+          ))}
+        </g>
+        <g className="bd-contour" stroke="currentColor" strokeWidth="1">
+          {rings.slice(0, 4).map((r, i) => (
+            <ellipse key={i} cx="160" cy="760" rx={r * 0.8} ry={r * 0.6} />
+          ))}
+        </g>
+        {stars.map(([x, y, r], i) => (
+          <Sparkle key={i} x={x} y={y} r={r} />
+        ))}
+      </svg>
+    </div>
   );
 }

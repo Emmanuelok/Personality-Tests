@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { CATEGORIES } from "@core/categories";
-import { HeroArt, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
+import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
 export function Home({
   onStart,
@@ -15,6 +15,7 @@ export function Home({
 }) {
   return (
     <div className="container">
+      <HeroBackdrop />
       <section className="hero">
         <div className="hero-art-wrap" aria-hidden="true">
           <HeroArt />

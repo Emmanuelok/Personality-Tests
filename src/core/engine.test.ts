@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism } from "./instruments";
+import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism } from "./instruments";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight } from "./synthesis";
@@ -293,4 +293,46 @@ describe("growth planning", () => {
     const area = plan.areas.find((a) => a.scaleId === "C");
     expect(area?.direction).toBe("maintain");
   });
+});
+
+describe("every catalog instrument is structurally sound", () => {
+  for (const inst of INSTRUMENTS) {
+    it(`${inst.id}: keys, scores, resolves, and composes`, () => {
+      // unique item ids
+      const ids = new Set(inst.items.map((i) => i.id));
+      expect(ids.size).toBe(inst.items.length);
+      // every item loads on a defined scale; every scale has ≥2 items
+      const scaleIds = new Set(inst.scales.map((s) => s.id));
+      for (const it of inst.items) expect(scaleIds.has(it.scale)).toBe(true);
+      for (const s of inst.scales) {
+        expect(inst.items.filter((i) => i.scale === s.id).length).toBeGreaterThanOrEqual(2);
+      }
+
+      // scoring yields exactly one in-range score per scale
+      const res = scoreAssessment(inst, allHigh(inst));
+      expect(Object.keys(res.scales).length).toBe(inst.scales.length);
+      for (const s of Object.values(res.scales)) {
+        expect(s.normalized).toBeGreaterThanOrEqual(0);
+        expect(s.normalized).toBeLessThanOrEqual(100);
+        expect(s.percentile).toBeGreaterThanOrEqual(0);
+        expect(s.percentile).toBeLessThanOrEqual(100);
+      }
+
+      // typological instruments resolve a valid, well-formed type
+      if (inst.kind === "typological") {
+        expect(res.type).toBeTruthy();
+        expect(typeof res.type!.code).toBe("string");
+        expect(res.type!.code.length).toBeGreaterThan(0);
+        expect(res.type!.confidence).toBeGreaterThanOrEqual(0);
+        expect(res.type!.confidence).toBeLessThanOrEqual(1);
+        expect(res.type!.components.length).toBeGreaterThan(0);
+      }
+
+      // a report composes with at least one trait (large instruments show a subset)
+      const rep = composeReport(inst, res, { seed: 7 });
+      expect(rep.traits.length).toBeGreaterThan(0);
+      expect(rep.traits.length).toBeLessThanOrEqual(inst.scales.length);
+      expect(rep.overview.length).toBeGreaterThan(0);
+    });
+  }
 });

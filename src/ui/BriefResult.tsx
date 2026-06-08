@@ -2,7 +2,7 @@ import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart } from "./charts";
-import { InstrumentGlyph, Crest } from "./art";
+import { InstrumentGlyph, Crest, TraitIcon } from "./art";
 
 function shortLabel(name: string): string {
   if (name.includes("·")) return name.split("·")[1].trim();
@@ -63,7 +63,7 @@ export function BriefResult({
             {top.map((t) => (
               <div className="trait" key={t.scaleId} style={{ marginBottom: 10 }}>
                 <div className="thead">
-                  <h4>{t.name}</h4>
+                  <h4><TraitIcon seed={t.scaleId} />{t.name}</h4>
                   <span className="level">{t.level} · {Math.round(t.percentile)}th pct</span>
                 </div>
               </div>

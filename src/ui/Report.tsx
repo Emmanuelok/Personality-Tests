@@ -3,7 +3,7 @@ import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
 import { RadarChart, ScaleBar, Gauge } from "./charts";
-import { InstrumentGlyph, Crest, Flourish } from "./art";
+import { InstrumentGlyph, Crest, Flourish, TraitIcon } from "./art";
 import { ImprovementPlanner } from "./ImprovementPlanner";
 import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
@@ -141,7 +141,7 @@ export function Report({
             return (
               <div className="trait" key={t.scaleId}>
                 <div className="thead">
-                  <h4>{t.name}</h4>
+                  <h4><TraitIcon seed={t.scaleId} />{t.name}</h4>
                   <span className="level">{t.level} · {t.poleLabel}</span>
                 </div>
                 <ScaleBar value={t.normalized} leftLabel={sd?.poles?.low} rightLabel={sd?.poles?.high} />
