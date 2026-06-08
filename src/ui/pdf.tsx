@@ -1,6 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, Svg, G, Circle, Line, Polygon, pdf } from "@react-pdf/renderer";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
+import type { AbilityTest, AbilityResult } from "@core/ability";
 import { buildGrowthPlan, suggestTargets, type GrowthPlan } from "@core/improvement/plan";
 
 const C = {
@@ -330,6 +331,81 @@ function PosterDoc({ instrument, report }: { instrument: Instrument; report: Per
       </Page>
     </Document>
   );
+}
+
+function pctWord(p: number): string {
+  if (p >= 84) return "a relative strength";
+  if (p >= 60) return "above the typical range";
+  if (p >= 40) return "around the typical range";
+  if (p >= 16) return "below the typical range";
+  return "a relative growth area";
+}
+
+function CognitiveDoc({ test, result }: { test: AbilityTest; result: AbilityResult }) {
+  return (
+    <Document title={`Psyche Atlas — Cognitive Profile`} author="Psyche Atlas">
+      <Page size="A4" style={s.cover}>
+        <View style={s.band}>
+          <CoverSeal size={128} />
+          <Text style={[s.brand, { marginTop: 16 }]}>PSYCHE ATLAS</Text>
+          <Text style={s.coverTitle}>Cognitive Profile</Text>
+          <Text style={s.coverSub}>{test.name}</Text>
+          <View style={s.accentRule} />
+          <Text style={s.coverMeta}>
+            Estimated range {result.iqLow}–{result.iqHigh} · {result.band} · ~{Math.round(result.percentile)}th percentile · {result.correct}/{result.total} correct
+          </Text>
+        </View>
+        <View style={s.coverBody}>
+          <Text style={s.lead}>
+            On a scale where 100 is average and most people fall between 85 and 115, your answers place you in the
+            {" "}{result.band.toLowerCase()}. This is shown as a band, not a single number — a short self-administered
+            test cannot support that precision.
+          </Text>
+          <Text style={[s.small, { marginTop: 12 }]}>
+            This is an educational estimate, not a clinically administered IQ test. A valid assessment is given
+            one-to-one by a trained psychologist under standardized conditions. It measures particular reasoning
+            skills — not your worth, creativity, or potential.
+          </Text>
+        </View>
+        <Footer report={{ reportId: result.fingerprint } as unknown as PersonalityReport} />
+      </Page>
+
+      <Page size="A4" style={s.page}>
+        <Text style={s.h2}>Your profile across domains</Text>
+        {result.perDomain.map((d) => (
+          <View key={d.domain} style={{ marginBottom: 11 }}>
+            <View style={s.rowBetween}>
+              <Text style={{ fontFamily: "Helvetica-Bold", color: C.ink }}>{d.name}</Text>
+              <Text style={s.small}>{d.correct}/{d.total} · {Math.round(d.percentile)}th pct</Text>
+            </View>
+            <Bar value={d.percentile} />
+            <Text style={[s.small, { marginTop: 3 }]}>This domain is {pctWord(d.percentile)} for you.</Text>
+          </View>
+        ))}
+
+        <Text style={s.h2}>Reading your result</Text>
+        <Text style={s.p}>
+          Reasoning ability has several fairly distinct facets, and most people are stronger in some than others. The
+          shape of your profile — where you peak and where you dip — is often more useful than the single overall band:
+          it hints at the kinds of problems that come easily to you and the ones worth slowing down for.
+        </Text>
+
+        <Text style={s.h3}>Read responsibly</Text>
+        <Bullets items={[...test.caveats]} />
+        <Text style={[s.small, { marginTop: 12 }]}>{test.itemProvenance}</Text>
+        <Footer report={{ reportId: result.fingerprint } as unknown as PersonalityReport} />
+      </Page>
+    </Document>
+  );
+}
+
+export function makeCognitiveDoc(test: AbilityTest, result: AbilityResult) {
+  return <CognitiveDoc test={test} result={result} />;
+}
+
+export async function downloadCognitivePdf(test: AbilityTest, result: AbilityResult) {
+  const blob = await pdf(makeCognitiveDoc(test, result)).toBlob();
+  triggerDownload(blob, `psyche-atlas-cognitive-${result.fingerprint}.pdf`);
 }
 
 function triggerDownload(blob: Blob, filename: string) {

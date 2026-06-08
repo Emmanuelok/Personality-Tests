@@ -17,8 +17,9 @@ import { Growth } from "./ui/Growth";
 import { IntegratedProfile } from "./ui/IntegratedProfile";
 import { PackStep } from "./ui/PackStep";
 import { AbilityFlow } from "./ui/ability/AbilityFlow";
+import { AbilityResult } from "./ui/ability/AbilityResult";
 import { MemoryFlow } from "./ui/ability/MemoryFlow";
-import type { AbilityTest } from "@core/ability";
+import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import {
   grantProduct,
   isUnlocked,
@@ -38,7 +39,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "memory";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -56,9 +57,12 @@ export default function App() {
   const [pack, setPack] = useState<string[]>([]);
   const [packTotal, setPackTotal] = useState(0);
   const [abilityTest, setAbilityTest] = useState<AbilityTest | null>(null);
+  const [abilityResult, setAbilityResult] = useState<ARes | null>(null);
+  const [abilityNonce, setAbilityNonce] = useState(0);
 
   const name = profile?.name || undefined;
   const unlocked = useMemo(() => !!result && isUnlocked(result.responseFingerprint), [result, unlockNonce]);
+  const abilityUnlocked = useMemo(() => !!abilityResult && isUnlocked(abilityResult.fingerprint), [abilityResult, unlockNonce]);
 
   // Rescore the latest take of each completed instrument for synthesis.
   const entries = useMemo<SynthEntry[]>(() => {
@@ -78,13 +82,22 @@ export default function App() {
     const cleanUrl = () => window.history.replaceState({}, "", window.location.pathname);
     const restore = (pending: PendingResult) => {
       const inst = getInstrument(pending.instrumentId);
-      if (!inst) return false;
-      const scored = scoreAssessment(inst, pending.responses);
-      setInstrument(inst);
-      setResult(scored);
-      setReport(composeReport(inst, scored, { name: loadProfile()?.name || undefined }));
-      setView("result");
-      return true;
+      if (inst) {
+        const scored = scoreAssessment(inst, pending.responses);
+        setInstrument(inst);
+        setResult(scored);
+        setReport(composeReport(inst, scored, { name: loadProfile()?.name || undefined }));
+        setView("result");
+        return true;
+      }
+      const at = getAbilityTest(pending.instrumentId);
+      if (at) {
+        setAbilityTest(at);
+        setAbilityResult(scoreAbilityTest(at, pending.responses));
+        setView("abilityResult");
+        return true;
+      }
+      return false;
     };
 
     if (params.get("paid") === "1") {
@@ -118,6 +131,14 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
+
+  // Same recovery for a cognitive result.
+  useEffect(() => {
+    if (abilityResult && !isUnlocked(abilityResult.fingerprint)) {
+      recoverEntitlements(abilityResult.fingerprint).then((ok) => ok && setUnlockNonce((n) => n + 1));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [abilityResult]);
 
   /* ── navigation ─────────────────────────────────────────────────────── */
   const goHome = () => {
@@ -154,8 +175,43 @@ export default function App() {
 
   const startAbility = (t: AbilityTest) => {
     setAbilityTest(t);
+    setAbilityResult(null);
+    setError(null);
     setView("ability");
     top();
+  };
+  const abilityDone = (r: ARes) => {
+    setAbilityResult(r);
+    setView("abilityResult");
+    top();
+  };
+  const retakeAbility = () => {
+    setAbilityResult(null);
+    setAbilityNonce((n) => n + 1);
+    setView("ability");
+    top();
+  };
+  const onPurchaseAbility = async (productId: string) => {
+    if (!abilityTest || !abilityResult) return;
+    setError(null);
+    setBusy(true);
+    const pending: PendingResult = {
+      instrumentId: abilityTest.id,
+      responses: abilityResult.responses,
+      fingerprint: abilityResult.fingerprint,
+      productId,
+    };
+    const outcome = await startCheckout(productId, pending);
+    if ("redirected" in outcome) return;
+    if ("demo" in outcome) {
+      grantProduct(productId, abilityResult.fingerprint);
+      setUnlockNonce((n) => n + 1);
+      setBusy(false);
+      top();
+    } else {
+      setError(outcome.error);
+      setBusy(false);
+    }
   };
   const startMemory = () => {
     setView("memory");
@@ -281,7 +337,21 @@ export default function App() {
       )}
 
       {view === "ability" && abilityTest && (
-        <AbilityFlow test={abilityTest} name={name} onExit={goHome} />
+        <AbilityFlow key={`${abilityTest.id}-${abilityNonce}`} test={abilityTest} onExit={goHome} onComplete={abilityDone} />
+      )}
+
+      {view === "abilityResult" && abilityTest && abilityResult && (
+        <AbilityResult
+          test={abilityTest}
+          result={abilityResult}
+          name={name}
+          unlocked={abilityUnlocked}
+          busy={busy}
+          error={error}
+          onPurchase={onPurchaseAbility}
+          onRestart={retakeAbility}
+          onExit={goHome}
+        />
       )}
 
       {view === "memory" && <MemoryFlow name={name} onExit={goHome} />}

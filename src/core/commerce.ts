@@ -38,6 +38,20 @@ export const PRODUCTS: Product[] = [
     ],
   },
   {
+    id: "cognitive",
+    name: "Full Cognitive Report",
+    blurb: "Your complete cognitive profile — every question explained, plus a designed PDF.",
+    priceCents: 189,
+    currency: "usd",
+    kind: "unlock",
+    includes: [
+      "Your estimated band & percentile across every domain",
+      "Every question reviewed — what you missed and why",
+      "Domain-by-domain interpretation of your profile",
+      "A designed, shareable cognitive report PDF",
+    ],
+  },
+  {
     id: "allaccess",
     name: "All-Access Pass",
     blurb: "Unlock the full report for every assessment you take on this device.",

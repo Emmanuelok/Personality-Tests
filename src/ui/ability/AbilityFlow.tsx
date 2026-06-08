@@ -4,15 +4,14 @@ import { scoreAbility } from "@core/ability";
 import { InstrumentGlyph } from "../art";
 import { Calculating } from "../Calculating";
 import { Figure } from "./Figure";
-import { AbilityResult } from "./AbilityResult";
 
-type Phase = "intro" | "quiz" | "calc" | "result";
+type Phase = "intro" | "quiz" | "calc";
 
-export function AbilityFlow({ test, name, onExit }: { test: AbilityTest; name?: string; onExit: () => void }) {
+export function AbilityFlow({ test, onExit, onComplete }: { test: AbilityTest; onExit: () => void; onComplete: (r: AR) => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [responses, setResponses] = useState<AbilityResponses>({});
   const [idx, setIdx] = useState(0);
-  const [result, setResult] = useState<AR | null>(null);
+  const [done, setDone] = useState<AR | null>(null);
   const [remaining, setRemaining] = useState(test.timeLimitSec ?? 0);
   const finishedRef = useRef(false);
 
@@ -22,7 +21,7 @@ export function AbilityFlow({ test, name, onExit }: { test: AbilityTest; name?: 
   const finish = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    setResult(scoreAbility(test, responses));
+    setDone(scoreAbility(test, responses));
     setPhase("calc");
   };
 
@@ -69,21 +68,8 @@ export function AbilityFlow({ test, name, onExit }: { test: AbilityTest; name?: 
     );
   }
 
-  /* ── calculating ── */
-  if (phase === "calc") return <Calculating onDone={() => setPhase("result")} />;
-
-  /* ── result ── */
-  if (phase === "result" && result) {
-    return (
-      <AbilityResult
-        test={test}
-        result={result}
-        name={name}
-        onRestart={() => { setResponses({}); setIdx(0); setRemaining(test.timeLimitSec ?? 0); setResult(null); finishedRef.current = false; setPhase("intro"); }}
-        onExit={onExit}
-      />
-    );
-  }
+  /* ── calculating → hand the result up to the app ── */
+  if (phase === "calc") return <Calculating onDone={() => { if (done) onComplete(done); }} />;
 
   /* ── quiz ── */
   const choose = (oi: number) => setResponses((r) => ({ ...r, [item.id]: oi }));

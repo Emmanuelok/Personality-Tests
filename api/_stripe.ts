@@ -10,6 +10,7 @@ function cents(envVar: string | undefined, fallback: number): number {
 /** Server-authoritative pricing. The client catalog is for display only. */
 export const PRICES: Record<string, { cents: number; name: string }> = {
   report: { cents: cents(process.env.PRICE_REPORT_CENTS, 189), name: "Psyche Atlas — Full Report + Growth Plan" },
+  cognitive: { cents: cents(process.env.PRICE_COGNITIVE_CENTS, 189), name: "Psyche Atlas — Full Cognitive Report" },
   allaccess: { cents: cents(process.env.PRICE_ALLACCESS_CENTS, 590), name: "Psyche Atlas — All-Access Pass" },
   poster: { cents: cents(process.env.PRICE_POSTER_CENTS, 290), name: "Psyche Atlas — Personality Poster" },
 };
