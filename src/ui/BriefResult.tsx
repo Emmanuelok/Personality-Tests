@@ -2,6 +2,7 @@ import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart } from "./charts";
+import { CategoryEmblem } from "./art";
 
 function shortLabel(name: string): string {
   if (name.includes("·")) return name.split("·")[1].trim();
@@ -31,6 +32,9 @@ export function BriefResult({
   return (
     <div className="container view-enter">
       <div className="report-head">
+        <span className={`report-seal cat-${instrument.category}`} aria-hidden="true">
+          <CategoryEmblem id={instrument.category} />
+        </span>
         <div className="supertitle">{instrument.name} · Free snapshot</div>
         <h1>{report.title}</h1>
         <div className="subtitle">{report.subtitle}</div>

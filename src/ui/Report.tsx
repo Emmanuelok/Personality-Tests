@@ -2,7 +2,8 @@ import { useState } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
-import { RadarChart, ScaleBar } from "./charts";
+import { RadarChart, ScaleBar, Gauge } from "./charts";
+import { CategoryEmblem, Flourish } from "./art";
 import { ImprovementPlanner } from "./ImprovementPlanner";
 import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
@@ -51,6 +52,9 @@ export function Report({
   return (
     <div className="container view-enter">
       <div className="report-head">
+        <span className={`report-seal cat-${instrument.category}`} aria-hidden="true">
+          <CategoryEmblem id={instrument.category} />
+        </span>
         <div className="supertitle">{instrument.name} · Personal Report</div>
         <h1>{report.title}</h1>
         <div className="subtitle">{report.subtitle}</div>
@@ -97,11 +101,11 @@ export function Report({
               <div className="code">{report.type.code}</div>
               <div className="ttitle">{report.type.title}</div>
               <p className="summary">{report.type.summary}</p>
-              <div style={{ marginTop: 12, fontSize: 13, color: "var(--text-faint)" }}>
-                Typing clarity
-                <div className="confidence-bar"><i style={{ width: `${Math.round(report.type.confidence * 100)}%` }} /></div>
-                <div style={{ marginTop: 4 }}>
-                  {Math.round(report.type.confidence * 100)}% — {report.type.secondary ? <>runner-up: <b>{report.type.secondary}</b></> : "decisive"}
+              <div className="clarity">
+                <Gauge value={Math.round(report.type.confidence * 100)} size={104} />
+                <div className="clarity-note">
+                  <span className="clarity-label">Typing clarity</span>
+                  {report.type.secondary ? <>runner-up: <b>{report.type.secondary}</b></> : "a decisive, well-separated result"}
                 </div>
               </div>
             </div>
@@ -213,6 +217,8 @@ export function Report({
           </details>
         </section>
       </div>
+
+      <Flourish />
 
       <div className="footer">
         Report engine: <b>{report.engine}</b>. Generated {new Date(report.generatedAt).toLocaleString()}.

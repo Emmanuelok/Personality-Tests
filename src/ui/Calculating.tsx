@@ -17,10 +17,19 @@ export function Calculating({ onDone }: { onDone: () => void }) {
   return (
     <div className="container">
       <div className="calc">
-        <div className="spin" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
-            <polygon points="16,3 29,16 16,29 3,16" />
-            <polygon points="16,9 23,16 16,23 9,16" />
+        <div className="orrery" aria-hidden="true">
+          <svg viewBox="0 0 120 120" fill="none" stroke="currentColor">
+            <circle className="orrery-ring" cx="60" cy="60" r="54" strokeWidth="1" />
+            <g className="orrery-spin">
+              <circle cx="60" cy="60" r="42" strokeWidth="1.2" strokeDasharray="2 8" opacity="0.6" />
+              <ellipse cx="60" cy="60" rx="54" ry="20" strokeWidth="1.1" opacity="0.7" />
+              <ellipse cx="60" cy="60" rx="20" ry="54" strokeWidth="1.1" opacity="0.5" />
+              <circle className="orrery-planet" cx="114" cy="60" r="5" />
+            </g>
+            <g className="orrery-core">
+              <circle cx="60" cy="60" r="13" className="orrery-sun" strokeWidth="1.6" />
+              <circle cx="60" cy="60" r="4" className="orrery-dot" />
+            </g>
           </svg>
         </div>
         <p>{MESSAGES[mi]}</p>

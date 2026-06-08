@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { CATEGORIES } from "@core/categories";
+import { HeroArt, CategoryEmblem, Flourish } from "./art";
 
 export function Home({
   onStart,
@@ -15,6 +16,9 @@ export function Home({
   return (
     <div className="container">
       <section className="hero">
+        <div className="hero-art-wrap" aria-hidden="true">
+          <HeroArt />
+        </div>
         <span className="eyebrow">Know Yourself</span>
         <h1>
           Know yourself with <span className="grad">scientific depth</span>.
@@ -39,6 +43,8 @@ export function Home({
         </p>
       </section>
 
+      <Flourish />
+
       <h2 className="section-title" id="catalog">Choose an assessment</h2>
       {CATEGORIES.map((cat) => {
         const list = instrumentsByCategory(cat.id);
@@ -46,7 +52,9 @@ export function Home({
         return (
           <div className="cat-block" key={cat.id}>
             <div className="cat-head">
-              <span className="cat-icon">{cat.icon}</span>
+              <span className={`cat-emblem cat-${cat.id}`}>
+                <CategoryEmblem id={cat.id} />
+              </span>
               <div>
                 <h3 className="cat-name">{cat.name}</h3>
                 <p className="cat-blurb">{cat.blurb}</p>
@@ -55,6 +63,9 @@ export function Home({
             <div className="grid">
               {list.map((inst) => (
                 <article className="card" key={inst.id}>
+                  <span className={`card-watermark cat-${cat.id}`} aria-hidden="true">
+                    <CategoryEmblem id={cat.id} />
+                  </span>
                   <span className="kind">{inst.kind === "typological" ? "Typology" : "Dimensional"}</span>
                   <h3>{inst.name}</h3>
                   <p className="tagline">{inst.tagline}</p>
@@ -75,10 +86,15 @@ export function Home({
         );
       })}
 
+      <Flourish />
+
       <h2 className="section-title">Just for two</h2>
       <div className="panel compat-cta">
-        <div>
-          <h3 style={{ margin: "0 0 6px", fontSize: 20 }}>💞 Relationship Compatibility</h3>
+        <span className="compat-emblem cat-relationships" aria-hidden="true">
+          <CategoryEmblem id="relationships" />
+        </span>
+        <div style={{ flex: 1, minWidth: 240 }}>
+          <h3 style={{ margin: "0 0 6px", fontSize: 20 }}>Relationship Compatibility</h3>
           <p style={{ color: "var(--text-dim)", margin: 0 }}>
             Take a relational assessment, share your private result code, and compare with a partner, friend, or
             teammate to get a tailored compatibility read — strengths, friction points, and how to bridge them.
@@ -89,7 +105,7 @@ export function Home({
 
       <h2 className="section-title">How it works</h2>
       <div className="panel">
-        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        <div className="steps">
           <Step n="01" title="Answer honestly">Real science — no pop-quiz filler.</Step>
           <Step n="02" title="One-of-a-kind report">Never the same twice — even for your exact type.</Step>
           <Step n="03" title="See yourself clearly">Scores, strengths, blind spots — the real you.</Step>
@@ -111,11 +127,15 @@ export function Home({
   );
 }
 
+const STEP_GLYPH = ["✶", "❖", "◉", "➜"];
+
 function Step({ n, title, children }: { n: string; title: string; children: ReactNode }) {
+  const i = (parseInt(n, 10) - 1) % STEP_GLYPH.length;
   return (
-    <div>
-      <div style={{ color: "var(--accent)", fontWeight: 800, fontSize: 13, letterSpacing: 1 }}>{n}</div>
-      <h4 style={{ margin: "6px 0 6px", fontSize: 16 }}>{title}</h4>
+    <div className="step-card">
+      <div className="step-mark" aria-hidden="true">{STEP_GLYPH[i]}</div>
+      <div style={{ color: "var(--accent)", fontWeight: 700, fontSize: 12, letterSpacing: 1.5 }}>{n}</div>
+      <h4 style={{ margin: "4px 0 6px", fontSize: 17, fontFamily: "var(--serif)" }}>{title}</h4>
       <p style={{ color: "var(--text-dim)", fontSize: 14, margin: 0 }}>{children}</p>
     </div>
   );

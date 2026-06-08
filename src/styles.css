@@ -505,10 +505,130 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .aside .label { display: block; font-family: var(--display); font-size: 0.7rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
 .aside b { color: var(--text); font-weight: 600; }
 
+/* ====================================================================== */
+/*  Editorial artwork — inline SVG illustrations, emblems & infographics    */
+/* ====================================================================== */
+
+/* shared SVG paint helpers (illustrations inherit ink via currentColor) */
+.gold { stroke: var(--gold); }
+.gold-fill { fill: var(--gold); stroke: none; }
+.ink { stroke: currentColor; }
+.ink-soft { stroke: currentColor; opacity: 0.7; }
+.ink-faint { stroke: currentColor; opacity: 0.4; }
+.ink-fill { fill: currentColor; stroke: none; }
+.paper-fill { fill: var(--surface); stroke: none; }
+
+/* ---- Hero centerpiece (the astrolabe) ---- */
+.hero-art-wrap { display: block; width: clamp(208px, 40vw, 320px); margin: 0 auto 8px; color: var(--text); }
+.hero-art { display: block; width: 100%; height: auto; overflow: visible; animation: heroFloat 8s ease-in-out infinite; }
+.hero-art .gold, .hero-art .gold-fill { color: var(--gold); }
+@keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@media (prefers-reduced-motion: reduce) { .hero-art { animation: none; } }
+
+/* ---- Category emblems ---- */
+.emblem { display: block; width: 100%; height: 100%; overflow: visible; }
+.emblem .gold { stroke: var(--gold); }
+.emblem .gold.gold-fill { fill: var(--gold); stroke: none; }
+
+/* per-category accent colour for the line work */
+.cat-core { color: #9a7b2e; }
+.cat-types { color: #3f4a66; }
+.cat-relationships { color: #b14a36; }
+.cat-strengths { color: #4e7a3a; }
+.cat-career { color: #b3730e; }
+.cat-emotional { color: #b15a72; }
+.cat-mind { color: #6a5a8c; }
+.cat-shadow { color: #5a4a36; }
+
+/* emblem framed beside a category heading */
+.cat-emblem {
+  flex: none; width: 56px; height: 56px; padding: 11px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+  display: grid; place-items: center;
+}
+.cat-head { align-items: center; }
+
+/* faint watermark tucked into the corner of each instrument card */
+.card-watermark {
+  position: absolute; right: -22px; top: -18px; width: 116px; height: 116px;
+  opacity: 0.07; transform: rotate(-8deg); pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.card:hover .card-watermark { opacity: 0.13; transform: rotate(-4deg) scale(1.04); }
+
+/* compatibility CTA emblem */
+.compat-emblem { flex: none; width: 60px; height: 60px; display: grid; place-items: center; }
+
+/* big emblem on the test-intro screen */
+.intro-emblem {
+  display: inline-grid; place-items: center; width: 84px; height: 84px; margin: 0 auto 6px;
+  padding: 16px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--shadow); animation: sealIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* circular seal above each report title */
+.report-seal {
+  display: inline-grid; place-items: center; width: 76px; height: 76px; margin: 0 auto 4px;
+  padding: 15px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow); animation: sealIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes sealIn { from { opacity: 0; transform: scale(0.7) rotate(-12deg); } to { opacity: 1; transform: none; } }
+
+/* ---- Ornamental flourish divider ---- */
+.flourish { display: flex; align-items: center; gap: 16px; justify-content: center; margin: 40px auto; max-width: 520px; color: var(--text-faint); }
+.flourish .fl-line { height: 1px; flex: 1; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+.flourish svg { width: 60px; height: 30px; flex: none; overflow: visible; }
+.flourish .gold, .flourish .gold-fill { color: var(--gold); }
+
+.asterism { display: inline-block; width: 0.8em; height: 0.8em; vertical-align: -0.06em; color: var(--gold); margin: 0 0.18em; }
+
+/* alchemical element glyph */
+.elglyph { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.14em; }
+
+/* ---- Donut gauge infographic ---- */
+.gauge { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; }
+.gauge-track { stroke: var(--surface-3); }
+.gauge-fill { stroke: var(--gold); transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1); animation: gaugeIn 1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.gauge-num { font-family: var(--serif); font-weight: 600; font-size: 22px; fill: var(--text); }
+.gauge-label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); }
+@keyframes gaugeIn { from { stroke-dashoffset: var(--c, 999); opacity: 0; } to { opacity: 1; } }
+
+/* typing-clarity block inside the type card */
+.clarity { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.clarity-note { font-size: 13px; color: var(--text-dim); }
+.clarity-label { display: block; font-family: var(--display); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 3px; }
+
+/* ---- "How it works" step cards ---- */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.step-card { text-align: center; padding: 20px 14px; border: 1px solid var(--border-soft); border-radius: 14px; background: var(--surface-2); }
+.step-mark {
+  width: 46px; height: 46px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 20px; color: var(--gold); background: var(--bg); border: 1px solid var(--border);
+}
+
+/* ---- Calculating: a slowly turning orrery ---- */
+.orrery { width: 120px; height: 120px; margin: 0 auto 26px; color: var(--text-dim); }
+.orrery svg { width: 100%; height: 100%; overflow: visible; }
+.orrery-ring { opacity: 0.4; }
+.orrery-spin { transform-origin: 60px 60px; animation: orrerySpin 9s linear infinite; }
+.orrery-planet { fill: var(--gold); stroke: none; }
+.orrery-sun { stroke: var(--gold); fill: var(--surface); }
+.orrery-dot { fill: var(--gold); stroke: none; }
+.orrery-core { transform-origin: 60px 60px; animation: orreryPulse 1.8s ease-in-out infinite; }
+@keyframes orrerySpin { to { transform: rotate(360deg); } }
+@keyframes orreryPulse { 0%, 100% { opacity: 0.7; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .orrery-spin, .orrery-core { animation: none; } }
+
+@media (max-width: 720px) {
+  .cat-emblem { width: 48px; height: 48px; padding: 9px; }
+  .compat-cta { justify-content: flex-start; }
+}
+
 /* ---------- Print ---------- */
 @media print {
   body { background: #fff; color: #111; }
   .topbar, .no-print, .planner .targets, input[type="range"] { display: none !important; }
   .panel, .card, .trait, .area { box-shadow: none; border-color: #ccc; background: #fff; color: #111; }
   .lead-para, .sec p, .trait .narr, .sw ul, .area .rationale { color: #222; }
+  .hero-art, .card-watermark { animation: none; }
+  .report-seal { box-shadow: none; }
 }
