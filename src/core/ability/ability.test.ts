@@ -6,6 +6,7 @@ import { chcFromDomains, buildBattery } from "./chc";
 import { genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
 import { IAT_BLOCKS, makeIatStimulus, scoreIat, type IatTrial } from "./iat";
 import { scoreCreativity } from "./creativity";
+import { localizeBand, localizeAbilityMeta, hasAbilityTranslation } from "./i18n";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -236,5 +237,45 @@ describe("Implicit Association Test", () => {
     const r = scoreIat(trials);
     expect(Math.abs(r.d)).toBeLessThan(0.15);
     expect(r.direction).toBe("none");
+  });
+});
+
+describe("ability localization", () => {
+  const RANGE = ["Very high range", "Above-average range", "Average range", "Below-average range", "Well-below-average range"];
+  const FLUENCY = ["Highly fluent", "Above-average fluency", "Average fluency", "Below-average fluency", "Low fluency"];
+  const COG_IDS = ["memory-span", "corsi-blocks", "processing-speed", "alternative-uses", "iat-demo", "adaptive-reasoning"];
+
+  it("translates every band the scorers can emit, in es and fr", () => {
+    for (const band of [...RANGE, ...FLUENCY]) {
+      for (const loc of ["es", "fr"]) {
+        const out = localizeBand(band, loc);
+        expect(out).not.toBe(band); // actually translated
+        expect(out.length).toBeGreaterThan(0);
+      }
+      expect(localizeBand(band, "en")).toBe(band); // English passes through
+    }
+  });
+
+  it("passes unknown bands and locales through unchanged", () => {
+    expect(localizeBand("Wizard tier", "es")).toBe("Wizard tier");
+    expect(localizeBand("Average range", "de")).toBe("Average range");
+  });
+
+  it("provides es/fr meta (name, description, caveats) for every standalone cognition test", () => {
+    for (const id of COG_IDS) {
+      for (const loc of ["es", "fr"]) {
+        expect(hasAbilityTranslation(id, loc)).toBe(true);
+        const m = localizeAbilityMeta(id, loc);
+        expect(m.name && m.name.length).toBeTruthy();
+        expect(m.description && m.description.length).toBeTruthy();
+        expect(m.caveats && m.caveats.length).toBeTruthy();
+      }
+    }
+  });
+
+  it("falls back to an empty translation for unknown ids or locales", () => {
+    expect(localizeAbilityMeta("memory-span", "en")).toEqual({});
+    expect(localizeAbilityMeta("no-such-test", "es")).toEqual({});
+    expect(hasAbilityTranslation("no-such-test", "es")).toBe(false);
   });
 });
