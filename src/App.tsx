@@ -16,6 +16,7 @@ import { BriefResult } from "./ui/BriefResult";
 import { Compatibility } from "./ui/Compatibility";
 import { Growth } from "./ui/Growth";
 import { PackStep } from "./ui/PackStep";
+import { Calculating } from "./ui/Calculating";
 import { starterPack } from "@core/starter";
 import {
   grantProduct,
@@ -38,7 +39,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "onboarding" | "dashboard" | "library" | "quiz" | "result" | "compatibility" | "integrated" | "growth" | "packstep";
+type View = "onboarding" | "dashboard" | "library" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -178,6 +179,11 @@ export default function App() {
     setResult(scored);
     setReport(composeReport(instrument, scored, { name, seed }));
     if (profile) setProfile(recordResult(profile, instrument.id, responses, seed));
+    setView("calc");
+    top();
+  };
+
+  const afterCalc = () => {
     setView(packTotal > 0 ? "packstep" : "result");
     top();
   };
@@ -301,6 +307,8 @@ export default function App() {
       {view === "library" && <Home onStart={start} onCompatibility={goCompat} />}
 
       {view === "quiz" && instrument && <Quiz instrument={instrument} onComplete={complete} onCancel={goDashboard} />}
+
+      {view === "calc" && <Calculating onDone={afterCalc} />}
 
       {view === "result" && instrument && result && report && (
         unlocked ? (

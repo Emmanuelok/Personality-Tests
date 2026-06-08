@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
@@ -35,8 +35,6 @@ export function Report({
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
   const [pdfBusy, setPdfBusy] = useState(false);
-  // A subtle accent hue unique to this result — a small personal signature.
-  const hue = parseInt((report.seedHex || "0").slice(0, 4), 16) % 360;
 
   const withPdf = async (fn: "downloadReportPdf" | "downloadPosterPdf") => {
     setPdfBusy(true);
@@ -51,7 +49,7 @@ export function Report({
   };
 
   return (
-    <div className="container view-enter" style={{ ["--accent"]: `hsl(${hue} 85% 72%)` } as unknown as CSSProperties}>
+    <div className="container view-enter">
       <div className="report-head">
         <div className="supertitle">{instrument.name} · Personal Report</div>
         <h1>{report.title}</h1>
