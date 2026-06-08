@@ -6,7 +6,9 @@ Psyche Atlas is not just a test app — it's a self-understanding *and* self-imp
 
 > Status: **v0.4.** A **personal platform** — it onboards you by name, remembers your journey, and greets you on a tailored **dashboard** with a daily growth nudge. **12 instruments across 6 themes**, a novel **cross-test "Integrated Self"** that synthesizes every assessment you take into one portrait (themes, strengths, tensions, and your personal operating manual), a **relationship compatibility** engine, name-personalized reports, a designed PDF, a freemium store ($1.89 unlock), an installable **PWA** (offline-capable), and one-click Vercel deploy. See [Roadmap](#roadmap).
 
-**New in v0.5:** an **"Ask Atlas" conversational companion** (ask your report or Integrated Self anything, answered from your own data), the **full 24-strength VIA**, **deeper reports** (every test now has tailored Relationships/Work/Stress sections), a **Growth Journey** that tracks how your traits change across retakes with milestones, and **shareable result cards** (downloadable PNG) plus a subtle per-result accent.
+**New in v0.6:** **15 instruments** (added Conflict Style, Moral Foundations, and Chronotype), a **guided starter pack** (a goal-tailored 3-test onboarding straight to your Integrated Self), and an **LLM-backed "Ask Atlas"** — set `ANTHROPIC_API_KEY` and the companion answers freely in natural language (`/api/ask`), falling back to the built-in deterministic engine otherwise.
+
+**Earlier in v0.5:** the "Ask Atlas" conversational companion, the **full 24-strength VIA**, **deeper reports** (tailored Relationships/Work/Stress for every test), a **Growth Journey** tracking trait change across retakes with milestones, and **shareable result cards** plus a per-result accent.
 
 ### What makes it feel built for you
 
