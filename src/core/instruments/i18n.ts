@@ -187,9 +187,247 @@ const ENNEAGRAM_FR: InstrumentTranslation = {
   },
 };
 
+/* ── Wellbeing set: PERMA, Satisfaction With Life, Resilience, Self-Esteem, Mood ── */
+
+const PERMA_ES: InstrumentTranslation = {
+  name: "Florecimiento (PERMA)",
+  shortName: "PERMA",
+  tagline: "Cinco pilares cultivables de una vida que va bien.",
+  description:
+    "El bienestar no es una sola cosa: el modelo PERMA de Martin Seligman lo divide en cinco pilares que puedes " +
+    "cultivar por separado: Emoción positiva, Compromiso, Relaciones, Sentido y Logro. Esta es una instantánea cálida " +
+    "y basada en las fortalezas de cómo estás floreciendo ahora mismo y qué pilar agradecería más tu atención.",
+  scales: {
+    POS: { name: "Emoción positiva", description: "Alegría, gratitud, satisfacción y esperanza.", poles: { low: "Agotado/a", high: "Alegre" } },
+    ENG: { name: "Compromiso", description: "Absorción y fluidez en lo que haces.", poles: { low: "Desconectado/a", high: "Absorto/a" } },
+    REL: { name: "Relaciones", description: "Cercanía, apoyo y pertenencia.", poles: { low: "Aislado/a", high: "Conectado/a" } },
+    MEA: { name: "Sentido", description: "Propósito y significado.", poles: { low: "A la deriva", high: "Con propósito" } },
+    ACC: { name: "Logro", description: "Maestría, progreso y consecución.", poles: { low: "Estancado/a", high: "Realizado/a" } },
+  },
+  items: {
+    P1: "Con frecuencia siento alegría, gratitud o satisfacción.", P2: "Las buenas sensaciones son parte habitual de mis días.", P3: "Últimamente rara vez me siento positivo/a o animado/a.",
+    E1: "A menudo me absorbo por completo en lo que hago.", E2: "Pierdo la noción del tiempo cuando hago algo que me encanta.", E3: "Rara vez estoy plenamente absorto/a o «en flujo».",
+    R1: "Tengo relaciones cercanas y de apoyo con las que puedo contar.", R2: "Me siento querido/a y conectado/a con otras personas.", R3: "A menudo me siento solo/a o sin apoyo.",
+    M1: "Mi vida tiene un claro sentido de propósito y significado.", M2: "Lo que hago me parece valioso y significativo.", M3: "A menudo siento que mi vida carece de rumbo o propósito.",
+    A1: "Logro con regularidad metas que me importan.", A2: "Siento una auténtica sensación de logro y progreso.", A3: "Rara vez siento que consigo lo que me propongo.",
+  },
+};
+
+const PERMA_FR: InstrumentTranslation = {
+  name: "Épanouissement (PERMA)",
+  shortName: "PERMA",
+  tagline: "Cinq piliers cultivables d'une vie qui va bien.",
+  description:
+    "Le bien-être n'est pas une chose unique : le modèle PERMA de Martin Seligman le décompose en cinq piliers que " +
+    "vous pouvez cultiver chacun — Émotion positive, Engagement, Relations, Sens et Accomplissement. Voici un aperçu " +
+    "chaleureux et axé sur les forces de votre épanouissement actuel et du pilier qui mériterait le plus votre attention.",
+  scales: {
+    POS: { name: "Émotion positive", description: "Joie, gratitude, contentement et espoir.", poles: { low: "Épuisé(e)", high: "Joyeux(se)" } },
+    ENG: { name: "Engagement", description: "Absorption et fluidité dans ce que vous faites.", poles: { low: "Désengagé(e)", high: "Absorbé(e)" } },
+    REL: { name: "Relations", description: "Proximité, soutien et appartenance.", poles: { low: "Isolé(e)", high: "Connecté(e)" } },
+    MEA: { name: "Sens", description: "But et signification.", poles: { low: "À la dérive", high: "Habité(e) d'un but" } },
+    ACC: { name: "Accomplissement", description: "Maîtrise, progrès et réussite.", poles: { low: "À l'arrêt", high: "Accompli(e)" } },
+  },
+  items: {
+    P1: "Je ressens fréquemment de la joie, de la gratitude ou du contentement.", P2: "Les sensations agréables font régulièrement partie de mes journées.", P3: "Ces derniers temps, je me sens rarement positif(ve) ou enjoué(e).",
+    E1: "Je me plonge souvent entièrement dans ce que je fais.", E2: "Je perds la notion du temps quand je fais quelque chose que j'aime.", E3: "Je suis rarement pleinement absorbé(e) ou « dans le flux ».",
+    R1: "J'ai des relations proches et soutenantes sur lesquelles je peux compter.", R2: "Je me sens aimé(e) et lié(e) aux autres.", R3: "Je me sens souvent seul(e) ou sans soutien.",
+    M1: "Ma vie a un sens clair, un but et une signification.", M2: "Ce que je fais me semble utile et important.", M3: "Je sens souvent que ma vie manque de direction ou de but.",
+    A1: "J'atteins régulièrement des objectifs qui comptent pour moi.", A2: "Je ressens un réel sentiment de réussite et de progrès.", A3: "Je sens rarement que j'accomplis ce que je me suis fixé.",
+  },
+};
+
+const SWLS_ES: InstrumentTranslation = {
+  name: "Satisfacción con la vida",
+  shortName: "Satisfacción vital",
+  tagline: "Tu veredicto general sobre cómo va la vida, según tus propios criterios.",
+  description:
+    "La Escala de Satisfacción con la Vida es la medida más usada del lado reflexivo y valorativo del bienestar: no " +
+    "cómo te sientes momento a momento, sino tu juicio meditado sobre la vida en su conjunto, frente a los estándares " +
+    "que tú mismo/a fijas. Cinco frases breves, décadas de validación en todo el mundo.",
+  scales: {
+    SWL: { name: "Satisfacción con la vida", description: "Juicio cognitivo global de satisfacción con tu vida.", poles: { low: "Insatisfecho/a", high: "Satisfecho/a" } },
+  },
+  items: {
+    L1: "En la mayoría de los aspectos, mi vida se acerca a mi ideal.",
+    L2: "Las condiciones de mi vida son excelentes.",
+    L3: "Estoy satisfecho/a con mi vida.",
+    L4: "Hasta ahora he conseguido las cosas importantes que quiero en la vida.",
+    L5: "Si pudiera vivir mi vida de nuevo, no cambiaría casi nada.",
+  },
+};
+
+const SWLS_FR: InstrumentTranslation = {
+  name: "Satisfaction de vie",
+  shortName: "Satisfaction de vie",
+  tagline: "Votre jugement global sur le cours de votre vie, selon vos propres critères.",
+  description:
+    "L'Échelle de satisfaction de vie est la mesure la plus utilisée du versant réfléchi et évaluatif du bien-être : " +
+    "non pas ce que vous ressentez d'instant en instant, mais votre jugement posé sur la vie dans son ensemble, au " +
+    "regard des critères que vous vous fixez. Cinq courtes affirmations, des décennies de validation à travers le monde.",
+  scales: {
+    SWL: { name: "Satisfaction de vie", description: "Jugement cognitif global de satisfaction à l'égard de votre vie.", poles: { low: "Insatisfait(e)", high: "Satisfait(e)" } },
+  },
+  items: {
+    L1: "À bien des égards, ma vie est proche de mon idéal.",
+    L2: "Les conditions de ma vie sont excellentes.",
+    L3: "Je suis satisfait(e) de ma vie.",
+    L4: "Jusqu'ici, j'ai obtenu les choses importantes que je veux dans la vie.",
+    L5: "Si je pouvais revivre ma vie, je n'y changerais presque rien.",
+  },
+};
+
+const RESILIENCE_ES: InstrumentTranslation = {
+  name: "Resiliencia (capacidad de recuperación)",
+  shortName: "Resiliencia",
+  tagline: "Con qué rapidez te recuperas y rebotas tras el estrés.",
+  description:
+    "La resiliencia se confunde a menudo con la dureza o la garra, pero la Escala Breve de Resiliencia mide su sentido " +
+    "original: con qué facilidad te recuperas tras el estrés y la adversidad. No se trata de no sufrir nunca, sino de " +
+    "recuperarse. Y como la resiliencia crece con el apoyo, las habilidades y el sentido, una puntuación más baja es un punto desde el que construir.",
+  scales: {
+    RES: { name: "Resiliencia de recuperación", description: "Capacidad de recuperarte rápido del estrés y los reveses.", poles: { low: "Lento/a en recuperarse", high: "Se recupera bien" } },
+  },
+  items: {
+    R1: "Suelo recuperarme rápido tras los momentos difíciles.",
+    R2: "Me cuesta superar los acontecimientos estresantes.",
+    R3: "No tardo mucho en recuperarme de un suceso estresante.",
+    R4: "Me resulta difícil reponerme cuando ocurre algo malo.",
+    R5: "Suelo atravesar los tiempos difíciles con pocos problemas.",
+    R6: "Tiendo a tardar mucho en superar los reveses de mi vida.",
+  },
+};
+
+const RESILIENCE_FR: InstrumentTranslation = {
+  name: "Résilience (capacité de rebond)",
+  shortName: "Résilience",
+  tagline: "À quelle vitesse vous récupérez et rebondissez après le stress.",
+  description:
+    "On confond souvent la résilience avec l'endurance ou la ténacité, mais l'Échelle brève de résilience en mesure le " +
+    "sens d'origine : avec quelle facilité vous rebondissez après le stress et l'adversité. Il ne s'agit pas de ne jamais " +
+    "souffrir, mais de récupérer. Et comme la résilience grandit avec le soutien, les compétences et le sens, un score plus bas est un point d'appui pour progresser.",
+  scales: {
+    RES: { name: "Résilience de rebond", description: "Capacité à récupérer vite du stress et des revers.", poles: { low: "Lent(e) à récupérer", high: "Rebondit bien" } },
+  },
+  items: {
+    R1: "J'ai tendance à rebondir vite après les périodes difficiles.",
+    R2: "J'ai du mal à traverser les événements stressants.",
+    R3: "Il ne me faut pas longtemps pour me remettre d'un événement stressant.",
+    R4: "J'ai du mal à me ressaisir quand quelque chose de mauvais arrive.",
+    R5: "Je traverse généralement les moments difficiles sans trop d'encombre.",
+    R6: "J'ai tendance à mettre longtemps à surmonter les revers de ma vie.",
+  },
+};
+
+const SELFESTEEM_ES: InstrumentTranslation = {
+  name: "Autoestima (Rosenberg)",
+  shortName: "Autoestima",
+  tagline: "Tu sentido global de autovalía: la medida de autoestima más usada en psicología.",
+  description:
+    "La Escala de Autoestima de Rosenberg es la medida de referencia de la autovalía global: cómo de positivamente, en " +
+    "conjunto, te valoras a ti mismo/a. Diez frases equilibradas, validadas durante décadas y culturas. La autoestima no " +
+    "es fija: responde a cómo te tratas y a lo que construyes, así que también sirve como punto de partida para crecer.",
+  scales: {
+    EST: { name: "Autoestima global", description: "Sentido general de valía personal y autoaceptación.", poles: { low: "Baja autovaloración", high: "Alta autovaloración" } },
+  },
+  items: {
+    S1: "En general, estoy satisfecho/a conmigo mismo/a.",
+    S2: "Siento que tengo una serie de buenas cualidades.",
+    S3: "Soy capaz de hacer las cosas tan bien como la mayoría de la gente.",
+    S4: "Siento que soy una persona valiosa, al menos en igual medida que los demás.",
+    S5: "Adopto una actitud positiva hacia mí mismo/a.",
+    S6: "A veces pienso que no sirvo para nada.",
+    S7: "Siento que no tengo mucho de lo que enorgullecerme.",
+    S8: "Ciertamente, a veces me siento inútil.",
+    S9: "Desearía poder tenerme más respeto.",
+    S10: "En definitiva, tiendo a sentir que soy un fracaso.",
+  },
+};
+
+const SELFESTEEM_FR: InstrumentTranslation = {
+  name: "Estime de soi (Rosenberg)",
+  shortName: "Estime de soi",
+  tagline: "Votre sentiment global de valeur personnelle — la mesure d'estime de soi la plus utilisée.",
+  description:
+    "L'Échelle d'estime de soi de Rosenberg est la mesure de référence de la valeur personnelle globale : à quel point, " +
+    "dans l'ensemble, vous vous estimez positivement. Dix affirmations équilibrées, validées au fil des décennies et des " +
+    "cultures. L'estime de soi n'est pas figée : elle réagit à la façon dont vous vous traitez et à ce que vous construisez, ce qui en fait aussi un point de départ pour progresser.",
+  scales: {
+    EST: { name: "Estime de soi globale", description: "Sentiment général de valeur personnelle et d'acceptation de soi.", poles: { low: "Faible estime de soi", high: "Forte estime de soi" } },
+  },
+  items: {
+    S1: "Dans l'ensemble, je suis satisfait(e) de moi-même.",
+    S2: "Je sens que je possède un certain nombre de belles qualités.",
+    S3: "Je suis capable de faire les choses aussi bien que la plupart des gens.",
+    S4: "Je sens que je suis une personne de valeur, au moins autant que les autres.",
+    S5: "J'adopte une attitude positive envers moi-même.",
+    S6: "Il m'arrive de penser que je ne vaux rien.",
+    S7: "Je sens que je n'ai pas grand-chose dont être fier(e).",
+    S8: "Je me sens parfois vraiment inutile.",
+    S9: "J'aimerais pouvoir avoir plus de respect pour moi-même.",
+    S10: "Tout compte fait, j'ai tendance à me considérer comme un échec.",
+  },
+};
+
+const MOOD_ES: InstrumentTranslation = {
+  name: "Chequeo del estado de ánimo",
+  shortName: "Ánimo",
+  tagline: "Una instantánea amable de dos semanas de ánimo y energía: apoyo, no diagnóstico.",
+  description:
+    "Un chequeo breve y cuidadoso de cómo han estado tu ánimo y tu energía en las últimas dos semanas, en el espíritu " +
+    "de los cribados habituales de bienestar, pero enfocado en cómo estás, no en qué va mal. Puntuaciones más altas " +
+    "significan un ánimo y una energía más estables. Es un estímulo para el autoconocimiento y el autocuidado, nunca un diagnóstico.",
+  scales: {
+    MOOD: { name: "Ánimo y perspectiva", description: "Luminosidad del ánimo, el interés y la esperanza.", poles: { low: "Bajo y plano", high: "Luminoso y esperanzado" } },
+    ENRG: { name: "Energía y descanso", description: "Energía, descanso y estabilidad física.", poles: { low: "Agotado/a", high: "Con energía" } },
+  },
+  items: {
+    M1: "En las últimas dos semanas, me he sentido decaído/a, deprimido/a o sin esperanza.",
+    M2: "He tenido poco interés o placer en cosas que normalmente disfruto.",
+    M3: "Me he sentido bien conmigo mismo/a y con esperanza sobre los días por venir.",
+    M4: "He podido disfrutar de partes de mi día.",
+    E1: "He dormido razonablemente bien y me he sentido descansado/a.",
+    E2: "He tenido energía para hacer lo que necesitaba hacer.",
+    E3: "Me he sentido cansado/a o con poca energía.",
+    E4: "Me he sentido ralentizado/a, o inquieto/a e incapaz de calmarme.",
+  },
+};
+
+const MOOD_FR: InstrumentTranslation = {
+  name: "Bilan de l'humeur",
+  shortName: "Humeur",
+  tagline: "Un aperçu bienveillant sur deux semaines de l'humeur et de l'énergie — du soutien, pas un diagnostic.",
+  description:
+    "Un bilan bref et attentionné de votre humeur et de votre énergie au cours des deux dernières semaines, dans " +
+    "l'esprit des dépistages courants du bien-être — mais centré sur comment vous allez, non sur ce qui ne va pas. Des " +
+    "scores plus élevés indiquent une humeur et une énergie plus stables. C'est une invitation à la conscience de soi et au soin de soi, jamais un diagnostic.",
+  scales: {
+    MOOD: { name: "Humeur et perspective", description: "Éclat de l'humeur, intérêt et espoir.", poles: { low: "Bas et terne", high: "Lumineux et plein d'espoir" } },
+    ENRG: { name: "Énergie et repos", description: "Énergie, repos et stabilité physique.", poles: { low: "Épuisé(e)", high: "Plein(e) d'énergie" } },
+  },
+  items: {
+    M1: "Au cours des deux dernières semaines, je me suis senti(e) abattu(e), déprimé(e) ou sans espoir.",
+    M2: "J'ai eu peu d'intérêt ou de plaisir pour des choses que j'apprécie d'ordinaire.",
+    M3: "Je me suis senti(e) bien dans ma peau et plein(e) d'espoir pour les jours à venir.",
+    M4: "J'ai pu profiter de certains moments de ma journée.",
+    E1: "J'ai assez bien dormi et je me suis senti(e) reposé(e).",
+    E2: "J'ai eu l'énergie de faire ce que je devais faire.",
+    E3: "Je me suis senti(e) fatigué(e) ou à court d'énergie.",
+    E4: "Je me suis senti(e) ralenti(e), ou agité(e) et incapable de me poser.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
-  es: { "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES },
-  fr: { "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR },
+  es: {
+    "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
+    "perma-flourishing": PERMA_ES, "life-satisfaction-swls": SWLS_ES, "brief-resilience": RESILIENCE_ES,
+    "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES,
+  },
+  fr: {
+    "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
+    "perma-flourishing": PERMA_FR, "life-satisfaction-swls": SWLS_FR, "brief-resilience": RESILIENCE_FR,
+    "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR,
+  },
 };
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

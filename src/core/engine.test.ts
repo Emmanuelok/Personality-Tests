@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism } from "./instruments";
+import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
@@ -329,6 +329,25 @@ describe("instrument localization", () => {
       const res = scoreAssessment(e, answerAll(enneagram, (it) => (it.scale === "T5" ? 5 : 1)));
       expect(res.type).toBeTruthy();
       expect(res.type!.code.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("translates the wellbeing set (es/fr) preserving ids, keying, scale ids, and scores", () => {
+    for (const inst of [perma, lifeSatisfaction, resilience, selfEsteem, mood]) {
+      for (const loc of ["es", "fr"]) {
+        const t = localizeInstrument(inst, loc);
+        expect(t.name).not.toBe(inst.name);
+        expect(t.items.length).toBe(inst.items.length);
+        // ids/scale/keying preserved (scoring is language-agnostic), and text actually translated
+        expect(t.items.every((it, i) => it.id === inst.items[i].id && it.scale === inst.items[i].scale && it.keyed === inst.items[i].keyed)).toBe(true);
+        expect(t.scales.every((s, i) => s.id === inst.scales[i].id)).toBe(true);
+        expect(t.items.every((it, i) => it.text !== inst.items[i].text)).toBe(true);
+        // identical answers score identically in either language
+        const ans = allHigh(inst);
+        const en = scoreAssessment(inst, ans);
+        const loc2 = scoreAssessment(t, ans);
+        for (const sid of Object.keys(en.scales)) expect(loc2.scales[sid].mean).toBeCloseTo(en.scales[sid].mean, 5);
+      }
     }
   });
 });
