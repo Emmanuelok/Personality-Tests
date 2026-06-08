@@ -3,6 +3,7 @@ import type { Instrument, Item, ResponseMap } from "./types";
 import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit } from "./instruments";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight } from "./synthesis";
+import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
@@ -155,6 +156,19 @@ describe("compatibility engine", () => {
     const b = toSummary(attachment, scoreAssessment(attachment, avoidant));
     const rep = computeCompatibility(attachment, a, b, { seed: 2 });
     expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
+  });
+});
+
+describe("Ask Atlas companion", () => {
+  it("answers questions from a report's own data", () => {
+    const result = scoreAssessment(bigFive, allHigh(bigFive));
+    const report = composeReport(bigFive, result, { seed: 3, name: "Sam" });
+    const k = buildReportKnowledge(bigFive, result, report, "Sam");
+    expect(suggestedQuestions(k).length).toBeGreaterThan(0);
+    expect(askCompanion(k, "what are my strengths?").text.length).toBeGreaterThan(10);
+    expect(askCompanion(k, "tell me about my openness").text.toLowerCase()).toContain("openness");
+    expect(askCompanion(k, "how do I improve?").text.length).toBeGreaterThan(10);
+    expect(askCompanion(k, "thanks").text.toLowerCase()).toContain("sam");
   });
 });
 

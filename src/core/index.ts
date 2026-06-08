@@ -34,6 +34,9 @@ export {
 } from "./compatibility";
 export type { CompatibilityReport, CompatDimension, ResultSummary } from "./compatibility";
 
+export { askCompanion, suggestedQuestions, buildReportKnowledge, buildIntegratedKnowledge } from "./companion";
+export type { CompanionKnowledge, CompanionAnswer, KnowledgeScale } from "./companion";
+
 export { buildIntegratedProfile, dailyInsight } from "./synthesis";
 export type { IntegratedProfile, ThemeHit, Tension, OperatingNote, SynthEntry, DailyInsight } from "./synthesis";
 

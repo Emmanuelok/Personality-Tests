@@ -1,4 +1,6 @@
 import type { IntegratedProfile as IP } from "@core/synthesis";
+import { buildIntegratedKnowledge } from "@core/companion";
+import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
 
 export function IntegratedProfile({ ip, onBack, onBrowse }: { ip: IP; onBack: () => void; onBrowse: () => void }) {
@@ -23,6 +25,10 @@ export function IntegratedProfile({ ip, onBack, onBrowse }: { ip: IP; onBack: ()
           {ip.overview.map((p, i) => (
             <p className="lead-para" key={i}>{p}</p>
           ))}
+        </section>
+
+        <section className="panel">
+          <Companion knowledge={buildIntegratedKnowledge(ip)} />
         </section>
 
         {ip.themes.length > 0 && (

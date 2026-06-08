@@ -271,6 +271,7 @@ export default function App() {
             onRegenerate={regenerate}
             onRestart={goDashboard}
             onCompatibility={goCompat}
+            name={name}
           />
         ) : (
           <BriefResult

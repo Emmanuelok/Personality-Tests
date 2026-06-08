@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
+import { buildReportKnowledge } from "@core/companion";
 import { RadarChart, ScaleBar } from "./charts";
 import { ImprovementPlanner } from "./ImprovementPlanner";
+import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
 import { hasPoster } from "../store";
 
@@ -19,6 +21,7 @@ export function Report({
   onRegenerate,
   onRestart,
   onCompatibility,
+  name,
 }: {
   instrument: Instrument;
   result: AssessmentResult;
@@ -26,6 +29,7 @@ export function Report({
   onRegenerate: () => void;
   onRestart: () => void;
   onCompatibility: () => void;
+  name?: string;
 }) {
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
@@ -77,6 +81,11 @@ export function Report({
           {report.overview.map((p, i) => (
             <p className="lead-para" key={i}>{p}</p>
           ))}
+        </section>
+
+        {/* Ask Atlas */}
+        <section className="panel">
+          <Companion knowledge={buildReportKnowledge(instrument, result, report, name)} />
         </section>
 
         {/* Type card */}
