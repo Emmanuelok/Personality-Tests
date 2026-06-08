@@ -492,6 +492,19 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .hero .eyebrow { border: none; background: none; color: var(--text-faint); letter-spacing: 0.34em; font-size: 0.78rem; padding: 0; }
 .section-title { font-family: var(--display); letter-spacing: 0.18em; }
 
+/* test intro (the calm "begin" screen) */
+.intro { max-width: 720px; margin: 7vh auto 0; text-align: center; }
+.intro h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(2.3rem, 6.5vw, 3.9rem); line-height: 1.04; margin: 14px 0 0; }
+.eyebrow { font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--text-dim); font-weight: 500; margin: 0; font-family: var(--display); }
+.lede { max-width: 580px; margin: 18px auto 0; font-size: 1.18rem; color: var(--text-dim); font-style: italic; }
+.name-field { margin: 26px auto; max-width: 360px; }
+.name-field input { width: 100%; text-align: center; font-family: var(--sans); font-size: 1.05rem; padding: 12px 18px; border: 1px solid var(--border); border-radius: 30px; background: var(--surface); color: var(--text); }
+.name-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(154, 123, 46, 0.15); }
+.meta { margin-top: 22px; font-size: 0.92rem; color: var(--text-faint); font-style: italic; }
+.aside { border: 1px solid var(--border); border-left: 4px solid var(--text-faint); background: rgba(255, 252, 243, 0.6); padding: 16px 22px; border-radius: 4px; font-size: 0.98rem; color: var(--text-dim); }
+.aside .label { display: block; font-family: var(--display); font-size: 0.7rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
+.aside b { color: var(--text); font-weight: 600; }
+
 /* ---------- Print ---------- */
 @media print {
   body { background: #fff; color: #111; }

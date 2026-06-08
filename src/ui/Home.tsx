@@ -3,11 +3,19 @@ import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { CATEGORIES } from "@core/categories";
 
-export function Home({ onStart, onCompatibility }: { onStart: (instrument: Instrument) => void; onCompatibility: () => void }) {
+export function Home({
+  onStart,
+  onCompatibility,
+  onStartPack,
+}: {
+  onStart: (instrument: Instrument) => void;
+  onCompatibility: () => void;
+  onStartPack: () => void;
+}) {
   return (
     <div className="container">
       <section className="hero">
-        <span className="eyebrow">Psyche Atlas · Intelligent Assessment</span>
+        <span className="eyebrow">Know Yourself</span>
         <h1>
           Know yourself with <span className="grad">scientific depth</span>.
           <br /> Then choose who you become.
@@ -22,13 +30,16 @@ export function Home({ onStart, onCompatibility }: { onStart: (instrument: Instr
           <span className="pill">📈 A <b>growth engine</b>, not just a test</span>
           <span className="pill">🔒 <b>Private</b> — answers never leave your device</span>
         </div>
-        <p style={{ color: "var(--text-faint)", marginTop: 18, fontSize: 14 }}>
-          {INSTRUMENTS.length} assessments across {CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length} themes ·
-          every one geared toward self-awareness and a better-lived life.
+        <div className="row-actions" style={{ marginTop: 26 }}>
+          <button className="btn" onClick={onStartPack}>✨&nbsp;Start a guided 3-test pack&nbsp;→</button>
+          <button className="btn ghost" onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}>Browse all {INSTRUMENTS.length}</button>
+        </div>
+        <p style={{ color: "var(--text-faint)", marginTop: 20, fontSize: 14, fontStyle: "italic" }}>
+          {INSTRUMENTS.length} assessments across {CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length} themes — each a mirror for self-reflection.
         </p>
       </section>
 
-      <h2 className="section-title">Choose an assessment</h2>
+      <h2 className="section-title" id="catalog">Choose an assessment</h2>
       {CATEGORIES.map((cat) => {
         const list = instrumentsByCategory(cat.id);
         if (!list.length) return null;

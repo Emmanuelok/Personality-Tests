@@ -5,19 +5,17 @@ import { scoreAssessment } from "@core/scoring";
 import { composeReport } from "@core/report/composer";
 import { getInstrument } from "@core/instruments";
 import { buildIntegratedProfile, type IntegratedProfile as IP, type SynthEntry } from "@core/synthesis";
-import { Aurora } from "./ui/Aurora";
-import { Onboarding } from "./ui/Onboarding";
-import { Dashboard } from "./ui/Dashboard";
-import { IntegratedProfile } from "./ui/IntegratedProfile";
+import { starterPack } from "@core/starter";
 import { Home } from "./ui/Home";
+import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
+import { Calculating } from "./ui/Calculating";
 import { Report } from "./ui/Report";
 import { BriefResult } from "./ui/BriefResult";
 import { Compatibility } from "./ui/Compatibility";
 import { Growth } from "./ui/Growth";
+import { IntegratedProfile } from "./ui/IntegratedProfile";
 import { PackStep } from "./ui/PackStep";
-import { Calculating } from "./ui/Calculating";
-import { starterPack } from "@core/starter";
 import {
   grantProduct,
   isUnlocked,
@@ -28,25 +26,23 @@ import {
   type PendingResult,
 } from "./store";
 import {
-  addJournal,
   completedInstrumentIds,
   createProfile,
   latestResult,
   loadProfile,
   recordResult,
-  resetProfile,
-  touchStreak,
+  saveProfile,
   type Profile,
 } from "./profile";
 
-type View = "onboarding" | "dashboard" | "library" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
 
 export default function App() {
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
-  const [view, setView] = useState<View>(() => (loadProfile() ? "dashboard" : "onboarding"));
+  const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [report, setReport] = useState<PersonalityReport | null>(null);
@@ -57,14 +53,10 @@ export default function App() {
   const [pack, setPack] = useState<string[]>([]);
   const [packTotal, setPackTotal] = useState(0);
 
-  const name = profile?.name;
+  const name = profile?.name || undefined;
+  const unlocked = useMemo(() => !!result && isUnlocked(result.responseFingerprint), [result, unlockNonce]);
 
-  const unlocked = useMemo(
-    () => !!result && isUnlocked(result.responseFingerprint),
-    [result, unlockNonce],
-  );
-
-  // Rescore the latest take of each completed instrument for synthesis & the dashboard.
+  // Rescore the latest take of each completed instrument for synthesis.
   const entries = useMemo<SynthEntry[]>(() => {
     if (!profile) return [];
     const out: SynthEntry[] = [];
@@ -76,11 +68,6 @@ export default function App() {
     return out;
   }, [profile]);
 
-  // Daily-streak bump on first load.
-  useEffect(() => {
-    setProfile((p) => (p ? touchStreak(p) : p));
-  }, []);
-
   // Return trip from Stripe Checkout.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -91,7 +78,7 @@ export default function App() {
       const scored = scoreAssessment(inst, pending.responses);
       setInstrument(inst);
       setResult(scored);
-      setReport(composeReport(inst, scored, { name: loadProfile()?.name }));
+      setReport(composeReport(inst, scored, { name: loadProfile()?.name || undefined }));
       setView("result");
       return true;
     };
@@ -128,9 +115,36 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
-  const onboardingDone = (nm: string, focus: string[]) => {
-    setProfile(createProfile(nm, focus));
-    setView("dashboard");
+  /* ── navigation ─────────────────────────────────────────────────────── */
+  const goHome = () => {
+    setView("home");
+    setError(null);
+    top();
+  };
+  const goCompat = () => {
+    setView("compatibility");
+    top();
+  };
+  const goGrowth = () => {
+    setView("growth");
+    top();
+  };
+  const goIntegrated = () => {
+    if (!entries.length) return;
+    setIntegrated(buildIntegratedProfile(entries, { name }));
+    setView("integrated");
+    top();
+  };
+
+  /* ── test flow: catalog → intro → quiz → calc → result ──────────────── */
+  const start = (inst: Instrument) => {
+    setPack([]);
+    setPackTotal(0);
+    setInstrument(inst);
+    setResult(null);
+    setReport(null);
+    setError(null);
+    setView("intro");
     top();
   };
 
@@ -142,17 +156,23 @@ export default function App() {
     setView("quiz");
     top();
   };
-  const start = (inst: Instrument) => {
-    setPack([]);
-    setPackTotal(0);
-    beginInstrument(inst);
+
+  const beginQuiz = (nm: string) => {
+    const trimmed = nm.trim();
+    let p = profile ?? createProfile(trimmed, []);
+    if (trimmed && p.name !== trimmed) p = { ...p, name: trimmed };
+    else if (!trimmed && !profile) p = { ...p, name: "" };
+    saveProfile(p);
+    setProfile(p);
+    if (instrument) beginInstrument(instrument);
   };
+
   const startPack = (ids: string[]) => {
     const first = ids[0] && getInstrument(ids[0]);
     if (!first) return;
     setPackTotal(ids.length);
     setPack(ids.slice(1));
-    beginInstrument(first);
+    start(first);
   };
   const packNext = () => {
     if (pack.length) {
@@ -169,7 +189,7 @@ export default function App() {
   const skipPack = () => {
     setPackTotal(0);
     setPack([]);
-    goDashboard();
+    goHome();
   };
 
   const complete = (responses: ResponseMap) => {
@@ -182,21 +202,8 @@ export default function App() {
     setView("calc");
     top();
   };
-
   const afterCalc = () => {
     setView(packTotal > 0 ? "packstep" : "result");
-    top();
-  };
-
-  const openResult = (instrumentId: string) => {
-    const inst = getInstrument(instrumentId);
-    const saved = profile ? latestResult(profile, instrumentId) : undefined;
-    if (!inst || !saved) return;
-    const scored = scoreAssessment(inst, saved.responses);
-    setInstrument(inst);
-    setResult(scored);
-    setReport(composeReport(inst, scored, { name, seed: saved.seed }));
-    setView("result");
     top();
   };
 
@@ -227,86 +234,41 @@ export default function App() {
     }
   };
 
-  const goIntegrated = () => {
-    if (!entries.length) return;
-    setIntegrated(buildIntegratedProfile(entries, { name }));
-    setView("integrated");
-    top();
-  };
-  const goLibrary = () => {
-    setView("library");
-    top();
-  };
-  const goCompat = () => {
-    setView("compatibility");
-    top();
-  };
-  const goGrowth = () => {
-    setView("growth");
-    top();
-  };
-  const goDashboard = () => {
-    setView(profile ? "dashboard" : "onboarding");
-    setError(null);
-    top();
-  };
-  const onJournal = (text: string) => {
-    if (profile) setProfile(addJournal(profile, { at: new Date().toISOString(), text }));
-  };
-  const onReset = () => {
-    if (!confirm("Reset your space? This erases your name, history, and reflections on this device.")) return;
-    resetProfile();
-    setProfile(null);
-    setResult(null);
-    setReport(null);
-    setIntegrated(null);
-    setView("onboarding");
-    top();
-  };
+  const hasHistory = entries.length > 0;
+  const showChrome = view !== "quiz" && view !== "calc";
 
   return (
     <>
-      <Aurora />
-      {view !== "onboarding" && (
+      {showChrome && (
         <header className="topbar">
           <div className="container inner">
-            <div className="brand" onClick={goDashboard}>
+            <div className="brand" onClick={goHome}>
               <span className="mark">🧭</span>
               <span className="name">Psyche <b>Atlas</b></span>
             </div>
-            {profile && (
-              <nav className="navlinks">
-                <button className={view === "dashboard" ? "active" : ""} onClick={goDashboard}>Home</button>
-                <button className={view === "library" ? "active" : ""} onClick={goLibrary}>Explore</button>
-                <button className={view === "integrated" ? "active" : ""} onClick={goIntegrated} disabled={!entries.length}>Integrated</button>
-                <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>Journey</button>
-                <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>Compatibility</button>
-              </nav>
-            )}
+            <nav className="navlinks">
+              <button className={view === "home" || view === "intro" ? "active" : ""} onClick={goHome}>Assessments</button>
+              {hasHistory && <button className={view === "integrated" ? "active" : ""} onClick={goIntegrated}>Integrated</button>}
+              {hasHistory && <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>Journey</button>}
+              <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>Compatibility</button>
+            </nav>
           </div>
         </header>
       )}
 
-      {view === "onboarding" && <Onboarding onDone={onboardingDone} />}
-
-      {view === "dashboard" && profile && (
-        <Dashboard
-          profile={profile}
-          entries={entries}
-          onBrowse={goLibrary}
-          onOpen={openResult}
-          onStartInstrument={start}
-          onStartPack={() => startPack(starterPack(profile.focus))}
-          onIntegrated={goIntegrated}
+      {view === "home" && (
+        <Home
+          onStart={start}
           onCompatibility={goCompat}
-          onJournal={onJournal}
-          onReset={onReset}
+          onStartPack={() => startPack(starterPack(profile?.focus ?? []))}
         />
       )}
 
-      {view === "library" && <Home onStart={start} onCompatibility={goCompat} />}
+      {view === "intro" && instrument && (
+        <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />
+      )}
 
-      {view === "quiz" && instrument && <Quiz instrument={instrument} onComplete={complete} onCancel={goDashboard} />}
+      {view === "quiz" && instrument && <Quiz instrument={instrument} onComplete={complete} onCancel={goHome} />}
 
       {view === "calc" && <Calculating onDone={afterCalc} />}
 
@@ -317,7 +279,7 @@ export default function App() {
             result={result}
             report={report}
             onRegenerate={regenerate}
-            onRestart={goDashboard}
+            onRestart={goHome}
             onCompatibility={goCompat}
             name={name}
           />
@@ -327,22 +289,20 @@ export default function App() {
             result={result}
             report={report}
             onPurchase={onPurchase}
-            onRestart={goDashboard}
+            onRestart={goHome}
             busy={busy}
             error={error}
           />
         )
       )}
 
-      {view === "integrated" && integrated && (
-        <IntegratedProfile ip={integrated} onBack={goDashboard} onBrowse={goLibrary} />
-      )}
+      {view === "integrated" && integrated && <IntegratedProfile ip={integrated} onBack={goHome} onBrowse={goHome} />}
 
       {view === "compatibility" && (
-        <Compatibility instrument={instrument} result={result} onStart={start} onBack={goDashboard} />
+        <Compatibility instrument={instrument} result={result} onStart={start} onBack={goHome} />
       )}
 
-      {view === "growth" && profile && <Growth profile={profile} onBrowse={goLibrary} onBack={goDashboard} />}
+      {view === "growth" && profile && <Growth profile={profile} onBrowse={goHome} onBack={goHome} />}
 
       {view === "packstep" && report && (
         <PackStep report={report} done={packTotal - pack.length} total={packTotal} name={name} onContinue={packNext} onSkip={skipPack} />
