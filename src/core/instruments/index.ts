@@ -31,6 +31,11 @@ import { chronotype } from "./chronotype";
 import { perma } from "./perma";
 import { mood } from "./mood";
 import { worry } from "./worry";
+import { burnout } from "./burnout";
+import { pss } from "./pss";
+import { panas } from "./panas";
+import { ryff } from "./ryff";
+import { cope } from "./cope";
 import { vark } from "./vark";
 import { kolb } from "./kolb";
 import { adhd } from "./adhd";
@@ -82,6 +87,11 @@ export const INSTRUMENTS: Instrument[] = [
   perma,
   mood,
   worry,
+  burnout,
+  pss,
+  panas,
+  ryff,
+  cope,
   vark,
   kolb,
   adhd,
@@ -144,6 +154,11 @@ export {
   perma,
   mood,
   worry,
+  burnout,
+  pss,
+  panas,
+  ryff,
+  cope,
   vark,
   kolb,
   adhd,

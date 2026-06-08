@@ -221,6 +221,13 @@ const EMBLEMS: Record<string, EmblemFn> = {
       <line x1="39" y1="24" x2="45" y2="24" />
     </>
   ),
+  // Stress & Wellbeing — a calm, growing leaf.
+  wellbeing: () => (
+    <>
+      <path d="M24,41 C24,28 13,22 9,11 C22,10 34,18 31,31 C30,37 27,41 24,41 Z" />
+      <path className="gold" d="M24,41 C24,31 20,22 15,16" />
+    </>
+  ),
   // Cognitive Ability — a thinking head with a turning gear of reasoning.
   cognition: () => (
     <>
@@ -600,6 +607,47 @@ Object.assign(GLYPHS, {
       <circle className="ink-soft" cx="24" cy="24" r="11" />
       <circle cx="24" cy="24" r="5.5" />
       <circle className="gold gold-fill" cx="24" cy="24" r="2.4" />
+    </>
+  ),
+  // Burnout — a dwindling flame.
+  "burnout-mbi": () => (
+    <path className="gold gold-fill" d="M24,7 C28,15 33,18 33,26 A9,9 0 0 1 15,26 C15,21 19,20 21,15 C22,18.5 24,18 24,21 C26.5,19 25,12.5 24,7 Z" />
+  ),
+  // Perceived Stress — a pressure gauge near the top.
+  "perceived-stress": () => (
+    <>
+      <path d="M9,32 A15,15 0 0 1 39,32" />
+      <line x1="9" y1="32" x2="39" y2="32" />
+      <line className="gold" x1="24" y1="32" x2="34" y2="22" />
+      <circle className="gold gold-fill" cx="24" cy="32" r="2.6" />
+    </>
+  ),
+  // PANAS — two affects, plus and minus.
+  "panas-affect": () => (
+    <>
+      <circle cx="24" cy="24" r="16" />
+      <line x1="24" y1="8" x2="24" y2="40" />
+      <g className="gold"><line x1="11" y1="24" x2="19" y2="24" /><line x1="15" y1="20" x2="15" y2="28" /></g>
+      <line className="gold" x1="29" y1="24" x2="37" y2="24" />
+    </>
+  ),
+  // Ryff Well-Being — a six-rayed flourishing.
+  "ryff-wellbeing": () => (
+    <>
+      {[0, 60, 120, 180, 240, 300].map((d) => {
+        const a = (d * Math.PI) / 180;
+        return <line key={d} x1={24 + 5 * Math.cos(a)} y1={24 + 5 * Math.sin(a)} x2={24 + 16 * Math.cos(a)} y2={24 + 16 * Math.sin(a)} />;
+      })}
+      <circle className="gold gold-fill" cx="24" cy="24" r="4" />
+    </>
+  ),
+  // Coping Styles — an umbrella sheltering from a drop.
+  "coping-styles": () => (
+    <>
+      <path d="M8,25 A16,12 0 0 1 40,25 Z" />
+      <line x1="24" y1="25" x2="24" y2="37" />
+      <path d="M24,37 A3.5,3.5 0 0 0 31,37" />
+      <path className="gold gold-fill" d="M24,6 C25.6,9 27,10.5 27,12.5 A3,3 0 0 1 21,12.5 C21,10.5 22.4,9 24,6 Z" />
     </>
   ),
 });

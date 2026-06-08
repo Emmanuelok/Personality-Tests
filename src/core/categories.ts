@@ -48,6 +48,12 @@ export const CATEGORIES: Category[] = [
     icon: "🫀",
   },
   {
+    id: "wellbeing",
+    name: "Stress & Wellbeing",
+    blurb: "Stress, coping, burnout, mood, and flourishing — an honest read on how you're really doing.",
+    icon: "🌿",
+  },
+  {
     id: "learning",
     name: "Learning & Thinking",
     blurb: "How you take in, process, and act on information — popular models, held to honest scientific scrutiny.",

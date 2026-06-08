@@ -555,6 +555,7 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .cat-learning { color: #3f7a86; }
 .cat-focused { color: #8a5a30; }
 .cat-cognition { color: #4a5a86; }
+.cat-wellbeing { color: #3f7a5a; }
 
 /* emblem framed beside a category heading */
 .cat-emblem {
