@@ -1,7 +1,7 @@
 {
   "name": "psyche-atlas",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Psyche Atlas — an intelligent platform for taking authoritative personality assessments and generating uniquely tailored, growth-oriented reports.",
   "license": "MIT",

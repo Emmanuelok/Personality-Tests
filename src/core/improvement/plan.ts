@@ -60,8 +60,18 @@ export function suggestTargets(instrument: Instrument, result: AssessmentResult)
     if (instrument.id === "big-five-ipip50") {
       const nudge: Record<string, number> = { C: 12, A: 8, O: 6, E: cur < 50 ? 10 : 0, N: -14 };
       target = clamp(cur + (nudge[s.id] ?? 0), 5, 95);
+    } else if (instrument.id === "hexaco-24") {
+      const up: Record<string, number> = { H: 14, A: 8, C: 8, O: 6, X: cur < 50 ? 8 : 0, E: 0 };
+      target = clamp(cur + (up[s.id] ?? 0), 5, 95);
+    } else if (instrument.id === "dark-triad-18") {
+      target = cur > 45 ? clamp(cur - 16, 10, 90) : cur; // soften elevated dark traits
+    } else if (instrument.id === "attachment-styles") {
+      target = clamp(cur - 18, 8, 92); // move toward security: lower anxiety & avoidance
     } else {
-      target = cur >= 50 ? Math.max(50, cur - 12) : Math.min(50, cur + 12);
+      // DISC and other typologies: gently moderate extremes.
+      if (cur > 60) target = Math.max(50, cur - 12);
+      else if (cur < 40) target = Math.min(50, cur + 12);
+      else target = cur;
     }
     return { scaleId: s.id, target: Math.round(target) };
   });

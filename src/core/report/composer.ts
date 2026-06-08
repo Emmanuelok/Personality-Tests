@@ -51,7 +51,33 @@ function distinctiveness(s: ScaleScore): number {
   return Math.abs(s.normalized - 50);
 }
 
+const GENERIC_NOUNS = ["Original", "Character", "Archetype", "Persona", "Mind", "Portrait", "Spirit"];
+
+/** Headline for dimensional instruments that aren't the Big Five, built from pole labels. */
+function genericHeadline(rng: Rng, instrument: Instrument, scales: Record<string, ScaleScore>): { title: string; subtitle: string } {
+  const ranked = instrument.scales
+    .map((sc) => ({ sc, score: scales[sc.id] }))
+    .filter((x) => x.score)
+    .sort((a, b) => distinctiveness(b.score) - distinctiveness(a.score));
+  if (!ranked.length) return { title: "Your Personality Portrait", subtitle: instrument.name };
+  const top = ranked[0];
+  const second = ranked[1] ?? ranked[0];
+  const word = (x: { sc: ScaleDef; score: ScaleScore }) => {
+    const lbl = x.score.normalized >= 50 ? x.sc.poles?.high ?? x.sc.name : x.sc.poles?.low ?? x.sc.name;
+    return lbl.split(/[ ,–-]/)[0];
+  };
+  return {
+    title: `The ${word(top)} ${rng.pick(GENERIC_NOUNS)}`,
+    subtitle: rng.pick([
+      `A portrait led by your ${top.sc.name} and ${second.sc.name}`,
+      `Defined most by your ${top.sc.name}`,
+      `Where your ${top.sc.name} meets your ${second.sc.name}`,
+    ]),
+  };
+}
+
 function dimensionalHeadline(rng: Rng, instrument: Instrument, scales: Record<string, ScaleScore>): { title: string; subtitle: string } {
+  if (instrument.id !== "big-five-ipip50") return genericHeadline(rng, instrument, scales);
   const ranked = instrument.scales
     .map((sc) => ({ sc, score: scales[sc.id] }))
     .filter((x) => TRAIT_ADJ[x.sc.id])

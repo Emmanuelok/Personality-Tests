@@ -4,7 +4,7 @@
 
 Psyche Atlas is not just a test app — it's a self-understanding *and* self-improvement engine. You take a scientifically-grounded assessment, receive a report composed from your **entire response pattern** (so no two reports are ever identical), and then turn that same data toward growth with an **evidence-based development plan** from where you are to where you want to be.
 
-> Status: **v0.1 — foundation.** A working, tested core with three flagship instruments. Built to be extended into "every personality test in the world" via a data-driven instrument model. See [Roadmap](#roadmap).
+> Status: **v0.2.** A working, tested core with **seven instruments**, a freemium store ($1.89 unlock), a designed PDF export, and one-click Vercel deploy. Built to extend toward "every personality test in the world" via a data-driven instrument model. See [Roadmap](#roadmap).
 
 ---
 
@@ -20,13 +20,17 @@ Psyche Atlas is not just a test app — it's a self-understanding *and* self-imp
 
 ---
 
-## The instruments (v0.1)
+## The instruments (7 and growing)
 
 1. **Big Five (IPIP-50)** — the empirical gold standard. Five factors (O, C, E, A, N) scored against approximate population norms. *Public-domain items.*
-2. **Jungian Type Profiler (16 Types)** — four dichotomies → one of sixteen types, with the Jungian cognitive-function stack. *Original items; not the MBTI® instrument.*
-3. **Enneagram of Personality** — nine motivation-based types with wing, center of intelligence, and passion→virtue growth framing. *Original items grounded in the Enneagram literature.*
+2. **HEXACO (6 dimensions)** — the Big Five plus **Honesty-Humility** (Lee & Ashton). *Original facet-based items.*
+3. **Jungian Type Profiler (16 Types)** — four dichotomies → one of sixteen types, with the Jungian cognitive-function stack. *Original items; not the MBTI® instrument.*
+4. **Enneagram of Personality** — nine motivation-based types with wing, center of intelligence, and passion→virtue growth framing. *Original items grounded in the Enneagram literature.*
+5. **DISC Behavioral Styles** — four styles (D·I·S·C) with primary/secondary blend, for communication and teamwork. *Original items.*
+6. **Attachment Style** — attachment anxiety × avoidance → four relationship styles, with growth toward security. *Original items, ECR tradition.*
+7. **Dark Triad** — Machiavellianism, Narcissism, Psychopathy (normal-range), for honest self-insight. *Original items, SD3-grounded.*
 
-Each instrument is a single data file (`src/core/instruments/*.ts`) — adding HEXACO, DISC, the Dark Triad, VIA Strengths, etc. is a matter of describing items, scales, and (optionally) a type-resolution function.
+Each instrument is a single data file (`src/core/instruments/*.ts`) — adding more (VIA Strengths, values inventories, etc.) is a matter of describing items, scales, and (optionally) a type-resolution function.
 
 ---
 
@@ -39,7 +43,8 @@ src/
 │   ├── prng.ts                # cyrb53 hash + mulberry32 seeded RNG + nonce  (uniqueness primitives)
 │   ├── variation.ts           # pure text helpers
 │   ├── scoring.ts             # keying, means, normal-CDF percentiles, levels, type resolution
-│   ├── instruments/           # bigfive.ts · jung.ts · enneagram.ts · index.ts
+│   ├── instruments/           # bigfive · hexaco · jung · enneagram · disc · attachment · darktriad
+│   ├── commerce.ts             # product catalog (Full Report, All-Access, Poster)
 │   ├── report/
 │   │   ├── phrasebank.ts       # level-templated openers + trait color + dynamics rules
 │   │   ├── composer.ts         # deterministic, uniqueness-guaranteed report composer

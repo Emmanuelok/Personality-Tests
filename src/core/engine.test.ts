@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { bigFive, jungTypes, enneagram } from "./instruments";
+import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad } from "./instruments";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
@@ -67,6 +67,39 @@ describe("typology resolution", () => {
     const responses = answerAll(enneagram, (it) => (it.scale === "T5" ? 5 : 1));
     const res = scoreAssessment(enneagram, responses);
     expect(res.type?.code.startsWith("5")).toBe(true);
+  });
+});
+
+describe("expanded instruments", () => {
+  it("scores HEXACO toward the top across all six dimensions", () => {
+    const res = scoreAssessment(hexaco, allHigh(hexaco));
+    expect(Object.keys(res.scales)).toHaveLength(6);
+    for (const sc of Object.values(res.scales)) expect(sc.level).toBe("very high");
+  });
+
+  it("resolves the dominant DISC style", () => {
+    const responses = answerAll(disc, (i) => (i.scale === "D" ? 5 : 1));
+    const res = scoreAssessment(disc, responses);
+    expect(res.type?.code.startsWith("D")).toBe(true);
+  });
+
+  it("classifies attachment styles from the two dimensions", () => {
+    const secure = scoreAssessment(attachment, allLow(attachment));
+    expect(secure.type?.code).toBe("Secure");
+
+    const anxiousResponses = answerAll(attachment, (i) =>
+      i.scale === "ANX" ? (i.keyed === 1 ? 5 : 1) : i.keyed === 1 ? 1 : 5,
+    );
+    const anxious = scoreAssessment(attachment, anxiousResponses);
+    expect(anxious.type?.code).toBe("Anxious");
+  });
+
+  it("scores the Dark Triad and composes a unique dimensional report", () => {
+    const res = scoreAssessment(darkTriad, allHigh(darkTriad));
+    for (const sc of Object.values(res.scales)) expect(sc.mean).toBeCloseTo(5, 5);
+    const report = composeReport(darkTriad, res, { seed: 3 });
+    expect(report.title.length).toBeGreaterThan(3);
+    expect(report.traits).toHaveLength(3);
   });
 });
 
