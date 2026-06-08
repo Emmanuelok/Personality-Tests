@@ -479,7 +479,15 @@ export default function App() {
         <Compatibility instrument={instrument} result={result} onStart={start} onBack={goHome} />
       )}
 
-      {view === "growth" && profile && <Growth profile={profile} onBrowse={goHome} onBack={goHome} onBattery={battery ? goBattery : undefined} />}
+      {view === "growth" && profile && (
+        <Growth
+          profile={profile}
+          onBrowse={goHome}
+          onBack={goHome}
+          onBattery={battery ? goBattery : undefined}
+          onImport={(p) => { saveProfile(p); setProfile(p); top(); }}
+        />
+      )}
 
       {view === "packstep" && report && (
         <PackStep report={report} done={packTotal - pack.length} total={packTotal} name={name} onContinue={packNext} onSkip={skipPack} />

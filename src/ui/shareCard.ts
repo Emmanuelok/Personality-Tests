@@ -1,6 +1,7 @@
 import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import type { AbilityTest, AbilityResult } from "@core/ability";
+import type { Battery } from "@core/ability/chc";
 
 /** Render a beautiful 1200×630 share card to PNG and download it. Pure canvas. */
 export function downloadShareCard(instrument: Instrument, _result: AssessmentResult, report: PersonalityReport, name?: string) {
@@ -174,6 +175,84 @@ export function downloadCognitiveShareCard(test: AbilityTest, result: AbilityRes
     const a = document.createElement("a");
     a.href = url;
     a.download = `psyche-atlas-cognitive-${result.fingerprint}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, "image/png");
+}
+
+/** Render a 1200×630 cognitive-battery share card (overall band + CHC factor bars). */
+export function downloadBatteryShareCard(battery: Battery, name?: string) {
+  const W = 1200;
+  const H = 630;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, "#f6efdc");
+  bg.addColorStop(1, "#ece0c5");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W - 170, 130, 40, W - 170, 130, 480);
+  glow.addColorStop(0, "rgba(74,90,134,0.16)");
+  glow.addColorStop(1, "rgba(74,90,134,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  const PAD = 72;
+  const DISPLAY = "'Fraunces', Georgia, 'Times New Roman', serif";
+  const BODY = "'EB Garamond', Georgia, serif";
+
+  ctx.fillStyle = "#9a7b2e";
+  ctx.font = `700 26px ${DISPLAY}`;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText("🧭  PSYCHE ATLAS", PAD, 96);
+
+  ctx.fillStyle = "#27776f";
+  ctx.font = `600 22px ${BODY}`;
+  ctx.fillText((name ? `${name.toUpperCase()}'S ` : "") + "COGNITIVE BATTERY", PAD, 146);
+
+  ctx.fillStyle = "#2b2418";
+  ctx.font = `600 66px ${DISPLAY}`;
+  ctx.fillText(battery.band, PAD, 222);
+
+  ctx.fillStyle = "#6c5d44";
+  ctx.font = `500 26px ${BODY}`;
+  ctx.fillText(`Overall ${battery.iqLow}–${battery.iqHigh} · ~${Math.round(battery.overall)}th percentile · ${battery.tests} tests`, PAD, 262);
+
+  const factors = [...battery.factors].sort((a, b) => b.percentile - a.percentile).slice(0, 6);
+  let by = 340;
+  const rowH = Math.min(46, (H - 100 - by) / Math.max(factors.length, 1));
+  for (const f of factors) {
+    ctx.fillStyle = "#6c5d44";
+    ctx.font = `600 18px ${BODY}`;
+    ctx.fillText(`${f.name} (${f.id})`, PAD, by - 6);
+    const barX = PAD;
+    const barW = W - PAD * 2;
+    ctx.fillStyle = "#e6dabd";
+    roundRect(ctx, barX, by, barW, 12, 6);
+    ctx.fill();
+    const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    grad.addColorStop(0, "#9a7b2e");
+    grad.addColorStop(1, "#27776f");
+    ctx.fillStyle = grad;
+    roundRect(ctx, barX, by, Math.max(14, (barW * f.percentile) / 100), 12, 6);
+    ctx.fill();
+    by += rowH;
+  }
+
+  ctx.fillStyle = "#8a7a5e";
+  ctx.font = `500 22px ${BODY}`;
+  ctx.fillText("Build your profile — free at Psyche Atlas ✦", PAD, H - 40);
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `psyche-atlas-battery.png`;
     a.click();
     URL.revokeObjectURL(url);
   }, "image/png");

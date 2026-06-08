@@ -1,11 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getInstrument } from "@core/instruments";
 import { scoreAssessment } from "@core/scoring";
 import { compareTakes, milestones, type RetakeComparison } from "@core/growth";
 import { InstrumentGlyph } from "./art";
-import type { Profile, SavedResult } from "../profile";
+import { exportProfileCode, importProfileCode, type Profile, type SavedResult } from "../profile";
 
-export function Growth({ profile, onBrowse, onBack, onBattery }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void }) {
+export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void; onImport?: (p: Profile) => void }) {
   const timeline = useMemo(() => {
     const rows: { at: string; name: string; type?: string; id: string; category: string }[] = [];
     for (const h of profile.history) {
@@ -44,6 +44,10 @@ export function Growth({ profile, onBrowse, onBack, onBattery }: { profile: Prof
 
   const distinct = new Set(profile.history.map((h) => h.instrumentId)).size;
   const ms = milestones(distinct, profile.history.length, profile.streak.days);
+
+  const [code, setCode] = useState("");
+  const [importText, setImportText] = useState("");
+  const [status, setStatus] = useState("");
 
   return (
     <div className="container view-enter">
@@ -139,6 +143,30 @@ export function Growth({ profile, onBrowse, onBack, onBattery }: { profile: Prof
               {t.type && <span className="jtype">{t.type}</span>}
             </div>
           ))}
+        </section>
+
+        <section className="panel">
+          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Back up &amp; move your data</h3>
+          <p style={{ color: "var(--text-dim)", marginTop: 0, fontSize: 14.5 }}>
+            No account needed. Your results live on this device — copy your private data code to back them up or carry
+            them to another device, then paste it there to restore. The code stays with you; nothing is uploaded.
+          </p>
+          <div className="row-actions" style={{ justifyContent: "flex-start" }}>
+            <button className="btn sm" onClick={() => { setCode(exportProfileCode(profile)); setStatus(""); }}>Generate my data code</button>
+            {code && <button className="btn sm ghost" onClick={() => { navigator.clipboard?.writeText(code); setStatus("Copied to clipboard."); }}>Copy</button>}
+          </div>
+          {code && <textarea className="code-input" readOnly value={code} style={{ marginTop: 10 }} onFocus={(e) => e.currentTarget.select()} />}
+          <div style={{ marginTop: 16 }}>
+            <textarea className="code-input" placeholder="Paste a data code here to restore…" value={importText} onChange={(e) => setImportText(e.target.value)} />
+            <div className="row-actions" style={{ justifyContent: "flex-start", marginTop: 8 }}>
+              <button className="btn sm" disabled={!importText.trim()} onClick={() => {
+                const p = importProfileCode(importText);
+                if (p && onImport) { onImport(p); setStatus("Restored! Your data has been loaded."); setImportText(""); }
+                else setStatus("That code didn't look valid — check you copied all of it.");
+              }}>Restore from code</button>
+            </div>
+          </div>
+          {status && <p className="note" style={{ marginTop: 12 }}>{status}</p>}
         </section>
 
         <div className="row-actions">

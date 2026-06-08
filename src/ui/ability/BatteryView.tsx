@@ -3,6 +3,7 @@ import type { Battery } from "@core/ability/chc";
 import type { CognitiveTake } from "../../profile";
 import { RadarChart, ScaleBar } from "../charts";
 import { CategoryEmblem } from "../art";
+import { downloadBatteryShareCard } from "../shareCard";
 
 const CAVEATS = [
   "This battery is an aggregate of separate self-administered tests, often taken on different days and under different conditions — treat it as a rough composite, not a clinical IQ.",
@@ -80,6 +81,7 @@ export function BatteryView({
           </div>
           <div className="row-actions no-print" style={{ justifyContent: "flex-start", marginTop: 14 }}>
             <button className="btn primary" disabled={pdfBusy} onClick={exportPdf}>{pdfBusy ? "Preparing…" : "⤓ Battery report PDF"}</button>
+            <button className="btn" onClick={() => downloadBatteryShareCard(battery, name)}>📣 Share card</button>
             <button className="btn" onClick={() => window.print()}>🖨 Print</button>
           </div>
         </section>

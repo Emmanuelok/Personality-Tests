@@ -138,6 +138,38 @@ export function addJournal(p: Profile, entry: JournalEntry): Profile {
   return next;
 }
 
+/* ── Account-free backup / sync (a portable code, no server) ────────────── */
+
+const CODE_PREFIX = "PA1:";
+
+/** Encode the whole profile into a portable, copy-pasteable code. */
+export function exportProfileCode(p: Profile): string {
+  try {
+    return CODE_PREFIX + btoa(encodeURIComponent(JSON.stringify(p)));
+  } catch {
+    return "";
+  }
+}
+
+/** Decode a profile code back into a Profile (returns null if invalid). */
+export function importProfileCode(code: string): Profile | null {
+  try {
+    const raw = code.trim().startsWith(CODE_PREFIX) ? code.trim().slice(CODE_PREFIX.length) : code.trim();
+    const obj = JSON.parse(decodeURIComponent(atob(raw))) as Profile;
+    if (obj && typeof obj.name === "string" && Array.isArray(obj.history)) {
+      // normalize optional arrays so older/foreign codes import cleanly
+      obj.journal ??= [];
+      obj.focus ??= [];
+      obj.cognitiveHistory ??= [];
+      obj.streak ??= { last: new Date().toISOString().slice(0, 10), days: 1 };
+      return obj;
+    }
+  } catch {
+    /* malformed code */
+  }
+  return null;
+}
+
 export function resetProfile(): void {
   try {
     localStorage.removeItem(KEY);
