@@ -4,6 +4,7 @@ import { scoreAbility } from "@core/ability";
 import { InstrumentGlyph } from "../art";
 import { Calculating } from "../Calculating";
 import { Figure } from "./Figure";
+import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "quiz" | "calc";
 
@@ -14,6 +15,7 @@ export function AbilityFlow({ test, onExit, onComplete }: { test: AbilityTest; o
   const [done, setDone] = useState<AR | null>(null);
   const [remaining, setRemaining] = useState(test.timeLimitSec ?? 0);
   const finishedRef = useRef(false);
+  const { t } = useI18n();
 
   const item = test.items[idx];
   const answeredCount = useMemo(() => Object.keys(responses).length, [responses]);
@@ -49,19 +51,17 @@ export function AbilityFlow({ test, onExit, onComplete }: { test: AbilityTest; o
           <h1>{test.name}</h1>
           <p className="lede">{test.description}</p>
           <div className="aside" style={{ textAlign: "left", marginTop: 30 }}>
-            <span className="label">Before you start</span>
-            This is a <b>timed ability test</b> — the questions have right and wrong answers. Work somewhere quiet, move
-            quickly but carefully, and don't look anything up. Your result is an <b>educational estimate</b>, shown as a
-            range — never a clinical IQ score.
+            <span className="label">{t("ability.before")}</span>
+            {t("ability.timed")}
           </div>
           <button className="btn" style={{ marginTop: 26 }} onClick={() => { setPhase("quiz"); }}>
-            Begin the test&nbsp;→
+            {t("ability.beginTest")}
           </button>
           <p className="meta">
-            {test.items.length} questions · about {test.estMinutes} min{test.timeLimitSec ? ` · ${Math.round(test.timeLimitSec / 60)}-min timer` : ""} · 4 reasoning domains
+            {test.items.length} questions · about {test.estMinutes} min{test.timeLimitSec ? ` · ${Math.round(test.timeLimitSec / 60)}-min timer` : ""}
           </p>
           <div style={{ marginTop: 22 }}>
-            <button className="btn ghost" onClick={onExit}>←&nbsp;All assessments</button>
+            <button className="btn ghost" onClick={onExit}>←&nbsp;{t("common.allAssessments")}</button>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export function AbilityFlow({ test, onExit, onComplete }: { test: AbilityTest; o
         <div className="progress"><i style={{ width: `${((idx + 1) / test.items.length) * 100}%` }} /></div>
 
         <div className="qcard" key={item.id}>
-          <div className="qnum">Question {idx + 1} of {test.items.length}</div>
+          <div className="qnum">{t("ability.qOf").replace("{i}", String(idx + 1)).replace("{n}", String(test.items.length))}</div>
           <p className="stmt ab-prompt">{item.prompt}</p>
           {item.figure && <div className="ab-stem"><Figure svg={item.figure} /></div>}
 
@@ -115,14 +115,14 @@ export function AbilityFlow({ test, onExit, onComplete }: { test: AbilityTest; o
           )}
 
           <div className="quiz-actions">
-            <button className="btn ghost sm" disabled={idx === 0} onClick={() => setIdx((i) => Math.max(0, i - 1))}>← Back</button>
+            <button className="btn ghost sm" disabled={idx === 0} onClick={() => setIdx((i) => Math.max(0, i - 1))}>← {t("common.back")}</button>
             {last ? (
-              <button className="btn sm" onClick={finish}>See my result →</button>
+              <button className="btn sm" onClick={finish}>{t("ability.seeResult")}</button>
             ) : (
-              <button className="btn sm" onClick={() => setIdx((i) => Math.min(test.items.length - 1, i + 1))}>Next →</button>
+              <button className="btn sm" onClick={() => setIdx((i) => Math.min(test.items.length - 1, i + 1))}>{t("ability.next")}</button>
             )}
           </div>
-          <p className="hint">You can go back and change answers any time before you finish.</p>
+          <p className="hint">{t("ability.changeAnswers")}</p>
         </div>
       </div>
     </div>

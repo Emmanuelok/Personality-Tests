@@ -21,7 +21,8 @@ export type StringKey =
   | "report.personal" | "report.snapshot" | "report.glance" | "report.traitByTrait" | "report.dimByDim"
   | "report.dynamics" | "report.unique" | "report.responsibly" | "report.strengths" | "report.watchouts"
   | "report.takeAnother" | "report.shareCard"
-  | "paywall.unlock" | "paywall.takeDifferent";
+  | "paywall.unlock" | "paywall.takeDifferent"
+  | "ability.before" | "ability.timed" | "ability.beginTest" | "ability.next" | "ability.seeResult" | "ability.qOf" | "ability.changeAnswers";
 
 type Dict = Record<StringKey, string>;
 
@@ -40,6 +41,10 @@ const en: Dict = {
   "report.responsibly": "Read responsibly", "report.strengths": "Strengths", "report.watchouts": "Watch-outs",
   "report.takeAnother": "Take another", "report.shareCard": "Share card",
   "paywall.unlock": "Unlock your full report", "paywall.takeDifferent": "Take a different assessment",
+  "ability.before": "Before you start",
+  "ability.timed": "This is a timed ability test — the questions have right and wrong answers. Work somewhere quiet, move quickly but carefully, and don't look anything up. Your result is an educational estimate, shown as a range — never a clinical IQ score.",
+  "ability.beginTest": "Begin the test →", "ability.next": "Next →", "ability.seeResult": "See my result →",
+  "ability.qOf": "Question {i} of {n}", "ability.changeAnswers": "You can go back and change answers any time before you finish.",
 };
 
 const es: Dict = {
@@ -57,6 +62,10 @@ const es: Dict = {
   "report.responsibly": "Léelo con responsabilidad", "report.strengths": "Fortalezas", "report.watchouts": "Puntos de atención",
   "report.takeAnother": "Hacer otra", "report.shareCard": "Tarjeta para compartir",
   "paywall.unlock": "Desbloquea tu informe completo", "paywall.takeDifferent": "Hacer otra evaluación",
+  "ability.before": "Antes de empezar",
+  "ability.timed": "Esta es una prueba de aptitud cronometrada: las preguntas tienen respuestas correctas e incorrectas. Hazla en un lugar tranquilo, ve rápido pero con cuidado y no consultes nada. Tu resultado es una estimación educativa, mostrada como un rango, nunca un CI clínico.",
+  "ability.beginTest": "Comenzar la prueba →", "ability.next": "Siguiente →", "ability.seeResult": "Ver mi resultado →",
+  "ability.qOf": "Pregunta {i} de {n}", "ability.changeAnswers": "Puedes volver atrás y cambiar tus respuestas antes de terminar.",
 };
 
 const fr: Dict = {
@@ -74,6 +83,10 @@ const fr: Dict = {
   "report.responsibly": "À lire avec discernement", "report.strengths": "Forces", "report.watchouts": "Points de vigilance",
   "report.takeAnother": "En faire un autre", "report.shareCard": "Carte à partager",
   "paywall.unlock": "Débloquez votre rapport complet", "paywall.takeDifferent": "Faire une autre évaluation",
+  "ability.before": "Avant de commencer",
+  "ability.timed": "Ceci est un test d'aptitude chronométré — les questions ont de bonnes et de mauvaises réponses. Installez-vous au calme, allez vite mais avec soin, et ne cherchez rien. Votre résultat est une estimation éducative, présentée sous forme de fourchette — jamais un QI clinique.",
+  "ability.beginTest": "Commencer le test →", "ability.next": "Suivant →", "ability.seeResult": "Voir mon résultat →",
+  "ability.qOf": "Question {i} sur {n}", "ability.changeAnswers": "Vous pouvez revenir en arrière et modifier vos réponses avant de terminer.",
 };
 
 export const STRINGS: Record<Locale, Dict> = { en, es, fr };
