@@ -815,6 +815,14 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Implicit Associations — two linked concepts with a fast spark.
+  "iat-demo": () => (
+    <>
+      <circle cx="13" cy="24" r="6.5" />
+      <circle className="gold" cx="35" cy="24" r="6.5" />
+      <path className="gold gold-fill" d="M22,24 L26,18 L25,23 L28,23 L23,30 L24,25 L21,25 Z" />
+    </>
+  ),
   // Critical Thinking — scales weighing an argument.
   "critical-thinking": () => (
     <>

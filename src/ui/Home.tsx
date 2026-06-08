@@ -5,6 +5,7 @@ import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
 import { MEMORY_TEST, CORSI_TEST } from "@core/ability/memory";
 import { PROCESSING_TEST } from "@core/ability/processing";
 import { ADAPTIVE_TEST } from "@core/ability/adaptive";
+import { IAT_TEST } from "@core/ability/iat";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -17,6 +18,7 @@ export function Home({
   onStartCorsi,
   onStartSpeed,
   onStartAdaptive,
+  onStartIat,
   onBattery,
 }: {
   onStart: (instrument: Instrument) => void;
@@ -27,6 +29,7 @@ export function Home({
   onStartCorsi: () => void;
   onStartSpeed: () => void;
   onStartAdaptive: () => void;
+  onStartIat: () => void;
   onBattery?: () => void;
 }) {
   return (
@@ -204,6 +207,21 @@ export function Home({
             </div>
             <p className="cite">A computer-adaptive matrix test — difficulty tracks your level for a tighter estimate.</p>
             <button className="btn primary" onClick={onStartAdaptive}>Begin {ADAPTIVE_TEST.shortName} →</button>
+          </article>
+          <article className="card">
+            <span className="card-watermark cat-cognition" aria-hidden="true">
+              <InstrumentGlyph id="iat-demo" category="cognition" />
+            </span>
+            <span className="kind">Reaction-time demo</span>
+            <h3>{IAT_TEST.name}</h3>
+            <p className="tagline">{IAT_TEST.tagline}</p>
+            <div className="facts">
+              <span>⏱ ~5 min</span>
+              <span>⌨ keyed</span>
+              <span>📐 implicit method</span>
+            </div>
+            <p className="cite">A neutral demonstration of the Implicit Association Test (Greenwald et al.).</p>
+            <button className="btn primary" onClick={onStartIat}>Begin {IAT_TEST.shortName} →</button>
           </article>
         </div>
       </div>

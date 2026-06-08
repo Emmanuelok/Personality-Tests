@@ -4,6 +4,7 @@ import { makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } f
 import { makeSpeedTrial, scoreProcessing } from "./processing";
 import { chcFromDomains, buildBattery } from "./chc";
 import { genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
+import { IAT_BLOCKS, makeIatStimulus, scoreIat, type IatTrial } from "./iat";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -184,5 +185,34 @@ describe("adaptive reasoning", () => {
     expect(scoreAdaptive(high).percentile).toBeGreaterThan(scoreAdaptive(low).percentile);
     expect(scoreAdaptive(high).percentile).toBeGreaterThan(60);
     expect(scoreAdaptive(low).percentile).toBeLessThan(20);
+  });
+});
+
+describe("Implicit Association Test", () => {
+  it("places each stimulus on the side its category occupies", () => {
+    for (const block of IAT_BLOCKS) {
+      for (let k = 0; k < 20; k++) {
+        const s = makeIatStimulus(block);
+        const onLeft = (block.left as readonly string[]).includes(s.cat);
+        expect(s.correct).toBe(onLeft ? "left" : "right");
+      }
+    }
+  });
+
+  it("yields a positive D when the compatible pairing is faster", () => {
+    const trials: IatTrial[] = [];
+    for (const b of [3, 4]) for (let i = 0; i < 12; i++) trials.push({ block: b, rt: 600, firstCorrect: true });
+    for (const b of [6, 7]) for (let i = 0; i < 12; i++) trials.push({ block: b, rt: 1000, firstCorrect: true });
+    const r = scoreIat(trials);
+    expect(r.d).toBeGreaterThan(0.15);
+    expect(r.direction).toBe("flowers");
+  });
+
+  it("yields ~zero D when both pairings are equally fast", () => {
+    const trials: IatTrial[] = [];
+    for (const b of [3, 4, 6, 7]) for (let i = 0; i < 12; i++) trials.push({ block: b, rt: 700, firstCorrect: true });
+    const r = scoreIat(trials);
+    expect(Math.abs(r.d)).toBeLessThan(0.15);
+    expect(r.direction).toBe("none");
   });
 });
