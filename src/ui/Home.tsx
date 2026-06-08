@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
+import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -8,10 +9,12 @@ export function Home({
   onStart,
   onCompatibility,
   onStartPack,
+  onStartAbility,
 }: {
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onStartPack: () => void;
+  onStartAbility: (test: AbilityTest) => void;
 }) {
   return (
     <div className="container">
@@ -86,6 +89,39 @@ export function Home({
           </div>
         );
       })}
+
+      <div className="cat-block">
+        <div className="cat-head">
+          <span className="cat-emblem cat-cognition">
+            <CategoryEmblem id="cognition" />
+          </span>
+          <div>
+            <h3 className="cat-name">Cognitive Ability</h3>
+            <p className="cat-blurb">Timed reasoning tests with right and wrong answers — an honest, research-based estimate of how you think. Not a clinical IQ.</p>
+          </div>
+        </div>
+        <div className="grid">
+          {ABILITY_TESTS.map((t) => (
+            <article className="card" key={t.id}>
+              <span className="card-watermark cat-cognition" aria-hidden="true">
+                <InstrumentGlyph id={t.id} category="cognition" />
+              </span>
+              <span className="kind">Ability test</span>
+              <h3>{t.name}</h3>
+              <p className="tagline">{t.tagline}</p>
+              <div className="facts">
+                <span>⏱ {t.estMinutes} min</span>
+                <span>📝 {t.items.length} questions</span>
+                <span>📐 {t.domains.length} domains</span>
+              </div>
+              <p className="cite">
+                Modeled on the public-domain ICAR item bank and Cattell-Horn-Carroll theory.
+              </p>
+              <button className="btn primary" onClick={() => onStartAbility(t)}>Begin {t.shortName} →</button>
+            </article>
+          ))}
+        </div>
+      </div>
 
       <Flourish />
 

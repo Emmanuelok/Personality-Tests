@@ -221,6 +221,20 @@ const EMBLEMS: Record<string, EmblemFn> = {
       <line x1="39" y1="24" x2="45" y2="24" />
     </>
   ),
+  // Cognitive Ability — a thinking head with a turning gear of reasoning.
+  cognition: () => (
+    <>
+      <path d="M16,41 L16,25 C16,13 25,8 32,11 C38,13.6 39,20 35,24 C39,26 38,31 33,31 L31,31 L31,41" />
+      <circle className="gold" cx="26" cy="21" r="4.5" />
+      <g className="gold">
+        <line x1="26" y1="14.5" x2="26" y2="16.5" />
+        <line x1="26" y1="25.5" x2="26" y2="27.5" />
+        <line x1="19.5" y1="21" x2="21.5" y2="21" />
+        <line x1="30.5" y1="21" x2="32.5" y2="21" />
+      </g>
+      <circle className="gold gold-fill" cx="26" cy="21" r="1.6" />
+    </>
+  ),
 };
 
 export function CategoryEmblem({ id, className = "" }: { id: string; className?: string }) {
@@ -720,6 +734,17 @@ Object.assign(GLYPHS, {
       <circle cx="37" cy="33" r="3" />
       <circle className="paper-fill" cx="11" cy="33" r="3" />
       <circle cx="11" cy="33" r="3" />
+    </>
+  ),
+  // Cognitive Ability — a matrix-reasoning grid (find the missing piece).
+  "cognitive-ability": () => (
+    <>
+      {[12, 24, 36].map((y) =>
+        [12, 24, 36].map((x) => (
+          <rect key={`${x}-${y}`} x={x - 5} y={y - 5} width="10" height="10" rx="2"
+            className={x === 36 && y === 36 ? "gold gold-fill" : undefined} />
+        )),
+      )}
     </>
   ),
 });

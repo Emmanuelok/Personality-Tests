@@ -16,6 +16,8 @@ import { Compatibility } from "./ui/Compatibility";
 import { Growth } from "./ui/Growth";
 import { IntegratedProfile } from "./ui/IntegratedProfile";
 import { PackStep } from "./ui/PackStep";
+import { AbilityFlow } from "./ui/ability/AbilityFlow";
+import type { AbilityTest } from "@core/ability";
 import {
   grantProduct,
   isUnlocked,
@@ -35,7 +37,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -52,6 +54,7 @@ export default function App() {
   const [unlockNonce, setUnlockNonce] = useState(0);
   const [pack, setPack] = useState<string[]>([]);
   const [packTotal, setPackTotal] = useState(0);
+  const [abilityTest, setAbilityTest] = useState<AbilityTest | null>(null);
 
   const name = profile?.name || undefined;
   const unlocked = useMemo(() => !!result && isUnlocked(result.responseFingerprint), [result, unlockNonce]);
@@ -148,6 +151,12 @@ export default function App() {
     top();
   };
 
+  const startAbility = (t: AbilityTest) => {
+    setAbilityTest(t);
+    setView("ability");
+    top();
+  };
+
   const beginInstrument = (inst: Instrument) => {
     setInstrument(inst);
     setResult(null);
@@ -235,7 +244,7 @@ export default function App() {
   };
 
   const hasHistory = entries.length > 0;
-  const showChrome = view !== "quiz" && view !== "calc";
+  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability";
 
   return (
     <>
@@ -261,7 +270,12 @@ export default function App() {
           onStart={start}
           onCompatibility={goCompat}
           onStartPack={() => startPack(starterPack(profile?.focus ?? []))}
+          onStartAbility={startAbility}
         />
+      )}
+
+      {view === "ability" && abilityTest && (
+        <AbilityFlow test={abilityTest} name={name} onExit={goHome} />
       )}
 
       {view === "intro" && instrument && (
