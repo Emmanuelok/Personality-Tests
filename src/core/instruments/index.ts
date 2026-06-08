@@ -4,6 +4,7 @@ import { hexaco } from "./hexaco";
 import { jungTypes } from "./jung";
 import { enneagram } from "./enneagram";
 import { disc } from "./disc";
+import { temperaments } from "./fourtemperaments";
 import { attachment } from "./attachment";
 import { loveLanguages } from "./lovelanguages";
 import { conflictStyle } from "./conflictstyle";
@@ -11,8 +12,11 @@ import { via } from "./via";
 import { values } from "./values";
 import { grit } from "./grit";
 import { moralFoundations } from "./moralfoundations";
+import { riasec } from "./riasec";
 import { eq } from "./eq";
 import { chronotype } from "./chronotype";
+import { adhd } from "./adhd";
+import { autism } from "./autism";
 import { darkTriad } from "./darktriad";
 
 /** All instruments available on the platform, grouped loosely by category. */
@@ -22,6 +26,7 @@ export const INSTRUMENTS: Instrument[] = [
   jungTypes,
   enneagram,
   disc,
+  temperaments,
   attachment,
   loveLanguages,
   conflictStyle,
@@ -29,8 +34,11 @@ export const INSTRUMENTS: Instrument[] = [
   values,
   grit,
   moralFoundations,
+  riasec,
   eq,
   chronotype,
+  adhd,
+  autism,
   darkTriad,
 ];
 
@@ -51,6 +59,7 @@ export {
   jungTypes,
   enneagram,
   disc,
+  temperaments,
   attachment,
   loveLanguages,
   conflictStyle,
@@ -58,7 +67,10 @@ export {
   values,
   grit,
   moralFoundations,
+  riasec,
   eq,
   chronotype,
+  adhd,
+  autism,
   darkTriad,
 };

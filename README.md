@@ -6,7 +6,9 @@ Psyche Atlas is not just a test app — it's a self-understanding *and* self-imp
 
 > Status: **v0.4.** A **personal platform** — it onboards you by name, remembers your journey, and greets you on a tailored **dashboard** with a daily growth nudge. **12 instruments across 6 themes**, a novel **cross-test "Integrated Self"** that synthesizes every assessment you take into one portrait (themes, strengths, tensions, and your personal operating manual), a **relationship compatibility** engine, name-personalized reports, a designed PDF, a freemium store ($1.89 unlock), an installable **PWA** (offline-capable), and one-click Vercel deploy. See [Roadmap](#roadmap).
 
-**New in v0.6:** **15 instruments** (added Conflict Style, Moral Foundations, and Chronotype), a **guided starter pack** (a goal-tailored 3-test onboarding straight to your Integrated Self), and an **LLM-backed "Ask Atlas"** — set `ANTHROPIC_API_KEY` and the companion answers freely in natural language (`/api/ask`), falling back to the built-in deterministic engine otherwise.
+**New in v0.7:** **19 instruments across 8 themes** — added **Four Temperaments**, **Career Interests (Holland RIASEC)** with concrete career matches, and responsibly-framed **ADHD** and **Autistic** trait self-screens (educational, never a diagnosis). Benchmarked the catalog against leading consumer platforms to close every meaningful gap.
+
+**Earlier in v0.6:** 15 instruments (Conflict Style, Moral Foundations, Chronotype), a **guided starter pack** (a goal-tailored 3-test onboarding straight to your Integrated Self), and an **LLM-backed "Ask Atlas"** — set `ANTHROPIC_API_KEY` and the companion answers freely in natural language (`/api/ask`), falling back to the built-in deterministic engine otherwise.
 
 **Earlier in v0.5:** the "Ask Atlas" conversational companion, the **full 24-strength VIA**, **deeper reports** (tailored Relationships/Work/Stress for every test), a **Growth Journey** tracking trait change across retakes with milestones, and **shareable result cards** plus a per-result accent.
 
@@ -31,31 +33,18 @@ Psyche Atlas is not just a test app — it's a self-understanding *and* self-imp
 
 ---
 
-## The instruments (12, organized by theme)
+## The instruments (19, across 8 themes)
 
-**🧠 Core Personality**
-1. **Big Five (IPIP-50)** — the empirical gold standard, five factors. *Public-domain items.*
-2. **HEXACO (6 dimensions)** — the Big Five plus **Honesty-Humility** (Lee & Ashton). *Original facet-based items.*
+- **🧠 Core Personality** — Big Five (IPIP-50, *public-domain*) · HEXACO (+Honesty-Humility)
+- **🎭 Types & Styles** — Jungian 16 Types (+cognitive functions) · Enneagram (+wing/center) · DISC · **The Four Temperaments**
+- **💞 Relationships & Love** — Attachment Style · Love Languages · Conflict Style (Thomas–Kilmann)
+- **🌱 Strengths, Values & Growth** — Character Strengths (full **VIA-24**) · Personal Values (Schwartz) · Grit & Resilience · Moral Foundations (Haidt)
+- **💼 Career & Calling** — **Career Interests (Holland RIASEC)** → your Holland code + concrete **career matches**
+- **🫀 Emotional Intelligence & Wellbeing** — Emotional Intelligence (EQ) · Chronotype (Lark/Owl)
+- **🧩 Mind & Neurodivergence** — **ADHD traits** · **Autistic traits** — *educational self-screens, never a diagnosis, with professional signposting*
+- **🌑 Shadow & Risk** — Dark Triad (normal-range)
 
-**🎭 Types & Styles**
-3. **Jungian Type Profiler (16 Types)** — four dichotomies → sixteen types + cognitive-function stack. *Original; not the MBTI®.*
-4. **Enneagram** — nine motivation-based types with wing, center, and passion→virtue growth. *Original, grounded in the Enneagram literature.*
-5. **DISC Behavioral Styles** — four styles with primary/secondary blend, for communication & teamwork. *Original items.*
-
-**💞 Relationships & Love**
-6. **Attachment Style** — anxiety × avoidance → four styles, growth toward security. *Original, ECR tradition.*
-7. **Love Languages** — five ways of giving/receiving love, ranked. *Original, Chapman framework.*
-
-**🌱 Strengths, Values & Growth**
-8. **Character Strengths & Virtues (VIA)** — six virtues + signature strengths. *Original, VIA classification.*
-9. **Personal Values (Schwartz)** — ten basic values that drive your choices. *Original, PVQ tradition.*
-10. **Grit & Resilience** — perseverance + consistency, with your fastest growth lever. *Original, Duckworth construct.*
-
-**🫀 Emotional Intelligence & Wellbeing**
-11. **Emotional Intelligence (EQ)** — five learnable domains. *Original, Salovey & Mayer / Goleman / Petrides.*
-
-**🌑 Shadow & Risk**
-12. **Dark Triad** — Machiavellianism, Narcissism, Psychopathy (normal-range), for honest self-insight. *Original, SD3-grounded.*
+Every instrument is original and grounded in its source literature (Goldberg, Costa & McCrae, Jung, Riso-Hudson, Lee & Ashton, Schwartz, Holland, Duckworth, Haidt, Baron-Cohen, and more), with citations and honest caveats surfaced in each report.
 
 Plus a **💞 Relationship Compatibility** engine: share a privacy-safe code (scores only, never answers) and compare two people on any shared assessment — with construct-aware insight for attachment and love languages.
 

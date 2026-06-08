@@ -36,10 +36,22 @@ export const CATEGORIES: Category[] = [
     icon: "🌱",
   },
   {
+    id: "career",
+    name: "Career & Calling",
+    blurb: "The work, environments, and roles where you'll do your best and feel most alive.",
+    icon: "💼",
+  },
+  {
     id: "emotional",
     name: "Emotional Intelligence & Wellbeing",
     blurb: "Your inner world — emotions, resilience, and the skills behind a good life.",
     icon: "🫀",
+  },
+  {
+    id: "mind",
+    name: "Mind & Neurodivergence",
+    blurb: "Educational self-screens for how your brain is wired. Insight, never a diagnosis.",
+    icon: "🧩",
   },
   {
     id: "shadow",

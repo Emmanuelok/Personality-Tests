@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations } from "./instruments";
+import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism } from "./instruments";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight } from "./synthesis";
@@ -158,6 +158,27 @@ describe("compatibility engine", () => {
     const b = toSummary(attachment, scoreAssessment(attachment, avoidant));
     const rep = computeCompatibility(attachment, a, b, { seed: 2 });
     expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
+  });
+});
+
+describe("temperaments, careers & trait screens", () => {
+  it("resolves a leading temperament", () => {
+    const r = answerAll(temperaments, (i) => (i.scale === "SANG" ? 5 : 1));
+    expect(scoreAssessment(temperaments, r).type?.code).toContain("Sanguine");
+  });
+
+  it("resolves a Holland career code with career matches", () => {
+    const r = answerAll(riasec, (i) => (i.scale === "S" ? 5 : i.scale === "A" ? 4 : 1));
+    const res = scoreAssessment(riasec, r);
+    expect(res.type?.code[0]).toBe("S");
+    expect(res.type?.components.some((c) => c.label === "Career matches")).toBe(true);
+  });
+
+  it("bands ADHD / autistic traits with non-diagnostic framing", () => {
+    const adhdHigh = scoreAssessment(adhd, allHigh(adhd));
+    expect(adhdHigh.type?.code).toBe("Many traits");
+    expect(adhdHigh.type?.summary.toLowerCase()).toContain("not a diagnosis");
+    expect(scoreAssessment(autism, allLow(autism)).type?.code).toBe("Few traits");
   });
 });
 
