@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { IAT_TEST, IAT_BLOCKS, makeIatStimulus, scoreIat, type IatStimulus, type IatTrial, type IatResult, type IatSide } from "@core/ability/iat";
+import { localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "blockIntro" | "trial" | "result";
+// Category labels, stimulus words, and per-block instructions are the test's English
+// stimuli and stay in the source language; the surrounding framing is localized.
 const catLabel = (k: string) => (IAT_TEST.categories as Record<string, { label: string }>)[k].label;
 const isAttr = (s: IatStimulus) => s.cat === "pleasant" || s.cat === "unpleasant";
 
@@ -16,6 +20,10 @@ export function IatFlow({ name, onExit, onComplete }: { name?: string; onExit: (
   const [result, setResult] = useState<IatResult | null>(null);
   const onset = useRef(0);
   const erredRef = useRef(false);
+  const i18 = useI18n();
+  const meta = localizeAbilityMeta("iat-demo", i18.locale);
+  const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
+  const roundLabel = (n: number) => i18.t("cog.round").replace("{i}", String(n)).replace("{n}", String(IAT_BLOCKS.length));
 
   const block = IAT_BLOCKS[bi];
 
@@ -52,11 +60,11 @@ export function IatFlow({ name, onExit, onComplete }: { name?: string; onExit: (
     <div className="iat-sides">
       <div className="iat-side l">
         <span className="iat-key">E</span>
-        {block.left.map((c, i) => <div key={c}><span className={isAttrKey(c) ? "attr" : ""}>{catLabel(c)}</span>{i < block.left.length - 1 ? <div className="iat-or">or</div> : null}</div>)}
+        {block.left.map((c, i) => <div key={c}><span className={isAttrKey(c) ? "attr" : ""}>{catLabel(c)}</span>{i < block.left.length - 1 ? <div className="iat-or">{i18.t("cog.iat.or")}</div> : null}</div>)}
       </div>
       <div className="iat-side r">
         <span className="iat-key">I</span>
-        {block.right.map((c, i) => <div key={c}><span className={isAttrKey(c) ? "attr" : ""}>{catLabel(c)}</span>{i < block.right.length - 1 ? <div className="iat-or">or</div> : null}</div>)}
+        {block.right.map((c, i) => <div key={c}><span className={isAttrKey(c) ? "attr" : ""}>{catLabel(c)}</span>{i < block.right.length - 1 ? <div className="iat-or">{i18.t("cog.iat.or")}</div> : null}</div>)}
       </div>
     </div>
   );
@@ -67,18 +75,16 @@ export function IatFlow({ name, onExit, onComplete }: { name?: string; onExit: (
       <div className="container">
         <div className="intro view-enter">
           <span className="intro-emblem cat-cognition" aria-hidden="true"><InstrumentGlyph id="iat-demo" category="cognition" /></span>
-          <p className="eyebrow">Implicit Associations</p>
-          <h1>{IAT_TEST.name}</h1>
-          <p className="lede">{IAT_TEST.description}</p>
+          <p className="eyebrow">{i18.t("cog.iat.eyebrow")}</p>
+          <h1>{meta.name ?? IAT_TEST.name}</h1>
+          <p className="lede">{meta.description ?? IAT_TEST.description}</p>
           <div className="aside" style={{ textAlign: "left", marginTop: 30 }}>
-            <span className="label">How it works</span>
-            Words flash in the middle; sort each to the <b>left (key E)</b> or <b>right (key I)</b> by the labels shown
-            in the top corners — as fast as you can. If you slip, a red ✗ appears; just hit the other key to continue.
-            Seven short rounds.
+            <span className="label">{i18.t("cog.how")}</span>
+            {i18.t("cog.iat.how")}
           </div>
-          <button className="btn" style={{ marginTop: 26 }} onClick={() => { setBi(0); setPhase("blockIntro"); }}>Begin&nbsp;→</button>
-          <p className="meta">7 rounds · about 5 min · a demonstration of implicit measurement</p>
-          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;All assessments</button></div>
+          <button className="btn" style={{ marginTop: 26 }} onClick={() => { setBi(0); setPhase("blockIntro"); }}>{i18.t("cog.begin")}</button>
+          <p className="meta">{i18.t("cog.iat.meta")}</p>
+          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;{i18.t("common.allAssessments")}</button></div>
         </div>
       </div>
     );
@@ -88,47 +94,50 @@ export function IatFlow({ name, onExit, onComplete }: { name?: string; onExit: (
   if (phase === "result" && result) {
     const pos = Math.max(-1, Math.min(1, result.d)); // clamp for the bar
     const left = ((pos + 1) / 2) * 100;
+    const magWord =
+      result.magnitude === "a strong" ? i18.t("cog.iat.magStrong")
+      : result.magnitude === "a moderate" ? i18.t("cog.iat.magMod")
+      : result.magnitude === "a slight" ? i18.t("cog.iat.magSlight")
+      : i18.t("cog.iat.magNone");
+    const dirWord = result.direction === "flowers" ? i18.t("cog.iat.flowers") : i18.t("cog.iat.insects");
     return (
       <div className="container view-enter">
         <div className="report-head">
           <span className="report-seal cat-cognition" aria-hidden="true"><InstrumentGlyph id="iat-demo" category="cognition" /></span>
-          <div className="supertitle">Implicit Associations · Demonstration</div>
-          <h1>{name ? `${name}, your` : "Your"} implicit result</h1>
-          <div className="subtitle">D = {result.d.toFixed(2)} · {result.errorRate}% first-try errors</div>
+          <div className="supertitle">{i18.t("cog.iat.super")}</div>
+          <h1>{poss} {i18.t("cog.iat.title")}</h1>
+          <div className="subtitle">{i18.t("cog.iat.sub").replace("{d}", result.d.toFixed(2)).replace("{e}", String(result.errorRate))}</div>
         </div>
         <div className="report-grid stagger">
           <section className="panel">
             <p className="lead-para drop">
-              Your reactions showed <b>{result.magnitude}</b> automatic association
               {result.direction === "none"
-                ? " — your two pairings were about equally fast."
-                : ` between ${result.direction === "flowers" ? "flowers" : "insects"} and "pleasant".`}
+                ? i18.t("cog.iat.narrNone").replace("{m}", magWord)
+                : i18.t("cog.iat.narrDir").replace("{m}", magWord).replace("{x}", dirWord)}
             </p>
             <div className="iat-scale" aria-hidden="true">
               <div className="iat-track"><span className="iat-mid" /><span className="iat-marker" style={{ left: `${left}%` }} /></div>
-              <div className="ends"><span>Insects + Pleasant</span><span>Flowers + Pleasant</span></div>
+              <div className="ends"><span>{i18.t("cog.iat.endLeft")}</span><span>{i18.t("cog.iat.endRight")}</span></div>
             </div>
             <p style={{ color: "var(--text-dim)", marginTop: 14 }}>
-              Almost everyone lands toward the flowers-pleasant side — that's the textbook demonstration effect, and it
-              shows the method is working, not anything unusual about you.
+              {i18.t("cog.iat.almostEveryone")}
             </p>
           </section>
 
           <section className="panel">
-            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>Read this honestly</h3>
-            <ul className="caveats">{IAT_TEST.caveats.map((c, i) => <li key={i}>{c}</li>)}</ul>
+            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
+            <ul className="caveats">{(meta.caveats ?? IAT_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
             <details style={{ marginTop: 12 }}>
-              <summary style={{ cursor: "pointer", color: "var(--text-faint)", fontSize: 13 }}>How the D-score works</summary>
+              <summary style={{ cursor: "pointer", color: "var(--text-faint)", fontSize: 13 }}>{i18.t("cog.iat.dHow")}</summary>
               <p style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 10 }}>
-                The score (Greenwald, Nosek & Banaji, 2003) compares your speed when flowers share a key with "pleasant"
-                versus when insects do, scaled by your own variability. Positive means faster on the flowers-pleasant pairing.
+                {i18.t("cog.iat.dExplain")}
               </p>
             </details>
           </section>
 
           <div className="row-actions no-print">
-            <button className="btn" onClick={() => { setTrials([]); setResult(null); setBi(0); setPhase("blockIntro"); }}>↻ Try again</button>
-            <button className="btn ghost" onClick={onExit}>↩ All assessments</button>
+            <button className="btn" onClick={() => { setTrials([]); setResult(null); setBi(0); setPhase("blockIntro"); }}>↻ {i18.t("cog.tryAgain")}</button>
+            <button className="btn ghost" onClick={onExit}>↩ {i18.t("common.allAssessments")}</button>
           </div>
         </div>
       </div>
@@ -140,13 +149,13 @@ export function IatFlow({ name, onExit, onComplete }: { name?: string; onExit: (
     return (
       <div className="container">
         <div className="quiz-wrap" style={{ textAlign: "center" }}>
-          <div className="quiz-meta"><span>Round {block.n} of {IAT_BLOCKS.length}</span><span /></div>
+          <div className="quiz-meta"><span>{roundLabel(block.n)}</span><span /></div>
           <div className="progress"><i style={{ width: `${(block.n / IAT_BLOCKS.length) * 100}%` }} /></div>
           <div className="qcard">
             <Sides />
             <p className="stmt" style={{ fontSize: "clamp(1.2rem,3.5vw,1.6rem)", margin: "26px auto 18px" }}>{block.label}</p>
-            <button className="btn" onClick={startBlock}>Start this round&nbsp;→</button>
-            <p className="hint">Left = E key · Right = I key (or tap the buttons)</p>
+            <button className="btn" onClick={startBlock}>{i18.t("cog.iat.startRound")}</button>
+            <p className="hint">{i18.t("cog.iat.keyHint")}</p>
           </div>
         </div>
       </div>
@@ -158,7 +167,7 @@ export function IatFlow({ name, onExit, onComplete }: { name?: string; onExit: (
   return (
     <div className="container">
       <div className="quiz-wrap" style={{ textAlign: "center" }}>
-        <div className="quiz-meta"><span>Round {block.n} of {IAT_BLOCKS.length}</span><span>{ti + 1} / {block.count}</span></div>
+        <div className="quiz-meta"><span>{roundLabel(block.n)}</span><span>{ti + 1} / {block.count}</span></div>
         <Sides />
         <div className="iat-stage">
           <span className={`iat-word ${isAttr(stim) ? "attr" : ""}`}>{stim.word}</span>

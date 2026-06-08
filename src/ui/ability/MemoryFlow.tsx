@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { MEMORY_TEST, makeDigits, scoreMemory, type MemoryTrial, type MemoryResult, type SpanMode } from "@core/ability/memory";
+import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { useI18n } from "../../i18n";
 
 const reverse = (s: string) => s.split("").reverse().join("");
 
@@ -18,6 +20,10 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
   const [entered, setEntered] = useState("");
   const [results, setResults] = useState<MemoryTrial[]>([]);
   const [result, setResult] = useState<MemoryResult | null>(null);
+  const i18 = useI18n();
+  const meta = localizeAbilityMeta("memory-span", i18.locale);
+  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
+  const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const beginTrial = (idx: number) => {
     setTrialIdx(idx);
@@ -49,17 +55,16 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
       <div className="container">
         <div className="intro view-enter">
           <span className="intro-emblem cat-cognition" aria-hidden="true"><InstrumentGlyph id="memory-span" category="cognition" /></span>
-          <p className="eyebrow">Working Memory</p>
-          <h1>{MEMORY_TEST.name}</h1>
-          <p className="lede">{MEMORY_TEST.description}</p>
+          <p className="eyebrow">{i18.t("cog.mem.eyebrow")}</p>
+          <h1>{meta.name ?? MEMORY_TEST.name}</h1>
+          <p className="lede">{meta.description ?? MEMORY_TEST.description}</p>
           <div className="aside" style={{ textAlign: "left", marginTop: 30 }}>
-            <span className="label">How it works</span>
-            A line of digits appears, then vanishes. Type it back — <b>in order</b> for the first block, then <b>in
-            reverse</b> for the second. It gets longer each round. Please don't write anything down.
+            <span className="label">{i18.t("cog.how")}</span>
+            {i18.t("cog.mem.how")}
           </div>
-          <button className="btn" style={{ marginTop: 26 }} onClick={() => beginTrial(0)}>Begin&nbsp;→</button>
-          <p className="meta">{TRIALS.length} rounds · about 4 min · forward &amp; backward span</p>
-          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;All assessments</button></div>
+          <button className="btn" style={{ marginTop: 26 }} onClick={() => beginTrial(0)}>{i18.t("cog.begin")}</button>
+          <p className="meta">{i18.t("cog.mem.meta").replace("{n}", String(TRIALS.length))}</p>
+          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;{i18.t("common.allAssessments")}</button></div>
         </div>
       </div>
     );
@@ -71,47 +76,46 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
       <div className="container view-enter">
         <div className="report-head">
           <span className="report-seal cat-cognition" aria-hidden="true"><InstrumentGlyph id="memory-span" category="cognition" /></span>
-          <div className="supertitle">Working Memory Span · Estimated Profile</div>
-          <h1>{name ? `${name}, your` : "Your"} memory span</h1>
-          <div className="subtitle">Forward {result.maxForward} digits · Backward {result.maxBackward} digits</div>
+          <div className="supertitle">{i18.t("cog.mem.super")}</div>
+          <h1>{poss} {i18.t("cog.mem.title")}</h1>
+          <div className="subtitle">{i18.t("cog.mem.sub").replace("{f}", String(result.maxForward)).replace("{b}", String(result.maxBackward))}</div>
         </div>
         <div className="report-grid stagger">
           <section className="panel iq-card">
             <div className="iq-figure">
-              <div className="iq-band">Estimated</div>
+              <div className="iq-band">{i18.t("cog.estimated")}</div>
               <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.maxForward}<span>/</span>{result.maxBackward}</div>
-              <div className="iq-sub">{result.band} · about the {ordinal(result.percentile)} percentile</div>
+              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
-                You reliably held <b>{result.maxForward} digits</b> in order and <b>{result.maxBackward}</b> in reverse.
-                Backward span is harder because you must hold <i>and</i> manipulate — most people reach about 5 forward, 4 backward.
+                {i18.t("cog.mem.narr").replace("{f}", String(result.maxForward)).replace("{b}", String(result.maxBackward))}
               </p>
-              <p className="note" style={{ margin: 0 }}>An educational estimate, not a clinical memory assessment.</p>
+              <p className="note" style={{ margin: 0 }}>{i18.t("cog.mem.note")}</p>
             </div>
           </section>
 
           <section className="panel sec">
-            <h3>Round by round</h3>
+            <h3>{i18.t("cog.roundByRound")}</h3>
             <div className="mem-review">
               {result.trials.map((t, i) => (
                 <div className={`mem-row ${t.correct ? "ok" : "no"}`} key={i}>
                   <span className="qr-badge" style={{ background: t.correct ? "var(--good)" : "var(--danger)" }}>{t.correct ? "✓" : "✗"}</span>
-                  <span className="mem-mode">{t.mode === "backward" ? "Reverse" : "Forward"} · {t.span}</span>
-                  <span className="mem-seq">shown <code>{t.shown}</code> · you <code>{t.entered || "—"}</code></span>
+                  <span className="mem-mode">{t.mode === "backward" ? i18.t("cog.reverse") : i18.t("cog.forward")} · {t.span}</span>
+                  <span className="mem-seq">{i18.t("cog.shown")} <code>{t.shown}</code> · {i18.t("cog.you")} <code>{t.entered || "—"}</code></span>
                 </div>
               ))}
             </div>
           </section>
 
           <section className="panel">
-            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>Read this honestly</h3>
-            <ul className="caveats">{MEMORY_TEST.caveats.map((c, i) => <li key={i}>{c}</li>)}</ul>
+            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
+            <ul className="caveats">{(meta.caveats ?? MEMORY_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
           <div className="row-actions no-print">
-            <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ Try again</button>
-            <button className="btn ghost" onClick={onExit}>↩ All assessments</button>
+            <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ {i18.t("cog.tryAgain")}</button>
+            <button className="btn ghost" onClick={onExit}>↩ {i18.t("common.allAssessments")}</button>
           </div>
         </div>
       </div>
@@ -120,21 +124,21 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
 
   /* ── show / recall ── */
   const t = TRIALS[trialIdx];
-  const modeLabel = t.mode === "backward" ? "Type them in REVERSE order" : "Type them in the order shown";
+  const modeLabel = t.mode === "backward" ? i18.t("cog.mem.typeBwd") : i18.t("cog.mem.typeFwd");
   return (
     <div className="container">
       <div className="quiz-wrap">
         <div className="quiz-meta">
-          <span>{t.mode === "backward" ? "Backward span" : "Forward span"}</span>
-          <span>Round {trialIdx + 1} of {TRIALS.length}</span>
+          <span>{t.mode === "backward" ? i18.t("cog.mem.bwdSpan") : i18.t("cog.mem.fwdSpan")}</span>
+          <span>{i18.t("cog.round").replace("{i}", String(trialIdx + 1)).replace("{n}", String(TRIALS.length))}</span>
         </div>
         <div className="progress"><i style={{ width: `${((trialIdx + 1) / TRIALS.length) * 100}%` }} /></div>
 
         {phase === "show" ? (
           <div className="qcard">
-            <div className="qnum">Memorize…</div>
+            <div className="qnum">{i18.t("cog.mem.memorize")}</div>
             <div className="mem-digits" aria-label="digits to memorize">{shown}</div>
-            <p className="hint">{t.mode === "backward" ? "You'll type these in reverse." : "Hold them in mind."}</p>
+            <p className="hint">{t.mode === "backward" ? i18.t("cog.mem.holdBwd") : i18.t("cog.mem.holdFwd")}</p>
           </div>
         ) : (
           <div className="qcard">
@@ -150,9 +154,9 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
               aria-label="your answer"
             />
             <div className="quiz-actions" style={{ justifyContent: "center" }}>
-              <button className="btn" onClick={submit}>Submit&nbsp;→</button>
+              <button className="btn" onClick={submit}>{i18.t("cog.mem.submit")}</button>
             </div>
-            <p className="hint">Enter what you remember, then submit. Blank is fine if you've lost it.</p>
+            <p className="hint">{i18.t("cog.mem.recallHint")}</p>
           </div>
         )}
       </div>

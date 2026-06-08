@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { CORSI_TEST, makeSequence, scoreCorsi, type MemoryTrial, type MemoryResult, type SpanMode } from "@core/ability/memory";
+import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { useI18n } from "../../i18n";
 
 const TRIALS: { mode: SpanMode; span: number }[] = [
   ...CORSI_TEST.forward.map((span) => ({ mode: "forward" as const, span })),
@@ -20,6 +22,10 @@ export function CorsiFlow({ name, onExit, onComplete }: { name?: string; onExit:
   const [results, setResults] = useState<MemoryTrial[]>([]);
   const [result, setResult] = useState<MemoryResult | null>(null);
   const timers = useRef<number[]>([]);
+  const i18 = useI18n();
+  const meta = localizeAbilityMeta("corsi-blocks", i18.locale);
+  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
+  const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const clearTimers = () => { timers.current.forEach((t) => clearTimeout(t)); timers.current = []; };
 
@@ -84,17 +90,16 @@ export function CorsiFlow({ name, onExit, onComplete }: { name?: string; onExit:
       <div className="container">
         <div className="intro view-enter">
           <span className="intro-emblem cat-cognition" aria-hidden="true"><InstrumentGlyph id="corsi-blocks" category="cognition" /></span>
-          <p className="eyebrow">Spatial Memory</p>
-          <h1>{CORSI_TEST.name}</h1>
-          <p className="lede">{CORSI_TEST.description}</p>
+          <p className="eyebrow">{i18.t("cog.corsi.eyebrow")}</p>
+          <h1>{meta.name ?? CORSI_TEST.name}</h1>
+          <p className="lede">{meta.description ?? CORSI_TEST.description}</p>
           <div className="aside" style={{ textAlign: "left", marginTop: 30 }}>
-            <span className="label">How it works</span>
-            Watch the blocks light up one by one, then tap them in the <b>same order</b>. Later rounds ask for the
-            <b> reverse</b> order. The path gets longer each round — just do your best.
+            <span className="label">{i18.t("cog.how")}</span>
+            {i18.t("cog.corsi.how")}
           </div>
-          <button className="btn" style={{ marginTop: 26 }} onClick={() => beginTrial(0)}>Begin&nbsp;→</button>
-          <p className="meta">{TRIALS.length} rounds · about 4 min · forward &amp; backward</p>
-          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;All assessments</button></div>
+          <button className="btn" style={{ marginTop: 26 }} onClick={() => beginTrial(0)}>{i18.t("cog.begin")}</button>
+          <p className="meta">{i18.t("cog.corsi.meta").replace("{n}", String(TRIALS.length))}</p>
+          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;{i18.t("common.allAssessments")}</button></div>
         </div>
       </div>
     );
@@ -106,47 +111,46 @@ export function CorsiFlow({ name, onExit, onComplete }: { name?: string; onExit:
       <div className="container view-enter">
         <div className="report-head">
           <span className="report-seal cat-cognition" aria-hidden="true"><InstrumentGlyph id="corsi-blocks" category="cognition" /></span>
-          <div className="supertitle">Spatial Memory · Estimated Profile</div>
-          <h1>{name ? `${name}, your` : "Your"} spatial span</h1>
-          <div className="subtitle">Forward {result.maxForward} blocks · Backward {result.maxBackward} blocks</div>
+          <div className="supertitle">{i18.t("cog.corsi.super")}</div>
+          <h1>{poss} {i18.t("cog.corsi.title")}</h1>
+          <div className="subtitle">{i18.t("cog.corsi.sub").replace("{f}", String(result.maxForward)).replace("{b}", String(result.maxBackward))}</div>
         </div>
         <div className="report-grid stagger">
           <section className="panel iq-card">
             <div className="iq-figure">
-              <div className="iq-band">Estimated</div>
+              <div className="iq-band">{i18.t("cog.estimated")}</div>
               <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.maxForward}<span>/</span>{result.maxBackward}</div>
-              <div className="iq-sub">{result.band} · about the {ordinal(result.percentile)} percentile</div>
+              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
-                You reproduced paths of up to <b>{result.maxForward} blocks</b> forward and <b>{result.maxBackward}</b> in reverse.
-                Spatial span is a distinct skill from digit span — many people are notably stronger at one than the other.
+                {i18.t("cog.corsi.narr").replace("{f}", String(result.maxForward)).replace("{b}", String(result.maxBackward))}
               </p>
-              <p className="note" style={{ margin: 0 }}>An educational estimate, not a clinical memory assessment.</p>
+              <p className="note" style={{ margin: 0 }}>{i18.t("cog.corsi.note")}</p>
             </div>
           </section>
 
           <section className="panel sec">
-            <h3>Round by round</h3>
+            <h3>{i18.t("cog.roundByRound")}</h3>
             <div className="mem-review">
               {result.trials.map((t, i) => (
                 <div className="mem-row" key={i}>
                   <span className="qr-badge" style={{ background: t.correct ? "var(--good)" : "var(--danger)" }}>{t.correct ? "✓" : "✗"}</span>
-                  <span className="mem-mode">{t.mode === "backward" ? "Reverse" : "Forward"} · {t.span}</span>
-                  <span className="mem-seq">path <code>{pretty(t.shown)}</code> · you <code>{pretty(t.entered)}</code></span>
+                  <span className="mem-mode">{t.mode === "backward" ? i18.t("cog.reverse") : i18.t("cog.forward")} · {t.span}</span>
+                  <span className="mem-seq">{i18.t("cog.corsi.path")} <code>{pretty(t.shown)}</code> · {i18.t("cog.you")} <code>{pretty(t.entered)}</code></span>
                 </div>
               ))}
             </div>
           </section>
 
           <section className="panel">
-            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>Read this honestly</h3>
-            <ul className="caveats">{CORSI_TEST.caveats.map((c, i) => <li key={i}>{c}</li>)}</ul>
+            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
+            <ul className="caveats">{(meta.caveats ?? CORSI_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
           <div className="row-actions no-print">
-            <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ Try again</button>
-            <button className="btn ghost" onClick={onExit}>↩ All assessments</button>
+            <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ {i18.t("cog.tryAgain")}</button>
+            <button className="btn ghost" onClick={onExit}>↩ {i18.t("common.allAssessments")}</button>
           </div>
         </div>
       </div>
@@ -159,19 +163,19 @@ export function CorsiFlow({ name, onExit, onComplete }: { name?: string; onExit:
     <div className="container">
       <div className="quiz-wrap" style={{ textAlign: "center" }}>
         <div className="quiz-meta">
-          <span>{t.mode === "backward" ? "Reverse order" : "Forward order"}</span>
-          <span>Round {trialIdx + 1} of {TRIALS.length}</span>
+          <span>{t.mode === "backward" ? i18.t("cog.corsi.revOrder") : i18.t("cog.corsi.fwdOrder")}</span>
+          <span>{i18.t("cog.round").replace("{i}", String(trialIdx + 1)).replace("{n}", String(TRIALS.length))}</span>
         </div>
         <div className="progress"><i style={{ width: `${((trialIdx + 1) / TRIALS.length) * 100}%` }} /></div>
         <div className="qcard">
           <div className="qnum">
-            {phase === "show" ? "Watch the path…" : t.mode === "backward" ? "Tap them in REVERSE order" : "Tap them in order"}
+            {phase === "show" ? i18.t("cog.corsi.watch") : t.mode === "backward" ? i18.t("cog.corsi.tapRev") : i18.t("cog.corsi.tapFwd")}
           </div>
           <Board active={phase === "recall"} />
           <p className="hint">
             {phase === "show"
-              ? "Memorize the order the blocks light up."
-              : `Tapped ${clicks.length} of ${seq.length}.`}
+              ? i18.t("cog.corsi.memHint")
+              : i18.t("cog.corsi.tapped").replace("{a}", String(clicks.length)).replace("{n}", String(seq.length))}
           </p>
         </div>
       </div>

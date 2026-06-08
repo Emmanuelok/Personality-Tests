@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { ADAPTIVE_TEST, genItem, scoreAdaptive, type AdaptiveItem, type AdaptiveTrial, type AdaptiveResult } from "@core/ability/adaptive";
+import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
 import { Calculating } from "../Calculating";
 import { Figure } from "./Figure";
+import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "quiz" | "calc" | "result";
 
@@ -12,6 +14,10 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
   const [item, setItem] = useState<AdaptiveItem | null>(null);
   const [administered, setAdministered] = useState<AdaptiveTrial[]>([]);
   const [result, setResult] = useState<AdaptiveResult | null>(null);
+  const i18 = useI18n();
+  const meta = localizeAbilityMeta("adaptive-reasoning", i18.locale);
+  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
+  const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const begin = () => {
     setLevel(ADAPTIVE_TEST.startLevel);
@@ -44,17 +50,16 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
       <div className="container">
         <div className="intro view-enter">
           <span className="intro-emblem cat-cognition" aria-hidden="true"><InstrumentGlyph id="adaptive-reasoning" category="cognition" /></span>
-          <p className="eyebrow">Adaptive Reasoning</p>
-          <h1>{ADAPTIVE_TEST.name}</h1>
-          <p className="lede">{ADAPTIVE_TEST.description}</p>
+          <p className="eyebrow">{i18.t("cog.adp.eyebrow")}</p>
+          <h1>{meta.name ?? ADAPTIVE_TEST.name}</h1>
+          <p className="lede">{meta.description ?? ADAPTIVE_TEST.description}</p>
           <div className="aside" style={{ textAlign: "left", marginTop: 30 }}>
-            <span className="label">How it works</span>
-            Each puzzle adjusts to how you're doing — right answers bring harder ones, misses bring easier ones. There's
-            no going back, so take each one carefully. About {ADAPTIVE_TEST.maxItems} puzzles.
+            <span className="label">{i18.t("cog.how")}</span>
+            {i18.t("cog.adp.how").replace("{n}", String(ADAPTIVE_TEST.maxItems))}
           </div>
-          <button className="btn" style={{ marginTop: 26 }} onClick={begin}>Begin&nbsp;→</button>
-          <p className="meta">{ADAPTIVE_TEST.maxItems} adaptive puzzles · fluid reasoning (Gf)</p>
-          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;All assessments</button></div>
+          <button className="btn" style={{ marginTop: 26 }} onClick={begin}>{i18.t("cog.begin")}</button>
+          <p className="meta">{i18.t("cog.adp.meta").replace("{n}", String(ADAPTIVE_TEST.maxItems))}</p>
+          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;{i18.t("common.allAssessments")}</button></div>
         </div>
       </div>
     );
@@ -68,44 +73,43 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
       <div className="container view-enter">
         <div className="report-head">
           <span className="report-seal cat-cognition" aria-hidden="true"><InstrumentGlyph id="adaptive-reasoning" category="cognition" /></span>
-          <div className="supertitle">Adaptive Reasoning · Estimated Profile</div>
-          <h1>{name ? `${name}, your` : "Your"} reasoning estimate</h1>
-          <div className="subtitle">You converged around difficulty {result.abilityLevel} of {ADAPTIVE_TEST.maxLevel} · {result.correct}/{result.total} correct</div>
+          <div className="supertitle">{i18.t("cog.adp.super")}</div>
+          <h1>{poss} {i18.t("cog.adp.title")}</h1>
+          <div className="subtitle">{i18.t("cog.adp.sub").replace("{a}", String(result.abilityLevel)).replace("{m}", String(ADAPTIVE_TEST.maxLevel)).replace("{c}", String(result.correct)).replace("{t}", String(result.total))}</div>
         </div>
         <div className="report-grid stagger">
           <section className="panel iq-card">
             <div className="iq-figure">
-              <div className="iq-band">Estimated range</div>
+              <div className="iq-band">{i18.t("cog.adp.estRange")}</div>
               <div className="iq-range">{result.iqLow}<span>–</span>{result.iqHigh}</div>
-              <div className="iq-sub">{result.band} · about the {ordinal(result.percentile)} percentile</div>
+              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
-                The test homed in on difficulty <b>level {result.abilityLevel}</b> — the point where you got roughly half
-                right — and read your fluid-reasoning estimate from there. Adaptive tests reach this in fewer items than fixed ones.
+                {i18.t("cog.adp.narr").replace("{a}", String(result.abilityLevel))}
               </p>
-              <p className="note" style={{ margin: 0 }}>An educational estimate, not a clinical IQ.</p>
+              <p className="note" style={{ margin: 0 }}>{i18.t("cog.adp.note")}</p>
             </div>
           </section>
 
           <section className="panel sec">
-            <h3>Your difficulty path</h3>
-            <p>Each step shows the puzzle's difficulty level and whether you got it right — watch it settle toward your level.</p>
+            <h3>{i18.t("cog.adp.pathTitle")}</h3>
+            <p>{i18.t("cog.adp.pathIntro")}</p>
             <div className="adapt-path">
               {result.trials.map((t, i) => (
-                <span key={i} className={`adapt-dot ${t.correct ? "ok" : "no"}`} style={{ height: 8 + t.level * 6 }} title={`Level ${t.level} · ${t.correct ? "correct" : "missed"}`} />
+                <span key={i} className={`adapt-dot ${t.correct ? "ok" : "no"}`} style={{ height: 8 + t.level * 6 }} title={`${t.level} · ${t.correct ? "✓" : "✗"}`} />
               ))}
             </div>
           </section>
 
           <section className="panel">
-            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>Read this honestly</h3>
-            <ul className="caveats">{ADAPTIVE_TEST.caveats.map((c, i) => <li key={i}>{c}</li>)}</ul>
+            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
+            <ul className="caveats">{(meta.caveats ?? ADAPTIVE_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
           <div className="row-actions no-print">
-            <button className="btn" onClick={begin}>↻ Try again</button>
-            <button className="btn ghost" onClick={onExit}>↩ All assessments</button>
+            <button className="btn" onClick={begin}>↻ {i18.t("cog.tryAgain")}</button>
+            <button className="btn ghost" onClick={onExit}>↩ {i18.t("common.allAssessments")}</button>
           </div>
         </div>
       </div>
@@ -118,8 +122,8 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
     <div className="container">
       <div className="quiz-wrap" style={{ textAlign: "center" }}>
         <div className="quiz-meta">
-          <span>Adaptive</span>
-          <span>Puzzle {administered.length + 1} of {ADAPTIVE_TEST.maxItems}</span>
+          <span>{i18.t("cog.adp.quizLabel")}</span>
+          <span>{i18.t("cog.adp.puzzle").replace("{i}", String(administered.length + 1)).replace("{n}", String(ADAPTIVE_TEST.maxItems))}</span>
         </div>
         <div className="progress"><i style={{ width: `${((administered.length + 1) / ADAPTIVE_TEST.maxItems) * 100}%` }} /></div>
         <div className="qcard" key={administered.length}>
@@ -133,7 +137,7 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
               </button>
             ))}
           </div>
-          <p className="hint">Pick the figure that completes the pattern. The next puzzle adapts to your answer.</p>
+          <p className="hint">{i18.t("cog.adp.quizHint")}</p>
         </div>
       </div>
     </div>

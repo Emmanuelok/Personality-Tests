@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { PROCESSING_TEST, makeSpeedTrial, scoreProcessing, type SpeedResult } from "@core/ability/processing";
+import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "run" | "result";
 type Trial = ReturnType<typeof makeSpeedTrial>;
@@ -15,6 +17,10 @@ export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit:
   const [flash, setFlash] = useState<"ok" | "no" | null>(null);
   const [result, setResult] = useState<SpeedResult | null>(null);
   const flashT = useRef<number | null>(null);
+  const i18 = useI18n();
+  const meta = localizeAbilityMeta("processing-speed", i18.locale);
+  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
+  const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const start = () => {
     setCorrect(0); setErrors(0); setAttempted(0);
@@ -71,18 +77,16 @@ export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit:
       <div className="container">
         <div className="intro view-enter">
           <span className="intro-emblem cat-cognition" aria-hidden="true"><InstrumentGlyph id="processing-speed" category="cognition" /></span>
-          <p className="eyebrow">Processing Speed</p>
-          <h1>{PROCESSING_TEST.name}</h1>
-          <p className="lede">{PROCESSING_TEST.description}</p>
+          <p className="eyebrow">{i18.t("cog.speed.eyebrow")}</p>
+          <h1>{meta.name ?? PROCESSING_TEST.name}</h1>
+          <p className="lede">{meta.description ?? PROCESSING_TEST.description}</p>
           <div className="aside" style={{ textAlign: "left", marginTop: 30 }}>
-            <span className="label">How it works</span>
-            You'll see a couple of <b>target symbols</b> and a small set to search. Hit <b>Present</b> if any target is in
-            the set, <b>Not present</b> if not — as fast as you can without guessing. {PROCESSING_TEST.durationSec} seconds on the clock.
-            (Keyboard: → / Y for present, ← / N for not.)
+            <span className="label">{i18.t("cog.how")}</span>
+            {i18.t("cog.speed.how").replace("{s}", String(PROCESSING_TEST.durationSec))}
           </div>
-          <button className="btn" style={{ marginTop: 26 }} onClick={start}>Start the clock&nbsp;→</button>
-          <p className="meta">{PROCESSING_TEST.durationSec}-second timed task · accuracy counts</p>
-          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;All assessments</button></div>
+          <button className="btn" style={{ marginTop: 26 }} onClick={start}>{i18.t("cog.speed.start")}</button>
+          <p className="meta">{i18.t("cog.speed.meta").replace("{s}", String(PROCESSING_TEST.durationSec))}</p>
+          <div style={{ marginTop: 22 }}><button className="btn ghost" onClick={onExit}>←&nbsp;{i18.t("common.allAssessments")}</button></div>
         </div>
       </div>
     );
@@ -95,34 +99,33 @@ export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit:
       <div className="container view-enter">
         <div className="report-head">
           <span className="report-seal cat-cognition" aria-hidden="true"><InstrumentGlyph id="processing-speed" category="cognition" /></span>
-          <div className="supertitle">Processing Speed · Estimated Profile</div>
-          <h1>{name ? `${name}, your` : "Your"} processing speed</h1>
-          <div className="subtitle">{result.correct} correct · {result.errors} errors · {acc}% accuracy</div>
+          <div className="supertitle">{i18.t("cog.speed.super")}</div>
+          <h1>{poss} {i18.t("cog.speed.title")}</h1>
+          <div className="subtitle">{i18.t("cog.speed.sub").replace("{c}", String(result.correct)).replace("{e}", String(result.errors)).replace("{a}", String(acc))}</div>
         </div>
         <div className="report-grid stagger">
           <section className="panel iq-card">
             <div className="iq-figure">
-              <div className="iq-band">Estimated</div>
-              <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.rate}<span>/min</span></div>
-              <div className="iq-sub">{result.band} · about the {ordinal(result.percentile)} percentile</div>
+              <div className="iq-band">{i18.t("cog.estimated")}</div>
+              <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.rate}<span>{i18.t("cog.speed.perMin")}</span></div>
+              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
-                You made <b>{result.correct}</b> correct decisions ({acc}% accuracy) in {result.durationSec} seconds — a net
-                rate of about <b>{result.rate} per minute</b>. Speed and accuracy trade off; the score rewards both.
+                {i18.t("cog.speed.narr").replace("{c}", String(result.correct)).replace("{a}", String(acc)).replace("{s}", String(result.durationSec)).replace("{r}", String(result.rate))}
               </p>
-              <p className="note" style={{ margin: 0 }}>An educational estimate, not a clinical assessment.</p>
+              <p className="note" style={{ margin: 0 }}>{i18.t("cog.speed.note")}</p>
             </div>
           </section>
 
           <section className="panel">
-            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>Read this honestly</h3>
-            <ul className="caveats">{PROCESSING_TEST.caveats.map((c, i) => <li key={i}>{c}</li>)}</ul>
+            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
+            <ul className="caveats">{(meta.caveats ?? PROCESSING_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
           <div className="row-actions no-print">
-            <button className="btn" onClick={start}>↻ Try again</button>
-            <button className="btn ghost" onClick={onExit}>↩ All assessments</button>
+            <button className="btn" onClick={start}>↻ {i18.t("cog.tryAgain")}</button>
+            <button className="btn ghost" onClick={onExit}>↩ {i18.t("common.allAssessments")}</button>
           </div>
         </div>
       </div>
@@ -137,25 +140,25 @@ export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit:
       <div className="quiz-wrap" style={{ textAlign: "center" }}>
         <div className="quiz-meta">
           <span className={`ab-timer ${timeLeft <= 15 ? "low" : ""}`}>⏱ {mm}:{ss}</span>
-          <span>{correct} correct</span>
+          <span>{i18.t("cog.speed.correctCount").replace("{c}", String(correct))}</span>
         </div>
         <div className="progress"><i style={{ width: `${(timeLeft / PROCESSING_TEST.durationSec) * 100}%` }} /></div>
 
         <div className={`qcard speed-card ${flash ?? ""}`}>
-          <div className="qnum">Is either target in the set?</div>
+          <div className="qnum">{i18.t("cog.speed.q")}</div>
           <div className="speed-key">
-            <span className="speed-label">Targets</span>
+            <span className="speed-label">{i18.t("cog.speed.targets")}</span>
             <div className="speed-syms">{trial.targets.map((s, i) => <span key={i} className="speed-sym tgt">{s}</span>)}</div>
           </div>
           <div className="speed-search">
-            <span className="speed-label">Set</span>
+            <span className="speed-label">{i18.t("cog.speed.set")}</span>
             <div className="speed-syms">{trial.search.map((s, i) => <span key={i} className="speed-sym">{s}</span>)}</div>
           </div>
           <div className="speed-actions">
-            <button className="btn ghost" onClick={() => answer(false)}>✗ Not present</button>
-            <button className="btn" onClick={() => answer(true)}>✓ Present</button>
+            <button className="btn ghost" onClick={() => answer(false)}>✗ {i18.t("cog.speed.notPresent")}</button>
+            <button className="btn" onClick={() => answer(true)}>✓ {i18.t("cog.speed.present")}</button>
           </div>
-          <p className="hint">→ / Y for present · ← / N for not present</p>
+          <p className="hint">{i18.t("cog.speed.keyHint")}</p>
         </div>
       </div>
     </div>
