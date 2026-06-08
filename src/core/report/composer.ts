@@ -197,6 +197,40 @@ function buildSignatureResponses(rng: Rng, instrument: Instrument, result: Asses
   return out;
 }
 
+/** Trait-derived Relationships / Work / Stress sections for instruments without
+ *  a hand-written color bank, so every report goes beyond a bare trait list. */
+function genericLifeSections(rng: Rng, instrument: Instrument, topTraits: TraitInsight[]): ReportSection[] {
+  const sb = new Map(instrument.scales.map((s) => [s.id, s]));
+  const d = (t: TraitInsight) => {
+    const sd = sb.get(t.scaleId);
+    const desc = t.normalized >= 50 ? sd?.highDescriptor : sd?.lowDescriptor;
+    return (desc ?? t.poleLabel).split(/,| and /)[0].trim();
+  };
+  const rel = topTraits.slice(0, 2).map((t) =>
+    rng.pick([
+      `Your ${t.name.toLowerCase()} shows up with the people closest to you as being ${d(t)} — it shapes how you give, and how you ask for what you need.`,
+      `In love and friendship, being ${d(t)} (from your ${t.name.toLowerCase()}) is part of what people come to rely on in you.`,
+    ]),
+  );
+  const work = topTraits.slice(0, 2).map((t) =>
+    rng.pick([
+      `At work, your ${t.name.toLowerCase()} makes you ${d(t)}; you'll feel most in your element where that's genuinely an asset.`,
+      `Being ${d(t)} colors how you operate professionally — gravitate to roles and teams that reward it.`,
+    ]),
+  );
+  const stress = topTraits.slice(0, 1).map((t) =>
+    rng.pick([
+      `Under pressure, your ${t.name.toLowerCase()} leans toward being ${d(t)} — knowing that lets you choose your reset deliberately rather than by default.`,
+      `When stress hits, expect your ${t.name.toLowerCase()} (${d(t)}) to surface; build recovery rituals that fit it.`,
+    ]),
+  );
+  return [
+    { id: "relationships", heading: rng.pick(["In Relationships", "How You Connect"]), paragraphs: rel.map((s) => sentence(s)) },
+    { id: "work", heading: rng.pick(["At Work & Collaborating", "How You Operate"]), paragraphs: work.map((s) => sentence(s)) },
+    { id: "stress", heading: rng.pick(["Under Pressure", "Stress & Resilience"]), paragraphs: stress.map((s) => sentence(s)) },
+  ];
+}
+
 function buildSections(
   rng: Rng,
   instrument: Instrument,
@@ -277,6 +311,8 @@ function buildSections(
         )
         .map((s) => sentence(s)),
     });
+  } else {
+    for (const sec of genericLifeSections(rng, instrument, topTraits)) sections.push(sec);
   }
 
   // Typological deep-dive

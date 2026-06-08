@@ -1,82 +1,167 @@
-import type { Instrument, Item } from "../types";
+import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
 
 /**
- * Character Strengths & Virtues (VIA — six virtues).
+ * VIA Character Strengths — the full 24 strengths within six virtues.
  *
- * The VIA Classification (Peterson & Seligman, 2004) organizes 24 character
- * strengths under six universal virtues. This profiler measures the six virtues
- * and surfaces your signature ones — the strengths most worth building a life
- * around. Items are ORIGINAL to this platform; the VIA-IS instrument is not used.
+ * The VIA Classification (Peterson & Seligman, 2004) is the most researched
+ * framework in positive psychology. This profiler measures all 24 strengths and
+ * surfaces your "signature strengths" — the ones most core to who you are. Using
+ * your signature strengths in new ways is among the most validated routes to
+ * lasting wellbeing. Items are ORIGINAL to this platform; the VIA-IS is not used.
  */
 
 const L = { min: 1, max: 5, labels: ["Not like me", "A little", "Somewhat", "Mostly like me", "Very much like me"] };
 const it = (id: string, text: string, scale: string): Item => ({ id, text, scale, keyed: 1 });
 
 const items: Item[] = [
-  // Wisdom & Knowledge
-  it("W1", "I love learning new things, just for the joy of understanding.", "WIS"),
-  it("W2", "I'm curious about the world and ask a lot of questions.", "WIS"),
-  it("W3", "People come to me for wise advice and perspective.", "WIS"),
-  it("W4", "I think creatively and enjoy coming up with original ideas.", "WIS"),
-  // Courage
-  it("C1", "I stand up for what's right, even when it's hard or unpopular.", "COU"),
-  it("C2", "I finish what I start, even when it gets difficult.", "COU"),
-  it("C3", "I'm honest and authentic about who I really am.", "COU"),
-  it("C4", "I approach life with energy and enthusiasm.", "COU"),
-  // Humanity
-  it("H1", "I genuinely care about others and show it through kindness.", "HUM"),
-  it("H2", "I invest in close, loving relationships and value them deeply.", "HUM"),
-  it("H3", "I'm good at sensing what other people are feeling.", "HUM"),
-  it("H4", "Helping someone makes my whole day better.", "HUM"),
-  // Justice
-  it("J1", "I work well as part of a team and pull my weight.", "JUS"),
-  it("J2", "I treat everyone fairly, regardless of who they are.", "JUS"),
-  it("J3", "I can organize and motivate a group toward a shared goal.", "JUS"),
-  it("J4", "I believe in doing my part for my community.", "JUS"),
-  // Temperance
-  it("T1", "I forgive people rather than hold on to grudges.", "TEM"),
-  it("T2", "I'm humble and let my actions speak for themselves.", "TEM"),
-  it("T3", "I'm careful and think things through before I act.", "TEM"),
-  it("T4", "I have good control over my impulses and habits.", "TEM"),
-  // Transcendence
-  it("R1", "I'm often moved by beauty in art, nature, or skill.", "TRA"),
-  it("R2", "I feel grateful for the good things in my life.", "TRA"),
-  it("R3", "I stay hopeful and optimistic about the future.", "TRA"),
-  it("R4", "Humor and playfulness are a big part of who I am.", "TRA"),
+  // — Wisdom & Knowledge —
+  it("CREAT1", "I often come up with new and original ways to do things.", "CREAT"),
+  it("CREAT2", "People see me as imaginative and inventive.", "CREAT"),
+  it("CURIO1", "I'm curious about almost everything and love to explore.", "CURIO"),
+  it("CURIO2", "I'm always asking questions and seeking out new experiences.", "CURIO"),
+  it("JUDGE1", "I think things through and weigh the evidence before I decide.", "JUDGE"),
+  it("JUDGE2", "I'm willing to change my mind when the facts call for it.", "JUDGE"),
+  it("LEARN1", "I love mastering new skills and topics for their own sake.", "LEARN"),
+  it("LEARN2", "Learning something new gives me a genuine thrill.", "LEARN"),
+  it("PERSP1", "People come to me for wise advice and perspective.", "PERSP"),
+  it("PERSP2", "I can see the big picture and help others make sense of things.", "PERSP"),
+  // — Courage —
+  it("BRAVE1", "I stand up for what's right, even when it's hard or risky.", "BRAVE"),
+  it("BRAVE2", "I don't shrink from challenges, threats, or pain.", "BRAVE"),
+  it("PERSV1", "I finish what I start, even when it gets tough.", "PERSV"),
+  it("PERSV2", "I work hard and don't give up easily.", "PERSV"),
+  it("HONES1", "I'm honest and present myself genuinely to others.", "HONES"),
+  it("HONES2", "I take responsibility for my actions and my feelings.", "HONES"),
+  it("ZEST1", "I approach life with excitement and energy.", "ZEST"),
+  it("ZEST2", "I feel alive, vital, and enthusiastic most of the time.", "ZEST"),
+  // — Humanity —
+  it("LOVE1", "I value close, loving relationships and nurture them.", "LOVE"),
+  it("LOVE2", "I'm comfortable both giving and receiving love and care.", "LOVE"),
+  it("KIND1", "I go out of my way to help and be generous to others.", "KIND"),
+  it("KIND2", "Doing kind things for people genuinely lifts me.", "KIND"),
+  it("SOCIN1", "I'm good at sensing what others feel and what makes them tick.", "SOCIN"),
+  it("SOCIN2", "I know how to make people feel comfortable and understood.", "SOCIN"),
+  // — Justice —
+  it("TEAM1", "I'm a loyal, dependable member of any team I'm on.", "TEAM"),
+  it("TEAM2", "I do my share and work well toward shared goals.", "TEAM"),
+  it("FAIR1", "I treat all people fairly and give everyone a fair chance.", "FAIR"),
+  it("FAIR2", "I don't let my feelings bias how I judge or treat others.", "FAIR"),
+  it("LEAD1", "I'm good at organizing people and getting things done as a group.", "LEAD"),
+  it("LEAD2", "People naturally look to me to take the lead.", "LEAD"),
+  // — Temperance —
+  it("FORGV1", "I forgive those who've wronged me and let go of grudges.", "FORGV"),
+  it("FORGV2", "I readily give people a second chance.", "FORGV"),
+  it("HUMIL1", "I let my accomplishments speak for themselves rather than seeking the spotlight.", "HUMIL"),
+  it("HUMIL2", "I don't think of myself as more special than other people.", "HUMIL"),
+  it("PRUD1", "I'm careful and avoid doing things I might later regret.", "PRUD"),
+  it("PRUD2", "I think before I act and steer clear of unnecessary risks.", "PRUD"),
+  it("SELFR1", "I have good control over my emotions and impulses.", "SELFR"),
+  it("SELFR2", "I'm disciplined about my habits and routines.", "SELFR"),
+  // — Transcendence —
+  it("BEAUT1", "I'm often moved by beauty in nature, art, or skilled performance.", "BEAUT"),
+  it("BEAUT2", "I notice and appreciate excellence across many areas of life.", "BEAUT"),
+  it("GRAT1", "I feel and express gratitude for the good things in my life.", "GRAT"),
+  it("GRAT2", "I regularly take time to count my blessings.", "GRAT"),
+  it("HOPE1", "I expect the best and work to make it happen.", "HOPE"),
+  it("HOPE2", "I stay optimistic about the future, even in hard times.", "HOPE"),
+  it("HUMOR1", "I love to laugh and bring lightness and play to situations.", "HUMOR"),
+  it("HUMOR2", "I use humor to connect with people and lift the mood.", "HUMOR"),
+  it("SPIRIT1", "I have a clear sense of purpose and meaning in my life.", "SPIRIT"),
+  it("SPIRIT2", "I feel connected to something larger than myself.", "SPIRIT"),
 ];
 
+const STRENGTH_NAMES: Record<string, string> = {
+  CREAT: "Creativity", CURIO: "Curiosity", JUDGE: "Judgment", LEARN: "Love of Learning", PERSP: "Perspective",
+  BRAVE: "Bravery", PERSV: "Perseverance", HONES: "Honesty", ZEST: "Zest",
+  LOVE: "Love", KIND: "Kindness", SOCIN: "Social Intelligence",
+  TEAM: "Teamwork", FAIR: "Fairness", LEAD: "Leadership",
+  FORGV: "Forgiveness", HUMIL: "Humility", PRUD: "Prudence", SELFR: "Self-Regulation",
+  BEAUT: "Appreciation of Beauty", GRAT: "Gratitude", HOPE: "Hope", HUMOR: "Humor", SPIRIT: "Spirituality",
+};
+const VIRTUE_OF: Record<string, string> = {
+  CREAT: "Wisdom", CURIO: "Wisdom", JUDGE: "Wisdom", LEARN: "Wisdom", PERSP: "Wisdom",
+  BRAVE: "Courage", PERSV: "Courage", HONES: "Courage", ZEST: "Courage",
+  LOVE: "Humanity", KIND: "Humanity", SOCIN: "Humanity",
+  TEAM: "Justice", FAIR: "Justice", LEAD: "Justice",
+  FORGV: "Temperance", HUMIL: "Temperance", PRUD: "Temperance", SELFR: "Temperance",
+  BEAUT: "Transcendence", GRAT: "Transcendence", HOPE: "Transcendence", HUMOR: "Transcendence", SPIRIT: "Transcendence",
+};
+
+function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+  const ranked = Object.keys(STRENGTH_NAMES)
+    .map((id) => ({ id, mean: s[id]?.mean ?? 0 }))
+    .sort((a, b) => b.mean - a.mean);
+  const top5 = ranked.slice(0, 5);
+
+  const virtueScore: Record<string, { sum: number; n: number }> = {};
+  for (const id of Object.keys(STRENGTH_NAMES)) {
+    const v = VIRTUE_OF[id];
+    (virtueScore[v] ??= { sum: 0, n: 0 });
+    virtueScore[v].sum += s[id]?.mean ?? 0;
+    virtueScore[v].n += 1;
+  }
+  const dominantVirtue = Object.entries(virtueScore).sort((a, b) => b[1].sum / b[1].n - a[1].sum / a[1].n)[0][0];
+
+  const sep = top5[0].mean - (ranked[5]?.mean ?? top5[0].mean);
+  return {
+    code: STRENGTH_NAMES[top5[0].id],
+    title: `Signature strength: ${STRENGTH_NAMES[top5[0].id]}`,
+    summary: `Your signature strengths are ${top5.map((x) => STRENGTH_NAMES[x.id]).join(", ")}. Using these in fresh ways is one of the surest paths to a fuller life.`,
+    components: [
+      { label: "#1 strength", value: STRENGTH_NAMES[top5[0].id], detail: VIRTUE_OF[top5[0].id] },
+      { label: "Signature strengths", value: top5.map((x) => STRENGTH_NAMES[x.id]).join(" · ") },
+      { label: "Leading virtue", value: dominantVirtue },
+      { label: "Use it well", value: `Find one new way to use your ${STRENGTH_NAMES[top5[0].id].toLowerCase()} this week.` },
+    ],
+    confidence: Math.max(0.3, Math.min(0.97, 0.5 + sep)),
+    secondary: STRENGTH_NAMES[top5[1].id],
+  };
+}
+
+const DESC: Record<string, string> = {
+  CREAT: "inventive and original", CURIO: "curious and exploratory", JUDGE: "open-minded and discerning", LEARN: "eager to learn and master", PERSP: "wise and perspective-giving",
+  BRAVE: "brave and principled", PERSV: "persistent and hard-working", HONES: "honest and authentic", ZEST: "energetic and full of zest",
+  LOVE: "warm and loving", KIND: "kind and generous", SOCIN: "socially perceptive and attuned",
+  TEAM: "loyal and team-minded", FAIR: "fair and even-handed", LEAD: "a natural organizer and leader",
+  FORGV: "forgiving and merciful", HUMIL: "humble and modest", PRUD: "careful and prudent", SELFR: "self-disciplined and composed",
+  BEAUT: "moved by beauty and excellence", GRAT: "grateful and appreciative", HOPE: "hopeful and optimistic", HUMOR: "playful and good-humored", SPIRIT: "purpose-driven and connected to meaning",
+};
+
+const scaleDefs = Object.entries(STRENGTH_NAMES).map(([id, name]) => ({
+  id,
+  name,
+  description: `${VIRTUE_OF[id]} — your ${name.toLowerCase()}.`,
+  highDescriptor: DESC[id],
+  lowDescriptor: `quieter here than in your signature strengths`,
+  normMean: 3.5,
+  normSd: 0.78,
+}));
+
 export const via: Instrument = {
-  id: "via-virtues",
-  name: "Character Strengths & Virtues (VIA)",
+  id: "via-24",
+  name: "Character Strengths (VIA-24)",
   shortName: "Strengths",
-  kind: "dimensional",
+  kind: "typological",
   category: "strengths",
-  tagline: "Discover your signature strengths — the best of who you are.",
+  tagline: "Discover your signature strengths — the very best of who you are.",
   description:
-    "Based on the VIA Classification of character strengths and virtues, this profiler measures the six " +
-    "universal virtues — Wisdom, Courage, Humanity, Justice, Temperance, and Transcendence — and highlights " +
-    "your signature strengths. Using your strengths in new ways is one of the most reliably effective routes " +
-    "to greater wellbeing.",
-  estMinutes: 5,
+    "The VIA Classification identifies 24 character strengths grouped under six universal virtues. This " +
+    "profiler measures all 24 and reveals your top 'signature strengths' — the ones that feel most essentially " +
+    "you. Decades of research show that using your signature strengths in new ways reliably boosts wellbeing.",
+  estMinutes: 8,
   responseFormat: L,
   itemProvenance: "Original items written for this platform, grounded in the VIA Classification (Peterson & Seligman, 2004). The VIA-IS is not used.",
-  scales: [
-    { id: "WIS", name: "Wisdom & Knowledge", description: "Curiosity, love of learning, creativity, judgment, and perspective.", highDescriptor: "curious, open-minded, and drawn to learning and ideas", lowDescriptor: "practical and grounded rather than intellectually restless", normMean: 3.7, normSd: 0.6 },
-    { id: "COU", name: "Courage", description: "Bravery, perseverance, honesty, and zest.", highDescriptor: "brave, persistent, authentic, and full of drive", lowDescriptor: "measured and cautious rather than bold", normMean: 3.6, normSd: 0.6 },
-    { id: "HUM", name: "Humanity", description: "Love, kindness, and social intelligence.", highDescriptor: "warm, caring, and attuned to others", lowDescriptor: "more self-contained than nurturing", normMean: 3.9, normSd: 0.55 },
-    { id: "JUS", name: "Justice", description: "Teamwork, fairness, and leadership.", highDescriptor: "fair, civic-minded, and a dependable team member or leader", lowDescriptor: "more independent than group-oriented", normMean: 3.7, normSd: 0.58 },
-    { id: "TEM", name: "Temperance", description: "Forgiveness, humility, prudence, and self-regulation.", highDescriptor: "self-disciplined, humble, forgiving, and measured", lowDescriptor: "spontaneous and uninhibited rather than restrained", normMean: 3.5, normSd: 0.6 },
-    { id: "TRA", name: "Transcendence", description: "Appreciation of beauty, gratitude, hope, humor, and meaning.", highDescriptor: "grateful, hopeful, playful, and moved by meaning and beauty", lowDescriptor: "down-to-earth rather than transcendence-seeking", normMean: 3.7, normSd: 0.6 },
-  ],
+  scales: scaleDefs,
   items,
+  resolveType,
   caveats: [
-    "Strengths aren't ranked against other people so much as within you — your top virtues are your 'signature.'",
-    "There are no bad results here: every virtue is a genuine strength. Growth is about using your top ones more, on purpose.",
-    "A brief measure of the six virtues, not the full 24-strength VIA-IS.",
+    "There are no weaknesses here — only strengths you use more or less. Your top five are your 'signature.'",
+    "Growth means using your signature strengths in new contexts, not fixing 'low' ones.",
+    "A brief screen of all 24 strengths, not the full VIA-IS.",
   ],
   citations: [
     { ref: "Peterson, C., & Seligman, M. E. P. (2004). Character Strengths and Virtues: A Handbook and Classification. Oxford University Press / APA." },
     { ref: "Niemiec, R. M. (2018). Character Strengths Interventions: A Field Guide for Practitioners. Hogrefe." },
-    { ref: "Seligman, M. E. P., Steen, T. A., Park, N., & Peterson, C. (2005). Positive psychology progress: Empirical validation of interventions. American Psychologist, 60(5), 410–421." },
+    { ref: "Seligman, M. E. P., Steen, T. A., Park, N., & Peterson, C. (2005). Positive psychology progress. American Psychologist, 60(5), 410–421." },
   ],
 };

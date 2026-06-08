@@ -107,10 +107,11 @@ describe("expanded instruments", () => {
 });
 
 describe("strengths, values, EQ, love languages, grit", () => {
-  it("VIA measures the six virtues", () => {
+  it("VIA-24 resolves signature strengths", () => {
     const res = scoreAssessment(via, allHigh(via));
-    expect(Object.keys(res.scales)).toHaveLength(6);
-    for (const sc of Object.values(res.scales)) expect(sc.level).toBe("very high");
+    expect(Object.keys(res.scales)).toHaveLength(24);
+    expect(res.type?.code).toBeTruthy();
+    expect(res.type?.components.some((c) => c.label === "Leading virtue")).toBe(true);
   });
 
   it("Values scores ten priorities", () => {
