@@ -109,7 +109,7 @@ export function AbilityFlow({ test, name, onExit }: { test: AbilityTest; name?: 
           {item.figure && <div className="ab-stem"><Figure svg={item.figure} /></div>}
 
           {item.optionFigures ? (
-            <div className="ab-figgrid">
+            <div className={`ab-figgrid ${item.optionFigures.length > 4 ? "six" : ""}`}>
               {item.optionFigures.map((fig, oi) => (
                 <button key={oi} className={`ab-figopt ${chosen === oi ? "active" : ""}`} onClick={() => choose(oi)}>
                   <Figure svg={fig} />

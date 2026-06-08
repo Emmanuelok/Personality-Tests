@@ -747,6 +747,26 @@ Object.assign(GLYPHS, {
       )}
     </>
   ),
+  // Culture-Fair — a 2×2 of differing shapes with the missing piece.
+  "culture-fair": () => (
+    <>
+      <circle cx="16" cy="16" r="6" />
+      <rect x="27" y="10" width="12" height="12" rx="2" />
+      <polygon points="16,28 22,40 10,40" />
+      <polygon className="gold gold-fill" points="33,28 39,34 33,40 27,34" />
+    </>
+  ),
+  // Verbal-Numerical Aptitude — a stopwatch (speeded test).
+  "verbal-numerical": () => (
+    <>
+      <circle cx="24" cy="26" r="15" />
+      <line x1="24" y1="6" x2="24" y2="11" />
+      <line x1="19" y1="7" x2="29" y2="7" />
+      <line className="gold" x1="24" y1="26" x2="24" y2="17" />
+      <line className="gold" x1="24" y1="26" x2="31" y2="29" />
+      <circle className="gold gold-fill" cx="24" cy="26" r="2" />
+    </>
+  ),
 });
 
 export function InstrumentGlyph({

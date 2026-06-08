@@ -6,7 +6,8 @@
  * theory — the model behind the WAIS, Stanford-Binet, Woodcock-Johnson, and Raven's.
  */
 
-export type AbilityDomainId = "verbal" | "numerical" | "abstract" | "spatial";
+/** A reasoning domain id (e.g., "verbal", "numerical", "matrices", "rotation"). */
+export type AbilityDomainId = string;
 
 export interface AbilityDomain {
   id: AbilityDomainId;
