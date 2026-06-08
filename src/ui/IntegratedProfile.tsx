@@ -4,7 +4,17 @@ import { getInstrument } from "@core/instruments";
 import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
 import { InstrumentGlyph } from "./art";
+import { ScaleBar } from "./charts";
 import type { CognitiveTake } from "../profile";
+
+/** A short cross-link pairing a cognitive result with the integrated portrait. */
+function reasoningLink(t: CognitiveTake, anchor: string): string {
+  if (t.percentile >= 70)
+    return `Strong reasoning here is a multiplier for ${anchor} — lean on it when you take on something genuinely new or complex, and let it carry the heavy analytical lifting.`;
+  if (t.percentile >= 40)
+    return `Dependable reasoning gives you a solid tool; paired with ${anchor}, your edge is less about raw horsepower and more about how deliberately you apply it.`;
+  return `Reasoning tests capture just one slice of a mind, and the skills are trainable — your real leverage likely sits in ${anchor}, with reasoning as the supporting act.`;
+}
 
 export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP; onBack: () => void; onBrowse: () => void; cognitive?: CognitiveTake[] }) {
   return (
@@ -93,6 +103,27 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
                 <ul>{ip.growthEdges.length ? ip.growthEdges.map((s, i) => <li key={i}>{s}</li>) : <li>No clear low points yet — take a few more tests to sharpen this.</li>}</ul>
               </div>
             </div>
+          </section>
+        )}
+
+        {cognitive && cognitive.length > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Mind &amp; reasoning</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
+              How your measured reasoning fits the rest of your portrait — a tool in service of who you are, never a verdict on it.
+            </p>
+            {cognitive.map((t, i) => (
+              <div className="cdim" key={i}>
+                <div className="top">
+                  <b>{t.name}</b>
+                  <span className="vals">{t.headline} · {Math.round(t.percentile)}th pct</span>
+                </div>
+                <ScaleBar value={t.percentile} leftLabel="Lower" rightLabel="Higher" />
+                <div className="note" style={{ marginTop: 6 }}>
+                  {reasoningLink(t, ip.themes[0]?.name ? `your "${ip.themes[0].name}" thread` : ip.strengths[0] ? "your standout strengths" : "the rest of your strengths")}
+                </div>
+              </div>
+            ))}
           </section>
         )}
 
