@@ -721,6 +721,18 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .corsi-block:hover { border-color: var(--text-faint); }
 .corsi-block.lit { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 7px rgba(154, 123, 46, 0.18); transform: scale(1.07); }
 
+/* Processing-speed (Symbol Search) */
+.speed-card { transition: box-shadow 0.1s ease; border-radius: 18px; }
+.speed-card.ok { box-shadow: 0 0 0 3px rgba(78, 122, 58, 0.45); }
+.speed-card.no { box-shadow: 0 0 0 3px rgba(177, 84, 47, 0.45); }
+.speed-key, .speed-search { margin: 18px auto; }
+.speed-label { display: block; font-family: var(--display); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+.speed-syms { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.speed-sym { font-size: clamp(1.9rem, 6.5vw, 2.8rem); line-height: 1; color: var(--text); width: 1.5em; height: 1.5em; display: grid; place-items: center; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--surface-2); }
+.speed-sym.tgt { color: var(--gold); border: 2px solid var(--gold); background: var(--surface); }
+.speed-actions { display: flex; gap: 14px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+.speed-actions .btn { min-width: 168px; justify-content: center; }
+
 /* result: per-question review */
 .qreview { border-top: 1px dashed var(--border); padding: 16px 0; }
 .qreview:first-of-type { border-top: none; }

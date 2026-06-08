@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ABILITY_TESTS, scoreAbility } from "./index";
 import { makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } from "./memory";
+import { makeSpeedTrial, scoreProcessing } from "./processing";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -110,5 +111,25 @@ describe("Corsi spatial span", () => {
     expect(r.maxForward).toBe(6);
     expect(r.maxBackward).toBe(5);
     expect(r.percentile).toBeGreaterThan(50);
+  });
+});
+
+describe("processing speed", () => {
+  it("builds trials whose 'present' flag matches the search set", () => {
+    for (let i = 0; i < 50; i++) {
+      const t = makeSpeedTrial();
+      expect(t.targets.length).toBe(2);
+      expect(t.search.length).toBe(5);
+      const anyTarget = t.search.some((s) => t.targets.includes(s));
+      expect(anyTarget).toBe(t.present);
+    }
+  });
+
+  it("rewards fast, accurate work and penalizes errors", () => {
+    const fast = scoreProcessing(50, 1, 51, 90);
+    const slow = scoreProcessing(8, 6, 14, 90);
+    expect(fast.percentile).toBeGreaterThan(slow.percentile);
+    expect(fast.percentile).toBeGreaterThan(80);
+    expect(slow.percentile).toBeLessThan(30);
   });
 });

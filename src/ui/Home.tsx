@@ -3,6 +3,7 @@ import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
 import { MEMORY_TEST, CORSI_TEST } from "@core/ability/memory";
+import { PROCESSING_TEST } from "@core/ability/processing";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -13,6 +14,7 @@ export function Home({
   onStartAbility,
   onStartMemory,
   onStartCorsi,
+  onStartSpeed,
 }: {
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
@@ -20,6 +22,7 @@ export function Home({
   onStartAbility: (test: AbilityTest) => void;
   onStartMemory: () => void;
   onStartCorsi: () => void;
+  onStartSpeed: () => void;
 }) {
   return (
     <div className="container">
@@ -154,6 +157,21 @@ export function Home({
             </div>
             <p className="cite">The Corsi block-tapping test — the visual-spatial counterpart to digit span.</p>
             <button className="btn primary" onClick={onStartCorsi}>Begin {CORSI_TEST.shortName} →</button>
+          </article>
+          <article className="card">
+            <span className="card-watermark cat-cognition" aria-hidden="true">
+              <InstrumentGlyph id="processing-speed" category="cognition" />
+            </span>
+            <span className="kind">Ability test</span>
+            <h3>{PROCESSING_TEST.name}</h3>
+            <p className="tagline">{PROCESSING_TEST.tagline}</p>
+            <div className="facts">
+              <span>⏱ {PROCESSING_TEST.durationSec}s</span>
+              <span>⚡ timed</span>
+              <span>📐 symbol search</span>
+            </div>
+            <p className="cite">In the spirit of the WAIS Symbol Search processing-speed subtest.</p>
+            <button className="btn primary" onClick={onStartSpeed}>Begin {PROCESSING_TEST.shortName} →</button>
           </article>
         </div>
       </div>

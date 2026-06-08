@@ -767,6 +767,14 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Processing Speed — fast-forward chevrons.
+  "processing-speed": () => (
+    <>
+      <path className="gold" d="M11,13 L21,24 L11,35" />
+      <path d="M23,13 L33,24 L23,35" />
+      <circle className="gold gold-fill" cx="39" cy="24" r="2.6" />
+    </>
+  ),
   // Corsi blocks — a path lit through a 3×3 board.
   "corsi-blocks": () => (
     <>

@@ -20,6 +20,7 @@ import { AbilityFlow } from "./ui/ability/AbilityFlow";
 import { AbilityResult } from "./ui/ability/AbilityResult";
 import { MemoryFlow } from "./ui/ability/MemoryFlow";
 import { CorsiFlow } from "./ui/ability/CorsiFlow";
+import { SpeedFlow } from "./ui/ability/SpeedFlow";
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import {
   grantProduct,
@@ -31,6 +32,7 @@ import {
   type PendingResult,
 } from "./store";
 import { MEMORY_TEST, CORSI_TEST, type MemoryResult } from "@core/ability/memory";
+import { PROCESSING_TEST, type SpeedResult } from "@core/ability/processing";
 import {
   completedInstrumentIds,
   createProfile,
@@ -42,7 +44,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -209,6 +211,13 @@ export default function App() {
       headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} blocks`, percentile: r.percentile,
     }));
   };
+  const speedDone = (r: SpeedResult) => {
+    const base = profile ?? createProfile("", []);
+    setProfile(recordCognitive(base, {
+      id: PROCESSING_TEST.id, name: PROCESSING_TEST.name, takenAt: new Date().toISOString(),
+      headline: `${r.correct} correct · ${r.rate}/min`, percentile: r.percentile,
+    }));
+  };
   const retakeAbility = () => {
     setAbilityResult(null);
     setAbilityNonce((n) => n + 1);
@@ -243,6 +252,10 @@ export default function App() {
   };
   const startCorsi = () => {
     setView("corsi");
+    top();
+  };
+  const startSpeed = () => {
+    setView("speed");
     top();
   };
 
@@ -333,7 +346,7 @@ export default function App() {
   };
 
   const hasHistory = entries.length > 0 || (profile?.cognitiveHistory?.length ?? 0) > 0;
-  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi";
+  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi" && view !== "speed";
 
   return (
     <>
@@ -362,6 +375,7 @@ export default function App() {
           onStartAbility={startAbility}
           onStartMemory={startMemory}
           onStartCorsi={startCorsi}
+          onStartSpeed={startSpeed}
         />
       )}
 
@@ -386,6 +400,8 @@ export default function App() {
       {view === "memory" && <MemoryFlow name={name} onExit={goHome} onComplete={memoryDone} />}
 
       {view === "corsi" && <CorsiFlow name={name} onExit={goHome} onComplete={corsiDone} />}
+
+      {view === "speed" && <SpeedFlow name={name} onExit={goHome} onComplete={speedDone} />}
 
       {view === "intro" && instrument && (
         <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />
