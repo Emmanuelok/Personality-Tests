@@ -1,7 +1,10 @@
+import { useState } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { RadarChart, ScaleBar } from "./charts";
 import { ImprovementPlanner } from "./ImprovementPlanner";
+import { downloadJSON, downloadMarkdown } from "./exports";
+import { hasPoster } from "../store";
 
 function shortLabel(name: string): string {
   if (name.includes("·")) return name.split("·")[1].trim();
@@ -24,17 +27,18 @@ export function Report({
 }) {
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
+  const [pdfBusy, setPdfBusy] = useState(false);
 
-  const downloadJSON = () => {
-    const blob = new Blob([JSON.stringify({ instrument: instrument.id, takenAt: result.takenAt, result, report }, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `psyche-atlas-${report.reportId}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const withPdf = async (fn: "downloadReportPdf" | "downloadPosterPdf") => {
+    setPdfBusy(true);
+    try {
+      const m = await import("./pdf");
+      await m[fn](instrument, result, report);
+    } catch (e) {
+      console.error("PDF generation failed", e);
+    } finally {
+      setPdfBusy(false);
+    }
   };
 
   return (
@@ -44,16 +48,23 @@ export function Report({
         <h1>{report.title}</h1>
         <div className="subtitle">{report.subtitle}</div>
         <div className="uniqueness" title="No two generated reports are ever identical.">
-          🧬 Unique report <code>{report.reportId}</code> · seed <code>{report.seedHex}</code>
+          ✓ Unlocked · 🧬 Unique report <code>{report.reportId}</code> · seed <code>{report.seedHex}</code>
         </div>
       </div>
 
       <div className="row-actions no-print">
-        <button className="btn" onClick={onRegenerate} title="Compose a fresh, never-identical version from the same answers">
-          ↻ Regenerate (it'll differ)
+        <button className="btn primary" disabled={pdfBusy} onClick={() => withPdf("downloadReportPdf")}>
+          {pdfBusy ? "Preparing…" : "⤓ Designed PDF"}
         </button>
-        <button className="btn" onClick={() => window.print()}>🖨 Print / Save PDF</button>
-        <button className="btn" onClick={downloadJSON}>⤓ Download data</button>
+        {hasPoster(result.responseFingerprint) && (
+          <button className="btn" disabled={pdfBusy} onClick={() => withPdf("downloadPosterPdf")}>🖼 Poster PDF</button>
+        )}
+        <button className="btn" onClick={() => downloadMarkdown(instrument, report)}>⤓ Markdown</button>
+        <button className="btn" onClick={() => downloadJSON(instrument, result, report)}>⤓ Data (JSON)</button>
+        <button className="btn" onClick={() => window.print()}>🖨 Print</button>
+        <button className="btn" onClick={onRegenerate} title="Compose a fresh, never-identical version from the same answers">
+          ↻ Regenerate
+        </button>
         <button className="btn ghost" onClick={onRestart}>↩ Take another</button>
       </div>
 

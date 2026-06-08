@@ -1,6 +1,6 @@
 import type { AssessmentResult, Citation, Instrument, ScaleScore } from "../types";
 import { Rng, nonce, seedFrom } from "../prng";
-import { ordinal, round1, sentence } from "../variation";
+import { clamp, ordinal, round1, sentence } from "../variation";
 
 export interface GrowthTarget {
   scaleId: string;
@@ -40,6 +40,32 @@ export interface GrowthPlan {
 
 /** A meaningful gap; below this we treat the target as "maintain". */
 const GAP_THRESHOLD = 8;
+
+/**
+ * Suggest sensible default growth targets so a plan can be shown (and put into the
+ * PDF) before the user customizes anything. For the Big Five we nudge toward the
+ * directions most associated with well-being and effectiveness in the literature;
+ * for typologies we gently encourage developing the less-used side. These are
+ * starting points, explicitly meant to be adjusted to the user's own goals.
+ */
+export function suggestTargets(instrument: Instrument, result: AssessmentResult): GrowthTarget[] {
+  const scales = instrument.scales.filter((s) => result.scales[s.id]);
+  const shown =
+    scales.length > 6
+      ? [...scales].sort((a, b) => result.scales[b.id].normalized - result.scales[a.id].normalized).slice(0, 6)
+      : scales;
+  return shown.map((s) => {
+    const cur = result.scales[s.id].normalized;
+    let target = cur;
+    if (instrument.id === "big-five-ipip50") {
+      const nudge: Record<string, number> = { C: 12, A: 8, O: 6, E: cur < 50 ? 10 : 0, N: -14 };
+      target = clamp(cur + (nudge[s.id] ?? 0), 5, 95);
+    } else {
+      target = cur >= 50 ? Math.max(50, cur - 12) : Math.min(50, cur + 12);
+    }
+    return { scaleId: s.id, target: Math.round(target) };
+  });
+}
 
 /**
  * Evidence-based change strategies per Big Five factor and direction. Grounded in

@@ -86,6 +86,29 @@ Then pass a provider to `generateReport(instrument, result, { llm: createClaudeP
 
 ---
 
+## Deploy to Vercel
+
+This is a Vite SPA plus serverless functions in `/api`, so it deploys to Vercel with essentially zero config:
+
+1. Push to GitHub (done).
+2. In Vercel, **Import** the repo. The **Vite** preset is auto-detected (build `npm run build`, output `dist`); `vercel.json` is included.
+3. *(Optional — to charge real money)* add Environment Variables under **Settings → Environment Variables**: `STRIPE_SECRET_KEY` (and optionally `PRICE_REPORT_CENTS`, etc.), then redeploy.
+4. Open your URL — it's live.
+
+Local dev with the serverless functions: `npm i -g vercel && vercel dev`. Plain `npm run dev` also works — checkout simply falls back to a demo unlock because `/api` isn't running.
+
+## Selling results — freemium, no sign-in
+
+- The end of every questionnaire shows a **free snapshot** (your headline/type, a radar chart, and a teaser).
+- The **full report + personalized growth plan** unlocks for **$1.89** via **Stripe Checkout** — no account, no login; buyers just pay and it unlocks instantly. A **stunningly designed multi-page PDF**, plus Markdown, JSON, and print, are all included.
+- **Demo mode:** with no `STRIPE_SECRET_KEY` set, the site is fully usable — "Unlock" grants access instantly (clearly a preview) so you can demo before wiring Stripe.
+- **Extensible store:** products live in `src/core/commerce.ts` (server-authoritative prices in `api/_stripe.ts`). Ships with the **Full Report** ($1.89), an **All-Access Pass** ($5.90), and a print-ready **Personality Poster** PDF ($2.90). Add more digital merch by appending to the catalog.
+- **Privacy & no database:** answers never leave the device; entitlements live in `localStorage`, the in-progress result in `sessionStorage` (so it survives the Stripe round-trip). Purchases are verified **server-side** (`/api/verify-session`) before unlocking.
+
+> Production hardening worth adding later: a Stripe **webhook** for fulfillment robustness, and optional accounts for cross-device entitlements.
+
+---
+
 ## Scientific basis & honest limitations
 
 These assessments are tools for **self-understanding and growth, not clinical diagnosis**. Traits describe tendencies, not destiny; percentiles are estimates from community norms. Every report surfaces its own citations and caveats. Key sources include:
@@ -108,6 +131,7 @@ The "extensive updates" build on this foundation:
 - **Richer typological growth** — inferior-function development (Jung) and full passion→virtue paths (Enneagram).
 - **Persistence & longitudinal tracking** — save results, re-test over time, and visualize trait change against your plan.
 - **Server API + first-class AI mode** — move the optional LLM layer behind a secure endpoint.
+- **Commerce hardening** — Stripe webhooks for fulfillment, optional accounts for cross-device entitlements, gift codes, and more digital merch (compatibility add-ons, deep-dive bundles).
 - **Accessibility & i18n** — full keyboard/screen-reader passes and translated instruments.
 
 ---
