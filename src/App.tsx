@@ -14,6 +14,7 @@ import { Quiz } from "./ui/Quiz";
 import { Report } from "./ui/Report";
 import { BriefResult } from "./ui/BriefResult";
 import { Compatibility } from "./ui/Compatibility";
+import { Growth } from "./ui/Growth";
 import {
   grantProduct,
   isUnlocked,
@@ -35,7 +36,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "onboarding" | "dashboard" | "library" | "quiz" | "result" | "compatibility" | "integrated";
+type View = "onboarding" | "dashboard" | "library" | "quiz" | "result" | "compatibility" | "integrated" | "growth";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -201,6 +202,10 @@ export default function App() {
     setView("compatibility");
     top();
   };
+  const goGrowth = () => {
+    setView("growth");
+    top();
+  };
   const goDashboard = () => {
     setView(profile ? "dashboard" : "onboarding");
     setError(null);
@@ -235,6 +240,7 @@ export default function App() {
                 <button className={view === "dashboard" ? "active" : ""} onClick={goDashboard}>Home</button>
                 <button className={view === "library" ? "active" : ""} onClick={goLibrary}>Explore</button>
                 <button className={view === "integrated" ? "active" : ""} onClick={goIntegrated} disabled={!entries.length}>Integrated</button>
+                <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>Journey</button>
                 <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>Compatibility</button>
               </nav>
             )}
@@ -293,6 +299,8 @@ export default function App() {
       {view === "compatibility" && (
         <Compatibility instrument={instrument} result={result} onStart={start} onBack={goDashboard} />
       )}
+
+      {view === "growth" && profile && <Growth profile={profile} onBrowse={goLibrary} onBack={goDashboard} />}
     </>
   );
 }

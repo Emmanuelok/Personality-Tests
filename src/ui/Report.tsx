@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
@@ -6,6 +6,7 @@ import { RadarChart, ScaleBar } from "./charts";
 import { ImprovementPlanner } from "./ImprovementPlanner";
 import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
+import { downloadShareCard } from "./shareCard";
 import { hasPoster } from "../store";
 
 function shortLabel(name: string): string {
@@ -34,6 +35,8 @@ export function Report({
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
   const [pdfBusy, setPdfBusy] = useState(false);
+  // A subtle accent hue unique to this result — a small personal signature.
+  const hue = parseInt((report.seedHex || "0").slice(0, 4), 16) % 360;
 
   const withPdf = async (fn: "downloadReportPdf" | "downloadPosterPdf") => {
     setPdfBusy(true);
@@ -48,7 +51,7 @@ export function Report({
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{ ["--accent"]: `hsl(${hue} 85% 72%)` } as unknown as CSSProperties}>
       <div className="report-head">
         <div className="supertitle">{instrument.name} · Personal Report</div>
         <h1>{report.title}</h1>
@@ -65,6 +68,7 @@ export function Report({
         {hasPoster(result.responseFingerprint) && (
           <button className="btn" disabled={pdfBusy} onClick={() => withPdf("downloadPosterPdf")}>🖼 Poster PDF</button>
         )}
+        <button className="btn" onClick={() => downloadShareCard(instrument, result, report, name)}>📣 Share card</button>
         <button className="btn" onClick={() => downloadMarkdown(instrument, report)}>⤓ Markdown</button>
         <button className="btn" onClick={() => downloadJSON(instrument, result, report)}>⤓ Data (JSON)</button>
         <button className="btn" onClick={() => window.print()}>🖨 Print</button>
