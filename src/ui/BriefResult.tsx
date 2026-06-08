@@ -3,6 +3,7 @@ import type { PersonalityReport } from "@core/report";
 import { PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart } from "./charts";
 import { InstrumentGlyph, Crest, TraitIcon } from "./art";
+import { useI18n } from "../i18n";
 
 function shortLabel(name: string): string {
   if (name.includes("·")) return name.split("·")[1].trim();
@@ -26,8 +27,9 @@ export function BriefResult({
   busy: boolean;
   error: string | null;
 }) {
-  const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
+  const radarData = report.traits.map((tr) => ({ label: shortLabel(tr.name), value: tr.normalized }));
   const top = [...report.traits].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50)).slice(0, 3);
+  const i18 = useI18n();
 
   return (
     <div className="container view-enter">
@@ -35,7 +37,7 @@ export function BriefResult({
         <span className={`report-seal cat-${instrument.category}`} aria-hidden="true">
           <InstrumentGlyph id={instrument.id} category={instrument.category} />
         </span>
-        <div className="supertitle">{instrument.name} · Free snapshot</div>
+        <div className="supertitle">{instrument.name} · {i18.t("report.snapshot")}</div>
         <h1>{report.title}</h1>
         <div className="subtitle">{report.subtitle}</div>
       </div>
@@ -73,7 +75,7 @@ export function BriefResult({
 
         {/* Paywall */}
         <section className="panel paywall">
-          <h2 style={{ fontFamily: "var(--serif)", fontSize: 26, margin: "0 0 4px" }}>Unlock your full report</h2>
+          <h2 style={{ fontFamily: "var(--serif)", fontSize: 26, margin: "0 0 4px" }}>{i18.t("paywall.unlock")}</h2>
           <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
             Your snapshot above is just the surface. The full report goes deep — and turns your result into a plan to grow.
           </p>
@@ -104,7 +106,7 @@ export function BriefResult({
         </section>
 
         <div className="row-actions">
-          <button className="btn ghost" onClick={onRestart}>↩ Take a different assessment</button>
+          <button className="btn ghost" onClick={onRestart}>↩ {i18.t("paywall.takeDifferent")}</button>
         </div>
       </div>
     </div>

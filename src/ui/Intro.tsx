@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Instrument } from "@core/types";
 import { getCategory } from "@core/categories";
 import { InstrumentGlyph } from "./art";
+import { useI18n } from "../i18n";
 
 export function Intro({
   instrument,
@@ -16,6 +17,8 @@ export function Intro({
 }) {
   const [name, setName] = useState(initialName ?? "");
   const cat = getCategory(instrument.category);
+  const { t } = useI18n();
+  const meta = t("intro.meta").replace("{m}", String(instrument.estMinutes)).replace("{n}", String(instrument.items.length));
 
   return (
     <div className="container">
@@ -30,7 +33,7 @@ export function Intro({
         <div className="name-field">
           <input
             type="text"
-            placeholder="Your name (optional)"
+            placeholder={t("intro.namePlaceholder")}
             value={name}
             maxLength={40}
             autoComplete="off"
@@ -41,21 +44,18 @@ export function Intro({
           />
         </div>
 
-        <button className="btn" onClick={() => onBegin(name.trim())}>Begin the assessment&nbsp;→</button>
-        <p className="meta">
-          About {instrument.estMinutes} min · {instrument.items.length} questions · no sign-up, nothing leaves your device
-        </p>
+        <button className="btn" onClick={() => onBegin(name.trim())}>{t("intro.begin")}</button>
+        <p className="meta">{meta}</p>
 
         {instrument.caveats && instrument.caveats.length > 0 && (
           <div className="aside" style={{ textAlign: "left", marginTop: 42 }}>
-            <span className="label">Before you start</span>
-            Choose the answer that feels <b>most like the real you</b> — not who you wish you were. There are no right
-            answers, just your honest instinct. {instrument.caveats[0]}
+            <span className="label">{t("intro.before")}</span>
+            {t("intro.honest")} {instrument.caveats[0]}
           </div>
         )}
 
         <div style={{ marginTop: 26 }}>
-          <button className="btn ghost" onClick={onBack}>←&nbsp;All assessments</button>
+          <button className="btn ghost" onClick={onBack}>←&nbsp;{t("common.allAssessments")}</button>
         </div>
       </div>
     </div>

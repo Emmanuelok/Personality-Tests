@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-
-const MESSAGES = ["Reading your responses…", "Weighing the patterns…", "Composing your report…"];
+import { useI18n } from "../i18n";
 
 /** A brief, calm "calculating" beat between finishing a quiz and the reveal. */
 export function Calculating({ onDone }: { onDone: () => void }) {
+  const { t } = useI18n();
+  const MESSAGES = [t("calc.1"), t("calc.2"), t("calc.3")];
   const [mi, setMi] = useState(0);
   useEffect(() => {
     const iv = setInterval(() => setMi((m) => Math.min(m + 1, MESSAGES.length - 1)), 480);

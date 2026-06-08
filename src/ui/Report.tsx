@@ -10,6 +10,7 @@ import { downloadJSON, downloadMarkdown } from "./exports";
 import { downloadShareCard } from "./shareCard";
 import { fetchNorms, communityPercentile } from "../calibration";
 import { hasPoster } from "../store";
+import { useI18n } from "../i18n";
 
 function shortLabel(name: string): string {
   if (name.includes("·")) return name.split("·")[1].trim();
@@ -35,8 +36,9 @@ export function Report({
   name?: string;
 }) {
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
-  const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
+  const radarData = report.traits.map((tr) => ({ label: shortLabel(tr.name), value: tr.normalized }));
   const [pdfBusy, setPdfBusy] = useState(false);
+  const i18 = useI18n();
 
   const withPdf = async (fn: "downloadReportPdf" | "downloadPosterPdf") => {
     setPdfBusy(true);
@@ -56,7 +58,7 @@ export function Report({
         <span className={`report-seal cat-${instrument.category}`} aria-hidden="true">
           <InstrumentGlyph id={instrument.id} category={instrument.category} />
         </span>
-        <div className="supertitle">{instrument.name} · Personal Report</div>
+        <div className="supertitle">{instrument.name} · {i18.t("report.personal")}</div>
         <h1>{report.title}</h1>
         <div className="subtitle">{report.subtitle}</div>
         <div className="uniqueness" title="No two generated reports are ever identical.">
@@ -71,7 +73,7 @@ export function Report({
         {hasPoster(result.responseFingerprint) && (
           <button className="btn" disabled={pdfBusy} onClick={() => withPdf("downloadPosterPdf")}>🖼 Poster PDF</button>
         )}
-        <button className="btn" onClick={() => downloadShareCard(instrument, result, report, name)}>📣 Share card</button>
+        <button className="btn" onClick={() => downloadShareCard(instrument, result, report, name)}>📣 {i18.t("report.shareCard")}</button>
         <button className="btn" onClick={() => downloadMarkdown(instrument, report)}>⤓ Markdown</button>
         <button className="btn" onClick={() => downloadJSON(instrument, result, report)}>⤓ Data (JSON)</button>
         <button className="btn" onClick={() => window.print()}>🖨 Print</button>
@@ -79,7 +81,7 @@ export function Report({
           ↻ Regenerate
         </button>
         <button className="btn" onClick={onCompatibility}>💞 Compatibility</button>
-        <button className="btn ghost" onClick={onRestart}>↩ Take another</button>
+        <button className="btn ghost" onClick={onRestart}>↩ {i18.t("report.takeAnother")}</button>
       </div>
 
       <div className="report-grid stagger">
@@ -126,7 +128,7 @@ export function Report({
 
         {/* Radar */}
         <section className="panel">
-          <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 22, margin: "0 0 6px" }}>Your Profile at a Glance</h3>
+          <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 22, margin: "0 0 6px" }}>{i18.t("report.glance")}</h3>
           <div className="radar-wrap">
             <RadarChart data={radarData} />
           </div>
@@ -137,7 +139,7 @@ export function Report({
         {/* Trait deep dive */}
         <section className="panel">
           <h3 style={{ fontFamily: "var(--serif)", fontSize: 24, marginTop: 0 }}>
-            {instrument.kind === "typological" ? "Dimension by Dimension" : "Trait by Trait"}
+            {instrument.kind === "typological" ? i18.t("report.dimByDim") : i18.t("report.traitByTrait")}
           </h3>
           {report.traits.map((t) => {
             const sd = scaleById.get(t.scaleId);
@@ -152,11 +154,11 @@ export function Report({
                 <p className="narr">{t.narrative}</p>
                 <div className="sw">
                   <div className="col good">
-                    <h5>Strengths</h5>
+                    <h5>{i18.t("report.strengths")}</h5>
                     <ul>{t.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul>
                   </div>
                   <div className="col watch">
-                    <h5>Watch-outs</h5>
+                    <h5>{i18.t("report.watchouts")}</h5>
                     <ul>{t.watchouts.map((s, i) => <li key={i}>{s}</li>)}</ul>
                   </div>
                 </div>
@@ -168,7 +170,7 @@ export function Report({
         {/* Dynamics */}
         {report.dynamics.length > 0 && (
           <section className="panel sec">
-            <h3>How Your Traits Interact</h3>
+            <h3>{i18.t("report.dynamics")}</h3>
             <ul className="clean dynamics">
               {report.dynamics.map((d, i) => <li key={i}>{d}</li>)}
             </ul>
@@ -189,7 +191,7 @@ export function Report({
         {/* Signature responses */}
         {report.signatureResponses.length > 0 && (
           <section className="panel sec">
-            <h3>What Makes This Profile Uniquely Yours</h3>
+            <h3>{i18.t("report.unique")}</h3>
             <p>These are the specific answers that pulled to the extremes — the fingerprints a summary would smooth over.</p>
             <ul className="clean sigs">
               {report.signatureResponses.map((s, i) => <li key={i}>{s}</li>)}
@@ -206,7 +208,7 @@ export function Report({
         <section className="panel">
           {instrument.caveats && (
             <>
-              <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>Read responsibly</h3>
+              <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("report.responsibly")}</h3>
               <ul className="caveats">{instrument.caveats.map((c, i) => <li key={i}>{c}</li>)}</ul>
             </>
           )}
