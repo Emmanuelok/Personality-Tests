@@ -3,6 +3,7 @@ import { getInstrument } from "@core/instruments";
 import { scoreAssessment } from "@core/scoring";
 import { compareTakes, milestones, type RetakeComparison } from "@core/growth";
 import { InstrumentGlyph } from "./art";
+import { calibConsent, setCalibConsent } from "../calibration";
 import { exportProfileCode, importProfileCode, type Profile, type SavedResult } from "../profile";
 
 export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void; onImport?: (p: Profile) => void }) {
@@ -48,6 +49,7 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
   const [code, setCode] = useState("");
   const [importText, setImportText] = useState("");
   const [status, setStatus] = useState("");
+  const [consent, setConsent] = useState(calibConsent());
 
   return (
     <div className="container view-enter">
@@ -167,6 +169,10 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
             </div>
           </div>
           {status && <p className="note" style={{ marginTop: 12 }}>{status}</p>}
+          <label className="calib-opt" style={{ marginTop: 16 }}>
+            <input type="checkbox" checked={consent} onChange={(e) => { setConsent(e.target.checked); setCalibConsent(e.target.checked); }} />
+            <span>Help calibrate percentiles. When on, completing a test anonymously contributes a coarse score band (no answers, no identity) so everyone's percentiles get more accurate. Off by default.</span>
+          </label>
         </section>
 
         <div className="row-actions">

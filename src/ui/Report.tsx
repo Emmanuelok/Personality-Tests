@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
@@ -8,6 +8,7 @@ import { ImprovementPlanner } from "./ImprovementPlanner";
 import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
 import { downloadShareCard } from "./shareCard";
+import { fetchNorms, communityPercentile } from "../calibration";
 import { hasPoster } from "../store";
 
 function shortLabel(name: string): string {
@@ -131,6 +132,8 @@ export function Report({
           </div>
         </section>
 
+        <CommunityCalibration instrumentId={instrument.id} traits={report.traits.map((t) => ({ scaleId: t.scaleId, name: t.name, normalized: t.normalized }))} />
+
         {/* Trait deep dive */}
         <section className="panel">
           <h3 style={{ fontFamily: "var(--serif)", fontSize: 24, marginTop: 0 }}>
@@ -228,6 +231,34 @@ export function Report({
         <br /> This report was composed from your full response pattern plus a unique seed — regenerate it and the prose will change, by design.
       </div>
     </div>
+  );
+}
+
+/** Live community percentiles (only renders when the opt-in backend has enough data). */
+function CommunityCalibration({ instrumentId, traits }: { instrumentId: string; traits: { scaleId: string; name: string; normalized: number }[] }) {
+  const [norms, setNorms] = useState<Record<string, number[]> | null>(null);
+  useEffect(() => {
+    let on = true;
+    fetchNorms(instrumentId).then((n) => { if (on) setNorms(n); });
+    return () => { on = false; };
+  }, [instrumentId]);
+
+  if (!norms) return null;
+  const rows = traits
+    .map((t) => ({ name: t.name, p: communityPercentile(norms[t.scaleId], t.normalized) }))
+    .filter((r): r is { name: string; p: number } => r.p != null);
+  if (!rows.length) return null;
+
+  return (
+    <section className="panel sec">
+      <h3>How you compare to the community</h3>
+      <p>Live percentiles from people who opted in to anonymous calibration — these sharpen as more take it.</p>
+      {rows.map((r, i) => (
+        <div className="cdim" key={i}>
+          <div className="top"><b>{r.name}</b><span className="vals">{ordinalPct(r.p)} percentile</span></div>
+        </div>
+      ))}
+    </section>
   );
 }
 

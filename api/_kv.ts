@@ -34,3 +34,37 @@ export async function getEntitlements(fingerprint: string): Promise<string[]> {
     return [];
   }
 }
+
+/* ── Anonymous score-distribution norms (opt-in calibration) ─────────────── */
+
+/** Increment per-scale 0–9 histogram buckets for an instrument. No PII is stored. */
+export async function bumpNorms(instrumentId: string, buckets: Record<string, number>): Promise<void> {
+  const kv = await kvClient();
+  if (!kv) return;
+  try {
+    for (const [scaleId, b] of Object.entries(buckets)) {
+      const bucket = Math.max(0, Math.min(9, Math.floor(b)));
+      await kv.hincrby(`norm:${instrumentId}`, `${scaleId}:${bucket}`, 1);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Read accumulated histograms: scaleId → 10-bucket count array. Empty without KV. */
+export async function getNorms(instrumentId: string): Promise<Record<string, number[]>> {
+  const kv = await kvClient();
+  if (!kv) return {};
+  try {
+    const h = (await kv.hgetall(`norm:${instrumentId}`)) as Record<string, number> | null;
+    if (!h) return {};
+    const out: Record<string, number[]> = {};
+    for (const [field, count] of Object.entries(h)) {
+      const [scaleId, b] = field.split(":");
+      (out[scaleId] ??= Array(10).fill(0))[Number(b)] += Number(count) || 0;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}

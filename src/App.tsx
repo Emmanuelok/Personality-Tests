@@ -44,6 +44,7 @@ import { IAT_TEST, type IatResult } from "@core/ability/iat";
 import { CREATIVITY_TEST, type CreativityResult } from "@core/ability/creativity";
 import { chcFromDomains } from "@core/ability/chc";
 import { useI18n, LanguageSwitcher } from "./i18n";
+import { submitNorms } from "./calibration";
 import {
   completedInstrumentIds,
   createProfile,
@@ -364,6 +365,7 @@ export default function App() {
     setResult(scored);
     setReport(composeReport(instrument, scored, { name, seed }));
     if (profile) setProfile(recordResult(profile, instrument.id, responses, seed));
+    submitNorms(instrument.id, scored.scales); // opt-in, anonymous, fire-and-forget
     setView("calc");
     top();
   };
