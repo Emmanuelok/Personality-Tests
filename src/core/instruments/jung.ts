@@ -153,6 +153,7 @@ export const jungTypes: Instrument = {
   name: "Jungian Type Profiler (16 Types)",
   shortName: "16 Types",
   kind: "typological",
+  category: "types",
   tagline: "Four dichotomies, sixteen types — the Jungian map of the mind.",
   description:
     "Based on Carl Jung's theory of psychological types and the four-dichotomy framework popularized by " +

@@ -50,6 +50,7 @@ export const hexaco: Instrument = {
   name: "HEXACO Personality (6 Dimensions)",
   shortName: "HEXACO",
   kind: "dimensional",
+  category: "core",
   tagline: "The Big Five, plus the factor it was missing: Honesty-Humility.",
   description:
     "HEXACO is a six-dimensional model with strong cross-cultural support. Alongside Emotionality, " +

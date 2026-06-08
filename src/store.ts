@@ -107,6 +107,26 @@ export interface VerifyResult {
   devMode?: boolean;
 }
 
+/**
+ * Recover entitlements for a result from the server (set by the Stripe webhook).
+ * Lets a purchase survive a closed tab or a second device. No-ops without KV.
+ * Returns true if anything was recovered.
+ */
+export async function recoverEntitlements(fingerprint: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/entitlement-status?fp=${encodeURIComponent(fingerprint)}`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (data.paid && Array.isArray(data.products) && data.products.length) {
+      for (const p of data.products) grantProduct(p, fingerprint);
+      return true;
+    }
+  } catch {
+    /* offline or no functions — ignore */
+  }
+  return false;
+}
+
 export async function verifyCheckout(sessionId: string): Promise<VerifyResult> {
   try {
     const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);

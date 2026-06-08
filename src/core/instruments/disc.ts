@@ -79,6 +79,7 @@ export const disc: Instrument = {
   name: "DISC Behavioral Styles",
   shortName: "DISC",
   kind: "typological",
+  category: "types",
   tagline: "Four behavioral styles — how you act, decide, and work with others.",
   description:
     "DISC maps observable behavior across four styles — Dominance, Influence, Steadiness, and " +

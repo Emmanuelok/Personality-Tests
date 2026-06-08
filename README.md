@@ -4,7 +4,7 @@
 
 Psyche Atlas is not just a test app — it's a self-understanding *and* self-improvement engine. You take a scientifically-grounded assessment, receive a report composed from your **entire response pattern** (so no two reports are ever identical), and then turn that same data toward growth with an **evidence-based development plan** from where you are to where you want to be.
 
-> Status: **v0.2.** A working, tested core with **seven instruments**, a freemium store ($1.89 unlock), a designed PDF export, and one-click Vercel deploy. Built to extend toward "every personality test in the world" via a data-driven instrument model. See [Roadmap](#roadmap).
+> Status: **v0.3.** A working, tested core with **12 instruments across 6 themed categories**, a **relationship compatibility** engine, a freemium store ($1.89 unlock), a designed PDF export, and one-click Vercel deploy. Built to extend toward "every personality test in the world" via a data-driven instrument model. See [Roadmap](#roadmap).
 
 ---
 
@@ -20,17 +20,35 @@ Psyche Atlas is not just a test app — it's a self-understanding *and* self-imp
 
 ---
 
-## The instruments (7 and growing)
+## The instruments (12, organized by theme)
 
-1. **Big Five (IPIP-50)** — the empirical gold standard. Five factors (O, C, E, A, N) scored against approximate population norms. *Public-domain items.*
+**🧠 Core Personality**
+1. **Big Five (IPIP-50)** — the empirical gold standard, five factors. *Public-domain items.*
 2. **HEXACO (6 dimensions)** — the Big Five plus **Honesty-Humility** (Lee & Ashton). *Original facet-based items.*
-3. **Jungian Type Profiler (16 Types)** — four dichotomies → one of sixteen types, with the Jungian cognitive-function stack. *Original items; not the MBTI® instrument.*
-4. **Enneagram of Personality** — nine motivation-based types with wing, center of intelligence, and passion→virtue growth framing. *Original items grounded in the Enneagram literature.*
-5. **DISC Behavioral Styles** — four styles (D·I·S·C) with primary/secondary blend, for communication and teamwork. *Original items.*
-6. **Attachment Style** — attachment anxiety × avoidance → four relationship styles, with growth toward security. *Original items, ECR tradition.*
-7. **Dark Triad** — Machiavellianism, Narcissism, Psychopathy (normal-range), for honest self-insight. *Original items, SD3-grounded.*
 
-Each instrument is a single data file (`src/core/instruments/*.ts`) — adding more (VIA Strengths, values inventories, etc.) is a matter of describing items, scales, and (optionally) a type-resolution function.
+**🎭 Types & Styles**
+3. **Jungian Type Profiler (16 Types)** — four dichotomies → sixteen types + cognitive-function stack. *Original; not the MBTI®.*
+4. **Enneagram** — nine motivation-based types with wing, center, and passion→virtue growth. *Original, grounded in the Enneagram literature.*
+5. **DISC Behavioral Styles** — four styles with primary/secondary blend, for communication & teamwork. *Original items.*
+
+**💞 Relationships & Love**
+6. **Attachment Style** — anxiety × avoidance → four styles, growth toward security. *Original, ECR tradition.*
+7. **Love Languages** — five ways of giving/receiving love, ranked. *Original, Chapman framework.*
+
+**🌱 Strengths, Values & Growth**
+8. **Character Strengths & Virtues (VIA)** — six virtues + signature strengths. *Original, VIA classification.*
+9. **Personal Values (Schwartz)** — ten basic values that drive your choices. *Original, PVQ tradition.*
+10. **Grit & Resilience** — perseverance + consistency, with your fastest growth lever. *Original, Duckworth construct.*
+
+**🫀 Emotional Intelligence & Wellbeing**
+11. **Emotional Intelligence (EQ)** — five learnable domains. *Original, Salovey & Mayer / Goleman / Petrides.*
+
+**🌑 Shadow & Risk**
+12. **Dark Triad** — Machiavellianism, Narcissism, Psychopathy (normal-range), for honest self-insight. *Original, SD3-grounded.*
+
+Plus a **💞 Relationship Compatibility** engine: share a privacy-safe code (scores only, never answers) and compare two people on any shared assessment — with construct-aware insight for attachment and love languages.
+
+Each instrument is a single data file (`src/core/instruments/*.ts`) with a `category`; adding more is a matter of describing items, scales, and (optionally) a type-resolution function.
 
 ---
 
@@ -43,8 +61,10 @@ src/
 │   ├── prng.ts                # cyrb53 hash + mulberry32 seeded RNG + nonce  (uniqueness primitives)
 │   ├── variation.ts           # pure text helpers
 │   ├── scoring.ts             # keying, means, normal-CDF percentiles, levels, type resolution
-│   ├── instruments/           # bigfive · hexaco · jung · enneagram · disc · attachment · darktriad
+│   ├── instruments/           # 12 instruments, one file each (+ index, categories)
+│   ├── categories.ts           # themed grouping of the catalog
 │   ├── commerce.ts             # product catalog (Full Report, All-Access, Poster)
+│   ├── compatibility.ts        # share-code + two-person compatibility engine
 │   ├── report/
 │   │   ├── phrasebank.ts       # level-templated openers + trait color + dynamics rules
 │   │   ├── composer.ts         # deterministic, uniqueness-guaranteed report composer
@@ -110,7 +130,7 @@ Local dev with the serverless functions: `npm i -g vercel && vercel dev`. Plain 
 - **Extensible store:** products live in `src/core/commerce.ts` (server-authoritative prices in `api/_stripe.ts`). Ships with the **Full Report** ($1.89), an **All-Access Pass** ($5.90), and a print-ready **Personality Poster** PDF ($2.90). Add more digital merch by appending to the catalog.
 - **Privacy & no database:** answers never leave the device; entitlements live in `localStorage`, the in-progress result in `sessionStorage` (so it survives the Stripe round-trip). Purchases are verified **server-side** (`/api/verify-session`) before unlocking.
 
-> Production hardening worth adding later: a Stripe **webhook** for fulfillment robustness, and optional accounts for cross-device entitlements.
+**Bulletproof fulfillment (optional):** a Stripe **webhook** (`/api/stripe-webhook`) + **Vercel KV** persist purchases server-side, so a sale survives a closed tab and can be recovered on another device (`/api/entitlement-status`). Set `STRIPE_WEBHOOK_SECRET` and provision Vercel KV to enable; without them the app falls back to verify-on-return, which already covers the common case.
 
 ---
 
@@ -136,7 +156,8 @@ The "extensive updates" build on this foundation:
 - **Richer typological growth** — inferior-function development (Jung) and full passion→virtue paths (Enneagram).
 - **Persistence & longitudinal tracking** — save results, re-test over time, and visualize trait change against your plan.
 - **Server API + first-class AI mode** — move the optional LLM layer behind a secure endpoint.
-- **Commerce hardening** — Stripe webhooks for fulfillment, optional accounts for cross-device entitlements, gift codes, and more digital merch (compatibility add-ons, deep-dive bundles).
+- **Deeper reports for newer tests** — relationship/work/stress color banks for HEXACO, DISC, Attachment, etc. (Big Five has them today); the full 24-strength VIA.
+- **Commerce & growth** — optional accounts for cross-device entitlements, gift codes, paid couples/compatibility reports, and more digital merch (deep-dive bundles, posters).
 - **Accessibility & i18n** — full keyboard/screen-reader passes and translated instruments.
 
 ---

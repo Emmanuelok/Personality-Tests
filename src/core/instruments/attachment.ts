@@ -75,6 +75,7 @@ export const attachment: Instrument = {
   name: "Attachment Style in Relationships",
   shortName: "Attachment Style",
   kind: "typological",
+  category: "relationships",
   tagline: "How you bond: two dimensions, four relationship styles.",
   description:
     "Adult attachment shapes how we seek closeness and handle distance in relationships. This profiler " +

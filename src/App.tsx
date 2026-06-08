@@ -8,16 +8,18 @@ import { Home } from "./ui/Home";
 import { Quiz } from "./ui/Quiz";
 import { Report } from "./ui/Report";
 import { BriefResult } from "./ui/BriefResult";
+import { Compatibility } from "./ui/Compatibility";
 import {
   grantProduct,
   isUnlocked,
   loadPending,
+  recoverEntitlements,
   startCheckout,
   verifyCheckout,
   type PendingResult,
 } from "./store";
 
-type View = "home" | "quiz" | "result";
+type View = "home" | "quiz" | "result" | "compatibility";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 
@@ -77,6 +79,16 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // If a result isn't unlocked locally, try recovering a prior purchase (KV-backed).
+  useEffect(() => {
+    if (result && !isUnlocked(result.responseFingerprint)) {
+      recoverEntitlements(result.responseFingerprint).then((ok) => {
+        if (ok) setUnlockNonce((n) => n + 1);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+
   const start = (inst: Instrument) => {
     setInstrument(inst);
     setResult(null);
@@ -128,6 +140,11 @@ export default function App() {
     top();
   };
 
+  const goCompat = () => {
+    setView("compatibility");
+    top();
+  };
+
   return (
     <>
       <header className="topbar">
@@ -140,11 +157,18 @@ export default function App() {
         </div>
       </header>
 
-      {view === "home" && <Home onStart={start} />}
+      {view === "home" && <Home onStart={start} onCompatibility={goCompat} />}
       {view === "quiz" && instrument && <Quiz instrument={instrument} onComplete={complete} onCancel={home} />}
       {view === "result" && instrument && result && report && (
         unlocked ? (
-          <Report instrument={instrument} result={result} report={report} onRegenerate={regenerate} onRestart={home} />
+          <Report
+            instrument={instrument}
+            result={result}
+            report={report}
+            onRegenerate={regenerate}
+            onRestart={home}
+            onCompatibility={goCompat}
+          />
         ) : (
           <BriefResult
             instrument={instrument}
@@ -156,6 +180,9 @@ export default function App() {
             error={error}
           />
         )
+      )}
+      {view === "compatibility" && (
+        <Compatibility instrument={instrument} result={result} onStart={start} onBack={home} />
       )}
     </>
   );

@@ -18,12 +18,14 @@ export function Report({
   report,
   onRegenerate,
   onRestart,
+  onCompatibility,
 }: {
   instrument: Instrument;
   result: AssessmentResult;
   report: PersonalityReport;
   onRegenerate: () => void;
   onRestart: () => void;
+  onCompatibility: () => void;
 }) {
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((t) => ({ label: shortLabel(t.name), value: t.normalized }));
@@ -65,6 +67,7 @@ export function Report({
         <button className="btn" onClick={onRegenerate} title="Compose a fresh, never-identical version from the same answers">
           ↻ Regenerate
         </button>
+        <button className="btn" onClick={onCompatibility}>💞 Compatibility</button>
         <button className="btn ghost" onClick={onRestart}>↩ Take another</button>
       </div>
 

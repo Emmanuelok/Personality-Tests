@@ -129,6 +129,7 @@ export const enneagram: Instrument = {
   name: "Enneagram of Personality",
   shortName: "Enneagram",
   kind: "typological",
+  category: "types",
   tagline: "Nine types, three centers — a map of core motivation.",
   description:
     "The Enneagram describes nine personality types organized around core motivations — each type's basic " +

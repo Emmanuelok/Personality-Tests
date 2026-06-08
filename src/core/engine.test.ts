@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad } from "./instruments";
+import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit } from "./instruments";
+import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
@@ -100,6 +101,59 @@ describe("expanded instruments", () => {
     const report = composeReport(darkTriad, res, { seed: 3 });
     expect(report.title.length).toBeGreaterThan(3);
     expect(report.traits).toHaveLength(3);
+  });
+});
+
+describe("strengths, values, EQ, love languages, grit", () => {
+  it("VIA measures the six virtues", () => {
+    const res = scoreAssessment(via, allHigh(via));
+    expect(Object.keys(res.scales)).toHaveLength(6);
+    for (const sc of Object.values(res.scales)) expect(sc.level).toBe("very high");
+  });
+
+  it("Values scores ten priorities", () => {
+    const res = scoreAssessment(values, allHigh(values));
+    expect(Object.keys(res.scales)).toHaveLength(10);
+  });
+
+  it("EQ respects reverse-keyed items", () => {
+    const res = scoreAssessment(eq, allHigh(eq));
+    for (const sc of Object.values(res.scales)) expect(sc.mean).toBeCloseTo(5, 5);
+  });
+
+  it("Love Languages resolves a primary language", () => {
+    const responses = answerAll(loveLanguages, (i) => (i.scale === "TOUCH" ? 5 : 1));
+    expect(scoreAssessment(loveLanguages, responses).type?.code).toBe("Physical Touch");
+  });
+
+  it("Grit bands from high to emerging", () => {
+    expect(scoreAssessment(grit, allHigh(grit)).type?.code).toBe("High Grit");
+    expect(scoreAssessment(grit, allLow(grit)).type?.code).toBe("Emerging Grit");
+  });
+});
+
+describe("compatibility engine", () => {
+  it("round-trips a privacy-safe share code", () => {
+    const r = scoreAssessment(bigFive, allHigh(bigFive));
+    const back = decodeSummary(encodeSummary(toSummary(bigFive, r)));
+    expect(back?.instrumentId).toBe(bigFive.id);
+    expect(Object.keys(back?.scales ?? {})).toHaveLength(5);
+  });
+
+  it("scores identical Big Five profiles as highly compatible", () => {
+    const sum = toSummary(bigFive, scoreAssessment(bigFive, allHigh(bigFive)));
+    const rep = computeCompatibility(bigFive, sum, sum, { seed: 1 });
+    expect(rep.overall).toBeGreaterThanOrEqual(80);
+    expect(rep.dimensions).toHaveLength(5);
+  });
+
+  it("flags an anxious–avoidant attachment pairing", () => {
+    const anxious = answerAll(attachment, (i) => (i.scale === "ANX" ? (i.keyed === 1 ? 5 : 1) : i.keyed === 1 ? 1 : 5));
+    const avoidant = answerAll(attachment, (i) => (i.scale === "AV" ? (i.keyed === 1 ? 5 : 1) : i.keyed === 1 ? 1 : 5));
+    const a = toSummary(attachment, scoreAssessment(attachment, anxious));
+    const b = toSummary(attachment, scoreAssessment(attachment, avoidant));
+    const rep = computeCompatibility(attachment, a, b, { seed: 2 });
+    expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
   });
 });
 

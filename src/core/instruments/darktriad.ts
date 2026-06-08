@@ -41,6 +41,7 @@ export const darkTriad: Instrument = {
   name: "The Dark Triad",
   shortName: "Dark Triad",
   kind: "dimensional",
+  category: "shadow",
   tagline: "Three shadow traits — measured honestly, for insight, not judgment.",
   description:
     "The Dark Triad — Machiavellianism (strategic manipulation), Narcissism (grandiosity and need for " +

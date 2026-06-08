@@ -8,7 +8,9 @@ export * from "./types";
 export { Rng, cyrb53, hashHex, nonce, seedFrom } from "./prng";
 export { scoreAssessment } from "./scoring";
 
-export { INSTRUMENTS, getInstrument, bigFive, jungTypes, enneagram } from "./instruments";
+export { INSTRUMENTS, getInstrument, instrumentsByCategory } from "./instruments";
+export { CATEGORIES, getCategory } from "./categories";
+export type { Category } from "./categories";
 
 export {
   composeReport,
@@ -23,6 +25,14 @@ export type {
   GenerateOptions,
   LLMProvider,
 } from "./report";
+
+export {
+  computeCompatibility,
+  toSummary,
+  encodeSummary,
+  decodeSummary,
+} from "./compatibility";
+export type { CompatibilityReport, CompatDimension, ResultSummary } from "./compatibility";
 
 export { buildGrowthPlan } from "./improvement/plan";
 export type {

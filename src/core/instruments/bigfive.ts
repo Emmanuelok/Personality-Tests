@@ -77,6 +77,7 @@ export const bigFive: Instrument = {
   name: "Big Five Personality (IPIP-50)",
   shortName: "Big Five",
   kind: "dimensional",
+  category: "core",
   tagline: "The scientific gold standard: five broad dimensions of personality.",
   description:
     "The Five-Factor Model is the most empirically validated framework in personality science. " +

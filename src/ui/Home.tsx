@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
-import { INSTRUMENTS } from "@core/instruments";
+import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
+import { CATEGORIES } from "@core/categories";
 
-export function Home({ onStart }: { onStart: (instrument: Instrument) => void }) {
+export function Home({ onStart, onCompatibility }: { onStart: (instrument: Instrument) => void; onCompatibility: () => void }) {
   return (
     <div className="container">
       <section className="hero">
@@ -17,33 +18,63 @@ export function Home({ onStart }: { onStart: (instrument: Instrument) => void })
           growth, with an evidence-based plan from where you are to where you want to be.
         </p>
         <div className="pillars">
-          <span className="pill">📚 Built on <b>original, authoritative</b> publications</span>
+          <span className="pill">📚 Built on <b>original, authoritative</b> research</span>
           <span className="pill">🧬 <b>No two reports</b> are ever identical</span>
           <span className="pill">📈 A <b>growth engine</b>, not just a test</span>
           <span className="pill">🔒 <b>Private</b> — answers never leave your device</span>
         </div>
+        <p style={{ color: "var(--text-faint)", marginTop: 18, fontSize: 14 }}>
+          {INSTRUMENTS.length} assessments across {CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length} themes ·
+          every one geared toward self-awareness and a better-lived life.
+        </p>
       </section>
 
       <h2 className="section-title">Choose an assessment</h2>
-      <div className="grid">
-        {INSTRUMENTS.map((inst) => (
-          <article className="card" key={inst.id}>
-            <span className="kind">{inst.kind === "typological" ? "Typology" : "Dimensional trait model"}</span>
-            <h3>{inst.name}</h3>
-            <p className="tagline">{inst.tagline}</p>
-            <div className="facts">
-              <span>⏱ {inst.estMinutes} min</span>
-              <span>📝 {inst.items.length} items</span>
-              <span>📐 {inst.scales.length} {inst.kind === "typological" ? "axes" : "factors"}</span>
+      {CATEGORIES.map((cat) => {
+        const list = instrumentsByCategory(cat.id);
+        if (!list.length) return null;
+        return (
+          <div className="cat-block" key={cat.id}>
+            <div className="cat-head">
+              <span className="cat-icon">{cat.icon}</span>
+              <div>
+                <h3 className="cat-name">{cat.name}</h3>
+                <p className="cat-blurb">{cat.blurb}</p>
+              </div>
             </div>
-            <p className="cite">
-              Grounded in {inst.citations.length} sources, incl. {inst.citations[0].ref.split("(")[0].trim()}.
-            </p>
-            <button className="btn primary" onClick={() => onStart(inst)}>
-              Begin {inst.shortName} →
-            </button>
-          </article>
-        ))}
+            <div className="grid">
+              {list.map((inst) => (
+                <article className="card" key={inst.id}>
+                  <span className="kind">{inst.kind === "typological" ? "Typology" : "Dimensional"}</span>
+                  <h3>{inst.name}</h3>
+                  <p className="tagline">{inst.tagline}</p>
+                  <div className="facts">
+                    <span>⏱ {inst.estMinutes} min</span>
+                    <span>📝 {inst.items.length} items</span>
+                    <span>📐 {inst.scales.length} {inst.kind === "typological" ? "axes" : "factors"}</span>
+                  </div>
+                  <p className="cite">
+                    Grounded in {inst.citations.length} {inst.citations.length === 1 ? "source" : "sources"}, incl.{" "}
+                    {inst.citations[0].ref.split("(")[0].trim()}.
+                  </p>
+                  <button className="btn primary" onClick={() => onStart(inst)}>Begin {inst.shortName} →</button>
+                </article>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      <h2 className="section-title">Just for two</h2>
+      <div className="panel compat-cta">
+        <div>
+          <h3 style={{ margin: "0 0 6px", fontSize: 20 }}>💞 Relationship Compatibility</h3>
+          <p style={{ color: "var(--text-dim)", margin: 0 }}>
+            Take a relational assessment, share your private result code, and compare with a partner, friend, or
+            teammate to get a tailored compatibility read — strengths, friction points, and how to bridge them.
+          </p>
+        </div>
+        <button className="btn" onClick={onCompatibility}>Open compatibility →</button>
       </div>
 
       <h2 className="section-title">How it works</h2>
@@ -76,8 +107,8 @@ export function Home({ onStart }: { onStart: (instrument: Instrument) => void })
 
       <div className="footer">
         Psyche Atlas — an open, science-grounded personality platform.
-        <br /> Big Five items are public-domain IPIP markers; type instruments are original measures grounded in
-        Jung, Myers, and the Enneagram literature, and are not affiliated with the MBTI® or any trademark holder.
+        <br /> Big Five items are public-domain IPIP markers; the other instruments are original measures grounded in
+        the cited research, and are not affiliated with the MBTI® or any trademark holder.
       </div>
     </div>
   );

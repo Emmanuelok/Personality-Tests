@@ -74,6 +74,8 @@ export interface Instrument {
   name: string;
   shortName: string;
   kind: InstrumentKind;
+  /** Theme/construct category id (see core/categories.ts) used to group the catalog. */
+  category: string;
   /** One-line hook for listings. */
   tagline: string;
   /** Paragraph describing what the instrument measures and its lineage. */
