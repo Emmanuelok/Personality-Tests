@@ -419,6 +419,11 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .lang-switch select { font: inherit; font-size: 12.5px; color: var(--text-dim); background: transparent; border: 1px solid var(--border); border-radius: 9px; padding: 5px 7px; cursor: pointer; }
 .lang-switch select:hover { border-color: var(--text-faint); color: var(--text); }
 
+/* admin norms histograms */
+.nh-bars { display: flex; align-items: flex-end; gap: 3px; height: 70px; margin-top: 6px; background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: 8px; padding: 6px; }
+.nh-bar { flex: 1; min-height: 2px; background: var(--grad); border-radius: 3px 3px 0 0; align-self: flex-end; }
+.nh-axis { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-faint); margin-top: 3px; }
+
 /* opt-in calibration consent */
 .calib-opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--text-dim); cursor: pointer; line-height: 1.5; }
 .calib-opt input { margin-top: 4px; accent-color: var(--accent); flex: none; width: 16px; height: 16px; }

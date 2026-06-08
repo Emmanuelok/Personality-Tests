@@ -26,6 +26,7 @@ import { AdaptiveFlow } from "./ui/ability/AdaptiveFlow";
 import { IatFlow } from "./ui/ability/IatFlow";
 import { CreativityFlow } from "./ui/ability/CreativityFlow";
 import { BatteryView } from "./ui/ability/BatteryView";
+import { AdminNorms } from "./ui/AdminNorms";
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import { buildBattery } from "@core/ability/chc";
 import {
@@ -56,7 +57,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "iat" | "creativity" | "battery";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "iat" | "creativity" | "battery" | "admin";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -141,6 +142,11 @@ export default function App() {
       top();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Operator norms dashboard via the ?admin URL param.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("admin") !== null) setView("admin");
   }, []);
 
   // Recover a prior purchase for the current result (KV-backed), if any.
@@ -473,6 +479,8 @@ export default function App() {
       {view === "battery" && battery && (
         <BatteryView battery={battery} takes={profile?.cognitiveHistory ?? []} name={name} onExit={goHome} />
       )}
+
+      {view === "admin" && <AdminNorms onBack={goHome} />}
 
       {view === "intro" && instrument && (
         <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />
