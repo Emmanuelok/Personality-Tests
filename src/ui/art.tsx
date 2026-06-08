@@ -815,6 +815,27 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Critical Thinking — scales weighing an argument.
+  "critical-thinking": () => (
+    <>
+      <line x1="24" y1="9" x2="24" y2="34" />
+      <line x1="12" y1="15" x2="36" y2="15" />
+      <path d="M12,15 L8,24 M12,15 L16,24 M8,24 a4,4 0 0 0 8,0" />
+      <path className="gold" d="M36,15 L32,24 M36,15 L40,24 M32,24 a4,4 0 0 0 8,0" />
+      <path d="M18,38 L30,38 M24,34 L20,38 M24,34 L28,38" />
+    </>
+  ),
+  // Mechanical Reasoning — a gear.
+  "mechanical-reasoning": () => (
+    <>
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((d) => {
+        const a = (d * Math.PI) / 180;
+        return <line key={d} x1={24 + 13 * Math.cos(a)} y1={24 + 13 * Math.sin(a)} x2={24 + 18 * Math.cos(a)} y2={24 + 18 * Math.sin(a)} />;
+      })}
+      <circle cx="24" cy="24" r="12" />
+      <circle className="gold" cx="24" cy="24" r="5" />
+    </>
+  ),
   // Adaptive Reasoning — an ascending staircase.
   "adaptive-reasoning": () => (
     <>

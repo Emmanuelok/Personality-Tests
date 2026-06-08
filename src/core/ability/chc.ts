@@ -29,6 +29,15 @@ const DOMAIN_CHC: Record<string, string> = {
   rotation: "Gv",
   classification: "Gf",
   logic: "Gf",
+  // critical thinking
+  deduction: "Gf",
+  inference: "Gf",
+  assumptions: "Gf",
+  fallacy: "Gc",
+  // mechanical reasoning
+  levers: "Gv",
+  gears: "Gv",
+  fluids: "Gv",
 };
 
 /** Build a CHC contribution map from an ability test's per-domain percentiles. */
