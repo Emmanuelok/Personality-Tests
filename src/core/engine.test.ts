@@ -315,6 +315,22 @@ describe("instrument localization", () => {
       expect(res.type!.code.length).toBeGreaterThan(0);
     }
   });
+
+  it("translates the Enneagram (es/fr) while preserving ids and type resolution", () => {
+    for (const loc of ["es", "fr"]) {
+      const e = localizeInstrument(enneagram, loc);
+      expect(e.name).not.toBe(enneagram.name);
+      expect(e.items.length).toBe(enneagram.items.length);
+      expect(e.items.every((it, i) => it.id === enneagram.items[i].id && it.scale === enneagram.items[i].scale)).toBe(true);
+      expect(e.scales.every((s, i) => s.id === enneagram.scales[i].id)).toBe(true);
+      // every item text is actually translated away from English
+      expect(e.items.every((it, i) => it.text !== enneagram.items[i].text)).toBe(true);
+      // typological resolution still works (resolveType is preserved)
+      const res = scoreAssessment(e, answerAll(enneagram, (it) => (it.scale === "T5" ? 5 : 1)));
+      expect(res.type).toBeTruthy();
+      expect(res.type!.code.length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("growth planning", () => {
