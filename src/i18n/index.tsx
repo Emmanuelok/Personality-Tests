@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { STRINGS, LOCALES, type Locale, type StringKey } from "./strings";
 
 const KEY = "psyche.locale";
