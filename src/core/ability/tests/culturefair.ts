@@ -70,6 +70,24 @@ function sizeSeries(id: string, shape: Shape, sizes: [number, number, number], n
   return { id, domain: "series", prompt: "What comes next in the series?", figure: series(shown), ...opts(ans, dist, answerAt), pCorrect: p, explain: "The shape changes size by a steady step each time." };
 }
 
+// size grows across columns; shape set by row
+function sizeMatrix(id: string, rows: [Shape, Shape, Shape], sizes: [number, number, number], answerAt: number, p: number): AbilityItem {
+  const cell = (r: number, c: number) => cellSize(sizes[c], rows[r]);
+  const cells = [cell(0, 0), cell(0, 1), cell(0, 2), cell(1, 0), cell(1, 1), cell(1, 2), cell(2, 0), cell(2, 1), null];
+  const ans = cellSize(sizes[2], rows[2]);
+  const dist = [cellSize(sizes[1], rows[2]), cellSize(sizes[0], rows[2]), cellSize(sizes[2], rows[0]), cellSize(sizes[2] + 6, rows[2]), cellSize(sizes[2], rows[1])];
+  return { id, domain: "matrices", prompt: "Which figure completes the grid?", figure: grid(cells), ...opts(ans, dist, answerAt), pCorrect: p, explain: "Each row uses one shape; it grows by a steady step across the columns." };
+}
+
+// ── Series ──
+function countSeries(id: string, start: number, shape: Shape, answerAt: number, p: number): AbilityItem {
+  const shown = [cellCount(start, shape), cellCount(start + 1, shape), cellCount(start + 2, shape)];
+  const ans = cellCount(start + 3, shape);
+  const other: Shape = shape === "circle" ? "square" : "circle";
+  const dist = [cellCount(start + 2, shape), cellCount(start + 1, shape), cellCount(start + 3, other), cellCount(Math.max(1, start - 1), shape), cellCount(start, shape)];
+  return { id, domain: "series", prompt: "What comes next in the series?", figure: series(shown), ...opts(ans, dist, answerAt), pCorrect: p, explain: "The number of shapes goes up by one each step." };
+}
+
 // ── Mental rotation (odd one out) ──
 function rotOdd(id: string, angles: number[], mirrorAt: number, p: number): AbilityItem {
   return {
@@ -82,21 +100,56 @@ function rotOdd(id: string, angles: number[], mirrorAt: number, p: number): Abil
   };
 }
 
+// ── Classification (odd one out) ──
+function classify(id: string, cells: string[], oddIndex: number, p: number, explain: string): AbilityItem {
+  return {
+    id, domain: "classification",
+    prompt: "Which figure does not belong with the others?",
+    options: cells.map((_, i) => `Figure ${i + 1}`),
+    optionFigures: cells.map(option),
+    answer: oddIndex, pCorrect: p, explain,
+  };
+}
+
 const items: AbilityItem[] = [
+  // Matrices (12)
   countMatrix("M1", [C, S, T], 2, 0.58),
   countMatrix("M2", [D, C, S], 4, 0.55),
-  rotMatrix("M3", 0, 90, 45, 0, 0.5),
-  rotMatrix("M4", 30, 60, 30, 3, 0.46),
-  overlayMatrix("M5", [[["v"], ["h"]], [["d1"], ["d2"]], [["v", "o"], ["h"]]], 1, 0.44),
-  overlayMatrix("M6", [[["o"], ["v"]], [["h"], ["d1"]], [["d2"], ["o"]]], 5, 0.42),
-  rotSeries("R1", 0, 45, 0, 0.62),
-  rotSeries("R2", 0, 60, 2, 0.58),
-  sizeSeries("R3", "circle", [8, 13, 18], 23, 1, 0.6),
-  sizeSeries("R4", "triangle", [22, 16, 10], 4, 3, 0.55),
+  countMatrix("M3", [T, D, C], 0, 0.5),
+  countMatrix("M4", [S, T, D], 3, 0.48),
+  rotMatrix("M5", 0, 90, 45, 0, 0.5),
+  rotMatrix("M6", 30, 60, 30, 3, 0.46),
+  rotMatrix("M7", 0, 45, 90, 4, 0.45),
+  rotMatrix("M8", 90, 30, 60, 1, 0.42),
+  overlayMatrix("M9", [[["v"], ["h"]], [["d1"], ["d2"]], [["v", "o"], ["h"]]], 1, 0.44),
+  overlayMatrix("M10", [[["o"], ["v"]], [["h"], ["d1"]], [["d2"], ["o"]]], 5, 0.42),
+  sizeMatrix("M11", [C, S, T], [7, 12, 18], 2, 0.52),
+  sizeMatrix("M12", [D, T, C], [18, 12, 7], 4, 0.48),
+  // Series (8)
+  rotSeries("S1", 0, 45, 0, 0.62),
+  rotSeries("S2", 0, 60, 2, 0.58),
+  rotSeries("S3", 90, 45, 3, 0.55),
+  sizeSeries("S4", "circle", [8, 13, 18], 23, 1, 0.6),
+  sizeSeries("S5", "triangle", [22, 16, 10], 4, 3, 0.55),
+  sizeSeries("S6", "square", [6, 11, 16], 21, 4, 0.55),
+  countSeries("S7", 1, "circle", 0, 0.64),
+  countSeries("S8", 2, "square", 2, 0.58),
+  // Rotation (6)
   rotOdd("O1", [0, 90, 180, 270], 1, 0.58),
   rotOdd("O2", [45, 135, 225, 315], 2, 0.5),
   rotOdd("O3", [30, 120, 210, 300], 0, 0.52),
   rotOdd("O4", [60, 150, 240, 330], 3, 0.47),
+  rotOdd("O5", [20, 110, 200, 290], 2, 0.45),
+  rotOdd("O6", [15, 75, 165, 255], 0, 0.44),
+  // Classification (4)
+  classify("K1", [cellCount(2, C), cellCount(4, C), cellCount(3, C), cellCount(4, C), cellCount(2, C)], 2, 0.55,
+    "Four figures show an even number of shapes; one shows an odd number."),
+  classify("K2", [cellSize(13, S), cellSize(13, T), cellSize(13, D), cellSize(13, S), cellSize(13, C)], 4, 0.5,
+    "Four figures are straight-edged; one (the circle) is curved."),
+  classify("K3", [cellCount(1, T), cellCount(3, T), cellCount(5, T), cellCount(3, T), cellCount(2, T)], 4, 0.48,
+    "Four figures show an odd number of shapes; one shows an even number."),
+  classify("K4", [cellRot(0), cellRot(90), cellRot(180), cellMarks(["o"]), cellRot(270)], 3, 0.5,
+    "Four figures are arrows; one is a circle."),
 ];
 
 export const culturefair: AbilityTest = {
@@ -109,12 +162,13 @@ export const culturefair: AbilityTest = {
     "In the tradition of Raven's Progressive Matrices and Cattell's Culture-Fair test, this is a purely visual measure " +
     "of fluid reasoning (Gf) — no words or numbers, so it leans less on language and schooling. You'll complete matrix " +
     "patterns, continue figure series, and spot mirror images. A clean look at raw pattern-finding.",
-  estMinutes: 15,
-  timeLimitSec: 15 * 60,
+  estMinutes: 22,
+  timeLimitSec: 22 * 60,
   domains: [
     { id: "matrices", name: "Matrix Reasoning", chc: "Gf — fluid reasoning", description: "Inferring the rule that completes a 3×3 grid of figures." },
     { id: "series", name: "Figure Series", chc: "Gf — fluid reasoning", description: "Continuing a visual sequence by its underlying rule." },
     { id: "rotation", name: "Mental Rotation", chc: "Gv — visual-spatial", description: "Telling rotations of a shape from its mirror image." },
+    { id: "classification", name: "Classification", chc: "Gf — fluid reasoning", description: "Spotting the figure that breaks a shared rule." },
   ],
   items,
   itemProvenance:
