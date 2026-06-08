@@ -23,6 +23,15 @@ export interface JournalEntry {
   mood?: number; // 1..5
 }
 
+/** A completed cognitive-ability or memory test (right/wrong tests live outside `history`). */
+export interface CognitiveTake {
+  id: string;
+  name: string;
+  takenAt: string; // ISO
+  headline: string; // e.g. "Above-average range · 112–124"
+  percentile: number;
+}
+
 export interface Profile {
   name: string;
   pronoun?: string;
@@ -31,6 +40,8 @@ export interface Profile {
   focus: string[];
   /** All assessment takes, newest first. */
   history: SavedResult[];
+  /** Cognitive-ability / memory test takes, newest first. */
+  cognitiveHistory?: CognitiveTake[];
   journal: JournalEntry[];
   streak: { last: string; days: number };
 }
@@ -91,6 +102,13 @@ export function touchStreak(p: Profile): Profile {
 export function recordResult(p: Profile, instrumentId: string, responses: ResponseMap, seed: number): Profile {
   const entry: SavedResult = { instrumentId, takenAt: new Date().toISOString(), responses, seed };
   const next = { ...p, history: [entry, ...p.history].slice(0, 200) };
+  saveProfile(next);
+  return next;
+}
+
+/** Record a cognitive-ability or memory take (newest first). */
+export function recordCognitive(p: Profile, take: CognitiveTake): Profile {
+  const next = { ...p, cognitiveHistory: [take, ...(p.cognitiveHistory ?? [])].slice(0, 100) };
   saveProfile(next);
   return next;
 }

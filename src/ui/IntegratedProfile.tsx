@@ -4,8 +4,9 @@ import { getInstrument } from "@core/instruments";
 import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
 import { InstrumentGlyph } from "./art";
+import type { CognitiveTake } from "../profile";
 
-export function IntegratedProfile({ ip, onBack, onBrowse }: { ip: IP; onBack: () => void; onBrowse: () => void }) {
+export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP; onBack: () => void; onBrowse: () => void; cognitive?: CognitiveTake[] }) {
   return (
     <div className="container view-enter">
       <div className="iep-hero">
@@ -30,6 +31,13 @@ export function IntegratedProfile({ ip, onBack, onBrowse }: { ip: IP; onBack: ()
             );
           })}
         </div>
+        {cognitive && cognitive.length > 0 && (
+          <div className="pillars" style={{ marginTop: 16 }}>
+            {cognitive.slice(0, 4).map((t, i) => (
+              <span className="pill" key={i}><b>{t.name}:</b> {t.headline}</span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="report-grid stagger">

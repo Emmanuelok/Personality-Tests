@@ -107,6 +107,24 @@ export function Growth({ profile, onBrowse, onBack }: { profile: Profile; onBrow
           </section>
         )}
 
+        {(profile.cognitiveHistory?.length ?? 0) > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Cognitive tests</h3>
+            <div className="journey">
+              {profile.cognitiveHistory!.map((t, i) => (
+                <div className="jcard" key={i} style={{ cursor: "default" }}>
+                  <span className="jicon cat-cognition"><span className="tl-ico"><InstrumentGlyph id={t.id} category="cognition" /></span></span>
+                  <div className="jbody">
+                    <div className="jname">{t.name}</div>
+                    <div className="jmeta">{new Date(t.takenAt).toLocaleDateString()} · ~{Math.round(t.percentile)}th percentile</div>
+                  </div>
+                  <span className="jtype">{t.headline}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="panel">
           <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Timeline</h3>
           {timeline.length === 0 && <p style={{ color: "var(--text-dim)" }}>Your assessment history will appear here.</p>}

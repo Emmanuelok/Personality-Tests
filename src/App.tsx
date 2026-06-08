@@ -29,11 +29,13 @@ import {
   verifyCheckout,
   type PendingResult,
 } from "./store";
+import { MEMORY_TEST, type MemoryResult } from "@core/ability/memory";
 import {
   completedInstrumentIds,
   createProfile,
   latestResult,
   loadProfile,
+  recordCognitive,
   recordResult,
   saveProfile,
   type Profile,
@@ -182,8 +184,22 @@ export default function App() {
   };
   const abilityDone = (r: ARes) => {
     setAbilityResult(r);
+    if (abilityTest) {
+      const base = profile ?? createProfile("", []);
+      setProfile(recordCognitive(base, {
+        id: abilityTest.id, name: abilityTest.name, takenAt: new Date().toISOString(),
+        headline: `${r.band} · ${r.iqLow}–${r.iqHigh}`, percentile: r.percentile,
+      }));
+    }
     setView("abilityResult");
     top();
+  };
+  const memoryDone = (r: MemoryResult) => {
+    const base = profile ?? createProfile("", []);
+    setProfile(recordCognitive(base, {
+      id: MEMORY_TEST.id, name: MEMORY_TEST.name, takenAt: new Date().toISOString(),
+      headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} digits`, percentile: r.percentile,
+    }));
   };
   const retakeAbility = () => {
     setAbilityResult(null);
@@ -304,7 +320,7 @@ export default function App() {
     }
   };
 
-  const hasHistory = entries.length > 0;
+  const hasHistory = entries.length > 0 || (profile?.cognitiveHistory?.length ?? 0) > 0;
   const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory";
 
   return (
@@ -354,7 +370,7 @@ export default function App() {
         />
       )}
 
-      {view === "memory" && <MemoryFlow name={name} onExit={goHome} />}
+      {view === "memory" && <MemoryFlow name={name} onExit={goHome} onComplete={memoryDone} />}
 
       {view === "intro" && instrument && (
         <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />
@@ -388,7 +404,7 @@ export default function App() {
         )
       )}
 
-      {view === "integrated" && integrated && <IntegratedProfile ip={integrated} onBack={goHome} onBrowse={goHome} />}
+      {view === "integrated" && integrated && <IntegratedProfile ip={integrated} onBack={goHome} onBrowse={goHome} cognitive={profile?.cognitiveHistory} />}
 
       {view === "compatibility" && (
         <Compatibility instrument={instrument} result={result} onStart={start} onBack={goHome} />

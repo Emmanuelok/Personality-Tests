@@ -11,7 +11,7 @@ const TRIALS: { mode: SpanMode; span: number }[] = [
 
 type Phase = "intro" | "show" | "recall" | "result";
 
-export function MemoryFlow({ name, onExit }: { name?: string; onExit: () => void }) {
+export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [trialIdx, setTrialIdx] = useState(0);
   const [shown, setShown] = useState("");
@@ -40,7 +40,7 @@ export function MemoryFlow({ name, onExit }: { name?: string; onExit: () => void
     const all = [...results, rec];
     setResults(all);
     if (trialIdx + 1 < TRIALS.length) beginTrial(trialIdx + 1);
-    else { setResult(scoreMemory(all)); setPhase("result"); }
+    else { const res = scoreMemory(all); setResult(res); setPhase("result"); onComplete?.(res); }
   };
 
   /* ── intro ── */
