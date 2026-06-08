@@ -30,6 +30,15 @@ import { vark } from "./vark";
 import { kolb } from "./kolb";
 import { adhd } from "./adhd";
 import { autism } from "./autism";
+import { selfEsteem } from "./selfesteem";
+import { locus } from "./locus";
+import { mindset } from "./mindset";
+import { selfMonitoring } from "./selfmonitoring";
+import { sensationSeeking } from "./sensationseeking";
+import { needForCognition } from "./needforcognition";
+import { empathy } from "./empathy";
+import { lifeSatisfaction } from "./lifesatisfaction";
+import { resilience } from "./resilience";
 import { darkTriad } from "./darktriad";
 import { darkTetrad } from "./darktetrad";
 import { pid5 } from "./pid5";
@@ -67,6 +76,15 @@ export const INSTRUMENTS: Instrument[] = [
   kolb,
   adhd,
   autism,
+  selfEsteem,
+  locus,
+  mindset,
+  selfMonitoring,
+  sensationSeeking,
+  needForCognition,
+  empathy,
+  lifeSatisfaction,
+  resilience,
   darkTriad,
   darkTetrad,
   pid5,
@@ -115,6 +133,15 @@ export {
   kolb,
   adhd,
   autism,
+  selfEsteem,
+  locus,
+  mindset,
+  selfMonitoring,
+  sensationSeeking,
+  needForCognition,
+  empathy,
+  lifeSatisfaction,
+  resilience,
   darkTriad,
   darkTetrad,
   pid5,

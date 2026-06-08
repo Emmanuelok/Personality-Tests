@@ -60,6 +60,12 @@ export const CATEGORIES: Category[] = [
     icon: "🧩",
   },
   {
+    id: "focused",
+    name: "Focused Scales",
+    blurb: "One construct, measured well — research staples that zoom in on a single, powerful trait.",
+    icon: "🎯",
+  },
+  {
     id: "shadow",
     name: "Shadow & Risk",
     blurb: "The darker, riskier sides of normal personality — seen honestly, for growth.",

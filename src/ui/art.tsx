@@ -209,6 +209,18 @@ const EMBLEMS: Record<string, EmblemFn> = {
       <Sparkle x={24} y={9} r={2.1} />
     </>
   ),
+  // Focused Scales — a target with crosshairs (one construct, precisely).
+  focused: () => (
+    <>
+      <circle cx="24" cy="24" r="16" />
+      <circle cx="24" cy="24" r="9" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="3" />
+      <line x1="24" y1="3" x2="24" y2="9" />
+      <line x1="24" y1="39" x2="24" y2="45" />
+      <line x1="3" y1="24" x2="9" y2="24" />
+      <line x1="39" y1="24" x2="45" y2="24" />
+    </>
+  ),
 };
 
 export function CategoryEmblem({ id, className = "" }: { id: string; className?: string }) {
@@ -574,6 +586,85 @@ Object.assign(GLYPHS, {
       <circle className="ink-soft" cx="24" cy="24" r="11" />
       <circle cx="24" cy="24" r="5.5" />
       <circle className="gold gold-fill" cx="24" cy="24" r="2.4" />
+    </>
+  ),
+});
+
+// --- glyphs for the Focused Scales ---
+Object.assign(GLYPHS, {
+  // Self-Esteem — a figure standing tall.
+  "self-esteem-rses": () => (
+    <>
+      <circle cx="24" cy="14" r="5" />
+      <path d="M14,38 C14,28 34,28 34,38" />
+      <line x1="9" y1="40" x2="39" y2="40" />
+      <Sparkle x={36} y={12} r={1.8} />
+    </>
+  ),
+  // Locus of Control — a dial with a pointer.
+  "locus-of-control": () => (
+    <>
+      <circle cx="24" cy="24" r="16" />
+      <line className="gold" x1="24" y1="24" x2="33" y2="15" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2.6" />
+      <line x1="24" y1="8" x2="24" y2="11" />
+      <line x1="40" y1="24" x2="37" y2="24" />
+      <line x1="24" y1="40" x2="24" y2="37" />
+      <line x1="8" y1="24" x2="11" y2="24" />
+    </>
+  ),
+  // Mindset — a curve climbing into branches (growth).
+  "mindset-dweck": () => (
+    <>
+      <path d="M10,40 C14,30 18,22 30,14" />
+      <path className="gold" d="M30,14 L23,14 M30,14 L30,21" />
+      <circle className="gold gold-fill" cx="30" cy="14" r="2.4" />
+      <circle cx="10" cy="40" r="2" />
+    </>
+  ),
+  // Self-Monitoring — an observing eye.
+  "self-monitoring": () => (
+    <>
+      <path d="M6,24 C12,15 36,15 42,24 C36,33 12,33 6,24 Z" />
+      <circle cx="24" cy="24" r="5" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2" />
+    </>
+  ),
+  // Sensation Seeking — a die (chance and novelty).
+  "sensation-seeking": () => (
+    <>
+      <rect x="9" y="9" width="30" height="30" rx="6" />
+      <circle className="gold gold-fill" cx="17" cy="17" r="2.2" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2.2" />
+      <circle className="gold gold-fill" cx="31" cy="31" r="2.2" />
+    </>
+  ),
+  // Need for Cognition — a lightbulb of thought.
+  "need-for-cognition": () => (
+    <>
+      <path d="M24,7 C16,7 11,13 11,20 C11,25 14,28 16,31 L16,34 L32,34 L32,31 C34,28 37,25 37,20 C37,13 32,7 24,7 Z" />
+      <line x1="18" y1="38" x2="30" y2="38" />
+      <line x1="20" y1="42" x2="28" y2="42" />
+      <path className="gold" d="M20,20 L24,24 L28,18" />
+    </>
+  ),
+  // Empathy — two overlapping hearts.
+  "empathy-iri": () => (
+    <>
+      <path d="M19,32 C9,25 11,15 17,17 C18.5,17.6 19,19 19,19 C19,19 19.5,17.6 21,17 C27,15 29,25 19,32 Z" />
+      <path className="gold" d="M30,34 C22,28 23.6,20 28.4,21.6 C29.6,22 30,23 30,23 C30,23 30.4,22 31.6,21.6 C36.4,20 38,28 30,34 Z" />
+    </>
+  ),
+  // Satisfaction With Life — a bright five-point star.
+  "life-satisfaction-swls": () => (
+    <polygon className="gold gold-fill" points="24,6 28.6,18.2 41.6,18.9 31.4,27 34.9,39.6 24,32.3 13.1,39.6 16.6,27 6.4,18.9 19.4,18.2" />
+  ),
+  // Resilience — a curve that dips and rebounds.
+  "brief-resilience": () => (
+    <>
+      <path d="M8,16 C12,40 36,40 40,16" />
+      <path d="M8,16 L6,21 M8,16 L12,19" />
+      <path className="gold" d="M40,16 L36,19 M40,16 L42,21" />
     </>
   ),
 });
