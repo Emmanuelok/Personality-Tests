@@ -1,5 +1,6 @@
 import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
+import type { AbilityTest, AbilityResult } from "@core/ability";
 
 /** Render a beautiful 1200×630 share card to PNG and download it. Pure canvas. */
 export function downloadShareCard(instrument: Instrument, _result: AssessmentResult, report: PersonalityReport, name?: string) {
@@ -92,6 +93,87 @@ export function downloadShareCard(instrument: Instrument, _result: AssessmentRes
     const a = document.createElement("a");
     a.href = url;
     a.download = `psyche-atlas-card-${report.reportId}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, "image/png");
+}
+
+/** Render a 1200×630 cognitive-result share card (band + domain profile) and download it. */
+export function downloadCognitiveShareCard(test: AbilityTest, result: AbilityResult, name?: string) {
+  const W = 1200;
+  const H = 630;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, "#f6efdc");
+  bg.addColorStop(1, "#ece0c5");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W - 170, 130, 40, W - 170, 130, 480);
+  glow.addColorStop(0, "rgba(74,90,134,0.16)");
+  glow.addColorStop(1, "rgba(74,90,134,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  const PAD = 72;
+  const DISPLAY = "'Fraunces', Georgia, 'Times New Roman', serif";
+  const BODY = "'EB Garamond', Georgia, serif";
+
+  ctx.fillStyle = "#9a7b2e";
+  ctx.font = `700 26px ${DISPLAY}`;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText("🧭  PSYCHE ATLAS", PAD, 98);
+
+  ctx.fillStyle = "#27776f";
+  ctx.font = `600 22px ${BODY}`;
+  ctx.fillText((name ? `${name.toUpperCase()}'S ` : "") + test.name.toUpperCase(), PAD, 150);
+
+  ctx.fillStyle = "#2b2418";
+  ctx.font = `600 70px ${DISPLAY}`;
+  let y = 232;
+  for (const line of wrap(ctx, result.band, W - PAD * 2).slice(0, 2)) {
+    ctx.fillText(line, PAD, y);
+    y += 78;
+  }
+
+  ctx.fillStyle = "#6c5d44";
+  ctx.font = `500 27px ${BODY}`;
+  ctx.fillText(`Estimated ${result.iqLow}–${result.iqHigh} · ~${Math.round(result.percentile)}th percentile`, PAD, y + 6);
+
+  const ranked = [...result.perDomain].sort((a, b) => b.percentile - a.percentile).slice(0, 4);
+  let by = 432;
+  for (const d of ranked) {
+    ctx.fillStyle = "#6c5d44";
+    ctx.font = `600 20px ${BODY}`;
+    ctx.fillText(d.name, PAD, by - 6);
+    const barX = PAD;
+    const barW = W - PAD * 2;
+    ctx.fillStyle = "#e6dabd";
+    roundRect(ctx, barX, by, barW, 14, 7);
+    ctx.fill();
+    const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    grad.addColorStop(0, "#9a7b2e");
+    grad.addColorStop(1, "#27776f");
+    ctx.fillStyle = grad;
+    roundRect(ctx, barX, by, Math.max(16, (barW * d.percentile) / 100), 14, 7);
+    ctx.fill();
+    by += 48;
+  }
+
+  ctx.fillStyle = "#8a7a5e";
+  ctx.font = `500 22px ${BODY}`;
+  ctx.fillText("Test your reasoning — free at Psyche Atlas ✦", PAD, H - 44);
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `psyche-atlas-cognitive-${result.fingerprint}.png`;
     a.click();
     URL.revokeObjectURL(url);
   }, "image/png");

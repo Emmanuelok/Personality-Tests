@@ -3,9 +3,11 @@ import type { AbilityTest, AbilityResult as AR } from "@core/ability";
 import { PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart, ScaleBar } from "../charts";
 import { CategoryEmblem } from "../art";
+import { downloadCognitiveShareCard } from "../shareCard";
 import { Figure } from "./Figure";
 
 const COG = PRODUCTS.find((p) => p.id === "cognitive")!;
+const ALL = PRODUCTS.find((p) => p.id === "allaccess")!;
 
 export function AbilityResult({
   test,
@@ -88,6 +90,9 @@ export function AbilityResult({
               </div>
             ))}
           </div>
+          <div className="row-actions no-print" style={{ justifyContent: "flex-start", marginTop: 14 }}>
+            <button className="btn" onClick={() => downloadCognitiveShareCard(test, result, name)}>📣 Share card</button>
+          </div>
         </section>
 
         {unlocked ? (
@@ -145,6 +150,16 @@ export function AbilityResult({
                 <ul className="prod-includes">{COG.includes.map((inc, i) => <li key={i}>{inc}</li>)}</ul>
                 <button className="btn primary" disabled={busy} onClick={() => onPurchase("cognitive")}>
                   {busy ? "…" : `Unlock — ${formatPrice(COG.priceCents, COG.currency)}`}
+                </button>
+              </div>
+              <div className="prod">
+                {ALL.badge && <span className="prod-badge">{ALL.badge}</span>}
+                <div className="prod-name">{ALL.name}</div>
+                <div className="prod-price">{formatPrice(ALL.priceCents, ALL.currency)}</div>
+                <div className="prod-blurb">{ALL.blurb}</div>
+                <ul className="prod-includes">{ALL.includes.map((inc, i) => <li key={i}>{inc}</li>)}</ul>
+                <button className="btn" disabled={busy} onClick={() => onPurchase("allaccess")}>
+                  {busy ? "…" : `Unlock everything — ${formatPrice(ALL.priceCents, ALL.currency)}`}
                 </button>
               </div>
             </div>

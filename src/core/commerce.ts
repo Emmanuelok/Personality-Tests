@@ -54,15 +54,15 @@ export const PRODUCTS: Product[] = [
   {
     id: "allaccess",
     name: "All-Access Pass",
-    blurb: "Unlock the full report for every assessment you take on this device.",
+    blurb: "Unlock every full report — personality AND cognitive — for everything you take on this device.",
     priceCents: 590,
     currency: "usd",
     kind: "bundle",
     badge: "Best value",
     includes: [
-      "Everything in the Full Report",
-      "Unlocks Big Five, 16 Types, Enneagram & future tests",
-      "All formats, for every result you generate",
+      "Everything in the Full Report and the Full Cognitive Report",
+      "Unlocks all 48 personality assessments AND every cognitive test",
+      "All formats — designed PDFs, posters & data — for every result",
     ],
   },
   {
