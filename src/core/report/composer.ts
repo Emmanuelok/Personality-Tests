@@ -1,13 +1,8 @@
 import type { AssessmentResult, Instrument, ScaleDef, ScaleScore } from "../types";
 import { Rng, hashHex, nonce, seedFrom } from "../prng";
-import { ordinal, round1, sentence } from "../variation";
-import {
-  BIG_FIVE_COLOR,
-  BIG_FIVE_DYNAMICS,
-  LEVEL_OPENERS,
-  NUANCE_CLAUSES,
-  type TraitColor,
-} from "./phrasebank";
+import { round1, sentence, tidy } from "../variation";
+import { BIG_FIVE_COLOR, BIG_FIVE_DYNAMICS, type TraitColor } from "./phrasebank";
+import { reportStrings, type ReportStrings } from "./i18n";
 import type { GenerateOptions, PersonalityReport, ReportSection, TraitInsight } from "./types";
 
 /** Fill {placeholders} and normalize into a clean sentence/sentences. */
@@ -15,9 +10,14 @@ function fill(tpl: string, ctx: Record<string, string | number>): string {
   return sentence(tpl.replace(/\{(\w+)\}/g, (_, k) => String(ctx[k] ?? "")));
 }
 
+/** Fill {placeholders} without forcing terminal punctuation — for titles/subtitles. */
+function tmpl(t: string, ctx: Record<string, string | number>): string {
+  return tidy(t.replace(/\{(\w+)\}/g, (_, k) => String(ctx[k] ?? "")));
+}
+
 function descriptorPhrases(desc: string): string[] {
   return desc
-    .split(/,| and /)
+    .split(/,| and | y | et /)
     .map((s) => s.trim())
     .filter(Boolean);
 }
@@ -31,7 +31,7 @@ function poleLabel(scale: ScaleDef, normalized: number): string {
   return normalized >= 55 ? "high" : normalized <= 45 ? "low" : "balanced";
 }
 
-// Headline banks for synthesizing a dimensional archetype name.
+// Headline banks for synthesizing a dimensional archetype name (Big Five only; English).
 const TRAIT_ADJ: Record<string, { high: string[]; low: string[] }> = {
   O: { high: ["Curious", "Inventive", "Visionary", "Imaginative", "Exploratory"], low: ["Grounded", "Practical", "Pragmatic", "Concrete"] },
   C: { high: ["Methodical", "Disciplined", "Steadfast", "Diligent", "Orderly"], low: ["Spontaneous", "Freewheeling", "Improvisational", "Easygoing"] },
@@ -51,39 +51,29 @@ function distinctiveness(s: ScaleScore): number {
   return Math.abs(s.normalized - 50);
 }
 
-const GENERIC_NOUNS = ["Original", "Character", "Archetype", "Persona", "Mind", "Portrait", "Spirit"];
-
 /** Headline for dimensional instruments that aren't the Big Five, built from pole labels. */
-function genericHeadline(rng: Rng, instrument: Instrument, scales: Record<string, ScaleScore>): { title: string; subtitle: string } {
+function genericHeadline(rng: Rng, loc: ReportStrings, instrument: Instrument, scales: Record<string, ScaleScore>): { title: string; subtitle: string } {
   const ranked = instrument.scales
     .map((sc) => ({ sc, score: scales[sc.id] }))
     .filter((x) => x.score)
     .sort((a, b) => distinctiveness(b.score) - distinctiveness(a.score));
-  if (!ranked.length) return { title: "Your Personality Portrait", subtitle: instrument.name };
+  if (!ranked.length) return { title: loc.portraitTitle, subtitle: loc.portraitSub(instrument.name) };
   const top = ranked[0];
   const second = ranked[1] ?? ranked[0];
-  const word = (x: { sc: ScaleDef; score: ScaleScore }) => {
-    const lbl = x.score.normalized >= 50 ? x.sc.poles?.high ?? x.sc.name : x.sc.poles?.low ?? x.sc.name;
-    return lbl.split(/[ ,–-]/)[0];
-  };
   return {
-    title: `The ${word(top)} ${rng.pick(GENERIC_NOUNS)}`,
-    subtitle: rng.pick([
-      `A portrait led by your ${top.sc.name} and ${second.sc.name}`,
-      `Defined most by your ${top.sc.name}`,
-      `Where your ${top.sc.name} meets your ${second.sc.name}`,
-    ]),
+    title: tmpl(loc.genericTitle, { top: top.sc.name }),
+    subtitle: tmpl(rng.pick(loc.genericSubtitle), { top: top.sc.name, second: second.sc.name }),
   };
 }
 
-function dimensionalHeadline(rng: Rng, instrument: Instrument, scales: Record<string, ScaleScore>): { title: string; subtitle: string } {
-  if (instrument.id !== "big-five-ipip50") return genericHeadline(rng, instrument, scales);
+function dimensionalHeadline(rng: Rng, loc: ReportStrings, instrument: Instrument, scales: Record<string, ScaleScore>): { title: string; subtitle: string } {
+  if (instrument.id !== "big-five-ipip50") return genericHeadline(rng, loc, instrument, scales);
   const ranked = instrument.scales
     .map((sc) => ({ sc, score: scales[sc.id] }))
     .filter((x) => TRAIT_ADJ[x.sc.id])
     .sort((a, b) => distinctiveness(b.score) - distinctiveness(a.score));
   if (ranked.length < 2) {
-    return { title: "Your Personality Portrait", subtitle: instrument.name };
+    return { title: loc.portraitTitle, subtitle: loc.portraitSub(instrument.name) };
   }
   const top = ranked[0];
   const second = ranked[1];
@@ -91,12 +81,9 @@ function dimensionalHeadline(rng: Rng, instrument: Instrument, scales: Record<st
   const nounPole = second.score.normalized >= 50 ? "high" : "low";
   const adj = rng.pick(TRAIT_ADJ[top.sc.id][adjPole]);
   const noun = rng.pick(TRAIT_NOUN[second.sc.id][nounPole]);
-  const subtitleVariants = [
-    `A portrait shaped most by your ${top.sc.name} and ${second.sc.name}`,
-    `Where your ${top.sc.name} meets your ${second.sc.name}`,
-    `Defined first by ${top.sc.name}, then by ${second.sc.name}`,
-  ];
-  return { title: `The ${adj} ${noun}`, subtitle: rng.pick(subtitleVariants) };
+  // Big Five keeps its English adjective/noun title (paired with the English color bank);
+  // the subtitle is localized since it leans on the (translated) scale names.
+  return { title: `The ${adj} ${noun}`, subtitle: tmpl(rng.pick(loc.genericSubtitle), { top: top.sc.name, second: second.sc.name }) };
 }
 
 function colorFor(instrument: Instrument, scaleId: string): TraitColor | null {
@@ -104,17 +91,17 @@ function colorFor(instrument: Instrument, scaleId: string): TraitColor | null {
   return null;
 }
 
-function buildTraitInsight(rng: Rng, instrument: Instrument, scale: ScaleDef, score: ScaleScore): TraitInsight {
+function buildTraitInsight(rng: Rng, loc: ReportStrings, instrument: Instrument, scale: ScaleDef, score: ScaleScore): TraitInsight {
   const pct = Math.round(score.percentile);
   const ctx = {
     name: scale.name,
-    pct: ordinal(pct),
+    pct: loc.pct(pct),
     hd: scale.highDescriptor,
     ld: scale.lowDescriptor,
     hi: scale.poles?.high ?? "the high side",
     lo: scale.poles?.low ?? "the low side",
   };
-  const opener = fill(rng.pick(LEVEL_OPENERS[score.level]), ctx);
+  const opener = fill(rng.pick(loc.openers[score.level]), ctx);
 
   const color = colorFor(instrument, scale.id);
   const poleHigh = score.normalized >= 50;
@@ -132,13 +119,13 @@ function buildTraitInsight(rng: Rng, instrument: Instrument, scale: ScaleDef, sc
     strengths = rng.sample(phrases, Math.min(3, phrases.length));
     watchouts = [
       poleHigh
-        ? `Leaning hard into being ${rng.pick(phrases)} can crowd out its opposite when a situation needs it.`
-        : `A strong ${scale.poles?.low ?? "low"} lean means the ${scale.poles?.high ?? "high"} mode takes deliberate effort.`,
+        ? fill(loc.fallbackWatchHigh, { x: rng.pick(phrases) })
+        : fill(loc.fallbackWatchLow, { lo: scale.poles?.low ?? "low", hi: scale.poles?.high ?? "high" }),
     ];
   }
 
   const middle = score.level === "moderate" && color ? rng.pick(color.mid) : "";
-  const nuance = rng.chance(0.6) ? rng.pick(NUANCE_CLAUSES) : "";
+  const nuance = rng.chance(0.6) ? rng.pick(loc.nuance) : "";
 
   const narrative = [opener, behaviorSentence, middle, nuance]
     .filter(Boolean)
@@ -160,10 +147,8 @@ function buildTraitInsight(rng: Rng, instrument: Instrument, scale: ScaleDef, sc
 }
 
 function buildDynamics(rng: Rng, instrument: Instrument, scales: Record<string, ScaleScore>): string[] {
-  if (instrument.id !== "big-five-ipip50") {
-    // For typological instruments, surface interplay from the resolved components.
-    return [];
-  }
+  // Big-Five-specific concrete dynamics (English; paired with the English color bank).
+  if (instrument.id !== "big-five-ipip50") return [];
   const fired: string[] = [];
   for (const rule of BIG_FIVE_DYNAMICS) {
     const na = scales[rule.a]?.normalized;
@@ -171,11 +156,10 @@ function buildDynamics(rng: Rng, instrument: Instrument, scales: Record<string, 
     if (na == null || nb == null) continue;
     if (rule.when(na, nb)) fired.push(rng.pick(rule.variants));
   }
-  // Keep it focused: at most four, chosen by the seed.
   return rng.sample(fired, Math.min(4, fired.length)).map((s) => sentence(s));
 }
 
-function buildSignatureResponses(rng: Rng, instrument: Instrument, result: AssessmentResult): string[] {
+function buildSignatureResponses(rng: Rng, loc: ReportStrings, instrument: Instrument, result: AssessmentResult): string[] {
   const { min, max } = instrument.responseFormat;
   const extremes = instrument.items
     .map((item) => ({ item, r: result.responses[item.id] }))
@@ -186,53 +170,35 @@ function buildSignatureResponses(rng: Rng, instrument: Instrument, result: Asses
   for (const { item, r } of sel) {
     const scale = instrument.scales.find((s) => s.id === item.scale);
     const stmt = item.text.replace(/\.$/, "");
-    const agree = r === max ? rng.pick(["completely true of you", "exactly like you", "strongly accurate"]) : rng.pick(["not true of you at all", "nothing like you", "strongly inaccurate"]);
-    const tail = rng.pick([
-      `— a specific brushstroke in your ${scale?.name ?? "profile"} that a score alone would flatten.`,
-      `, which colors your ${scale?.name ?? "profile"} in a way the headline number can't.`,
-      `— one of the concrete details that makes this profile yours and no one else's.`,
-    ]);
-    out.push(sentence(`You rated “${stmt}” as ${agree} ${tail}`));
+    const agree = r === max ? rng.pick(loc.sigAgreeMax) : rng.pick(loc.sigAgreeMin);
+    const tail = fill(rng.pick(loc.sigTail), { trait: scale?.name ?? "" }).replace(/\.$/, "");
+    out.push(fill(loc.sigTemplate, { stmt, agree, tail }));
   }
   return out;
 }
 
 /** Trait-derived Relationships / Work / Stress sections for instruments without
  *  a hand-written color bank, so every report goes beyond a bare trait list. */
-function genericLifeSections(rng: Rng, instrument: Instrument, topTraits: TraitInsight[]): ReportSection[] {
+function genericLifeSections(rng: Rng, loc: ReportStrings, instrument: Instrument, topTraits: TraitInsight[]): ReportSection[] {
   const sb = new Map(instrument.scales.map((s) => [s.id, s]));
   const d = (t: TraitInsight) => {
     const sd = sb.get(t.scaleId);
     const desc = t.normalized >= 50 ? sd?.highDescriptor : sd?.lowDescriptor;
-    return (desc ?? t.poleLabel).split(/,| and /)[0].trim();
+    return descriptorPhrases(desc ?? t.poleLabel)[0] ?? t.poleLabel;
   };
-  const rel = topTraits.slice(0, 2).map((t) =>
-    rng.pick([
-      `Your ${t.name.toLowerCase()} shows up with the people closest to you as being ${d(t)} — it shapes how you give, and how you ask for what you need.`,
-      `In love and friendship, being ${d(t)} (from your ${t.name.toLowerCase()}) is part of what people come to rely on in you.`,
-    ]),
-  );
-  const work = topTraits.slice(0, 2).map((t) =>
-    rng.pick([
-      `At work, your ${t.name.toLowerCase()} makes you ${d(t)}; you'll feel most in your element where that's genuinely an asset.`,
-      `Being ${d(t)} colors how you operate professionally — gravitate to roles and teams that reward it.`,
-    ]),
-  );
-  const stress = topTraits.slice(0, 1).map((t) =>
-    rng.pick([
-      `Under pressure, your ${t.name.toLowerCase()} leans toward being ${d(t)} — knowing that lets you choose your reset deliberately rather than by default.`,
-      `When stress hits, expect your ${t.name.toLowerCase()} (${d(t)}) to surface; build recovery rituals that fit it.`,
-    ]),
-  );
+  const rel = topTraits.slice(0, 2).map((t) => fill(rng.pick(loc.rel), { trait: t.name.toLowerCase(), d: d(t) }));
+  const work = topTraits.slice(0, 2).map((t) => fill(rng.pick(loc.work), { trait: t.name.toLowerCase(), d: d(t) }));
+  const stress = topTraits.slice(0, 1).map((t) => fill(rng.pick(loc.stress), { trait: t.name.toLowerCase(), d: d(t) }));
   return [
-    { id: "relationships", heading: rng.pick(["In Relationships", "How You Connect"]), paragraphs: rel.map((s) => sentence(s)) },
-    { id: "work", heading: rng.pick(["At Work & Collaborating", "How You Operate"]), paragraphs: work.map((s) => sentence(s)) },
-    { id: "stress", heading: rng.pick(["Under Pressure", "Stress & Resilience"]), paragraphs: stress.map((s) => sentence(s)) },
+    { id: "relationships", heading: rng.pick(loc.relHead), paragraphs: rel },
+    { id: "work", heading: rng.pick(loc.workHead), paragraphs: work },
+    { id: "stress", heading: rng.pick(loc.stressHead), paragraphs: stress },
   ];
 }
 
 function buildSections(
   rng: Rng,
+  loc: ReportStrings,
   instrument: Instrument,
   result: AssessmentResult,
   traits: TraitInsight[],
@@ -245,16 +211,8 @@ function buildSections(
   const strengthBullets = Array.from(new Set(topTraits.flatMap((t) => t.strengths))).slice(0, 6);
   sections.push({
     id: "strengths",
-    heading: rng.pick(["Signature Strengths", "Where You Shine", "Your Natural Advantages"]),
-    paragraphs: [
-      sentence(
-        rng.pick([
-          "These are the capacities your profile most reliably gives you — the moves that come cheaply to you and expensively to others.",
-          "Read these as your home turf: the strengths you can lean on without much conscious effort.",
-          "Every profile has a few load-bearing strengths. Here are yours, drawn from your most distinctive traits.",
-        ]),
-      ),
-    ],
+    heading: rng.pick(loc.strengthsHead),
+    paragraphs: [sentence(rng.pick(loc.strengthsIntro))],
     bullets: strengthBullets,
   });
 
@@ -262,16 +220,8 @@ function buildSections(
   const watchBullets = Array.from(new Set(topTraits.flatMap((t) => t.watchouts))).slice(0, 5);
   sections.push({
     id: "growth-edges",
-    heading: rng.pick(["Growth Edges", "Where to Watch Yourself", "The Other Side of Your Strengths"]),
-    paragraphs: [
-      sentence(
-        rng.pick([
-          "None of these are flaws so much as the shadow your strengths cast — the predictable cost of your particular wiring.",
-          "Every strength overused becomes a liability. These are the edges worth keeping an eye on.",
-          "Growth rarely means becoming someone else; it usually means managing the downside of who you already are. Start here.",
-        ]),
-      ),
-    ],
+    heading: rng.pick(loc.growthHead),
+    paragraphs: [sentence(rng.pick(loc.growthIntro))],
     bullets: watchBullets,
   });
 
@@ -281,38 +231,30 @@ function buildSections(
     .filter((x) => x.color) as { t: TraitInsight; color: TraitColor; poleHigh: boolean }[];
 
   if (colorTraits.length) {
+    // Big Five only — these concrete paragraphs (and their headings) remain English.
     sections.push({
       id: "relationships",
       heading: rng.pick(["In Relationships", "How You Connect", "With the People in Your Life"]),
       paragraphs: rng
-        .sample(
-          colorTraits.flatMap((x) => (x.poleHigh ? x.color.high : x.color.low).relationships),
-          Math.min(3, colorTraits.length + 1),
-        )
+        .sample(colorTraits.flatMap((x) => (x.poleHigh ? x.color.high : x.color.low).relationships), Math.min(3, colorTraits.length + 1))
         .map((s) => sentence(s)),
     });
     sections.push({
       id: "work",
       heading: rng.pick(["At Work & Collaborating", "How You Operate", "In Work and Teams"]),
       paragraphs: rng
-        .sample(
-          colorTraits.flatMap((x) => (x.poleHigh ? x.color.high : x.color.low).work),
-          Math.min(3, colorTraits.length + 1),
-        )
+        .sample(colorTraits.flatMap((x) => (x.poleHigh ? x.color.high : x.color.low).work), Math.min(3, colorTraits.length + 1))
         .map((s) => sentence(s)),
     });
     sections.push({
       id: "stress",
       heading: rng.pick(["Stress & Resilience", "Under Pressure", "When Things Get Hard"]),
       paragraphs: rng
-        .sample(
-          colorTraits.flatMap((x) => (x.poleHigh ? x.color.high : x.color.low).stress),
-          Math.min(2, colorTraits.length),
-        )
+        .sample(colorTraits.flatMap((x) => (x.poleHigh ? x.color.high : x.color.low).stress), Math.min(2, colorTraits.length))
         .map((s) => sentence(s)),
     });
   } else {
-    for (const sec of genericLifeSections(rng, instrument, topTraits)) sections.push(sec);
+    for (const sec of genericLifeSections(rng, loc, instrument, topTraits)) sections.push(sec);
   }
 
   // Typological deep-dive
@@ -321,30 +263,11 @@ function buildSections(
     const comps = t.components.map((c) => `${c.label}: ${c.value}${c.detail ? ` (${c.detail})` : ""}`);
     sections.unshift({
       id: "type-depth",
-      heading: rng.pick(["Your Type, in Depth", "The Shape of Your Type", "Inside Your Result"]),
+      heading: rng.pick(loc.typeDepthHead),
       paragraphs: [
+        fill(rng.pick(loc.typeOpener), { code: t.code, title: t.title, summary: t.summary.toLowerCase() }),
         sentence(
-          rng.pick([
-            `Your result, ${t.code} — ${t.title}, reflects ${t.summary.toLowerCase()}`,
-            `${t.title} (${t.code}) captures a particular configuration: ${t.summary.toLowerCase()}`,
-            `At the center of your result sits ${t.code}, ${t.title}: ${t.summary.toLowerCase()}`,
-          ]),
-        ),
-        sentence(
-          t.confidence >= 0.66
-            ? rng.pick([
-                "Your responses pointed to this result decisively — the underlying preferences were clear and consistent.",
-                "This typing rests on firm ground; your answers leaned the same direction with little ambiguity.",
-              ])
-            : t.confidence >= 0.4
-              ? rng.pick([
-                  "This result is a good fit, though a couple of dimensions were closer to the middle — read your runner-up too.",
-                  "Hold this typing lightly at the edges: some preferences were moderate rather than emphatic.",
-                ])
-              : rng.pick([
-                  "Several dimensions sat near the midpoint, so treat this as the best of a few near-ties and explore the alternatives.",
-                  "Your profile is genuinely balanced across some axes — the label is a starting point, not a verdict.",
-                ]),
+          t.confidence >= 0.66 ? rng.pick(loc.confHigh) : t.confidence >= 0.4 ? rng.pick(loc.confMid) : rng.pick(loc.confLow),
         ),
       ],
       bullets: comps,
@@ -356,6 +279,7 @@ function buildSections(
 
 function buildOverview(
   rng: Rng,
+  loc: ReportStrings,
   instrument: Instrument,
   result: AssessmentResult,
   traits: TraitInsight[],
@@ -367,34 +291,17 @@ function buildOverview(
   const who = name ? `${name}, ` : "";
 
   const p1 = result.type
-    ? sentence(
-        rng.pick([
-          `${who}this is a portrait of how you, specifically, come out on the ${instrument.shortName}. Your result is ${result.type.code} — ${result.type.title}.`,
-          `${who}what follows is built entirely from your own answers on the ${instrument.shortName}. They resolve to ${result.type.title} (${result.type.code}).`,
-        ]),
-      )
-    : sentence(
-        rng.pick([
-          `${who}this is a portrait of how you, specifically, come out on the ${instrument.name}. If your profile had a name, it might be “${headline.title}”`,
-          `${who}what follows is assembled entirely from your own answers. As a shorthand, your pattern reads like “${headline.title}”`,
-        ]),
-      );
+    ? fill(rng.pick(loc.ovP1Type), { who, short: instrument.shortName, code: result.type.code, title: result.type.title })
+    : fill(rng.pick(loc.ovP1Dim), { who, name: instrument.name, title: headline.title });
 
-  const p2 = sentence(
-    rng.pick([
-      `The two notes that define you most are your ${lead[0]?.name} (${ordinal(lead[0]?.percentile ?? 50)} percentile) and your ${lead[1]?.name} (${ordinal(lead[1]?.percentile ?? 50)} percentile). Almost everything else in this report bends around those two.`,
-      `Your profile is anchored by ${lead[0]?.name} and ${lead[1]?.name} — the two traits that pull furthest from average and therefore shape the most about how you operate.`,
-      `If you remember nothing else: ${lead[0]?.name} and ${lead[1]?.name} are doing the heavy lifting in your profile, and the rest plays in their key.`,
-    ]),
-  );
+  const p2 = fill(rng.pick(loc.ovP2), {
+    n0: lead[0]?.name ?? "",
+    p0: loc.pct(lead[0]?.percentile ?? 50),
+    n1: lead[1]?.name ?? "",
+    p1: loc.pct(lead[1]?.percentile ?? 50),
+  });
 
-  const p3 = sentence(
-    rng.pick([
-      "This isn't a verdict. The last section turns the same data toward where you want to go — because the point of seeing yourself clearly is to choose, deliberately, what to do next.",
-      "Read it as a mirror, not a cage. And when you're ready, the growth planner uses these exact scores to map a route from where you are to where you'd like to be.",
-      "Nothing here is fixed. Your traits are tendencies, not sentences — and the improvement plan that follows is built to move them, gently and on purpose.",
-    ]),
-  );
+  const p3 = sentence(rng.pick(loc.ovP3));
 
   return [p1, p2, p3];
 }
@@ -415,6 +322,7 @@ export function composeReport(
     opts.seed ?? seedFrom(result.responseFingerprint, now.getTime(), reportId);
   const rng = new Rng(seed);
   const seedHex = hashHex(String(seed));
+  const loc = reportStrings(opts.locale);
 
   // Decide which scales to narrate (focus typological many-scale instruments).
   const orderedScores = instrument.scales
@@ -425,16 +333,16 @@ export function composeReport(
       ? [...orderedScores].sort((a, b) => b.score.normalized - a.score.normalized).slice(0, 5)
       : orderedScores;
 
-  const traits = shown.map(({ sc, score }) => buildTraitInsight(rng, instrument, sc, score));
+  const traits = shown.map(({ sc, score }) => buildTraitInsight(rng, loc, instrument, sc, score));
 
   const headline = result.type
     ? { title: result.type.title, subtitle: `${result.type.code} · ${instrument.name}` }
-    : dimensionalHeadline(rng, instrument, result.scales);
+    : dimensionalHeadline(rng, loc, instrument, result.scales);
 
-  const overview = buildOverview(rng, instrument, result, traits, headline, opts.name);
+  const overview = buildOverview(rng, loc, instrument, result, traits, headline, opts.name);
   const dynamics = buildDynamics(rng, instrument, result.scales);
-  const sections = buildSections(rng, instrument, result, traits);
-  const signatureResponses = buildSignatureResponses(rng, instrument, result);
+  const sections = buildSections(rng, loc, instrument, result, traits);
+  const signatureResponses = buildSignatureResponses(rng, loc, instrument, result);
 
   return {
     instrumentId: instrument.id,
@@ -451,13 +359,7 @@ export function composeReport(
     dynamics,
     sections,
     signatureResponses,
-    uniqueness: {
-      reportId,
-      seedHex,
-      note:
-        "This report was composed from your full response pattern plus a unique generation seed. " +
-        "No two generations produce identical prose — even from identical answers.",
-    },
+    uniqueness: { reportId, seedHex, note: loc.uniquenessNote },
     engine: "deterministic",
   };
 }

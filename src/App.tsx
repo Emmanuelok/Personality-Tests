@@ -107,7 +107,7 @@ export default function App() {
         const scored = scoreAssessment(li, pending.responses);
         setInstrument(li);
         setResult(scored);
-        setReport(composeReport(li, scored, { name: loadProfile()?.name || undefined }));
+        setReport(composeReport(li, scored, { name: loadProfile()?.name || undefined, locale }));
         setView("result");
         return true;
       }
@@ -370,7 +370,7 @@ export default function App() {
     const scored = scoreAssessment(instrument, responses);
     const seed = randSeed();
     setResult(scored);
-    setReport(composeReport(instrument, scored, { name, seed }));
+    setReport(composeReport(instrument, scored, { name, seed, locale }));
     if (profile) setProfile(recordResult(profile, instrument.id, responses, seed));
     submitNorms(instrument.id, scored.scales); // opt-in, anonymous, fire-and-forget
     setView("calc");
@@ -382,7 +382,7 @@ export default function App() {
   };
 
   const regenerate = () => {
-    if (instrument && result) setReport(composeReport(instrument, result, { name }));
+    if (instrument && result) setReport(composeReport(instrument, result, { name, locale }));
   };
 
   const onPurchase = async (productId: string) => {

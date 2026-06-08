@@ -52,6 +52,8 @@ export interface GenerateOptions {
   seed?: number;
   /** The user's name, woven into the prose for a personal report. */
   name?: string;
+  /** Locale for the composed prose (default "en"). Falls back to English per-bank. */
+  locale?: string;
   /** Optional AI provider; when supplied and available it composes the prose. */
   llm?: LLMProvider | null;
   /** Wall-clock used in the seed and timestamps (injectable for tests). */

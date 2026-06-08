@@ -378,6 +378,40 @@ describe("instrument localization", () => {
   });
 });
 
+describe("report localization", () => {
+  it("composes report prose in es/fr — deterministic, and distinct from English", () => {
+    const ans = allHigh(disc);
+    const esInst = localizeInstrument(disc, "es");
+    const rEs = composeReport(esInst, scoreAssessment(esInst, ans), { seed: 7, locale: "es" });
+    const rEn = composeReport(disc, scoreAssessment(disc, ans), { seed: 7, locale: "en" });
+    // localized uniqueness note + a localized trait opener (percentile phrasing)
+    expect(rEs.uniqueness.note).toContain("semilla");
+    expect(rEn.uniqueness.note).toContain("generation seed");
+    expect(rEs.traits.some((t) => /percentil/.test(t.narrative))).toBe(true);
+    // the prose genuinely differs from English
+    expect(rEs.overview.join(" ")).not.toBe(rEn.overview.join(" "));
+    // deterministic: same seed + locale reproduces byte-for-byte
+    const rEs2 = composeReport(esInst, scoreAssessment(esInst, ans), { seed: 7, locale: "es" });
+    expect(rEs2.overview.join(" ")).toBe(rEs.overview.join(" "));
+    expect(rEs2.sections.map((s) => s.heading).join("|")).toBe(rEs.sections.map((s) => s.heading).join("|"));
+  });
+
+  it("localizes a dimensional wellbeing report (fr) including trait openers and headings", () => {
+    const frInst = localizeInstrument(perma, "fr");
+    const r = composeReport(frInst, scoreAssessment(frInst, allHigh(perma)), { seed: 3, locale: "fr" });
+    expect(r.uniqueness.note).toContain("graine");
+    expect(r.traits.some((t) => /centile/.test(t.narrative))).toBe(true);
+    // generic headline is localized ("Votre portrait de …")
+    expect(/portrait/i.test(r.title)).toBe(true);
+  });
+
+  it("leaves English reports unchanged when no locale is given", () => {
+    const r = composeReport(disc, scoreAssessment(disc, allHigh(disc)), { seed: 1 });
+    expect(r.uniqueness.note).toContain("generation seed");
+    expect(r.traits.some((t) => /percentile/.test(t.narrative))).toBe(true);
+  });
+});
+
 describe("growth planning", () => {
   it("builds an evidence-based plan toward a higher target", () => {
     const result = scoreAssessment(bigFive, allLow(bigFive)); // low Conscientiousness

@@ -15,7 +15,7 @@ export interface InstrumentTranslation {
   shortName?: string;
   tagline?: string;
   description?: string;
-  scales?: Record<string, { name?: string; description?: string; poles?: { low: string; high: string } }>;
+  scales?: Record<string, { name?: string; description?: string; poles?: { low: string; high: string }; highDescriptor?: string; lowDescriptor?: string }>;
   items?: Record<string, string>;
 }
 
@@ -28,11 +28,11 @@ const BIG_FIVE_ES: InstrumentTranslation = {
     "versión emplea los marcadores IPIP de dominio público (50 ítems) para estimar tu posición en Apertura, " +
     "Responsabilidad, Extraversión, Amabilidad y Neuroticismo, comparada con normas poblacionales aproximadas.",
   scales: {
-    O: { name: "Apertura a la experiencia", description: "Receptividad a nuevas ideas, la estética, la imaginación y la exploración intelectual.", poles: { low: "Convencional", high: "Inventivo/a" } },
-    C: { name: "Responsabilidad", description: "Tendencia a la organización, la diligencia, la planificación y el autocontrol.", poles: { low: "Espontáneo/a", high: "Disciplinado/a" } },
-    E: { name: "Extraversión", description: "Impulso hacia la interacción social, la estimulación, la asertividad y la energía positiva.", poles: { low: "Introvertido/a", high: "Extravertido/a" } },
-    A: { name: "Amabilidad", description: "Orientación hacia la compasión, la cooperación, la confianza y la consideración de los demás.", poles: { low: "Exigente", high: "Compasivo/a" } },
-    N: { name: "Neuroticismo", description: "Tendencia a experimentar emociones negativas, reactividad al estrés e inestabilidad de ánimo.", poles: { low: "Estable", high: "Reactivo/a" } },
+    O: { name: "Apertura a la experiencia", description: "Receptividad a nuevas ideas, la estética, la imaginación y la exploración intelectual.", poles: { low: "Convencional", high: "Inventivo/a" }, highDescriptor: "curioso/a, imaginativo/a, intelectualmente aventurero/a, atraído/a por la novedad y el matiz", lowDescriptor: "práctico/a, convencional, anclado/a en lo concreto y lo probado" },
+    C: { name: "Responsabilidad", description: "Tendencia a la organización, la diligencia, la planificación y el autocontrol.", poles: { low: "Espontáneo/a", high: "Disciplinado/a" }, highDescriptor: "organizado/a, fiable, disciplinado/a, orientado/a a metas", lowDescriptor: "flexible, espontáneo/a, cómodo/a con lo imprevisto" },
+    E: { name: "Extraversión", description: "Impulso hacia la interacción social, la estimulación, la asertividad y la energía positiva.", poles: { low: "Introvertido/a", high: "Extravertido/a" }, highDescriptor: "extrovertido/a, enérgico/a, socialmente audaz, animado/a por la compañía", lowDescriptor: "reservado/a, comedido/a, restaurado/a por la soledad y la profundidad" },
+    A: { name: "Amabilidad", description: "Orientación hacia la compasión, la cooperación, la confianza y la consideración de los demás.", poles: { low: "Exigente", high: "Compasivo/a" }, highDescriptor: "cálido/a, cooperativo/a, empático/a, dispuesto/a a dar el beneficio de la duda", lowDescriptor: "franco/a, escéptico/a, competitivo/a, dispuesto/a a anteponer la tarea a la armonía" },
+    N: { name: "Neuroticismo", description: "Tendencia a experimentar emociones negativas, reactividad al estrés e inestabilidad de ánimo.", poles: { low: "Estable", high: "Reactivo/a" }, highDescriptor: "emocionalmente reactivo/a, sensible al estrés, propenso/a a la preocupación y a los cambios de humor", lowDescriptor: "tranquilo/a, ecuánime, resistente bajo presión" },
   },
   items: {
     E1: "Soy el alma de la fiesta.", A1: "Me preocupo poco por los demás.", C1: "Siempre estoy preparado/a.", N1: "Me estreso con facilidad.", O1: "Tengo un vocabulario rico.",
@@ -57,11 +57,11 @@ const BIG_FIVE_FR: InstrumentTranslation = {
     "version utilise les marqueurs IPIP du domaine public (50 items) pour estimer votre position sur l'Ouverture, le " +
     "caractère Consciencieux, l'Extraversion, l'Agréabilité et le Névrosisme, comparée à des normes approximatives.",
   scales: {
-    O: { name: "Ouverture à l'expérience", description: "Réceptivité aux idées nouvelles, à l'esthétique, à l'imagination et à l'exploration intellectuelle.", poles: { low: "Conventionnel(le)", high: "Inventif(ve)" } },
-    C: { name: "Caractère consciencieux", description: "Tendance à l'organisation, à la rigueur, à la planification et à la maîtrise de soi.", poles: { low: "Spontané(e)", high: "Discipliné(e)" } },
-    E: { name: "Extraversion", description: "Élan vers l'engagement social, la stimulation, l'assertivité et l'énergie positive.", poles: { low: "Introverti(e)", high: "Extraverti(e)" } },
-    A: { name: "Agréabilité", description: "Orientation vers la compassion, la coopération, la confiance et l'attention aux autres.", poles: { low: "Exigeant(e)", high: "Bienveillant(e)" } },
-    N: { name: "Névrosisme", description: "Tendance à éprouver des émotions négatives, une réactivité au stress et une instabilité de l'humeur.", poles: { low: "Stable", high: "Réactif(ve)" } },
+    O: { name: "Ouverture à l'expérience", description: "Réceptivité aux idées nouvelles, à l'esthétique, à l'imagination et à l'exploration intellectuelle.", poles: { low: "Conventionnel(le)", high: "Inventif(ve)" }, highDescriptor: "curieux(se), imaginatif(ve), intellectuellement aventureux(se), attiré(e) par la nouveauté et la nuance", lowDescriptor: "pratique, conventionnel(le), ancré(e) dans le concret et l'éprouvé" },
+    C: { name: "Caractère consciencieux", description: "Tendance à l'organisation, à la rigueur, à la planification et à la maîtrise de soi.", poles: { low: "Spontané(e)", high: "Discipliné(e)" }, highDescriptor: "organisé(e), fiable, discipliné(e), orienté(e) vers les objectifs", lowDescriptor: "flexible, spontané(e), à l'aise avec l'imprévu" },
+    E: { name: "Extraversion", description: "Élan vers l'engagement social, la stimulation, l'assertivité et l'énergie positive.", poles: { low: "Introverti(e)", high: "Extraverti(e)" }, highDescriptor: "sociable, énergique, audacieux(se) en société, ravivé(e) par la compagnie", lowDescriptor: "réservé(e), mesuré(e), ressourcé(e) par la solitude et la profondeur" },
+    A: { name: "Agréabilité", description: "Orientation vers la compassion, la coopération, la confiance et l'attention aux autres.", poles: { low: "Exigeant(e)", high: "Bienveillant(e)" }, highDescriptor: "chaleureux(se), coopératif(ve), empathique, prompt(e) à accorder le bénéfice du doute", lowDescriptor: "franc(he), sceptique, compétitif(ve), prêt(e) à faire passer la tâche avant l'harmonie" },
+    N: { name: "Névrosisme", description: "Tendance à éprouver des émotions négatives, une réactivité au stress et une instabilité de l'humeur.", poles: { low: "Stable", high: "Réactif(ve)" }, highDescriptor: "émotionnellement réactif(ve), sensible au stress, enclin(e) à l'inquiétude et aux sautes d'humeur", lowDescriptor: "calme, posé(e), résistant(e) sous pression" },
   },
   items: {
     E1: "Je suis le boute-en-train de la fête.", A1: "Je me soucie peu des autres.", C1: "Je suis toujours prêt(e).", N1: "Je me stresse facilement.", O1: "J'ai un vocabulaire riche.",
@@ -86,10 +86,10 @@ const DISC_ES: InstrumentTranslation = {
     "En lugar de un tipo fijo, la mayoría somos una mezcla, guiada por un estilo principal y otro secundario. Es " +
     "especialmente útil para la comunicación, el trabajo en equipo y el liderazgo.",
   scales: {
-    D: { name: "Dominancia", description: "Impulso por los resultados, franqueza y control.", poles: { low: "Tranquilo/a", high: "Dominante" } },
-    I: { name: "Influencia", description: "Sociabilidad, entusiasmo y persuasión.", poles: { low: "Reservado/a", high: "Extrovertido/a" } },
-    S: { name: "Estabilidad", description: "Paciencia, fiabilidad y cooperación.", poles: { low: "Dinámico/a", high: "Estable" } },
-    C: { name: "Cumplimiento", description: "Precisión, análisis y estándares.", poles: { low: "Improvisador/a", high: "Preciso/a" } },
+    D: { name: "Dominancia", description: "Impulso por los resultados, franqueza y control.", poles: { low: "Tranquilo/a", high: "Dominante" }, highDescriptor: "asertivo/a, de ritmo rápido y centrado/a en resultados", lowDescriptor: "modesto/a, conciliador/a y discreto/a con el control" },
+    I: { name: "Influencia", description: "Sociabilidad, entusiasmo y persuasión.", poles: { low: "Reservado/a", high: "Extrovertido/a" }, highDescriptor: "extrovertido/a, expresivo/a y persuasivo/a", lowDescriptor: "reservado/a, reflexivo/a y comedido/a" },
+    S: { name: "Estabilidad", description: "Paciencia, fiabilidad y cooperación.", poles: { low: "Dinámico/a", high: "Estable" }, highDescriptor: "estable, solidario/a y en busca de armonía", lowDescriptor: "cambiante, inquieto/a y cómodo/a con el flujo" },
+    C: { name: "Cumplimiento", description: "Precisión, análisis y estándares.", poles: { low: "Improvisador/a", high: "Preciso/a" }, highDescriptor: "preciso/a, cuidadoso/a y orientado/a a la calidad", lowDescriptor: "improvisador/a, de mirada amplia y poco apegado/a a las reglas" },
   },
   items: {
     D1: "Tomo el mando rápido y empujo con fuerza para lograr resultados.", D2: "Me siento cómodo/a tomando decisiones audaces y afrontando los problemas de frente.", D3: "Me centro en los resultados y en ganar, incluso bajo presión.", D4: "Me impaciento cuando las cosas van demasiado lentas o con demasiada cautela.", D5: "Prefiero liderar que seguir.", D6: "Soy directo/a y claro/a sobre lo que quiero.",
@@ -108,10 +108,10 @@ const DISC_FR: InstrumentTranslation = {
     "Conformité. Plutôt qu'un type figé, la plupart des gens sont un mélange, mené par un style principal et un style " +
     "secondaire. C'est particulièrement utile pour la communication, le travail d'équipe et le leadership.",
   scales: {
-    D: { name: "Dominance", description: "Recherche de résultats, franchise et contrôle.", poles: { low: "Accommodant(e)", high: "Dominant(e)" } },
-    I: { name: "Influence", description: "Sociabilité, enthousiasme et persuasion.", poles: { low: "Réservé(e)", high: "Extraverti(e)" } },
-    S: { name: "Stabilité", description: "Patience, fiabilité et coopération.", poles: { low: "Dynamique", high: "Stable" } },
-    C: { name: "Conformité", description: "Précision, analyse et exigence.", poles: { low: "Improvisateur(trice)", high: "Précis(e)" } },
+    D: { name: "Dominance", description: "Recherche de résultats, franchise et contrôle.", poles: { low: "Accommodant(e)", high: "Dominant(e)" }, highDescriptor: "assertif(ve), au rythme rapide et axé(e) sur les résultats", lowDescriptor: "modeste, accommodant(e) et discret(ète) quant au contrôle" },
+    I: { name: "Influence", description: "Sociabilité, enthousiasme et persuasion.", poles: { low: "Réservé(e)", high: "Extraverti(e)" }, highDescriptor: "sociable, expressif(ve) et persuasif(ve)", lowDescriptor: "réservé(e), réfléchi(e) et discret(ète)" },
+    S: { name: "Stabilité", description: "Patience, fiabilité et coopération.", poles: { low: "Dynamique", high: "Stable" }, highDescriptor: "stable, soutenant(e) et en quête d'harmonie", lowDescriptor: "changeant(e), agité(e) et à l'aise avec le flux" },
+    C: { name: "Conformité", description: "Précision, analyse et exigence.", poles: { low: "Improvisateur(trice)", high: "Précis(e)" }, highDescriptor: "précis(e), soigneux(se) et axé(e) sur la qualité", lowDescriptor: "improvisateur(trice), à vision large et peu attaché(e) aux règles" },
   },
   items: {
     D1: "Je prends les choses en main rapidement et pousse fort pour obtenir des résultats.", D2: "Je suis à l'aise pour prendre des décisions audacieuses et affronter les problèmes de front.", D3: "Je reste concentré(e) sur les résultats et la victoire, même sous pression.", D4: "Je m'impatiente quand les choses avancent trop lentement ou trop prudemment.", D5: "Je préfère diriger que suivre.", D6: "Je suis franc(he) et direct(e) sur ce que je veux.",
@@ -131,15 +131,15 @@ const ENNEAGRAM_ES: InstrumentTranslation = {
     "tipos y resuelve tu tipo dominante, tu ala y tu centro de inteligencia, planteando el crecimiento como el paso de " +
     "la pasión característica de cada tipo hacia su virtud.",
   scales: {
-    T1: { name: "Tipo 1 · Reformador", description: "Íntegro, autodisciplinado, orientado a la mejora." },
-    T2: { name: "Tipo 2 · Ayudador", description: "Cariñoso, generoso, centrado en las relaciones." },
-    T3: { name: "Tipo 3 · Triunfador", description: "Ambicioso, adaptable, orientado al éxito." },
-    T4: { name: "Tipo 4 · Individualista", description: "Sensible, expresivo, en busca de identidad." },
-    T5: { name: "Tipo 5 · Investigador", description: "Cerebral, reservado, en busca de competencia." },
-    T6: { name: "Tipo 6 · Leal", description: "Vigilante, comprometido, en busca de seguridad." },
-    T7: { name: "Tipo 7 · Entusiasta", description: "Optimista, espontáneo, en busca de posibilidades." },
-    T8: { name: "Tipo 8 · Desafiador", description: "Asertivo, protector, en busca de control." },
-    T9: { name: "Tipo 9 · Pacificador", description: "Conciliador, sereno, en busca de armonía." },
+    T1: { name: "Tipo 1 · Reformador", description: "Íntegro, autodisciplinado, orientado a la mejora.", highDescriptor: "alta resonancia con la búsqueda de integridad y rectitud del Reformador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 1" },
+    T2: { name: "Tipo 2 · Ayudador", description: "Cariñoso, generoso, centrado en las relaciones.", highDescriptor: "alta resonancia con el impulso del Ayudador de ser necesitado y amado", lowDescriptor: "baja resonancia con las motivaciones del Tipo 2" },
+    T3: { name: "Tipo 3 · Triunfador", description: "Ambicioso, adaptable, orientado al éxito.", highDescriptor: "alta resonancia con la búsqueda de valor a través del logro del Triunfador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 3" },
+    T4: { name: "Tipo 4 · Individualista", description: "Sensible, expresivo, en busca de identidad.", highDescriptor: "alta resonancia con la búsqueda de identidad auténtica del Individualista", lowDescriptor: "baja resonancia con las motivaciones del Tipo 4" },
+    T5: { name: "Tipo 5 · Investigador", description: "Cerebral, reservado, en busca de competencia.", highDescriptor: "alta resonancia con el impulso de comprensión y autosuficiencia del Investigador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 5" },
+    T6: { name: "Tipo 6 · Leal", description: "Vigilante, comprometido, en busca de seguridad.", highDescriptor: "alta resonancia con la búsqueda de seguridad y apoyo del Leal", lowDescriptor: "baja resonancia con las motivaciones del Tipo 6" },
+    T7: { name: "Tipo 7 · Entusiasta", description: "Optimista, espontáneo, en busca de posibilidades.", highDescriptor: "alta resonancia con la búsqueda de satisfacción y libertad del Entusiasta", lowDescriptor: "baja resonancia con las motivaciones del Tipo 7" },
+    T8: { name: "Tipo 8 · Desafiador", description: "Asertivo, protector, en busca de control.", highDescriptor: "alta resonancia con el impulso de fuerza y autonomía del Desafiador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 8" },
+    T9: { name: "Tipo 9 · Pacificador", description: "Conciliador, sereno, en busca de armonía.", highDescriptor: "alta resonancia con la búsqueda de paz y unión del Pacificador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 9" },
   },
   items: {
     T1a: "Tengo un fuerte sentido interno de cómo deberían ser las cosas y noto cuando se quedan cortas.", T1b: "Me exijo estándares altos y me siento culpable cuando no los cumplo.", T1c: "Siento la necesidad de corregir errores y mejorar lo que no está bien.", T1d: "Ser bueno, justo e intachable me importa profundamente.",
@@ -164,15 +164,15 @@ const ENNEAGRAM_FR: InstrumentTranslation = {
     "les neuf types et détermine votre type dominant, votre aile et votre centre d'intelligence, en présentant la " +
     "croissance comme le passage de la passion caractéristique de chaque type vers sa vertu.",
   scales: {
-    T1: { name: "Type 1 · Réformateur", description: "Intègre, autodiscipliné, porté sur l'amélioration." },
-    T2: { name: "Type 2 · Altruiste", description: "Attentionné, généreux, centré sur les relations." },
-    T3: { name: "Type 3 · Battant", description: "Ambitieux, adaptable, orienté vers la réussite." },
-    T4: { name: "Type 4 · Individualiste", description: "Sensible, expressif, en quête d'identité." },
-    T5: { name: "Type 5 · Investigateur", description: "Cérébral, réservé, en quête de compétence." },
-    T6: { name: "Type 6 · Loyaliste", description: "Vigilant, engagé, en quête de sécurité." },
-    T7: { name: "Type 7 · Épicurien", description: "Optimiste, spontané, en quête de possibilités." },
-    T8: { name: "Type 8 · Meneur", description: "Affirmé, protecteur, en quête de contrôle." },
-    T9: { name: "Type 9 · Médiateur", description: "Accommodant, posé, en quête d'harmonie." },
+    T1: { name: "Type 1 · Réformateur", description: "Intègre, autodiscipliné, porté sur l'amélioration.", highDescriptor: "forte résonance avec la quête d'intégrité et de justesse du Réformateur", lowDescriptor: "faible résonance avec les motivations du Type 1" },
+    T2: { name: "Type 2 · Altruiste", description: "Attentionné, généreux, centré sur les relations.", highDescriptor: "forte résonance avec le besoin d'être nécessaire et aimé de l'Altruiste", lowDescriptor: "faible résonance avec les motivations du Type 2" },
+    T3: { name: "Type 3 · Battant", description: "Ambitieux, adaptable, orienté vers la réussite.", highDescriptor: "forte résonance avec la quête de valeur par la réussite du Battant", lowDescriptor: "faible résonance avec les motivations du Type 3" },
+    T4: { name: "Type 4 · Individualiste", description: "Sensible, expressif, en quête d'identité.", highDescriptor: "forte résonance avec la quête d'identité authentique de l'Individualiste", lowDescriptor: "faible résonance avec les motivations du Type 4" },
+    T5: { name: "Type 5 · Investigateur", description: "Cérébral, réservé, en quête de compétence.", highDescriptor: "forte résonance avec la quête de compréhension et d'autonomie de l'Investigateur", lowDescriptor: "faible résonance avec les motivations du Type 5" },
+    T6: { name: "Type 6 · Loyaliste", description: "Vigilant, engagé, en quête de sécurité.", highDescriptor: "forte résonance avec la quête de sécurité et de soutien du Loyaliste", lowDescriptor: "faible résonance avec les motivations du Type 6" },
+    T7: { name: "Type 7 · Épicurien", description: "Optimiste, spontané, en quête de possibilités.", highDescriptor: "forte résonance avec la quête de satisfaction et de liberté de l'Épicurien", lowDescriptor: "faible résonance avec les motivations du Type 7" },
+    T8: { name: "Type 8 · Meneur", description: "Affirmé, protecteur, en quête de contrôle.", highDescriptor: "forte résonance avec l'élan de force et d'autonomie du Meneur", lowDescriptor: "faible résonance avec les motivations du Type 8" },
+    T9: { name: "Type 9 · Médiateur", description: "Accommodant, posé, en quête d'harmonie.", highDescriptor: "forte résonance avec la quête de paix et d'union du Médiateur", lowDescriptor: "faible résonance avec les motivations du Type 9" },
   },
   items: {
     T1a: "J'ai un fort sens intérieur de la façon dont les choses devraient être, et je remarque quand elles ne le sont pas.", T1b: "Je m'impose des exigences élevées et je culpabilise quand je ne les atteins pas.", T1c: "Je me sens poussé(e) à corriger les erreurs et à améliorer ce qui ne va pas.", T1d: "Être bon, juste et irréprochable compte profondément pour moi.",
@@ -198,11 +198,11 @@ const PERMA_ES: InstrumentTranslation = {
     "cultivar por separado: Emoción positiva, Compromiso, Relaciones, Sentido y Logro. Esta es una instantánea cálida " +
     "y basada en las fortalezas de cómo estás floreciendo ahora mismo y qué pilar agradecería más tu atención.",
   scales: {
-    POS: { name: "Emoción positiva", description: "Alegría, gratitud, satisfacción y esperanza.", poles: { low: "Agotado/a", high: "Alegre" } },
-    ENG: { name: "Compromiso", description: "Absorción y fluidez en lo que haces.", poles: { low: "Desconectado/a", high: "Absorto/a" } },
-    REL: { name: "Relaciones", description: "Cercanía, apoyo y pertenencia.", poles: { low: "Aislado/a", high: "Conectado/a" } },
-    MEA: { name: "Sentido", description: "Propósito y significado.", poles: { low: "A la deriva", high: "Con propósito" } },
-    ACC: { name: "Logro", description: "Maestría, progreso y consecución.", poles: { low: "Estancado/a", high: "Realizado/a" } },
+    POS: { name: "Emoción positiva", description: "Alegría, gratitud, satisfacción y esperanza.", poles: { low: "Agotado/a", high: "Alegre" }, highDescriptor: "rico/a en sensaciones positivas cotidianas", lowDescriptor: "bajo/a en sensaciones positivas últimamente" },
+    ENG: { name: "Compromiso", description: "Absorción y fluidez en lo que haces.", poles: { low: "Desconectado/a", high: "Absorto/a" }, highDescriptor: "a menudo profundamente absorto/a y en flujo", lowDescriptor: "rara vez plenamente comprometido/a" },
+    REL: { name: "Relaciones", description: "Cercanía, apoyo y pertenencia.", poles: { low: "Aislado/a", high: "Conectado/a" }, highDescriptor: "bien conectado/a y apoyado/a", lowDescriptor: "solo/a o con poco apoyo" },
+    MEA: { name: "Sentido", description: "Propósito y significado.", poles: { low: "A la deriva", high: "Con propósito" }, highDescriptor: "anclado/a en el propósito y el significado", lowDescriptor: "en busca de rumbo" },
+    ACC: { name: "Logro", description: "Maestría, progreso y consecución.", poles: { low: "Estancado/a", high: "Realizado/a" }, highDescriptor: "con un fuerte sentido de logro y progreso", lowDescriptor: "bajo/a en sentido de logro" },
   },
   items: {
     P1: "Con frecuencia siento alegría, gratitud o satisfacción.", P2: "Las buenas sensaciones son parte habitual de mis días.", P3: "Últimamente rara vez me siento positivo/a o animado/a.",
@@ -222,11 +222,11 @@ const PERMA_FR: InstrumentTranslation = {
     "vous pouvez cultiver chacun — Émotion positive, Engagement, Relations, Sens et Accomplissement. Voici un aperçu " +
     "chaleureux et axé sur les forces de votre épanouissement actuel et du pilier qui mériterait le plus votre attention.",
   scales: {
-    POS: { name: "Émotion positive", description: "Joie, gratitude, contentement et espoir.", poles: { low: "Épuisé(e)", high: "Joyeux(se)" } },
-    ENG: { name: "Engagement", description: "Absorption et fluidité dans ce que vous faites.", poles: { low: "Désengagé(e)", high: "Absorbé(e)" } },
-    REL: { name: "Relations", description: "Proximité, soutien et appartenance.", poles: { low: "Isolé(e)", high: "Connecté(e)" } },
-    MEA: { name: "Sens", description: "But et signification.", poles: { low: "À la dérive", high: "Habité(e) d'un but" } },
-    ACC: { name: "Accomplissement", description: "Maîtrise, progrès et réussite.", poles: { low: "À l'arrêt", high: "Accompli(e)" } },
+    POS: { name: "Émotion positive", description: "Joie, gratitude, contentement et espoir.", poles: { low: "Épuisé(e)", high: "Joyeux(se)" }, highDescriptor: "riche en émotions positives au quotidien", lowDescriptor: "en manque d'émotions positives ces derniers temps" },
+    ENG: { name: "Engagement", description: "Absorption et fluidité dans ce que vous faites.", poles: { low: "Désengagé(e)", high: "Absorbé(e)" }, highDescriptor: "souvent profondément absorbé(e) et dans le flux", lowDescriptor: "rarement pleinement engagé(e)" },
+    REL: { name: "Relations", description: "Proximité, soutien et appartenance.", poles: { low: "Isolé(e)", high: "Connecté(e)" }, highDescriptor: "bien relié(e) et soutenu(e)", lowDescriptor: "seul(e) ou peu soutenu(e)" },
+    MEA: { name: "Sens", description: "But et signification.", poles: { low: "À la dérive", high: "Habité(e) d'un but" }, highDescriptor: "ancré(e) dans le but et le sens", lowDescriptor: "en quête de direction" },
+    ACC: { name: "Accomplissement", description: "Maîtrise, progrès et réussite.", poles: { low: "À l'arrêt", high: "Accompli(e)" }, highDescriptor: "doté(e) d'un fort sentiment de réussite et de progrès", lowDescriptor: "en manque de sentiment de réussite" },
   },
   items: {
     P1: "Je ressens fréquemment de la joie, de la gratitude ou du contentement.", P2: "Les sensations agréables font régulièrement partie de mes journées.", P3: "Ces derniers temps, je me sens rarement positif(ve) ou enjoué(e).",
@@ -246,7 +246,7 @@ const SWLS_ES: InstrumentTranslation = {
     "cómo te sientes momento a momento, sino tu juicio meditado sobre la vida en su conjunto, frente a los estándares " +
     "que tú mismo/a fijas. Cinco frases breves, décadas de validación en todo el mundo.",
   scales: {
-    SWL: { name: "Satisfacción con la vida", description: "Juicio cognitivo global de satisfacción con tu vida.", poles: { low: "Insatisfecho/a", high: "Satisfecho/a" } },
+    SWL: { name: "Satisfacción con la vida", description: "Juicio cognitivo global de satisfacción con tu vida.", poles: { low: "Insatisfecho/a", high: "Satisfecho/a" }, highDescriptor: "ampliamente satisfecho/a: la vida se acerca a tu ideal", lowDescriptor: "insatisfecho/a: la vida se queda corta respecto a lo que quieres" },
   },
   items: {
     L1: "En la mayoría de los aspectos, mi vida se acerca a mi ideal.",
@@ -266,7 +266,7 @@ const SWLS_FR: InstrumentTranslation = {
     "non pas ce que vous ressentez d'instant en instant, mais votre jugement posé sur la vie dans son ensemble, au " +
     "regard des critères que vous vous fixez. Cinq courtes affirmations, des décennies de validation à travers le monde.",
   scales: {
-    SWL: { name: "Satisfaction de vie", description: "Jugement cognitif global de satisfaction à l'égard de votre vie.", poles: { low: "Insatisfait(e)", high: "Satisfait(e)" } },
+    SWL: { name: "Satisfaction de vie", description: "Jugement cognitif global de satisfaction à l'égard de votre vie.", poles: { low: "Insatisfait(e)", high: "Satisfait(e)" }, highDescriptor: "globalement satisfait(e) : la vie est proche de votre idéal", lowDescriptor: "insatisfait(e) : la vie est en deçà de ce que vous voulez" },
   },
   items: {
     L1: "À bien des égards, ma vie est proche de mon idéal.",
@@ -286,7 +286,7 @@ const RESILIENCE_ES: InstrumentTranslation = {
     "original: con qué facilidad te recuperas tras el estrés y la adversidad. No se trata de no sufrir nunca, sino de " +
     "recuperarse. Y como la resiliencia crece con el apoyo, las habilidades y el sentido, una puntuación más baja es un punto desde el que construir.",
   scales: {
-    RES: { name: "Resiliencia de recuperación", description: "Capacidad de recuperarte rápido del estrés y los reveses.", poles: { low: "Lento/a en recuperarse", high: "Se recupera bien" } },
+    RES: { name: "Resiliencia de recuperación", description: "Capacidad de recuperarte rápido del estrés y los reveses.", poles: { low: "Lento/a en recuperarse", high: "Se recupera bien" }, highDescriptor: "te recuperas rápido y sales de la dificultad intacto/a", lowDescriptor: "los reveses tienden a derribarte por más tiempo" },
   },
   items: {
     R1: "Suelo recuperarme rápido tras los momentos difíciles.",
@@ -307,7 +307,7 @@ const RESILIENCE_FR: InstrumentTranslation = {
     "sens d'origine : avec quelle facilité vous rebondissez après le stress et l'adversité. Il ne s'agit pas de ne jamais " +
     "souffrir, mais de récupérer. Et comme la résilience grandit avec le soutien, les compétences et le sens, un score plus bas est un point d'appui pour progresser.",
   scales: {
-    RES: { name: "Résilience de rebond", description: "Capacité à récupérer vite du stress et des revers.", poles: { low: "Lent(e) à récupérer", high: "Rebondit bien" } },
+    RES: { name: "Résilience de rebond", description: "Capacité à récupérer vite du stress et des revers.", poles: { low: "Lent(e) à récupérer", high: "Rebondit bien" }, highDescriptor: "vous récupérez vite et traversez l'épreuve intact(e)", lowDescriptor: "les revers ont tendance à vous abattre plus longtemps" },
   },
   items: {
     R1: "J'ai tendance à rebondir vite après les périodes difficiles.",
@@ -328,7 +328,7 @@ const SELFESTEEM_ES: InstrumentTranslation = {
     "conjunto, te valoras a ti mismo/a. Diez frases equilibradas, validadas durante décadas y culturas. La autoestima no " +
     "es fija: responde a cómo te tratas y a lo que construyes, así que también sirve como punto de partida para crecer.",
   scales: {
-    EST: { name: "Autoestima global", description: "Sentido general de valía personal y autoaceptación.", poles: { low: "Baja autovaloración", high: "Alta autovaloración" } },
+    EST: { name: "Autoestima global", description: "Sentido general de valía personal y autoaceptación.", poles: { low: "Baja autovaloración", high: "Alta autovaloración" }, highDescriptor: "con autorrespeto, seguro/a y aceptándote a ti mismo/a", lowDescriptor: "autocrítico/a y propenso/a a dudar de tu valía" },
   },
   items: {
     S1: "En general, estoy satisfecho/a conmigo mismo/a.",
@@ -353,7 +353,7 @@ const SELFESTEEM_FR: InstrumentTranslation = {
     "dans l'ensemble, vous vous estimez positivement. Dix affirmations équilibrées, validées au fil des décennies et des " +
     "cultures. L'estime de soi n'est pas figée : elle réagit à la façon dont vous vous traitez et à ce que vous construisez, ce qui en fait aussi un point de départ pour progresser.",
   scales: {
-    EST: { name: "Estime de soi globale", description: "Sentiment général de valeur personnelle et d'acceptation de soi.", poles: { low: "Faible estime de soi", high: "Forte estime de soi" } },
+    EST: { name: "Estime de soi globale", description: "Sentiment général de valeur personnelle et d'acceptation de soi.", poles: { low: "Faible estime de soi", high: "Forte estime de soi" }, highDescriptor: "respectueux(se) de vous-même, sûr(e) et vous acceptant", lowDescriptor: "autocritique et enclin(e) à douter de votre valeur" },
   },
   items: {
     S1: "Dans l'ensemble, je suis satisfait(e) de moi-même.",
@@ -378,8 +378,8 @@ const MOOD_ES: InstrumentTranslation = {
     "de los cribados habituales de bienestar, pero enfocado en cómo estás, no en qué va mal. Puntuaciones más altas " +
     "significan un ánimo y una energía más estables. Es un estímulo para el autoconocimiento y el autocuidado, nunca un diagnóstico.",
   scales: {
-    MOOD: { name: "Ánimo y perspectiva", description: "Luminosidad del ánimo, el interés y la esperanza.", poles: { low: "Bajo y plano", high: "Luminoso y esperanzado" } },
-    ENRG: { name: "Energía y descanso", description: "Energía, descanso y estabilidad física.", poles: { low: "Agotado/a", high: "Con energía" } },
+    MOOD: { name: "Ánimo y perspectiva", description: "Luminosidad del ánimo, el interés y la esperanza.", poles: { low: "Bajo y plano", high: "Luminoso y esperanzado" }, highDescriptor: "ánimo más luminoso, interés y esperanza", lowDescriptor: "ánimo más bajo y plano y menos interés" },
+    ENRG: { name: "Energía y descanso", description: "Energía, descanso y estabilidad física.", poles: { low: "Agotado/a", high: "Con energía" }, highDescriptor: "descansado/a, con energía y sereno/a", lowDescriptor: "cansado/a, agotado/a o inquieto/a" },
   },
   items: {
     M1: "En las últimas dos semanas, me he sentido decaído/a, deprimido/a o sin esperanza.",
@@ -402,8 +402,8 @@ const MOOD_FR: InstrumentTranslation = {
     "l'esprit des dépistages courants du bien-être — mais centré sur comment vous allez, non sur ce qui ne va pas. Des " +
     "scores plus élevés indiquent une humeur et une énergie plus stables. C'est une invitation à la conscience de soi et au soin de soi, jamais un diagnostic.",
   scales: {
-    MOOD: { name: "Humeur et perspective", description: "Éclat de l'humeur, intérêt et espoir.", poles: { low: "Bas et terne", high: "Lumineux et plein d'espoir" } },
-    ENRG: { name: "Énergie et repos", description: "Énergie, repos et stabilité physique.", poles: { low: "Épuisé(e)", high: "Plein(e) d'énergie" } },
+    MOOD: { name: "Humeur et perspective", description: "Éclat de l'humeur, intérêt et espoir.", poles: { low: "Bas et terne", high: "Lumineux et plein d'espoir" }, highDescriptor: "humeur plus lumineuse, intérêt et espoir", lowDescriptor: "humeur plus basse et plus terne, et moins d'intérêt" },
+    ENRG: { name: "Énergie et repos", description: "Énergie, repos et stabilité physique.", poles: { low: "Épuisé(e)", high: "Plein(e) d'énergie" }, highDescriptor: "reposé(e), plein(e) d'énergie et apaisé(e)", lowDescriptor: "fatigué(e), épuisé(e) ou agité(e)" },
   },
   items: {
     M1: "Au cours des deux dernières semaines, je me suis senti(e) abattu(e), déprimé(e) ou sans espoir.",
@@ -535,7 +535,16 @@ export function localizeInstrument(inst: Instrument, locale: string): Instrument
     description: tr.description ?? inst.description,
     scales: inst.scales.map((s) => {
       const st = tr.scales?.[s.id];
-      return st ? { ...s, name: st.name ?? s.name, description: st.description ?? s.description, poles: st.poles ?? s.poles } : s;
+      return st
+        ? {
+            ...s,
+            name: st.name ?? s.name,
+            description: st.description ?? s.description,
+            poles: st.poles ?? s.poles,
+            highDescriptor: st.highDescriptor ?? s.highDescriptor,
+            lowDescriptor: st.lowDescriptor ?? s.lowDescriptor,
+          }
+        : s;
     }),
     items: tr.items ? inst.items.map((i) => (tr.items![i.id] ? { ...i, text: tr.items![i.id] } : i)) : inst.items,
     // Bind the locale into resolveType so the resolved type card (title/summary/components)
