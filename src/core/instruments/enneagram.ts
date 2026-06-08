@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { enneaTypeStrings, type EnneaTypeBundle } from "./i18n";
 
 /**
  * Enneagram of Personality — nine interconnected types.
@@ -66,30 +67,33 @@ const items: Item[] = [
   it("T9d", "I prefer comfort and calm, and I tune out when things get tense.", "T9"),
 ];
 
-interface EnneaMeta {
-  name: string;
-  title: string;
-  center: "Body" | "Heart" | "Head";
-  desire: string;
-  fear: string;
-  passion: string; // vice
-  virtue: string;
-  summary: string;
-}
-
-const META: Record<number, EnneaMeta> = {
-  1: { name: "The Reformer", title: "Principled, Purposeful, Self-Controlled", center: "Body", desire: "to be good, right, and balanced", fear: "of being corrupt, defective, or wrong", passion: "anger (held as resentment)", virtue: "serenity", summary: "A conscientious idealist driven to improve themselves and the world." },
-  2: { name: "The Helper", title: "Caring, Generous, People-Pleasing", center: "Heart", desire: "to feel loved and needed", fear: "of being unwanted or unworthy of love", passion: "pride", virtue: "humility", summary: "A warm, giving presence attuned to the needs of others." },
-  3: { name: "The Achiever", title: "Adaptable, Driven, Image-Conscious", center: "Heart", desire: "to feel valuable and worthwhile", fear: "of being worthless or a failure", passion: "deceit (self-image)", virtue: "authenticity", summary: "An ambitious, efficient performer focused on success and recognition." },
-  4: { name: "The Individualist", title: "Sensitive, Expressive, Introspective", center: "Heart", desire: "to be uniquely themselves and find their identity", fear: "of having no significance or identity", passion: "envy", virtue: "equanimity", summary: "An emotionally honest seeker of depth, meaning, and authenticity." },
-  5: { name: "The Investigator", title: "Perceptive, Cerebral, Self-Contained", center: "Head", desire: "to be capable and competent", fear: "of being useless, incapable, or overwhelmed", passion: "avarice (of energy)", virtue: "non-attachment", summary: "A private, insightful thinker who masters knowledge to feel secure." },
-  6: { name: "The Loyalist", title: "Committed, Vigilant, Security-Seeking", center: "Head", desire: "to have security and support", fear: "of being without guidance or support", passion: "fear (anxiety)", virtue: "courage", summary: "A dependable, alert ally who prepares for what could go wrong." },
-  7: { name: "The Enthusiast", title: "Spontaneous, Versatile, Optimistic", center: "Head", desire: "to be satisfied and content", fear: "of being deprived, trapped, or in pain", passion: "gluttony (for experience)", virtue: "sobriety", summary: "A quick, upbeat adventurer chasing possibility and stimulation." },
-  8: { name: "The Challenger", title: "Decisive, Powerful, Protective", center: "Body", desire: "to protect themselves and stay in control of their life", fear: "of being harmed, controlled, or violated", passion: "lust (intensity)", virtue: "innocence", summary: "A strong, assertive protector who confronts life head-on." },
-  9: { name: "The Peacemaker", title: "Receptive, Reassuring, Easygoing", center: "Body", desire: "to have inner and outer peace", fear: "of loss, separation, and conflict", passion: "sloth (self-forgetting)", virtue: "right action", summary: "An accepting, steady presence who brings calm and seeks harmony." },
+/** Center of intelligence per type — locale-invariant (drives logic + indexes the string bundle). */
+const CENTER_OF: Record<number, "Body" | "Heart" | "Head"> = {
+  1: "Body", 2: "Heart", 3: "Heart", 4: "Heart", 5: "Head", 6: "Head", 7: "Head", 8: "Body", 9: "Body",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+/** English default; es/fr live in core/instruments/i18n.ts (enneaTypeStrings). */
+const ENNEA_TYPE_EN: EnneaTypeBundle = {
+  typeWord: "Type",
+  meta: {
+    1: { name: "The Reformer", short: "Reformer", title: "Principled, Purposeful, Self-Controlled", desire: "to be good, right, and balanced", fear: "of being corrupt, defective, or wrong", passion: "anger (held as resentment)", virtue: "serenity", summary: "A conscientious idealist driven to improve themselves and the world." },
+    2: { name: "The Helper", short: "Helper", title: "Caring, Generous, People-Pleasing", desire: "to feel loved and needed", fear: "of being unwanted or unworthy of love", passion: "pride", virtue: "humility", summary: "A warm, giving presence attuned to the needs of others." },
+    3: { name: "The Achiever", short: "Achiever", title: "Adaptable, Driven, Image-Conscious", desire: "to feel valuable and worthwhile", fear: "of being worthless or a failure", passion: "deceit (self-image)", virtue: "authenticity", summary: "An ambitious, efficient performer focused on success and recognition." },
+    4: { name: "The Individualist", short: "Individualist", title: "Sensitive, Expressive, Introspective", desire: "to be uniquely themselves and find their identity", fear: "of having no significance or identity", passion: "envy", virtue: "equanimity", summary: "An emotionally honest seeker of depth, meaning, and authenticity." },
+    5: { name: "The Investigator", short: "Investigator", title: "Perceptive, Cerebral, Self-Contained", desire: "to be capable and competent", fear: "of being useless, incapable, or overwhelmed", passion: "avarice (of energy)", virtue: "non-attachment", summary: "A private, insightful thinker who masters knowledge to feel secure." },
+    6: { name: "The Loyalist", short: "Loyalist", title: "Committed, Vigilant, Security-Seeking", desire: "to have security and support", fear: "of being without guidance or support", passion: "fear (anxiety)", virtue: "courage", summary: "A dependable, alert ally who prepares for what could go wrong." },
+    7: { name: "The Enthusiast", short: "Enthusiast", title: "Spontaneous, Versatile, Optimistic", desire: "to be satisfied and content", fear: "of being deprived, trapped, or in pain", passion: "gluttony (for experience)", virtue: "sobriety", summary: "A quick, upbeat adventurer chasing possibility and stimulation." },
+    8: { name: "The Challenger", short: "Challenger", title: "Decisive, Powerful, Protective", desire: "to protect themselves and stay in control of their life", fear: "of being harmed, controlled, or violated", passion: "lust (intensity)", virtue: "innocence", summary: "A strong, assertive protector who confronts life head-on." },
+    9: { name: "The Peacemaker", short: "Peacemaker", title: "Receptive, Reassuring, Easygoing", desire: "to have inner and outer peace", fear: "of loss, separation, and conflict", passion: "sloth (self-forgetting)", virtue: "right action", summary: "An accepting, steady presence who brings calm and seeks harmony." },
+  },
+  center: { Body: "Body", Heart: "Heart", Head: "Head" },
+  centerDetail: { Body: "the gut/instinctive center (anger)", Heart: "the heart/feeling center (shame)", Head: "the head/thinking center (fear)" },
+  labels: { core: "Core type", wing: "Wing", center: "Center of intelligence", desire: "Basic desire", fear: "Basic fear", passionVirtue: "Passion → Virtue", resonances: "Top resonances" },
+  flavored: "flavored by Type {w} ({name})",
+};
+
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = enneaTypeStrings(locale) ?? ENNEA_TYPE_EN;
   const scores = Array.from({ length: 9 }, (_, i) => ({ type: i + 1, mean: s[`T${i + 1}`].mean }));
   const sorted = [...scores].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
@@ -100,24 +104,25 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
   const right = top.type === 9 ? 1 : top.type + 1;
   const wing = scores[left - 1].mean >= scores[right - 1].mean ? left : right;
 
-  const meta = META[top.type];
+  const meta = T.meta[top.type];
+  const centerKey = CENTER_OF[top.type];
   const sep = top.mean - runner.mean;
   const confidence = Math.max(0.2, Math.min(0.98, 0.5 + sep));
 
-  const top3 = sorted.slice(0, 3).map((x) => `Type ${x.type} (${META[x.type].name.replace("The ", "")})`).join(" · ");
+  const top3 = sorted.slice(0, 3).map((x) => `${T.typeWord} ${x.type} (${T.meta[x.type].short})`).join(" · ");
 
   return {
     code: `${top.type}w${wing}`,
-    title: `Type ${top.type} — ${meta.name}`,
+    title: `${T.typeWord} ${top.type} — ${meta.name}`,
     summary: meta.summary,
     components: [
-      { label: "Core type", value: `Type ${top.type}: ${meta.name}`, detail: meta.title },
-      { label: "Wing", value: `${top.type}w${wing}`, detail: `flavored by Type ${wing} (${META[wing].name.replace("The ", "")})` },
-      { label: "Center of intelligence", value: meta.center, detail: meta.center === "Body" ? "the gut/instinctive center (anger)" : meta.center === "Heart" ? "the heart/feeling center (shame)" : "the head/thinking center (fear)" },
-      { label: "Basic desire", value: meta.desire },
-      { label: "Basic fear", value: meta.fear },
-      { label: "Passion → Virtue", value: `${meta.passion} → ${meta.virtue}` },
-      { label: "Top resonances", value: top3 },
+      { label: T.labels.core, value: `${T.typeWord} ${top.type}: ${meta.name}`, detail: meta.title },
+      { label: T.labels.wing, value: `${top.type}w${wing}`, detail: T.flavored.replace("{w}", String(wing)).replace("{name}", T.meta[wing].short) },
+      { label: T.labels.center, value: T.center[centerKey], detail: T.centerDetail[centerKey] },
+      { label: T.labels.desire, value: meta.desire },
+      { label: T.labels.fear, value: meta.fear },
+      { label: T.labels.passionVirtue, value: `${meta.passion} → ${meta.virtue}` },
+      { label: T.labels.resonances, value: top3 },
     ],
     confidence,
     secondary: `${runner.type}w${runner.type === 1 ? (s["T9"].mean >= s["T2"].mean ? 9 : 2) : runner.type === 9 ? (s["T8"].mean >= s["T1"].mean ? 8 : 1) : (s[`T${runner.type - 1}`].mean >= s[`T${runner.type + 1}`].mean ? runner.type - 1 : runner.type + 1)}`,

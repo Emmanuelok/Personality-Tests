@@ -86,8 +86,10 @@ export interface Instrument {
   scales: ScaleDef[];
   items: Item[];
   citations: Citation[];
-  /** Resolve a categorical type from continuous scale scores (typological instruments). */
-  resolveType?: (scaleScores: Record<string, ScaleScore>) => TypeResolution;
+  /** Resolve a categorical type from continuous scale scores (typological instruments).
+   *  Accepts an optional locale so the resolved title/summary/components can be localized;
+   *  instruments that don't translate their type simply ignore it and return English. */
+  resolveType?: (scaleScores: Record<string, ScaleScore>, locale?: string) => TypeResolution;
   /** Honest limitations and ethical framing surfaced to the user. */
   caveats?: string[];
   /** Provenance of the item wording (public-domain set vs. original to this platform). */

@@ -332,6 +332,32 @@ describe("instrument localization", () => {
     }
   });
 
+  it("localizes the DISC and Enneagram type cards while keeping the canonical code stable", () => {
+    // DISC: drive Dominance high → "The Driver" / "El Impulsor" / "Le Meneur"
+    const discAns = answerAll(disc, (i) => (i.scale === "D" ? 5 : 1));
+    const enTitle = scoreAssessment(disc, discAns).type!.title;
+    expect(enTitle).toBe("The Driver");
+    const dEs = scoreAssessment(localizeInstrument(disc, "es"), discAns).type!;
+    expect(dEs.title).toBe("El Impulsor");
+    expect(dEs.components.some((c) => c.label === "Estilo principal")).toBe(true);
+    const dFr = scoreAssessment(localizeInstrument(disc, "fr"), discAns).type!;
+    expect(dFr.title).toBe("Le Meneur");
+    expect(dFr.components.some((c) => c.label === "Style principal")).toBe(true);
+
+    // Enneagram: drive Type 5 high → localized title + label, identical code across locales
+    const enneaAns = answerAll(enneagram, (it) => (it.scale === "T5" ? 5 : 1));
+    const baseCode = scoreAssessment(enneagram, enneaAns).type!.code;
+    const eEs = scoreAssessment(localizeInstrument(enneagram, "es"), enneaAns).type!;
+    expect(eEs.title.startsWith("Tipo 5")).toBe(true);
+    expect(eEs.title).toContain("Investigador");
+    expect(eEs.code).toBe(baseCode); // canonical code is language-agnostic
+    expect(eEs.components.some((c) => c.label === "Centro de inteligencia")).toBe(true);
+    const eFr = scoreAssessment(localizeInstrument(enneagram, "fr"), enneaAns).type!;
+    expect(eFr.title.startsWith("Type 5")).toBe(true);
+    expect(eFr.title).toContain("Investigateur");
+    expect(eFr.code).toBe(baseCode);
+  });
+
   it("translates the wellbeing set (es/fr) preserving ids, keying, scale ids, and scores", () => {
     for (const inst of [perma, lifeSatisfaction, resilience, selfEsteem, mood]) {
       for (const loc of ["es", "fr"]) {

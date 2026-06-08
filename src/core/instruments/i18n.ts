@@ -430,6 +430,99 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
   },
 };
 
+/* ── Typological result-card translations (DISC + Enneagram) ──
+   resolveType bakes its strings into the output, so we give those two instruments a
+   locale-keyed string bundle. The English default lives in each instrument file
+   (so this module stays cycle-free); these provide es/fr, or undefined to fall back. */
+
+export interface DiscTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { primary: string; secondary: string; pattern: string; fullOrder: string };
+  blend: string; // "{a}/{b} blend"
+  clear: string; // "Clear {a}"
+  blendDetail: string;
+  clearDetail: string;
+}
+
+const DISC_TYPE_ES: DiscTypeBundle = {
+  meta: {
+    D: { name: "Dominancia", title: "El Impulsor", desc: "directo, decidido, orientado a resultados", summary: "Directo y decidido, te mueves por resultados y no temes tomar el mando." },
+    I: { name: "Influencia", title: "El Inspirador", desc: "extrovertido, entusiasta, persuasivo", summary: "Extrovertido y entusiasta, conectas con la gente y la inspiras a actuar." },
+    S: { name: "Estabilidad", title: "El Apoyo", desc: "paciente, fiable, cooperativo", summary: "Paciente y fiable, aportas calma, lealtad y estabilidad al equipo." },
+    C: { name: "Cumplimiento", title: "El Analista", desc: "preciso, analítico, centrado en la calidad", summary: "Preciso y analítico, valoras la exactitud, la estructura y hacer las cosas bien." },
+  },
+  labels: { primary: "Estilo principal", secondary: "Estilo secundario", pattern: "Patrón", fullOrder: "Orden completo" },
+  blend: "mezcla {a}/{b}", clear: "{a} claro",
+  blendDetail: "dos estilos van muy parejos", clearDetail: "un estilo destaca con claridad",
+};
+
+const DISC_TYPE_FR: DiscTypeBundle = {
+  meta: {
+    D: { name: "Dominance", title: "Le Meneur", desc: "direct, décidé, orienté résultats", summary: "Direct et décidé, vous visez les résultats et n'avez pas peur de prendre les commandes." },
+    I: { name: "Influence", title: "L'Inspirateur", desc: "sociable, enthousiaste, persuasif", summary: "Sociable et enthousiaste, vous reliez les gens et les incitez à agir." },
+    S: { name: "Stabilité", title: "Le Soutien", desc: "patient, fiable, coopératif", summary: "Patient et fiable, vous apportez calme, loyauté et stabilité à l'équipe." },
+    C: { name: "Conformité", title: "L'Analyste", desc: "précis, analytique, axé sur la qualité", summary: "Précis et analytique, vous valorisez l'exactitude, la structure et le travail bien fait." },
+  },
+  labels: { primary: "Style principal", secondary: "Style secondaire", pattern: "Profil", fullOrder: "Ordre complet" },
+  blend: "mélange {a}/{b}", clear: "{a} net",
+  blendDetail: "deux styles sont au coude à coude", clearDetail: "un style se détache nettement",
+};
+
+export function discTypeStrings(locale?: string): DiscTypeBundle | undefined {
+  return locale === "es" ? DISC_TYPE_ES : locale === "fr" ? DISC_TYPE_FR : undefined;
+}
+
+export interface EnneaTypeBundle {
+  typeWord: string;
+  meta: Record<number, { name: string; short: string; title: string; desire: string; fear: string; passion: string; virtue: string; summary: string }>;
+  center: { Body: string; Heart: string; Head: string };
+  centerDetail: { Body: string; Heart: string; Head: string };
+  labels: { core: string; wing: string; center: string; desire: string; fear: string; passionVirtue: string; resonances: string };
+  flavored: string; // "flavored by Type {w} ({name})"
+}
+
+const ENNEA_TYPE_ES: EnneaTypeBundle = {
+  typeWord: "Tipo",
+  meta: {
+    1: { name: "El Reformador", short: "Reformador", title: "Íntegro, con propósito, autocontrolado", desire: "ser bueno, correcto y equilibrado", fear: "ser corrupto, defectuoso o estar equivocado", passion: "ira (contenida como resentimiento)", virtue: "serenidad", summary: "Un idealista concienzudo impulsado a mejorarse a sí mismo y al mundo." },
+    2: { name: "El Ayudador", short: "Ayudador", title: "Cariñoso, generoso, complaciente", desire: "sentirse amado y necesitado", fear: "no ser querido o no merecer amor", passion: "orgullo", virtue: "humildad", summary: "Una presencia cálida y entregada, atenta a las necesidades de los demás." },
+    3: { name: "El Triunfador", short: "Triunfador", title: "Adaptable, ambicioso, consciente de su imagen", desire: "sentirse valioso y digno", fear: "no valer nada o ser un fracaso", passion: "engaño (de la autoimagen)", virtue: "autenticidad", summary: "Un ejecutor ambicioso y eficiente centrado en el éxito y el reconocimiento." },
+    4: { name: "El Individualista", short: "Individualista", title: "Sensible, expresivo, introspectivo", desire: "ser uno mismo y encontrar su identidad", fear: "no tener significado ni identidad", passion: "envidia", virtue: "ecuanimidad", summary: "Un buscador emocionalmente honesto de profundidad, sentido y autenticidad." },
+    5: { name: "El Investigador", short: "Investigador", title: "Perceptivo, cerebral, autosuficiente", desire: "ser capaz y competente", fear: "ser inútil, incapaz o verse desbordado", passion: "avaricia (de energía)", virtue: "desapego", summary: "Un pensador reservado y perspicaz que domina el conocimiento para sentirse seguro." },
+    6: { name: "El Leal", short: "Leal", title: "Comprometido, vigilante, en busca de seguridad", desire: "tener seguridad y apoyo", fear: "quedarse sin guía ni apoyo", passion: "miedo (ansiedad)", virtue: "coraje", summary: "Un aliado fiable y alerta que se prepara para lo que podría salir mal." },
+    7: { name: "El Entusiasta", short: "Entusiasta", title: "Espontáneo, versátil, optimista", desire: "estar satisfecho y contento", fear: "verse privado, atrapado o con dolor", passion: "gula (de experiencias)", virtue: "sobriedad", summary: "Un aventurero ágil y animado que persigue posibilidades y estímulos." },
+    8: { name: "El Desafiador", short: "Desafiador", title: "Decidido, poderoso, protector", desire: "protegerse y mantener el control de su vida", fear: "ser dañado, controlado o violado", passion: "lujuria (intensidad)", virtue: "inocencia", summary: "Un protector fuerte y firme que afronta la vida de frente." },
+    9: { name: "El Pacificador", short: "Pacificador", title: "Receptivo, tranquilizador, apacible", desire: "tener paz interior y exterior", fear: "la pérdida, la separación y el conflicto", passion: "pereza (olvido de sí)", virtue: "acción correcta", summary: "Una presencia serena y acogedora que aporta calma y busca la armonía." },
+  },
+  center: { Body: "Cuerpo", Heart: "Corazón", Head: "Cabeza" },
+  centerDetail: { Body: "el centro visceral/instintivo (ira)", Heart: "el centro del corazón/sentimiento (vergüenza)", Head: "el centro mental/del pensamiento (miedo)" },
+  labels: { core: "Tipo principal", wing: "Ala", center: "Centro de inteligencia", desire: "Deseo básico", fear: "Miedo básico", passionVirtue: "Pasión → Virtud", resonances: "Mayores resonancias" },
+  flavored: "matizado por el Tipo {w} ({name})",
+};
+
+const ENNEA_TYPE_FR: EnneaTypeBundle = {
+  typeWord: "Type",
+  meta: {
+    1: { name: "Le Réformateur", short: "Réformateur", title: "Intègre, déterminé, maître de soi", desire: "être bon, juste et équilibré", fear: "d'être corrompu, défectueux ou dans l'erreur", passion: "la colère (retenue en ressentiment)", virtue: "la sérénité", summary: "Un idéaliste consciencieux poussé à s'améliorer et à améliorer le monde." },
+    2: { name: "L'Altruiste", short: "Altruiste", title: "Attentionné, généreux, désireux de plaire", desire: "se sentir aimé et nécessaire", fear: "d'être indésirable ou indigne d'amour", passion: "l'orgueil", virtue: "l'humilité", summary: "Une présence chaleureuse et généreuse, attentive aux besoins des autres." },
+    3: { name: "Le Battant", short: "Battant", title: "Adaptable, ambitieux, soucieux de son image", desire: "se sentir précieux et utile", fear: "de ne rien valoir ou d'échouer", passion: "la tromperie (de l'image de soi)", virtue: "l'authenticité", summary: "Un performeur ambitieux et efficace, centré sur la réussite et la reconnaissance." },
+    4: { name: "L'Individualiste", short: "Individualiste", title: "Sensible, expressif, introspectif", desire: "être pleinement soi-même et trouver son identité", fear: "de n'avoir ni importance ni identité", passion: "l'envie", virtue: "l'équanimité", summary: "Un chercheur émotionnellement honnête de profondeur, de sens et d'authenticité." },
+    5: { name: "L'Investigateur", short: "Investigateur", title: "Perspicace, cérébral, autonome", desire: "être capable et compétent", fear: "d'être inutile, incapable ou dépassé", passion: "l'avarice (de son énergie)", virtue: "le détachement", summary: "Un penseur discret et perspicace qui maîtrise le savoir pour se sentir en sécurité." },
+    6: { name: "Le Loyaliste", short: "Loyaliste", title: "Engagé, vigilant, en quête de sécurité", desire: "avoir de la sécurité et du soutien", fear: "de se retrouver sans repère ni soutien", passion: "la peur (l'anxiété)", virtue: "le courage", summary: "Un allié fiable et vigilant qui se prépare à ce qui pourrait mal tourner." },
+    7: { name: "L'Épicurien", short: "Épicurien", title: "Spontané, polyvalent, optimiste", desire: "être satisfait et comblé", fear: "d'être privé, piégé ou dans la souffrance", passion: "la gourmandise (d'expériences)", virtue: "la sobriété", summary: "Un aventurier vif et enjoué à la poursuite des possibles et des stimulations." },
+    8: { name: "Le Meneur", short: "Meneur", title: "Décidé, puissant, protecteur", desire: "se protéger et garder la maîtrise de sa vie", fear: "d'être blessé, contrôlé ou violé", passion: "l'excès (l'intensité)", virtue: "l'innocence", summary: "Un protecteur fort et affirmé qui affronte la vie de face." },
+    9: { name: "Le Médiateur", short: "Médiateur", title: "Réceptif, rassurant, accommodant", desire: "avoir la paix intérieure et extérieure", fear: "de la perte, de la séparation et du conflit", passion: "la paresse (l'oubli de soi)", virtue: "l'action juste", summary: "Une présence sereine et accueillante qui apporte le calme et recherche l'harmonie." },
+  },
+  center: { Body: "Corps", Heart: "Cœur", Head: "Tête" },
+  centerDetail: { Body: "le centre instinctif/viscéral (colère)", Heart: "le centre du cœur/du ressenti (honte)", Head: "le centre mental/de la pensée (peur)" },
+  labels: { core: "Type principal", wing: "Aile", center: "Centre d'intelligence", desire: "Désir fondamental", fear: "Peur fondamentale", passionVirtue: "Passion → Vertu", resonances: "Plus fortes résonances" },
+  flavored: "teinté par le Type {w} ({name})",
+};
+
+export function enneaTypeStrings(locale?: string): EnneaTypeBundle | undefined {
+  return locale === "es" ? ENNEA_TYPE_ES : locale === "fr" ? ENNEA_TYPE_FR : undefined;
+}
+
 /** Return a locale-translated clone of the instrument (English fallback per field). */
 export function localizeInstrument(inst: Instrument, locale: string): Instrument {
   const tr = TRANSLATIONS[locale]?.[inst.id];
@@ -445,6 +538,9 @@ export function localizeInstrument(inst: Instrument, locale: string): Instrument
       return st ? { ...s, name: st.name ?? s.name, description: st.description ?? s.description, poles: st.poles ?? s.poles } : s;
     }),
     items: tr.items ? inst.items.map((i) => (tr.items![i.id] ? { ...i, text: tr.items![i.id] } : i)) : inst.items,
+    // Bind the locale into resolveType so the resolved type card (title/summary/components)
+    // is localized too. Instruments that don't translate their type ignore the locale.
+    resolveType: inst.resolveType ? (scales) => inst.resolveType!(scales, locale) : undefined,
   };
 }
 

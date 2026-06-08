@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { discTypeStrings, type DiscTypeBundle } from "./i18n";
 
 /**
  * DISC Behavioral Styles (D · I · S · C).
@@ -42,21 +43,28 @@ const items: Item[] = [
   it("C6", "I hold myself and my work to high standards.", "C"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  D: { name: "Dominance", title: "The Driver", desc: "direct, decisive, results-driven", summary: "Direct and decisive, you drive for results and aren't afraid to take charge." },
-  I: { name: "Influence", title: "The Inspirer", desc: "outgoing, enthusiastic, persuasive", summary: "Outgoing and enthusiastic, you connect with people and inspire them to act." },
-  S: { name: "Steadiness", title: "The Supporter", desc: "patient, dependable, cooperative", summary: "Patient and dependable, you bring calm, loyalty, and steadiness to a team." },
-  C: { name: "Conscientiousness", title: "The Analyst", desc: "precise, analytical, quality-focused", summary: "Precise and analytical, you value accuracy, structure, and doing things right." },
+/** English default; es/fr live in core/instruments/i18n.ts (discTypeStrings). */
+const DISC_TYPE_EN: DiscTypeBundle = {
+  meta: {
+    D: { name: "Dominance", title: "The Driver", desc: "direct, decisive, results-driven", summary: "Direct and decisive, you drive for results and aren't afraid to take charge." },
+    I: { name: "Influence", title: "The Inspirer", desc: "outgoing, enthusiastic, persuasive", summary: "Outgoing and enthusiastic, you connect with people and inspire them to act." },
+    S: { name: "Steadiness", title: "The Supporter", desc: "patient, dependable, cooperative", summary: "Patient and dependable, you bring calm, loyalty, and steadiness to a team." },
+    C: { name: "Conscientiousness", title: "The Analyst", desc: "precise, analytical, quality-focused", summary: "Precise and analytical, you value accuracy, structure, and doing things right." },
+  },
+  labels: { primary: "Primary style", secondary: "Secondary style", pattern: "Pattern", fullOrder: "Full order" },
+  blend: "{a}/{b} blend", clear: "Clear {a}",
+  blendDetail: "two styles run close together", clearDetail: "one style clearly leads",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = discTypeStrings(locale) ?? DISC_TYPE_EN;
   const arr = ["D", "I", "S", "C"].map((id) => ({ id, mean: s[id].mean }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const second = sorted[1];
   const sep = top.mean - second.mean;
   const blended = sep < 0.4;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
   const confidence = Math.max(0.2, Math.min(0.98, 0.5 + sep));
 
   return {
@@ -64,10 +72,10 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Primary style", value: `${top.id} — ${meta.name}`, detail: meta.desc },
-      { label: "Secondary style", value: `${second.id} — ${META[second.id].name}`, detail: META[second.id].desc },
-      { label: "Pattern", value: blended ? `${top.id}/${second.id} blend` : `Clear ${top.id}`, detail: blended ? "two styles run close together" : "one style clearly leads" },
-      { label: "Full order", value: sorted.map((x) => x.id).join(" › ") },
+      { label: T.labels.primary, value: `${top.id} — ${meta.name}`, detail: meta.desc },
+      { label: T.labels.secondary, value: `${second.id} — ${T.meta[second.id].name}`, detail: T.meta[second.id].desc },
+      { label: T.labels.pattern, value: blended ? T.blend.replace("{a}", top.id).replace("{b}", second.id) : T.clear.replace("{a}", top.id), detail: blended ? T.blendDetail : T.clearDetail },
+      { label: T.labels.fullOrder, value: sorted.map((x) => x.id).join(" › ") },
     ],
     confidence,
     secondary: second.id,

@@ -103,10 +103,11 @@ export default function App() {
     const restore = (pending: PendingResult) => {
       const inst = getInstrument(pending.instrumentId);
       if (inst) {
-        const scored = scoreAssessment(inst, pending.responses);
-        setInstrument(localizeInstrument(inst, locale));
+        const li = localizeInstrument(inst, locale);
+        const scored = scoreAssessment(li, pending.responses);
+        setInstrument(li);
         setResult(scored);
-        setReport(composeReport(inst, scored, { name: loadProfile()?.name || undefined }));
+        setReport(composeReport(li, scored, { name: loadProfile()?.name || undefined }));
         setView("result");
         return true;
       }
