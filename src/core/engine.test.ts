@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
 import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism } from "./instruments";
+import { localizeInstrument } from "./instruments/i18n";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight } from "./synthesis";
@@ -274,6 +275,32 @@ describe("report uniqueness guarantee", () => {
     const report = await generateReport(jungTypes, result, { seed: 99 });
     expect(report.engine).toBe("deterministic");
     expect(report.type?.code).toBe("ENFJ");
+  });
+});
+
+describe("instrument localization", () => {
+  it("translates Big Five content while preserving ids, keying, and scores", () => {
+    const es = localizeInstrument(bigFive, "es");
+    expect(es.name).toContain("Cinco Grandes");
+    expect(es.items.length).toBe(bigFive.items.length);
+    // ids, scales, and keying are preserved (scoring is language-agnostic)
+    for (let i = 0; i < bigFive.items.length; i++) {
+      expect(es.items[i].id).toBe(bigFive.items[i].id);
+      expect(es.items[i].scale).toBe(bigFive.items[i].scale);
+      expect(es.items[i].keyed).toBe(bigFive.items[i].keyed);
+      expect(es.items[i].text).not.toBe(bigFive.items[i].text); // actually translated
+    }
+    // identical answers score identically in either language
+    const ans = allHigh(bigFive);
+    const en = scoreAssessment(bigFive, ans);
+    const esScored = scoreAssessment(es, ans);
+    expect(esScored.scales.E.mean).toBeCloseTo(en.scales.E.mean, 5);
+    expect(es.scales.find((s) => s.id === "O")!.name).toBe("Apertura a la experiencia");
+  });
+
+  it("falls back to the original for locales/instruments without a translation", () => {
+    expect(localizeInstrument(bigFive, "en")).toBe(bigFive);
+    expect(localizeInstrument(hexaco, "es")).toBe(hexaco);
   });
 });
 

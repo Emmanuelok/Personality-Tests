@@ -4,6 +4,7 @@ import type { PersonalityReport } from "@core/report";
 import { scoreAssessment } from "@core/scoring";
 import { composeReport } from "@core/report/composer";
 import { getInstrument } from "@core/instruments";
+import { localizeInstrument } from "@core/instruments/i18n";
 import { buildIntegratedProfile, type IntegratedProfile as IP, type SynthEntry } from "@core/synthesis";
 import { starterPack } from "@core/starter";
 import { Home } from "./ui/Home";
@@ -60,7 +61,7 @@ const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavio
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
 
 export default function App() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
@@ -101,7 +102,7 @@ export default function App() {
       const inst = getInstrument(pending.instrumentId);
       if (inst) {
         const scored = scoreAssessment(inst, pending.responses);
-        setInstrument(inst);
+        setInstrument(localizeInstrument(inst, locale));
         setResult(scored);
         setReport(composeReport(inst, scored, { name: loadProfile()?.name || undefined }));
         setView("result");
@@ -187,7 +188,7 @@ export default function App() {
   const start = (inst: Instrument) => {
     setPack([]);
     setPackTotal(0);
-    setInstrument(inst);
+    setInstrument(localizeInstrument(inst, locale));
     setResult(null);
     setReport(null);
     setError(null);
@@ -313,7 +314,7 @@ export default function App() {
   };
 
   const beginInstrument = (inst: Instrument) => {
-    setInstrument(inst);
+    setInstrument(localizeInstrument(inst, locale));
     setResult(null);
     setReport(null);
     setError(null);

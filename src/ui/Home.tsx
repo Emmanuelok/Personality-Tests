@@ -8,7 +8,9 @@ import { ADAPTIVE_TEST } from "@core/ability/adaptive";
 import { IAT_TEST } from "@core/ability/iat";
 import { CREATIVITY_TEST } from "@core/ability/creativity";
 import { CATEGORIES } from "@core/categories";
+import { localizeInstrument } from "@core/instruments/i18n";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
+import { useI18n } from "../i18n";
 
 export function Home({
   onStart,
@@ -35,6 +37,7 @@ export function Home({
   onStartCreativity: () => void;
   onBattery?: () => void;
 }) {
+  const { locale } = useI18n();
   return (
     <div className="container">
       <HeroBackdrop />
@@ -84,14 +87,16 @@ export function Home({
               </div>
             </div>
             <div className="grid">
-              {list.map((inst) => (
+              {list.map((inst) => {
+                const li = localizeInstrument(inst, locale);
+                return (
                 <article className="card" key={inst.id}>
                   <span className={`card-watermark cat-${cat.id}`} aria-hidden="true">
                     <InstrumentGlyph id={inst.id} category={cat.id} />
                   </span>
                   <span className="kind">{inst.kind === "typological" ? "Typology" : "Dimensional"}</span>
-                  <h3>{inst.name}</h3>
-                  <p className="tagline">{inst.tagline}</p>
+                  <h3>{li.name}</h3>
+                  <p className="tagline">{li.tagline}</p>
                   <div className="facts">
                     <span>⏱ {inst.estMinutes} min</span>
                     <span>📝 {inst.items.length} items</span>
@@ -101,9 +106,10 @@ export function Home({
                     Grounded in {inst.citations.length} {inst.citations.length === 1 ? "source" : "sources"}, incl.{" "}
                     {inst.citations[0].ref.split("(")[0].trim()}.
                   </p>
-                  <button className="btn primary" onClick={() => onStart(inst)}>Begin {inst.shortName} →</button>
+                  <button className="btn primary" onClick={() => onStart(inst)}>Begin {li.shortName} →</button>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
