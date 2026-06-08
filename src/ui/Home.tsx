@@ -4,6 +4,7 @@ import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
 import { MEMORY_TEST, CORSI_TEST } from "@core/ability/memory";
 import { PROCESSING_TEST } from "@core/ability/processing";
+import { ADAPTIVE_TEST } from "@core/ability/adaptive";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -15,6 +16,7 @@ export function Home({
   onStartMemory,
   onStartCorsi,
   onStartSpeed,
+  onStartAdaptive,
   onBattery,
 }: {
   onStart: (instrument: Instrument) => void;
@@ -24,6 +26,7 @@ export function Home({
   onStartMemory: () => void;
   onStartCorsi: () => void;
   onStartSpeed: () => void;
+  onStartAdaptive: () => void;
   onBattery?: () => void;
 }) {
   return (
@@ -186,6 +189,21 @@ export function Home({
             </div>
             <p className="cite">In the spirit of the WAIS Symbol Search processing-speed subtest.</p>
             <button className="btn primary" onClick={onStartSpeed}>Begin {PROCESSING_TEST.shortName} →</button>
+          </article>
+          <article className="card">
+            <span className="card-watermark cat-cognition" aria-hidden="true">
+              <InstrumentGlyph id="adaptive-reasoning" category="cognition" />
+            </span>
+            <span className="kind">Ability test</span>
+            <h3>{ADAPTIVE_TEST.name}</h3>
+            <p className="tagline">{ADAPTIVE_TEST.tagline}</p>
+            <div className="facts">
+              <span>🎯 adaptive</span>
+              <span>📝 {ADAPTIVE_TEST.maxItems} puzzles</span>
+              <span>📐 fluid reasoning</span>
+            </div>
+            <p className="cite">A computer-adaptive matrix test — difficulty tracks your level for a tighter estimate.</p>
+            <button className="btn primary" onClick={onStartAdaptive}>Begin {ADAPTIVE_TEST.shortName} →</button>
           </article>
         </div>
       </div>

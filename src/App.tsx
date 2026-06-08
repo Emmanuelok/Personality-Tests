@@ -21,6 +21,7 @@ import { AbilityResult } from "./ui/ability/AbilityResult";
 import { MemoryFlow } from "./ui/ability/MemoryFlow";
 import { CorsiFlow } from "./ui/ability/CorsiFlow";
 import { SpeedFlow } from "./ui/ability/SpeedFlow";
+import { AdaptiveFlow } from "./ui/ability/AdaptiveFlow";
 import { BatteryView } from "./ui/ability/BatteryView";
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import { buildBattery } from "@core/ability/chc";
@@ -35,6 +36,7 @@ import {
 } from "./store";
 import { MEMORY_TEST, CORSI_TEST, type MemoryResult } from "@core/ability/memory";
 import { PROCESSING_TEST, type SpeedResult } from "@core/ability/processing";
+import { ADAPTIVE_TEST, type AdaptiveResult } from "@core/ability/adaptive";
 import { chcFromDomains } from "@core/ability/chc";
 import { useI18n, LanguageSwitcher } from "./i18n";
 import {
@@ -48,7 +50,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "battery";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "battery";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -233,6 +235,14 @@ export default function App() {
       chc: { Gs: r.percentile },
     }));
   };
+  const adaptiveDone = (r: AdaptiveResult) => {
+    const base = profile ?? createProfile("", []);
+    setProfile(recordCognitive(base, {
+      id: ADAPTIVE_TEST.id, name: ADAPTIVE_TEST.name, takenAt: new Date().toISOString(),
+      headline: `${r.band} · ${r.iqLow}–${r.iqHigh}`, percentile: r.percentile,
+      chc: { Gf: r.percentile },
+    }));
+  };
   const retakeAbility = () => {
     setAbilityResult(null);
     setAbilityNonce((n) => n + 1);
@@ -271,6 +281,10 @@ export default function App() {
   };
   const startSpeed = () => {
     setView("speed");
+    top();
+  };
+  const startAdaptive = () => {
+    setView("adaptive");
     top();
   };
 
@@ -361,7 +375,7 @@ export default function App() {
   };
 
   const hasHistory = entries.length > 0 || (profile?.cognitiveHistory?.length ?? 0) > 0;
-  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi" && view !== "speed";
+  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi" && view !== "speed" && view !== "adaptive";
 
   return (
     <>
@@ -392,6 +406,7 @@ export default function App() {
           onStartMemory={startMemory}
           onStartCorsi={startCorsi}
           onStartSpeed={startSpeed}
+          onStartAdaptive={startAdaptive}
           onBattery={battery ? goBattery : undefined}
         />
       )}
@@ -419,6 +434,8 @@ export default function App() {
       {view === "corsi" && <CorsiFlow name={name} onExit={goHome} onComplete={corsiDone} />}
 
       {view === "speed" && <SpeedFlow name={name} onExit={goHome} onComplete={speedDone} />}
+
+      {view === "adaptive" && <AdaptiveFlow name={name} onExit={goHome} onComplete={adaptiveDone} />}
 
       {view === "battery" && battery && (
         <BatteryView battery={battery} takes={profile?.cognitiveHistory ?? []} name={name} onExit={goHome} />

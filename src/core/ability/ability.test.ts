@@ -3,6 +3,7 @@ import { ABILITY_TESTS, scoreAbility } from "./index";
 import { makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } from "./memory";
 import { makeSpeedTrial, scoreProcessing } from "./processing";
 import { chcFromDomains, buildBattery } from "./chc";
+import { genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -157,5 +158,31 @@ describe("CHC battery aggregation", () => {
 
   it("returns null with no CHC data", () => {
     expect(buildBattery([{}, { chc: {} }])).toBeNull();
+  });
+});
+
+describe("adaptive reasoning", () => {
+  it("generates well-formed items at every difficulty level", () => {
+    for (let level = 1; level <= 7; level++) {
+      for (let k = 0; k < 8; k++) {
+        const it = genItem(level);
+        expect(it.options.length).toBe(6);
+        expect(it.optionFigures.length).toBe(6);
+        expect(it.answer).toBeGreaterThanOrEqual(0);
+        expect(it.answer).toBeLessThan(6);
+        expect(it.figure.length).toBeGreaterThan(20);
+        // the correct option's figure must be unique (distractors differ from the key)
+        const key = it.optionFigures[it.answer];
+        expect(it.optionFigures.filter((f) => f === key).length).toBe(1);
+      }
+    }
+  });
+
+  it("estimates higher ability when the staircase settles high", () => {
+    const high: AdaptiveTrial[] = Array.from({ length: 16 }, () => ({ level: 6, correct: true }));
+    const low: AdaptiveTrial[] = Array.from({ length: 16 }, () => ({ level: 1, correct: false }));
+    expect(scoreAdaptive(high).percentile).toBeGreaterThan(scoreAdaptive(low).percentile);
+    expect(scoreAdaptive(high).percentile).toBeGreaterThan(60);
+    expect(scoreAdaptive(low).percentile).toBeLessThan(20);
   });
 });

@@ -740,6 +740,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .speed-actions { display: flex; gap: 14px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
 .speed-actions .btn { min-width: 168px; justify-content: center; }
 
+/* Adaptive difficulty path */
+.adapt-path { display: flex; align-items: flex-end; gap: 5px; min-height: 56px; margin-top: 10px; }
+.adapt-dot { width: 14px; border-radius: 4px; flex: none; display: block; }
+.adapt-dot.ok { background: var(--good); }
+.adapt-dot.no { background: var(--danger); opacity: 0.6; }
+
 /* result: per-question review */
 .qreview { border-top: 1px dashed var(--border); padding: 16px 0; }
 .qreview:first-of-type { border-top: none; }

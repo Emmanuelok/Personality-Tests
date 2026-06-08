@@ -79,6 +79,12 @@ function probit(p: number): number {
   return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
 }
 
+/** Convert a 0..100 percentile to an IQ-equivalent point estimate (mean 100, sd 15). */
+export function percentileToIq(percentile: number): number {
+  const z = probit(Math.min(0.99, Math.max(0.01, percentile / 100)));
+  return Math.max(55, Math.min(145, Math.round(100 + 15 * z)));
+}
+
 /** Aggregate the CHC contributions stored on cognitive takes into one battery profile. */
 export function buildBattery(takes: { chc?: Record<string, number> }[]): Battery | null {
   const acc: Record<string, number[]> = {};
@@ -95,8 +101,7 @@ export function buildBattery(takes: { chc?: Record<string, number> }[]): Battery
   }));
   if (!factors.length) return null;
   const overall = Math.round(factors.reduce((s, f) => s + f.percentile, 0) / factors.length);
-  const z = probit(Math.min(0.99, Math.max(0.01, overall / 100)));
-  const iqMid = Math.max(55, Math.min(145, Math.round(100 + 15 * z)));
+  const iqMid = percentileToIq(overall);
   return { factors, overall, band: chcBand(overall), tests: contributing, iqLow: Math.max(50, iqMid - 6), iqHigh: Math.min(150, iqMid + 6) };
 }
 

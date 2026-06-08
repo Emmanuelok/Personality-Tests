@@ -767,6 +767,14 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Adaptive Reasoning — an ascending staircase.
+  "adaptive-reasoning": () => (
+    <>
+      <path d="M8,40 L8,33 L18,33 L18,25 L28,25 L28,17 L38,17 L38,9" />
+      <line x1="6" y1="40" x2="40" y2="40" />
+      <circle className="gold gold-fill" cx="38" cy="9" r="3" />
+    </>
+  ),
   // Processing Speed — fast-forward chevrons.
   "processing-speed": () => (
     <>
