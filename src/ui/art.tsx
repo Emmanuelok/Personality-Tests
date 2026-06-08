@@ -767,6 +767,16 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Working Memory — a remembered sequence traced through four nodes.
+  "memory-span": () => (
+    <>
+      <path className="gold" d="M15,15 L33,33 L33,15 L15,33" />
+      <circle className="gold gold-fill" cx="15" cy="15" r="3" />
+      <circle className="paper-fill" cx="33" cy="33" r="3.5" /><circle cx="33" cy="33" r="3.5" />
+      <circle className="paper-fill" cx="33" cy="15" r="3.5" /><circle cx="33" cy="15" r="3.5" />
+      <circle className="paper-fill" cx="15" cy="33" r="3.5" /><circle cx="15" cy="33" r="3.5" />
+    </>
+  ),
 });
 
 export function InstrumentGlyph({

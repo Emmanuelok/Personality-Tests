@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
+import { MEMORY_TEST } from "@core/ability/memory";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -10,11 +11,13 @@ export function Home({
   onCompatibility,
   onStartPack,
   onStartAbility,
+  onStartMemory,
 }: {
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onStartPack: () => void;
   onStartAbility: (test: AbilityTest) => void;
+  onStartMemory: () => void;
 }) {
   return (
     <div className="container">
@@ -120,6 +123,21 @@ export function Home({
               <button className="btn primary" onClick={() => onStartAbility(t)}>Begin {t.shortName} →</button>
             </article>
           ))}
+          <article className="card">
+            <span className="card-watermark cat-cognition" aria-hidden="true">
+              <InstrumentGlyph id="memory-span" category="cognition" />
+            </span>
+            <span className="kind">Ability test</span>
+            <h3>{MEMORY_TEST.name}</h3>
+            <p className="tagline">{MEMORY_TEST.tagline}</p>
+            <div className="facts">
+              <span>⏱ ~4 min</span>
+              <span>🧠 live recall</span>
+              <span>📐 forward &amp; backward</span>
+            </div>
+            <p className="cite">Digit span — a core working-memory subtest of the WAIS.</p>
+            <button className="btn primary" onClick={onStartMemory}>Begin {MEMORY_TEST.shortName} →</button>
+          </article>
         </div>
       </div>
 

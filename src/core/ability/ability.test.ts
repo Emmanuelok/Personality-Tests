@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ABILITY_TESTS, scoreAbility } from "./index";
+import { makeDigits, scoreMemory, type MemoryTrial } from "./memory";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -57,5 +58,36 @@ describe("ability scoring", () => {
 
   it("produces a stable fingerprint for identical responses", () => {
     expect(scoreAbility(test, allCorrect).fingerprint).toBe(scoreAbility(test, allCorrect).fingerprint);
+  });
+});
+
+describe("working-memory scoring", () => {
+  it("makeDigits returns a string of the requested length using digits 1-9", () => {
+    const s = makeDigits(6);
+    expect(s).toHaveLength(6);
+    expect(/^[1-9]+$/.test(s)).toBe(true);
+  });
+
+  it("reports the longest correct span per mode and a high band when strong", () => {
+    const trials: MemoryTrial[] = [
+      { mode: "forward", span: 5, shown: "12345", entered: "12345", correct: true },
+      { mode: "forward", span: 8, shown: "12345678", entered: "12345678", correct: true },
+      { mode: "backward", span: 6, shown: "123456", entered: "654321", correct: true },
+    ];
+    const r = scoreMemory(trials);
+    expect(r.maxForward).toBe(8);
+    expect(r.maxBackward).toBe(6);
+    expect(r.percentile).toBeGreaterThan(80);
+  });
+
+  it("scores all-incorrect at the bottom", () => {
+    const trials: MemoryTrial[] = [
+      { mode: "forward", span: 3, shown: "123", entered: "", correct: false },
+      { mode: "backward", span: 3, shown: "123", entered: "", correct: false },
+    ];
+    const r = scoreMemory(trials);
+    expect(r.maxForward).toBe(0);
+    expect(r.maxBackward).toBe(0);
+    expect(r.percentile).toBeLessThan(15);
   });
 });

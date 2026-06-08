@@ -17,6 +17,7 @@ import { Growth } from "./ui/Growth";
 import { IntegratedProfile } from "./ui/IntegratedProfile";
 import { PackStep } from "./ui/PackStep";
 import { AbilityFlow } from "./ui/ability/AbilityFlow";
+import { MemoryFlow } from "./ui/ability/MemoryFlow";
 import type { AbilityTest } from "@core/ability";
 import {
   grantProduct,
@@ -37,7 +38,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "memory";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -156,6 +157,10 @@ export default function App() {
     setView("ability");
     top();
   };
+  const startMemory = () => {
+    setView("memory");
+    top();
+  };
 
   const beginInstrument = (inst: Instrument) => {
     setInstrument(inst);
@@ -244,7 +249,7 @@ export default function App() {
   };
 
   const hasHistory = entries.length > 0;
-  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability";
+  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory";
 
   return (
     <>
@@ -271,12 +276,15 @@ export default function App() {
           onCompatibility={goCompat}
           onStartPack={() => startPack(starterPack(profile?.focus ?? []))}
           onStartAbility={startAbility}
+          onStartMemory={startMemory}
         />
       )}
 
       {view === "ability" && abilityTest && (
         <AbilityFlow test={abilityTest} name={name} onExit={goHome} />
       )}
+
+      {view === "memory" && <MemoryFlow name={name} onExit={goHome} />}
 
       {view === "intro" && instrument && (
         <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />

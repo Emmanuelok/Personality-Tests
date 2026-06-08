@@ -2,7 +2,7 @@ import { cyrb53 } from "../prng";
 import type { AbilityTest, AbilityResponses, AbilityResult, DomainScore, AbilityItem } from "./types";
 
 /** Standard normal CDF via an Abramowitz-Stegun erf approximation. */
-function normalCdf(z: number): number {
+export function normalCdf(z: number): number {
   const t = 1 / (1 + 0.2316419 * Math.abs(z));
   const d = 0.3989422804014327 * Math.exp((-z * z) / 2);
   let p = d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
