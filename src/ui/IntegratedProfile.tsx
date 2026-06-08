@@ -1,7 +1,9 @@
 import type { IntegratedProfile as IP } from "@core/synthesis";
 import { buildIntegratedKnowledge } from "@core/companion";
+import { getInstrument } from "@core/instruments";
 import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
+import { InstrumentGlyph } from "./art";
 
 export function IntegratedProfile({ ip, onBack, onBrowse }: { ip: IP; onBack: () => void; onBrowse: () => void }) {
   return (
@@ -17,6 +19,16 @@ export function IntegratedProfile({ ip, onBack, onBrowse }: { ip: IP; onBack: ()
           <div style={{ fontSize: 12, color: "var(--text-faint)" }}>
             Portrait depth: <CountUp value={ip.depth} suffix="%" /> · {ip.instrumentsUsed.length} {ip.instrumentsUsed.length === 1 ? "assessment" : "assessments"} woven together
           </div>
+        </div>
+        <div className="iep-constellation" aria-hidden="true">
+          {ip.instrumentsUsed.map((u) => {
+            const cat = getInstrument(u.id)?.category ?? "core";
+            return (
+              <span className={`tl-ico cat-${cat}`} key={u.id} title={u.name}>
+                <InstrumentGlyph id={u.id} category={cat} />
+              </span>
+            );
+          })}
         </div>
       </div>
 

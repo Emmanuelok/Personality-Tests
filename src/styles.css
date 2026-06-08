@@ -439,6 +439,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 
 .tl-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border-soft); }
 .tl-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex: none; }
+.tl-ico { width: 24px; height: 24px; flex: none; display: grid; place-items: center; }
+.tl-ico .emblem { width: 100%; height: 100%; }
+
+/* Integrated-self glyph constellation */
+.iep-constellation { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 18px auto 0; max-width: 520px; }
+.iep-constellation .tl-ico { width: 30px; height: 30px; padding: 4px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border-soft); }
 .tl-date { color: var(--text-faint); font-size: 12.5px; width: 92px; flex: none; }
 .tl-name { flex: 1; }
 @media (max-width: 600px) { .delta-row { grid-template-columns: 110px 1fr 50px; } .tl-date { width: 74px; } }

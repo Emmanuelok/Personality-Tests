@@ -2,16 +2,17 @@ import { useMemo } from "react";
 import { getInstrument } from "@core/instruments";
 import { scoreAssessment } from "@core/scoring";
 import { compareTakes, milestones, type RetakeComparison } from "@core/growth";
+import { InstrumentGlyph } from "./art";
 import type { Profile, SavedResult } from "../profile";
 
 export function Growth({ profile, onBrowse, onBack }: { profile: Profile; onBrowse: () => void; onBack: () => void }) {
   const timeline = useMemo(() => {
-    const rows: { at: string; name: string; type?: string }[] = [];
+    const rows: { at: string; name: string; type?: string; id: string; category: string }[] = [];
     for (const h of profile.history) {
       const inst = getInstrument(h.instrumentId);
       if (!inst) continue;
       const res = scoreAssessment(inst, h.responses);
-      rows.push({ at: h.takenAt, name: inst.name, type: res.type?.code });
+      rows.push({ at: h.takenAt, name: inst.name, type: res.type?.code, id: inst.id, category: inst.category });
     }
     return rows;
   }, [profile]);
@@ -70,7 +71,12 @@ export function Growth({ profile, onBrowse, onBack }: { profile: Profile; onBrow
         {comparisons.length > 0 ? (
           comparisons.map((c) => (
             <section className="panel" key={c.instrumentId}>
-              <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{c.instrumentName} — how you've changed</h3>
+              <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22, display: "flex", alignItems: "center", gap: 10 }}>
+                <span className={`tl-ico cat-${getInstrument(c.instrumentId)?.category ?? "core"}`} aria-hidden="true" style={{ width: 26, height: 26 }}>
+                  <InstrumentGlyph id={c.instrumentId} category={getInstrument(c.instrumentId)?.category ?? "core"} />
+                </span>
+                {c.instrumentName} — how you've changed
+              </h3>
               <p style={{ color: "var(--text-faint)", marginTop: 0, fontSize: 13 }}>
                 {c.takes} takes · {new Date(c.firstAt).toLocaleDateString()} → {new Date(c.latestAt).toLocaleDateString()}
                 {c.typeFirst && c.typeLatest && c.typeFirst !== c.typeLatest ? ` · ${c.typeFirst} → ${c.typeLatest}` : ""}
@@ -106,7 +112,7 @@ export function Growth({ profile, onBrowse, onBack }: { profile: Profile; onBrow
           {timeline.length === 0 && <p style={{ color: "var(--text-dim)" }}>Your assessment history will appear here.</p>}
           {timeline.map((t, i) => (
             <div className="tl-row" key={i}>
-              <span className="tl-dot" />
+              <span className={`tl-ico cat-${t.category}`} aria-hidden="true"><InstrumentGlyph id={t.id} category={t.category} /></span>
               <span className="tl-date">{new Date(t.at).toLocaleDateString()}</span>
               <span className="tl-name">{t.name}</span>
               {t.type && <span className="jtype">{t.type}</span>}
