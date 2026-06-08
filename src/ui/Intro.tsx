@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Instrument } from "@core/types";
 import { getCategory } from "@core/categories";
-import { CategoryEmblem } from "./art";
+import { InstrumentGlyph } from "./art";
 
 export function Intro({
   instrument,
@@ -21,7 +21,7 @@ export function Intro({
     <div className="container">
       <div className="intro view-enter">
         <span className={`intro-emblem cat-${instrument.category}`} aria-hidden="true">
-          <CategoryEmblem id={instrument.category} />
+          <InstrumentGlyph id={instrument.id} category={instrument.category} />
         </span>
         <p className="eyebrow">{cat ? cat.name : "Assessment"}</p>
         <h1>{instrument.name}</h1>

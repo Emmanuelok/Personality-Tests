@@ -5,6 +5,8 @@
  * `currentColor` (ink) plus a `.gold` class for the classical accent.
  */
 
+import type { ReactNode } from "react";
+
 const TAU = Math.PI * 2;
 const pol = (cx: number, cy: number, r: number, a: number) =>
   [cx + r * Math.cos(a), cy + r * Math.sin(a)] as const;
@@ -207,6 +209,261 @@ export function CategoryEmblem({ id, className = "" }: { id: string; className?:
          fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
       {draw()}
     </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Per-instrument glyphs — a distinct symbol for every assessment.     */
+/* ------------------------------------------------------------------ */
+
+// A small alchemical element mark, used inside the four-temperaments glyph.
+function el(kind: Element, cx: number, cy: number) {
+  if (kind === "fire") return <polygon points={`${cx},${cy - 6} ${cx + 6},${cy + 5} ${cx - 6},${cy + 5}`} />;
+  if (kind === "water") return <polygon points={`${cx - 6},${cy - 5} ${cx + 6},${cy - 5} ${cx},${cy + 6}`} />;
+  if (kind === "air")
+    return (
+      <>
+        <polygon points={`${cx},${cy - 6} ${cx + 6},${cy + 5} ${cx - 6},${cy + 5}`} />
+        <line x1={cx - 3.5} y1={cy + 1} x2={cx + 3.5} y2={cy + 1} />
+      </>
+    );
+  return (
+    <>
+      <polygon points={`${cx - 6},${cy - 5} ${cx + 6},${cy - 5} ${cx},${cy + 6}`} />
+      <line x1={cx - 3.5} y1={cy - 1} x2={cx + 3.5} y2={cy - 1} />
+    </>
+  );
+}
+
+const GLYPHS: Record<string, EmblemFn> = {
+  // Big Five — five trait-stars in a constellation.
+  "big-five-ipip50": () => (
+    <>
+      <polyline className="ink-soft" points="9,29 18,17 24,27 31,14 39,28" />
+      <circle cx="9" cy="29" r="2.2" />
+      <circle cx="18" cy="17" r="2.2" />
+      <circle cx="24" cy="27" r="2.2" />
+      <circle className="gold gold-fill" cx="31" cy="14" r="2.8" />
+      <circle cx="39" cy="28" r="2.2" />
+    </>
+  ),
+  // HEXACO — a six-pointed hexagram (its six factors).
+  "hexaco-24": () => (
+    <>
+      <circle className="ink-faint" cx="24" cy="24" r="18" />
+      <polygon points="24,8 37.9,32 10.1,32" />
+      <polygon points="24,40 10.1,16 37.9,16" />
+      <circle className="gold gold-fill" cx="24" cy="24" r="2.6" />
+    </>
+  ),
+  // Jungian types — the duality of attitudes (a yin/yang divide).
+  "jung-16-types": () => (
+    <>
+      <circle cx="24" cy="24" r="17" />
+      <path d="M24,7 A8.5,8.5 0 0 1 24,24 A8.5,8.5 0 0 0 24,41" />
+      <circle className="ink-fill" cx="24" cy="15.5" r="2.4" />
+      <circle className="gold gold-fill" cx="24" cy="32.5" r="2.4" />
+    </>
+  ),
+  // Enneagram — the authentic nine-pointed figure (triangle + hexad).
+  "enneagram-9": () => (
+    <>
+      <circle cx="24" cy="24" r="17" />
+      <polygon className="gold" points="24,7 38.7,32.5 9.3,32.5" />
+      <polygon points="34.9,11 29.8,40 40.7,21.1 13.1,11 18.2,40 7.3,21.1" />
+      <circle className="gold gold-fill" cx="24" cy="7" r="1.7" />
+    </>
+  ),
+  // DISC — four behavioural quadrants.
+  "disc-4": () => (
+    <>
+      <rect className="gold gold-fill" x="10" y="10" width="12" height="12" rx="3" />
+      <rect x="26" y="10" width="12" height="12" rx="3" />
+      <rect x="10" y="26" width="12" height="12" rx="3" />
+      <rect x="26" y="26" width="12" height="12" rx="3" />
+    </>
+  ),
+  // Four Temperaments — the classical elements, one per quadrant.
+  "four-temperaments": () => (
+    <g className="gold">
+      {el("fire", 15, 16)}
+      {el("air", 33, 16)}
+      {el("water", 15, 33)}
+      {el("earth", 33, 33)}
+    </g>
+  ),
+  // Attachment — an anchor (security and the bonds that hold).
+  "attachment-styles": () => (
+    <>
+      <circle className="gold" cx="24" cy="11" r="3.4" />
+      <line x1="24" y1="14.4" x2="24" y2="37" />
+      <line x1="17" y1="19" x2="31" y2="19" />
+      <path d="M13,29 A12,12 0 0 0 35,29" />
+      <path d="M13,29 L11,24" />
+      <path d="M35,29 L37,24" />
+    </>
+  ),
+  // Love Languages — a sealed letter with a heart.
+  "love-languages": () => (
+    <>
+      <rect x="9" y="17" width="30" height="20" rx="2.5" />
+      <path d="M9,18 L24,29 L39,18" />
+      <path className="gold gold-fill" d="M24,16 C23,13.6 19.6,13.8 19.6,16.6 C19.6,18.8 24,21.5 24,21.5 C24,21.5 28.4,18.8 28.4,16.6 C28.4,13.8 25,13.6 24,16 Z" />
+    </>
+  ),
+  // Conflict Style — two forces meeting at a point of negotiation.
+  "conflict-style": () => (
+    <>
+      <path d="M8,24 L19,24 M19,24 L15,21 M19,24 L15,27" />
+      <path d="M40,24 L29,24 M29,24 L33,21 M29,24 L33,27" />
+      <polygon className="gold gold-fill" points="24,19.5 27.5,24 24,28.5 20.5,24" />
+    </>
+  ),
+  // VIA character strengths — a medal of virtue.
+  "via-24": () => (
+    <>
+      <path d="M17,28 L14,41 L20,37 L24,42 L28,37 L34,41 L31,28" />
+      <circle cx="24" cy="19" r="11" />
+      <polygon className="gold gold-fill" points="24,12.5 25.5,16.9 30.2,17 26.5,19.8 27.8,24.3 24,21.6 20.2,24.3 21.5,19.8 17.8,17 22.5,16.9" />
+    </>
+  ),
+  // Schwartz values — a balance of priorities.
+  "schwartz-values": () => (
+    <>
+      <line x1="24" y1="11" x2="24" y2="34" />
+      <path d="M18,38 L30,38 M24,34 L20,38 M24,34 L28,38" />
+      <line x1="11" y1="16" x2="37" y2="16" />
+      <path d="M11,16 L7,24 M11,16 L15,24 M7,24 A4,4 0 0 0 15,24" />
+      <path d="M37,16 L33,24 M37,16 L41,24 M33,24 A4,4 0 0 0 41,24" />
+      <circle className="gold gold-fill" cx="24" cy="11" r="2.4" />
+    </>
+  ),
+  // Grit — a summit reached and crowned.
+  "grit-resilience": () => (
+    <>
+      <path d="M6,38 L18,17 L26,29 L32,21 L42,38 Z" />
+      <path className="ink-soft" d="M14,24 L18,17 L22,24" />
+      <Sparkle x={18} y={11} r={2.1} />
+    </>
+  ),
+  // Moral Foundations — a classical temple of principles.
+  "moral-foundations": () => (
+    <>
+      <path d="M9,15 L24,7 L39,15 Z" />
+      <line x1="11" y1="18" x2="37" y2="18" />
+      <line x1="15" y1="18" x2="15" y2="35" />
+      <line x1="24" y1="18" x2="24" y2="35" />
+      <line x1="33" y1="18" x2="33" y2="35" />
+      <line x1="11" y1="35" x2="37" y2="35" />
+      <line x1="9" y1="39" x2="39" y2="39" />
+      <circle className="gold gold-fill" cx="24" cy="12" r="2" />
+    </>
+  ),
+  // RIASEC — Holland's career hexagon.
+  "riasec-careers": () => (
+    <>
+      <polygon points="24,7 38.7,15.5 38.7,32.5 24,41 9.3,32.5 9.3,15.5" />
+      <g className="ink-faint">
+        <line x1="24" y1="24" x2="24" y2="7" />
+        <line x1="24" y1="24" x2="38.7" y2="15.5" />
+        <line x1="24" y1="24" x2="38.7" y2="32.5" />
+        <line x1="24" y1="24" x2="24" y2="41" />
+        <line x1="24" y1="24" x2="9.3" y2="32.5" />
+        <line x1="24" y1="24" x2="9.3" y2="15.5" />
+      </g>
+      <circle className="gold gold-fill" cx="24" cy="24" r="3" />
+    </>
+  ),
+  // Emotional Intelligence — a heart held within the mind.
+  "emotional-intelligence": () => (
+    <>
+      <path d="M30,37 L30,30 C34,28 36,23 36,19 C36,12 30,7 23,7 C15,7 10,13 10,20 C10,25 13,29 17,31 L17,37" />
+      <path className="gold gold-fill" d="M23,27 C16,22 18,15 22.4,17 C23.6,17.5 23,18.6 23,18.6 C23,18.6 23.4,17.5 24.6,17 C29,15 31,22 23,27 Z" transform="translate(0 -1)" />
+    </>
+  ),
+  // Chronotype — sun and moon across the horizon.
+  "chronotype": () => (
+    <>
+      <line x1="6" y1="31" x2="42" y2="31" />
+      <path className="gold" d="M9,31 A7,7 0 0 1 23,31" />
+      <g className="gold">
+        <line x1="16" y1="20" x2="16" y2="17" />
+        <line x1="9.5" y1="23.5" x2="7.5" y2="21.5" />
+        <line x1="22.5" y1="23.5" x2="24.5" y2="21.5" />
+      </g>
+      <path className="gold gold-fill" d="M37,14 A8,8 0 1 0 37,28 A6,6 0 1 1 37,14 Z" />
+      <Sparkle x={28} y={14} r={1.5} />
+    </>
+  ),
+  // ADHD (educational) — a bolt of energy.
+  "adhd-traits": () => (
+    <>
+      <polygon className="gold gold-fill" points="27,7 14,27 22,27 20,41 34,20 26,20" />
+    </>
+  ),
+  // Autism (educational) — the neurodiversity infinity.
+  "autism-traits": () => (
+    <path className="gold" strokeWidth="2.2"
+      d="M24,24 C20,18 12,18 12,24 C12,30 20,30 24,24 C28,18 36,18 36,24 C36,30 28,30 24,24 Z" />
+  ),
+  // Dark Triad — three interlocked rings.
+  "dark-triad-18": () => (
+    <>
+      <circle cx="24" cy="17" r="9" />
+      <circle cx="17" cy="29" r="9" />
+      <circle className="gold" cx="31" cy="29" r="9" />
+    </>
+  ),
+};
+
+export function InstrumentGlyph({
+  id,
+  category,
+  className = "",
+}: {
+  id: string;
+  category: string;
+  className?: string;
+}) {
+  const draw = GLYPHS[id];
+  if (!draw) return <CategoryEmblem id={category} className={className} />;
+  return (
+    <svg className={`emblem ${className}`} viewBox="0 0 48 48" role="img" aria-hidden="true"
+         fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
+      {draw()}
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Crest — an ornate medallion frame for a result "portrait".          */
+/* ------------------------------------------------------------------ */
+
+export function Crest({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const cx = 60;
+  const ticks = Array.from({ length: 36 }, (_, i) => {
+    const a = (i / 36) * TAU;
+    const long = i % 3 === 0;
+    const [x1, y1] = pol(cx, cx, 55, a);
+    const [x2, y2] = pol(cx, cx, long ? 49 : 52, a);
+    return { x1, y1, x2, y2, long };
+  });
+  const points = [0, 1, 2, 3].map((i) => pol(cx, cx, 55, (i / 4) * TAU - Math.PI / 2));
+  return (
+    <div className={`crest ${className}`}>
+      <svg className="crest-frame" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <circle className="ink-faint" cx={cx} cy={cx} r="58" stroke="currentColor" strokeWidth="1" />
+        <circle className="ink" cx={cx} cy={cx} r="44" stroke="currentColor" strokeWidth="1" strokeDasharray="2 5" opacity="0.5" />
+        {ticks.map((t, i) => (
+          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="currentColor"
+                strokeWidth={t.long ? 1.3 : 0.7} opacity={t.long ? 0.8 : 0.4} />
+        ))}
+        {points.map(([x, y], i) => (
+          <Sparkle key={i} x={x} y={y} r={2.2} />
+        ))}
+      </svg>
+      <span className="crest-glyph">{children}</span>
+    </div>
   );
 }
 

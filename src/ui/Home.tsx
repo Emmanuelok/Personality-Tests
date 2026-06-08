@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { CATEGORIES } from "@core/categories";
-import { HeroArt, CategoryEmblem, Flourish } from "./art";
+import { HeroArt, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
 export function Home({
   onStart,
@@ -64,7 +64,7 @@ export function Home({
               {list.map((inst) => (
                 <article className="card" key={inst.id}>
                   <span className={`card-watermark cat-${cat.id}`} aria-hidden="true">
-                    <CategoryEmblem id={cat.id} />
+                    <InstrumentGlyph id={inst.id} category={cat.id} />
                   </span>
                   <span className="kind">{inst.kind === "typological" ? "Typology" : "Dimensional"}</span>
                   <h3>{inst.name}</h3>

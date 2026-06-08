@@ -3,7 +3,7 @@ import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
 import { RadarChart, ScaleBar, Gauge } from "./charts";
-import { CategoryEmblem, Flourish } from "./art";
+import { InstrumentGlyph, Crest, Flourish } from "./art";
 import { ImprovementPlanner } from "./ImprovementPlanner";
 import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
@@ -53,7 +53,7 @@ export function Report({
     <div className="container view-enter">
       <div className="report-head">
         <span className={`report-seal cat-${instrument.category}`} aria-hidden="true">
-          <CategoryEmblem id={instrument.category} />
+          <InstrumentGlyph id={instrument.id} category={instrument.category} />
         </span>
         <div className="supertitle">{instrument.name} · Personal Report</div>
         <h1>{report.title}</h1>
@@ -85,7 +85,7 @@ export function Report({
         {/* Overview */}
         <section className="panel">
           {report.overview.map((p, i) => (
-            <p className="lead-para" key={i}>{p}</p>
+            <p className={`lead-para${i === 0 ? " drop" : ""}`} key={i}>{p}</p>
           ))}
         </section>
 
@@ -98,6 +98,9 @@ export function Report({
         {report.type && (
           <section className="panel type-card">
             <div>
+              <Crest className={`type-crest cat-${instrument.category}`}>
+                <InstrumentGlyph id={instrument.id} category={instrument.category} />
+              </Crest>
               <div className="code">{report.type.code}</div>
               <div className="ttitle">{report.type.title}</div>
               <p className="summary">{report.type.summary}</p>

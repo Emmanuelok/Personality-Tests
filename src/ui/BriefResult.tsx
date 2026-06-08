@@ -2,7 +2,7 @@ import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart } from "./charts";
-import { CategoryEmblem } from "./art";
+import { InstrumentGlyph, Crest } from "./art";
 
 function shortLabel(name: string): string {
   if (name.includes("·")) return name.split("·")[1].trim();
@@ -33,7 +33,7 @@ export function BriefResult({
     <div className="container view-enter">
       <div className="report-head">
         <span className={`report-seal cat-${instrument.category}`} aria-hidden="true">
-          <CategoryEmblem id={instrument.category} />
+          <InstrumentGlyph id={instrument.id} category={instrument.category} />
         </span>
         <div className="supertitle">{instrument.name} · Free snapshot</div>
         <h1>{report.title}</h1>
@@ -45,6 +45,9 @@ export function BriefResult({
           {report.type && (
             <div className="type-card" style={{ marginBottom: 18 }}>
               <div>
+                <Crest className={`type-crest cat-${instrument.category}`}>
+                  <InstrumentGlyph id={instrument.id} category={instrument.category} />
+                </Crest>
                 <div className="code">{report.type.code}</div>
                 <div className="ttitle">{report.type.title}</div>
                 <p className="summary">{report.type.summary}</p>
@@ -55,7 +58,7 @@ export function BriefResult({
           {!report.type && (
             <div className="radar-wrap" style={{ marginBottom: 12 }}><RadarChart data={radarData} /></div>
           )}
-          <p className="lead-para">{report.overview[0]}</p>
+          <p className="lead-para drop">{report.overview[0]}</p>
           <div style={{ marginTop: 14 }}>
             {top.map((t) => (
               <div className="trait" key={t.scaleId} style={{ marginBottom: 10 }}>
