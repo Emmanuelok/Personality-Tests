@@ -382,6 +382,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .navlinks button.active { color: var(--text); background: var(--surface-3); }
 @media (max-width: 640px) { .navlinks button { padding: 6px 8px; font-size: 12.5px; } .topbar .meta { display: none; } }
 
+/* ---------- Guided starter pack ---------- */
+.pack-dots { display: flex; gap: 8px; justify-content: center; }
+.pack-dots span { width: 34px; height: 6px; border-radius: 999px; background: var(--surface-3); transition: 0.3s; }
+.pack-dots span.on { background: var(--grad); }
+.starter-cta { text-align: left; padding: 16px; border: 1px dashed var(--border); border-radius: 14px; background: rgba(139,123,255,0.05); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+
 /* ---------- Growth / Journey ---------- */
 .ms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .ms { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--surface-2); color: var(--text-faint); font-size: 13.5px; opacity: 0.55; transition: 0.2s; }

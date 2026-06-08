@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit } from "./instruments";
+import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations } from "./instruments";
+import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight } from "./synthesis";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
@@ -157,6 +158,27 @@ describe("compatibility engine", () => {
     const b = toSummary(attachment, scoreAssessment(attachment, avoidant));
     const rep = computeCompatibility(attachment, a, b, { seed: 2 });
     expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
+  });
+});
+
+describe("conflict, chronotype, moral foundations & starter pack", () => {
+  it("resolves a dominant conflict style", () => {
+    const responses = answerAll(conflictStyle, (i) => (i.scale === "COMPETE" ? 5 : 1));
+    expect(scoreAssessment(conflictStyle, responses).type?.code).toBe("Competing");
+  });
+
+  it("classifies chronotype as Lark or Owl", () => {
+    expect(scoreAssessment(chronotype, allHigh(chronotype)).type?.code).toBe("Lark");
+    expect(scoreAssessment(chronotype, allLow(chronotype)).type?.code).toBe("Owl");
+  });
+
+  it("scores all five moral foundations", () => {
+    expect(Object.keys(scoreAssessment(moralFoundations, allHigh(moralFoundations)).scales)).toHaveLength(5);
+  });
+
+  it("tailors the starter pack to a goal", () => {
+    expect(starterPack(["Better relationships"])).toContain("attachment-styles");
+    expect(starterPack([]).length).toBe(3);
   });
 });
 

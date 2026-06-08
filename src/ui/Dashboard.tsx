@@ -21,6 +21,7 @@ export function Dashboard({
   onBrowse,
   onOpen,
   onStartInstrument,
+  onStartPack,
   onIntegrated,
   onCompatibility,
   onJournal,
@@ -31,6 +32,7 @@ export function Dashboard({
   onBrowse: () => void;
   onOpen: (instrumentId: string) => void;
   onStartInstrument: (inst: Instrument) => void;
+  onStartPack: () => void;
   onIntegrated: () => void;
   onCompatibility: () => void;
   onJournal: (text: string) => void;
@@ -80,7 +82,16 @@ export function Dashboard({
           <section className="panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Your journey</h3>
             {entries.length === 0 ? (
-              <p style={{ color: "var(--text-dim)" }}>Nothing here yet — your completed assessments will live here, ready to revisit anytime.</p>
+              <div className="starter-cta">
+                <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
+                  New here? The fastest way to meet yourself: a guided pack of three complementary tests, woven
+                  automatically into your Integrated Self.
+                </p>
+                <button className="btn primary" onClick={onStartPack} style={{ fontSize: 15, padding: "12px 22px" }}>
+                  ✨ Start my guided 3-test pack →
+                </button>
+                <p style={{ color: "var(--text-faint)", fontSize: 13, marginBottom: 0 }}>…or pick your own below.</p>
+              </div>
             ) : (
               <div className="journey">
                 {entries.map(({ instrument, result }) => (

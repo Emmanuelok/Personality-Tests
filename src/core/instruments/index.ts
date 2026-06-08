@@ -6,10 +6,13 @@ import { enneagram } from "./enneagram";
 import { disc } from "./disc";
 import { attachment } from "./attachment";
 import { loveLanguages } from "./lovelanguages";
+import { conflictStyle } from "./conflictstyle";
 import { via } from "./via";
 import { values } from "./values";
 import { grit } from "./grit";
+import { moralFoundations } from "./moralfoundations";
 import { eq } from "./eq";
+import { chronotype } from "./chronotype";
 import { darkTriad } from "./darktriad";
 
 /** All instruments available on the platform, grouped loosely by category. */
@@ -21,10 +24,13 @@ export const INSTRUMENTS: Instrument[] = [
   disc,
   attachment,
   loveLanguages,
+  conflictStyle,
   via,
   values,
   grit,
+  moralFoundations,
   eq,
+  chronotype,
   darkTriad,
 ];
 
@@ -39,4 +45,20 @@ export function instrumentsByCategory(categoryId: string): Instrument[] {
   return INSTRUMENTS.filter((i) => i.category === categoryId);
 }
 
-export { bigFive, hexaco, jungTypes, enneagram, disc, attachment, loveLanguages, via, values, grit, eq, darkTriad };
+export {
+  bigFive,
+  hexaco,
+  jungTypes,
+  enneagram,
+  disc,
+  attachment,
+  loveLanguages,
+  conflictStyle,
+  via,
+  values,
+  grit,
+  moralFoundations,
+  eq,
+  chronotype,
+  darkTriad,
+};

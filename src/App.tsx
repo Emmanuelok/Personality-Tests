@@ -15,6 +15,8 @@ import { Report } from "./ui/Report";
 import { BriefResult } from "./ui/BriefResult";
 import { Compatibility } from "./ui/Compatibility";
 import { Growth } from "./ui/Growth";
+import { PackStep } from "./ui/PackStep";
+import { starterPack } from "@core/starter";
 import {
   grantProduct,
   isUnlocked,
@@ -36,7 +38,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "onboarding" | "dashboard" | "library" | "quiz" | "result" | "compatibility" | "integrated" | "growth";
+type View = "onboarding" | "dashboard" | "library" | "quiz" | "result" | "compatibility" | "integrated" | "growth" | "packstep";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -51,6 +53,8 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [unlockNonce, setUnlockNonce] = useState(0);
+  const [pack, setPack] = useState<string[]>([]);
+  const [packTotal, setPackTotal] = useState(0);
 
   const name = profile?.name;
 
@@ -129,13 +133,42 @@ export default function App() {
     top();
   };
 
-  const start = (inst: Instrument) => {
+  const beginInstrument = (inst: Instrument) => {
     setInstrument(inst);
     setResult(null);
     setReport(null);
     setError(null);
     setView("quiz");
     top();
+  };
+  const start = (inst: Instrument) => {
+    setPack([]);
+    setPackTotal(0);
+    beginInstrument(inst);
+  };
+  const startPack = (ids: string[]) => {
+    const first = ids[0] && getInstrument(ids[0]);
+    if (!first) return;
+    setPackTotal(ids.length);
+    setPack(ids.slice(1));
+    beginInstrument(first);
+  };
+  const packNext = () => {
+    if (pack.length) {
+      const [next, ...rest] = pack;
+      const inst = getInstrument(next);
+      setPack(rest);
+      if (inst) beginInstrument(inst);
+    } else {
+      setPackTotal(0);
+      setPack([]);
+      goIntegrated();
+    }
+  };
+  const skipPack = () => {
+    setPackTotal(0);
+    setPack([]);
+    goDashboard();
   };
 
   const complete = (responses: ResponseMap) => {
@@ -145,7 +178,7 @@ export default function App() {
     setResult(scored);
     setReport(composeReport(instrument, scored, { name, seed }));
     if (profile) setProfile(recordResult(profile, instrument.id, responses, seed));
-    setView("result");
+    setView(packTotal > 0 ? "packstep" : "result");
     top();
   };
 
@@ -257,6 +290,7 @@ export default function App() {
           onBrowse={goLibrary}
           onOpen={openResult}
           onStartInstrument={start}
+          onStartPack={() => startPack(starterPack(profile.focus))}
           onIntegrated={goIntegrated}
           onCompatibility={goCompat}
           onJournal={onJournal}
@@ -301,6 +335,10 @@ export default function App() {
       )}
 
       {view === "growth" && profile && <Growth profile={profile} onBrowse={goLibrary} onBack={goDashboard} />}
+
+      {view === "packstep" && report && (
+        <PackStep report={report} done={packTotal - pack.length} total={packTotal} name={name} onContinue={packNext} onSkip={skipPack} />
+      )}
     </>
   );
 }
