@@ -324,21 +324,23 @@ function buildOverview(
   result: AssessmentResult,
   traits: TraitInsight[],
   headline: { title: string; subtitle: string },
+  name?: string,
 ): string[] {
   const byDistinct = [...traits].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50));
   const lead = byDistinct.slice(0, 2);
+  const who = name ? `${name}, ` : "";
 
   const p1 = result.type
     ? sentence(
         rng.pick([
-          `This report is a portrait of how you, specifically, come out on the ${instrument.shortName}. Your result is ${result.type.code} — ${result.type.title}.`,
-          `What follows is built entirely from your own answers on the ${instrument.shortName}. They resolve to ${result.type.title} (${result.type.code}).`,
+          `${who}this is a portrait of how you, specifically, come out on the ${instrument.shortName}. Your result is ${result.type.code} — ${result.type.title}.`,
+          `${who}what follows is built entirely from your own answers on the ${instrument.shortName}. They resolve to ${result.type.title} (${result.type.code}).`,
         ]),
       )
     : sentence(
         rng.pick([
-          `This report is a portrait of how you, specifically, come out on the ${instrument.name}. If your profile had a name, it might be “${headline.title}”`,
-          `What follows is assembled entirely from your own answers. As a shorthand, your pattern reads like “${headline.title}”`,
+          `${who}this is a portrait of how you, specifically, come out on the ${instrument.name}. If your profile had a name, it might be “${headline.title}”`,
+          `${who}what follows is assembled entirely from your own answers. As a shorthand, your pattern reads like “${headline.title}”`,
         ]),
       );
 
@@ -393,7 +395,7 @@ export function composeReport(
     ? { title: result.type.title, subtitle: `${result.type.code} · ${instrument.name}` }
     : dimensionalHeadline(rng, instrument, result.scales);
 
-  const overview = buildOverview(rng, instrument, result, traits, headline);
+  const overview = buildOverview(rng, instrument, result, traits, headline, opts.name);
   const dynamics = buildDynamics(rng, instrument, result.scales);
   const sections = buildSections(rng, instrument, result, traits);
   const signatureResponses = buildSignatureResponses(rng, instrument, result);

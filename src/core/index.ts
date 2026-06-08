@@ -34,6 +34,9 @@ export {
 } from "./compatibility";
 export type { CompatibilityReport, CompatDimension, ResultSummary } from "./compatibility";
 
+export { buildIntegratedProfile, dailyInsight } from "./synthesis";
+export type { IntegratedProfile, ThemeHit, Tension, OperatingNote, SynthEntry, DailyInsight } from "./synthesis";
+
 export { buildGrowthPlan } from "./improvement/plan";
 export type {
   GrowthPlan,

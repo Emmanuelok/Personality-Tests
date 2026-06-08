@@ -4,7 +4,14 @@
 
 Psyche Atlas is not just a test app — it's a self-understanding *and* self-improvement engine. You take a scientifically-grounded assessment, receive a report composed from your **entire response pattern** (so no two reports are ever identical), and then turn that same data toward growth with an **evidence-based development plan** from where you are to where you want to be.
 
-> Status: **v0.3.** A working, tested core with **12 instruments across 6 themed categories**, a **relationship compatibility** engine, a freemium store ($1.89 unlock), a designed PDF export, and one-click Vercel deploy. Built to extend toward "every personality test in the world" via a data-driven instrument model. See [Roadmap](#roadmap).
+> Status: **v0.4.** A **personal platform** — it onboards you by name, remembers your journey, and greets you on a tailored **dashboard** with a daily growth nudge. **12 instruments across 6 themes**, a novel **cross-test "Integrated Self"** that synthesizes every assessment you take into one portrait (themes, strengths, tensions, and your personal operating manual), a **relationship compatibility** engine, name-personalized reports, a designed PDF, a freemium store ($1.89 unlock), an installable **PWA** (offline-capable), and one-click Vercel deploy. See [Roadmap](#roadmap).
+
+### What makes it feel built for you
+
+- **It knows your name and your journey.** A private, on-device profile (no account) powers a personal dashboard, a visit streak, reflections, and reports that address you directly.
+- **The Integrated Self.** Most apps test you in silos. Psyche Atlas reads across *every* assessment you complete and weaves them into one evolving portrait — the deeper you go, the richer it gets. This cross-test synthesis is the platform's signature intelligence.
+- **A daily companion.** Each day surfaces one tailored insight and a tiny, doable practice drawn from your own profile.
+- **Stunning + alive.** Animated aurora backdrop, glass surfaces, draw-in charts, count-ups, and smooth transitions — production-grade, installable to your home screen, and fully offline after first load.
 
 ---
 

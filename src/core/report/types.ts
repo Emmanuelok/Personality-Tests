@@ -50,6 +50,8 @@ export interface GenerateOptions {
    * omitted, a fresh high-entropy seed is used so the report is unique.
    */
   seed?: number;
+  /** The user's name, woven into the prose for a personal report. */
+  name?: string;
   /** Optional AI provider; when supplied and available it composes the prose. */
   llm?: LLMProvider | null;
   /** Wall-clock used in the seed and timestamps (injectable for tests). */

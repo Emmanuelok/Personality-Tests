@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
 import { bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit } from "./instruments";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
+import { buildIntegratedProfile, dailyInsight } from "./synthesis";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
@@ -154,6 +155,29 @@ describe("compatibility engine", () => {
     const b = toSummary(attachment, scoreAssessment(attachment, avoidant));
     const rep = computeCompatibility(attachment, a, b, { seed: 2 });
     expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
+  });
+});
+
+describe("integrated cross-test synthesis", () => {
+  it("weaves multiple assessments into one named portrait", () => {
+    const e1 = { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) };
+    const e2 = { instrument: enneagram, result: scoreAssessment(enneagram, answerAll(enneagram, (i) => (i.scale === "T1" ? 5 : 1))) };
+    const ip = buildIntegratedProfile([e1, e2], { name: "Ada", seed: 5 });
+    expect(ip.operatingManual).toHaveLength(5);
+    expect(ip.headline.length).toBeGreaterThan(3);
+    expect(ip.themes.length).toBeGreaterThan(0);
+    expect(ip.overview.join(" ")).toContain("Ada");
+    expect(ip.depth).toBeGreaterThan(0);
+  });
+
+  it("produces a deterministic daily insight per day", () => {
+    const e = { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) };
+    const d = new Date("2026-06-10T09:00:00Z");
+    const a = dailyInsight([e], "Ada", d);
+    const b = dailyInsight([e], "Ada", d);
+    expect(a.title).toBe(b.title);
+    expect(a.practice).toBe(b.practice);
+    expect(a.greeting).toContain("Ada");
   });
 });
 

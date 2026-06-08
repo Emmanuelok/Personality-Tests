@@ -32,11 +32,13 @@ export function RadarChart({ data, size = 340 }: { data: RadarDatum[]; size?: nu
         const [x, y] = pointAt(i, 1);
         return <line key={i} className="axis" x1={cx} y1={cy} x2={x} y2={y} />;
       })}
-      <polygon className="poly" points={poly} />
-      {data.map((d, i) => {
-        const [x, y] = pointAt(i, Math.max(0, Math.min(1, d.value / 100)));
-        return <circle key={i} className="dot" cx={x} cy={y} r={3.5} />;
-      })}
+      <g className="radar-anim">
+        <polygon className="poly" points={poly} />
+        {data.map((d, i) => {
+          const [x, y] = pointAt(i, Math.max(0, Math.min(1, d.value / 100)));
+          return <circle key={i} className="dot" cx={x} cy={y} r={3.5} />;
+        })}
+      </g>
       {data.map((d, i) => {
         const [x, y] = pointAt(i, 1.18);
         const anchor = Math.abs(x - cx) < 8 ? "middle" : x > cx ? "start" : "end";
