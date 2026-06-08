@@ -2,6 +2,7 @@ import { Document, Page, Text, View, StyleSheet, Svg, G, Circle, Line, Polygon, 
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import type { AbilityTest, AbilityResult } from "@core/ability";
+import type { Battery } from "@core/ability/chc";
 import { buildGrowthPlan, suggestTargets, type GrowthPlan } from "@core/improvement/plan";
 
 const C = {
@@ -406,6 +407,66 @@ export function makeCognitiveDoc(test: AbilityTest, result: AbilityResult) {
 export async function downloadCognitivePdf(test: AbilityTest, result: AbilityResult) {
   const blob = await pdf(makeCognitiveDoc(test, result)).toBlob();
   triggerDownload(blob, `psyche-atlas-cognitive-${result.fingerprint}.pdf`);
+}
+
+function BatteryDoc({ battery }: { battery: Battery }) {
+  return (
+    <Document title="Psyche Atlas — Cognitive Battery" author="Psyche Atlas">
+      <Page size="A4" style={s.cover}>
+        <View style={s.band}>
+          <CoverSeal size={128} />
+          <Text style={[s.brand, { marginTop: 16 }]}>PSYCHE ATLAS</Text>
+          <Text style={s.coverTitle}>Cognitive Battery</Text>
+          <Text style={s.coverSub}>A cross-test profile of your broad abilities</Text>
+          <View style={s.accentRule} />
+          <Text style={s.coverMeta}>
+            Overall {battery.iqLow}–{battery.iqHigh} · {battery.band} · ~{Math.round(battery.overall)}th percentile · {battery.tests} tests · {battery.factors.length} abilities
+          </Text>
+        </View>
+        <View style={s.coverBody}>
+          <Text style={s.lead}>
+            This battery averages every cognitive test you've taken into one Cattell-Horn-Carroll profile. The shape —
+            where you peak and where you dip across the broad abilities — usually tells you more than the single overall figure.
+          </Text>
+          <Text style={[s.small, { marginTop: 12 }]}>
+            A rough composite of separate self-administered tests, not a clinically administered IQ. It measures
+            particular abilities — not your worth, creativity, or potential.
+          </Text>
+        </View>
+        <Footer report={{ reportId: "battery" } as unknown as PersonalityReport} />
+      </Page>
+
+      <Page size="A4" style={s.page}>
+        <Text style={s.h2}>Broad-ability profile</Text>
+        {battery.factors.map((f) => (
+          <View key={f.id} style={{ marginBottom: 11 }}>
+            <View style={s.rowBetween}>
+              <Text style={{ fontFamily: "Helvetica-Bold", color: C.ink }}>{f.name} ({f.id})</Text>
+              <Text style={s.small}>{Math.round(f.percentile)}th pct{f.n > 1 ? ` · ${f.n} tests` : ""}</Text>
+            </View>
+            <Bar value={f.percentile} />
+            <Text style={[s.small, { marginTop: 3 }]}>{f.blurb}</Text>
+          </View>
+        ))}
+        <Text style={s.h3}>Read responsibly</Text>
+        <Bullets items={[
+          "An aggregate of separate self-administered tests — a rough composite, not a clinical IQ.",
+          "Each ability reflects whatever tests you've completed; more tests give a fuller picture.",
+          "Cognitive ability is one slice of a person and says nothing about your worth or potential.",
+        ]} />
+        <Footer report={{ reportId: "battery" } as unknown as PersonalityReport} />
+      </Page>
+    </Document>
+  );
+}
+
+export function makeBatteryDoc(battery: Battery) {
+  return <BatteryDoc battery={battery} />;
+}
+
+export async function downloadBatteryPdf(battery: Battery) {
+  const blob = await pdf(makeBatteryDoc(battery)).toBlob();
+  triggerDownload(blob, `psyche-atlas-cognitive-battery.pdf`);
 }
 
 function triggerDownload(blob: Blob, filename: string) {

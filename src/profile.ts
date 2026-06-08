@@ -30,6 +30,8 @@ export interface CognitiveTake {
   takenAt: string; // ISO
   headline: string; // e.g. "Above-average range · 112–124"
   percentile: number;
+  /** CHC broad-ability contributions (factor id → percentile), for the cross-test battery. */
+  chc?: Record<string, number>;
 }
 
 export interface Profile {

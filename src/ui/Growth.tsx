@@ -5,7 +5,7 @@ import { compareTakes, milestones, type RetakeComparison } from "@core/growth";
 import { InstrumentGlyph } from "./art";
 import type { Profile, SavedResult } from "../profile";
 
-export function Growth({ profile, onBrowse, onBack }: { profile: Profile; onBrowse: () => void; onBack: () => void }) {
+export function Growth({ profile, onBrowse, onBack, onBattery }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void }) {
   const timeline = useMemo(() => {
     const rows: { at: string; name: string; type?: string; id: string; category: string }[] = [];
     for (const h of profile.history) {
@@ -109,8 +109,11 @@ export function Growth({ profile, onBrowse, onBack }: { profile: Profile; onBrow
 
         {(profile.cognitiveHistory?.length ?? 0) > 0 && (
           <section className="panel">
-            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Cognitive tests</h3>
-            <div className="journey">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <h3 style={{ margin: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Cognitive tests</h3>
+              {onBattery && <button className="btn sm" onClick={onBattery}>View full battery →</button>}
+            </div>
+            <div className="journey" style={{ marginTop: 14 }}>
               {profile.cognitiveHistory!.map((t, i) => (
                 <div className="jcard" key={i} style={{ cursor: "default" }}>
                   <span className="jicon cat-cognition"><span className="tl-ico"><InstrumentGlyph id={t.id} category="cognition" /></span></span>

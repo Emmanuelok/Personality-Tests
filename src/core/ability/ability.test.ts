@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { ABILITY_TESTS, scoreAbility } from "./index";
 import { makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } from "./memory";
 import { makeSpeedTrial, scoreProcessing } from "./processing";
+import { chcFromDomains, buildBattery } from "./chc";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -131,5 +132,30 @@ describe("processing speed", () => {
     expect(fast.percentile).toBeGreaterThan(slow.percentile);
     expect(fast.percentile).toBeGreaterThan(80);
     expect(slow.percentile).toBeLessThan(30);
+  });
+});
+
+describe("CHC battery aggregation", () => {
+  it("maps domains onto CHC factors", () => {
+    const chc = chcFromDomains([
+      { domain: "verbal", percentile: 80 },
+      { domain: "abstract", percentile: 60 },
+      { domain: "numerical", percentile: 70 },
+      { domain: "spatial", percentile: 50 },
+    ]);
+    expect(chc).toEqual({ Gc: 80, Gf: 60, Gq: 70, Gv: 50 });
+  });
+
+  it("builds a battery, averaging per factor and overall, ignoring empty takes", () => {
+    const b = buildBattery([{ chc: { Gf: 80, Gc: 70 } }, { chc: { Gv: 60 } }, { chc: {} }, {}]);
+    expect(b).not.toBeNull();
+    expect(b!.tests).toBe(2);
+    expect(b!.factors.map((f) => f.id).sort()).toEqual(["Gc", "Gf", "Gv"]);
+    expect(b!.overall).toBe(70);
+    expect(b!.iqHigh).toBeGreaterThan(b!.iqLow);
+  });
+
+  it("returns null with no CHC data", () => {
+    expect(buildBattery([{}, { chc: {} }])).toBeNull();
   });
 });

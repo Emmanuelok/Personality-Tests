@@ -21,7 +21,9 @@ import { AbilityResult } from "./ui/ability/AbilityResult";
 import { MemoryFlow } from "./ui/ability/MemoryFlow";
 import { CorsiFlow } from "./ui/ability/CorsiFlow";
 import { SpeedFlow } from "./ui/ability/SpeedFlow";
+import { BatteryView } from "./ui/ability/BatteryView";
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
+import { buildBattery } from "@core/ability/chc";
 import {
   grantProduct,
   isUnlocked,
@@ -33,6 +35,7 @@ import {
 } from "./store";
 import { MEMORY_TEST, CORSI_TEST, type MemoryResult } from "@core/ability/memory";
 import { PROCESSING_TEST, type SpeedResult } from "@core/ability/processing";
+import { chcFromDomains } from "@core/ability/chc";
 import {
   completedInstrumentIds,
   createProfile,
@@ -44,7 +47,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "battery";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -68,6 +71,7 @@ export default function App() {
   const name = profile?.name || undefined;
   const unlocked = useMemo(() => !!result && isUnlocked(result.responseFingerprint), [result, unlockNonce]);
   const abilityUnlocked = useMemo(() => !!abilityResult && isUnlocked(abilityResult.fingerprint), [abilityResult, unlockNonce]);
+  const battery = useMemo(() => buildBattery(profile?.cognitiveHistory ?? []), [profile]);
 
   // Rescore the latest take of each completed instrument for synthesis.
   const entries = useMemo<SynthEntry[]>(() => {
@@ -159,6 +163,11 @@ export default function App() {
     setView("growth");
     top();
   };
+  const goBattery = () => {
+    if (!battery) return;
+    setView("battery");
+    top();
+  };
   const goIntegrated = () => {
     if (!entries.length) return;
     setIntegrated(buildIntegratedProfile(entries, { name }));
@@ -192,6 +201,7 @@ export default function App() {
       setProfile(recordCognitive(base, {
         id: abilityTest.id, name: abilityTest.name, takenAt: new Date().toISOString(),
         headline: `${r.band} · ${r.iqLow}–${r.iqHigh}`, percentile: r.percentile,
+        chc: chcFromDomains(r.perDomain),
       }));
     }
     setView("abilityResult");
@@ -202,6 +212,7 @@ export default function App() {
     setProfile(recordCognitive(base, {
       id: MEMORY_TEST.id, name: MEMORY_TEST.name, takenAt: new Date().toISOString(),
       headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} digits`, percentile: r.percentile,
+      chc: { Gsm: r.percentile },
     }));
   };
   const corsiDone = (r: MemoryResult) => {
@@ -209,6 +220,7 @@ export default function App() {
     setProfile(recordCognitive(base, {
       id: CORSI_TEST.id, name: CORSI_TEST.name, takenAt: new Date().toISOString(),
       headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} blocks`, percentile: r.percentile,
+      chc: { Gv: r.percentile },
     }));
   };
   const speedDone = (r: SpeedResult) => {
@@ -216,6 +228,7 @@ export default function App() {
     setProfile(recordCognitive(base, {
       id: PROCESSING_TEST.id, name: PROCESSING_TEST.name, takenAt: new Date().toISOString(),
       headline: `${r.correct} correct · ${r.rate}/min`, percentile: r.percentile,
+      chc: { Gs: r.percentile },
     }));
   };
   const retakeAbility = () => {
@@ -376,6 +389,7 @@ export default function App() {
           onStartMemory={startMemory}
           onStartCorsi={startCorsi}
           onStartSpeed={startSpeed}
+          onBattery={battery ? goBattery : undefined}
         />
       )}
 
@@ -402,6 +416,10 @@ export default function App() {
       {view === "corsi" && <CorsiFlow name={name} onExit={goHome} onComplete={corsiDone} />}
 
       {view === "speed" && <SpeedFlow name={name} onExit={goHome} onComplete={speedDone} />}
+
+      {view === "battery" && battery && (
+        <BatteryView battery={battery} takes={profile?.cognitiveHistory ?? []} name={name} onExit={goHome} />
+      )}
 
       {view === "intro" && instrument && (
         <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />
@@ -441,7 +459,7 @@ export default function App() {
         <Compatibility instrument={instrument} result={result} onStart={start} onBack={goHome} />
       )}
 
-      {view === "growth" && profile && <Growth profile={profile} onBrowse={goHome} onBack={goHome} />}
+      {view === "growth" && profile && <Growth profile={profile} onBrowse={goHome} onBack={goHome} onBattery={battery ? goBattery : undefined} />}
 
       {view === "packstep" && report && (
         <PackStep report={report} done={packTotal - pack.length} total={packTotal} name={name} onContinue={packNext} onSkip={skipPack} />

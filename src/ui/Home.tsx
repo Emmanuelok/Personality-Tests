@@ -15,6 +15,7 @@ export function Home({
   onStartMemory,
   onStartCorsi,
   onStartSpeed,
+  onBattery,
 }: {
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
@@ -23,6 +24,7 @@ export function Home({
   onStartMemory: () => void;
   onStartCorsi: () => void;
   onStartSpeed: () => void;
+  onBattery?: () => void;
 }) {
   return (
     <div className="container">
@@ -108,6 +110,18 @@ export function Home({
             <p className="cat-blurb">Timed reasoning tests with right and wrong answers — an honest, research-based estimate of how you think. Not a clinical IQ.</p>
           </div>
         </div>
+        {onBattery && (
+          <div className="panel compat-cta" style={{ marginBottom: 18 }}>
+            <span className="compat-emblem cat-cognition" aria-hidden="true"><CategoryEmblem id="cognition" /></span>
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <h3 style={{ margin: "0 0 6px", fontSize: 20 }}>Your Cognitive Battery</h3>
+              <p style={{ color: "var(--text-dim)", margin: 0 }}>
+                Merge every cognitive test you've taken into one Cattell-Horn-Carroll profile — a single cross-test portrait of how your mind works.
+              </p>
+            </div>
+            <button className="btn" onClick={onBattery}>View battery →</button>
+          </div>
+        )}
         <div className="grid">
           {ABILITY_TESTS.map((t) => (
             <article className="card" key={t.id}>

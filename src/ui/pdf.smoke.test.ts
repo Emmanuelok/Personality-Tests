@@ -5,7 +5,8 @@ import { scoreAssessment } from "@core/scoring";
 import { composeReport } from "@core/report/composer";
 import { bigFive, disc } from "@core/instruments";
 import { ABILITY_TESTS, scoreAbility } from "@core/ability";
-import { makeReportDoc, makePosterDoc, makeCognitiveDoc } from "./pdf";
+import { buildBattery } from "@core/ability/chc";
+import { makeReportDoc, makePosterDoc, makeCognitiveDoc, makeBatteryDoc } from "./pdf";
 
 it("renders a valid PDF buffer", async () => {
   const doc = h(Document, null, h(Page, null, h(Text, null, "Psyche Atlas PDF smoke test")));
@@ -37,6 +38,14 @@ it("renders the cognitive report PDF", async () => {
   const responses = Object.fromEntries(t.items.map((i) => [i.id, i.answer]));
   const result = scoreAbility(t, responses);
   const buf = await renderToBuffer(makeCognitiveDoc(t, result) as any);
+  expect(buf.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  expect(buf.length).toBeGreaterThan(2000);
+});
+
+it("renders the cognitive battery PDF", async () => {
+  const battery = buildBattery([{ chc: { Gf: 80, Gc: 70 } }, { chc: { Gv: 60, Gsm: 55 } }, { chc: { Gs: 65 } }]);
+  expect(battery).not.toBeNull();
+  const buf = await renderToBuffer(makeBatteryDoc(battery!) as any);
   expect(buf.subarray(0, 5).toString("latin1")).toBe("%PDF-");
   expect(buf.length).toBeGreaterThan(2000);
 });
