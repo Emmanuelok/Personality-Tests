@@ -19,6 +19,7 @@ import { PackStep } from "./ui/PackStep";
 import { AbilityFlow } from "./ui/ability/AbilityFlow";
 import { AbilityResult } from "./ui/ability/AbilityResult";
 import { MemoryFlow } from "./ui/ability/MemoryFlow";
+import { CorsiFlow } from "./ui/ability/CorsiFlow";
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import {
   grantProduct,
@@ -29,7 +30,7 @@ import {
   verifyCheckout,
   type PendingResult,
 } from "./store";
-import { MEMORY_TEST, type MemoryResult } from "@core/ability/memory";
+import { MEMORY_TEST, CORSI_TEST, type MemoryResult } from "@core/ability/memory";
 import {
   completedInstrumentIds,
   createProfile,
@@ -41,7 +42,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -201,6 +202,13 @@ export default function App() {
       headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} digits`, percentile: r.percentile,
     }));
   };
+  const corsiDone = (r: MemoryResult) => {
+    const base = profile ?? createProfile("", []);
+    setProfile(recordCognitive(base, {
+      id: CORSI_TEST.id, name: CORSI_TEST.name, takenAt: new Date().toISOString(),
+      headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} blocks`, percentile: r.percentile,
+    }));
+  };
   const retakeAbility = () => {
     setAbilityResult(null);
     setAbilityNonce((n) => n + 1);
@@ -231,6 +239,10 @@ export default function App() {
   };
   const startMemory = () => {
     setView("memory");
+    top();
+  };
+  const startCorsi = () => {
+    setView("corsi");
     top();
   };
 
@@ -321,7 +333,7 @@ export default function App() {
   };
 
   const hasHistory = entries.length > 0 || (profile?.cognitiveHistory?.length ?? 0) > 0;
-  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory";
+  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi";
 
   return (
     <>
@@ -349,6 +361,7 @@ export default function App() {
           onStartPack={() => startPack(starterPack(profile?.focus ?? []))}
           onStartAbility={startAbility}
           onStartMemory={startMemory}
+          onStartCorsi={startCorsi}
         />
       )}
 
@@ -371,6 +384,8 @@ export default function App() {
       )}
 
       {view === "memory" && <MemoryFlow name={name} onExit={goHome} onComplete={memoryDone} />}
+
+      {view === "corsi" && <CorsiFlow name={name} onExit={goHome} onComplete={corsiDone} />}
 
       {view === "intro" && instrument && (
         <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />

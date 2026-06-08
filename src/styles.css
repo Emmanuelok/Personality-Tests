@@ -711,6 +711,16 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .mem-seq { color: var(--text-dim); }
 .mem-seq code { color: var(--accent); font-size: 13px; letter-spacing: 0.12em; }
 
+/* Corsi block-tapping board */
+.corsi-board { position: relative; width: 340px; height: 340px; margin: 28px auto; }
+.corsi-block {
+  position: absolute; width: 52px; height: 52px; border-radius: 12px; padding: 0;
+  background: var(--surface); border: 2px solid var(--border); cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+.corsi-block:hover { border-color: var(--text-faint); }
+.corsi-block.lit { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 7px rgba(154, 123, 46, 0.18); transform: scale(1.07); }
+
 /* result: per-question review */
 .qreview { border-top: 1px dashed var(--border); padding: 16px 0; }
 .qreview:first-of-type { border-top: none; }

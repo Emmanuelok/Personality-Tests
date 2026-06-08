@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ABILITY_TESTS, scoreAbility } from "./index";
-import { makeDigits, scoreMemory, type MemoryTrial } from "./memory";
+import { makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } from "./memory";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -89,5 +89,26 @@ describe("working-memory scoring", () => {
     expect(r.maxForward).toBe(0);
     expect(r.maxBackward).toBe(0);
     expect(r.percentile).toBeLessThan(15);
+  });
+});
+
+describe("Corsi spatial span", () => {
+  it("makeSequence returns distinct indices of the requested length", () => {
+    const seq = makeSequence(5, 9);
+    expect(seq).toHaveLength(5);
+    expect(new Set(seq).size).toBe(5);
+    expect(seq.every((n) => n >= 0 && n < 9)).toBe(true);
+  });
+
+  it("scores spatial span and reports the longest correct path", () => {
+    const trials: MemoryTrial[] = [
+      { mode: "forward", span: 4, shown: "0-1-2-3", entered: "0-1-2-3", correct: true },
+      { mode: "forward", span: 6, shown: "0-1-2-3-4-5", entered: "0-1-2-3-4-5", correct: true },
+      { mode: "backward", span: 5, shown: "0-1-2-3-4", entered: "4-3-2-1-0", correct: true },
+    ];
+    const r = scoreCorsi(trials);
+    expect(r.maxForward).toBe(6);
+    expect(r.maxBackward).toBe(5);
+    expect(r.percentile).toBeGreaterThan(50);
   });
 });

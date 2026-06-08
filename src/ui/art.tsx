@@ -767,6 +767,16 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Corsi blocks — a path lit through a 3×3 board.
+  "corsi-blocks": () => (
+    <>
+      {[12, 24, 36].map((y) => [12, 24, 36].map((x) => (
+        <rect key={`${x}-${y}`} x={x - 5} y={y - 5} width="10" height="10" rx="2" />
+      )))}
+      <path className="gold" d="M12,12 L36,24 L12,36" />
+      <circle className="gold gold-fill" cx="12" cy="12" r="2.6" />
+    </>
+  ),
   // Working Memory — a remembered sequence traced through four nodes.
   "memory-span": () => (
     <>

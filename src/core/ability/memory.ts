@@ -64,7 +64,9 @@ const band = (combined: number): string => {
   return "Well-below-average range";
 };
 
-export function scoreMemory(trials: MemoryTrial[]): MemoryResult {
+interface SpanNorms { fMean: number; fSd: number; bMean: number; bSd: number; prefix: string }
+
+function spanResult(trials: MemoryTrial[], n: SpanNorms): MemoryResult {
   const maxFor = (mode: SpanMode) =>
     trials.filter((t) => t.mode === mode && t.correct).reduce((m, t) => Math.max(m, t.span), 0);
   const maxForward = maxFor("forward");
@@ -72,16 +74,66 @@ export function scoreMemory(trials: MemoryTrial[]): MemoryResult {
   const forwardCorrect = trials.filter((t) => t.mode === "forward" && t.correct).length;
   const backwardCorrect = trials.filter((t) => t.mode === "backward" && t.correct).length;
 
-  // Rough adult norms: forward span ~6.5 (sd 1.3), backward ~4.8 (sd 1.3).
-  const zf = (maxForward - 6.5) / 1.3;
-  const zb = (maxBackward - 4.8) / 1.3;
+  const zf = (maxForward - n.fMean) / n.fSd;
+  const zb = (maxBackward - n.bMean) / n.bSd;
   const z = (zf + zb) / 2;
   const percentile = Math.max(1, Math.min(99, Math.round(normalCdf(z) * 100)));
   const combined = (maxForward + maxBackward) / 2;
 
-  const fp = cyrb53("mem|" + trials.map((t) => `${t.mode[0]}${t.span}:${t.correct ? 1 : 0}`).join(",")).toString(36);
+  const fp = cyrb53(`${n.prefix}|` + trials.map((t) => `${t.mode[0]}${t.span}:${t.correct ? 1 : 0}`).join(",")).toString(36);
   return { trials, maxForward, maxBackward, forwardCorrect, backwardCorrect, percentile, band: band(combined), fingerprint: fp };
 }
+
+/** Digit-span scoring (forward ~6.5, backward ~4.8). */
+export function scoreMemory(trials: MemoryTrial[]): MemoryResult {
+  return spanResult(trials, { fMean: 6.5, fSd: 1.3, bMean: 4.8, bSd: 1.3, prefix: "mem" });
+}
+
+/** Corsi spatial-span scoring (forward ~5.5, backward ~5.0). */
+export function scoreCorsi(trials: MemoryTrial[]): MemoryResult {
+  return spanResult(trials, { fMean: 5.5, fSd: 1.2, bMean: 5.0, bSd: 1.2, prefix: "corsi" });
+}
+
+/** A random sequence of `span` distinct block indices in 0..count-1. */
+export function makeSequence(span: number, count: number): number[] {
+  const pool = Array.from({ length: count }, (_, i) => i);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, span);
+}
+
+/** Corsi block-tapping test configuration. */
+export const CORSI_TEST = {
+  id: "corsi-blocks",
+  name: "Spatial Memory (Corsi)",
+  shortName: "Corsi",
+  category: "cognition",
+  tagline: "Watch a path light up across the board — then tap it back from memory.",
+  description:
+    "The Corsi block-tapping test is the visual-spatial counterpart to digit span. Blocks light up one by one in a " +
+    "sequence; you reproduce it by tapping them in the same order (then in reverse). It measures spatial working " +
+    "memory (Gsm) — a capacity that's quite separate from how you do with words and numbers.",
+  blocks: [
+    { x: 44, y: 64 }, { x: 158, y: 32 }, { x: 262, y: 74 },
+    { x: 74, y: 156 }, { x: 206, y: 146 }, { x: 296, y: 188 },
+    { x: 116, y: 250 }, { x: 240, y: 268 }, { x: 40, y: 286 },
+  ],
+  forward: [2, 3, 4, 5, 6, 7],
+  backward: [2, 3, 4, 5, 6],
+  litMs: 550,
+  gapMs: 280,
+  citations: [
+    { ref: "Corsi, P. M. (1972). Human memory and the medial temporal region of the brain. (Doctoral dissertation, McGill University.)" },
+    { ref: "Kessels, R. P. C., et al. (2000). The Corsi Block-Tapping Task: standardization and normative data. Applied Neuropsychology, 7(4), 252–258." },
+  ],
+  caveats: [
+    "This is an EDUCATIONAL estimate, not a clinical assessment, and cannot replace a professionally administered test.",
+    "Screen size, pointer accuracy, and distractions all affect the result — treat one sitting as a rough snapshot.",
+    "Spatial memory is just one capacity, and it varies with sleep, stress, and practice. It is not a measure of intelligence or worth.",
+  ],
+} as const;
 
 /** Generate a random digit string of the given length (digits 1–9). */
 export function makeDigits(span: number): string {

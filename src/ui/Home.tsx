@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
-import { MEMORY_TEST } from "@core/ability/memory";
+import { MEMORY_TEST, CORSI_TEST } from "@core/ability/memory";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -12,12 +12,14 @@ export function Home({
   onStartPack,
   onStartAbility,
   onStartMemory,
+  onStartCorsi,
 }: {
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onStartPack: () => void;
   onStartAbility: (test: AbilityTest) => void;
   onStartMemory: () => void;
+  onStartCorsi: () => void;
 }) {
   return (
     <div className="container">
@@ -137,6 +139,21 @@ export function Home({
             </div>
             <p className="cite">Digit span — a core working-memory subtest of the WAIS.</p>
             <button className="btn primary" onClick={onStartMemory}>Begin {MEMORY_TEST.shortName} →</button>
+          </article>
+          <article className="card">
+            <span className="card-watermark cat-cognition" aria-hidden="true">
+              <InstrumentGlyph id="corsi-blocks" category="cognition" />
+            </span>
+            <span className="kind">Ability test</span>
+            <h3>{CORSI_TEST.name}</h3>
+            <p className="tagline">{CORSI_TEST.tagline}</p>
+            <div className="facts">
+              <span>⏱ ~4 min</span>
+              <span>🟦 tap to recall</span>
+              <span>📐 spatial span</span>
+            </div>
+            <p className="cite">The Corsi block-tapping test — the visual-spatial counterpart to digit span.</p>
+            <button className="btn primary" onClick={onStartCorsi}>Begin {CORSI_TEST.shortName} →</button>
           </article>
         </div>
       </div>
