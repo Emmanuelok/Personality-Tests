@@ -302,6 +302,19 @@ describe("instrument localization", () => {
     expect(localizeInstrument(bigFive, "en")).toBe(bigFive);
     expect(localizeInstrument(hexaco, "es")).toBe(hexaco);
   });
+
+  it("translates DISC (es/fr) while preserving ids and type resolution", () => {
+    for (const loc of ["es", "fr"]) {
+      const d = localizeInstrument(disc, loc);
+      expect(d.name).not.toBe(disc.name);
+      expect(d.items.length).toBe(disc.items.length);
+      expect(d.items.every((it, i) => it.id === disc.items[i].id && it.scale === disc.items[i].scale)).toBe(true);
+      // typological resolution still works (resolveType is preserved)
+      const res = scoreAssessment(d, allHigh(disc));
+      expect(res.type).toBeTruthy();
+      expect(res.type!.code.length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("growth planning", () => {
