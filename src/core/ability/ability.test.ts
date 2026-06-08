@@ -5,6 +5,7 @@ import { makeSpeedTrial, scoreProcessing } from "./processing";
 import { chcFromDomains, buildBattery } from "./chc";
 import { genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
 import { IAT_BLOCKS, makeIatStimulus, scoreIat, type IatTrial } from "./iat";
+import { scoreCreativity } from "./creativity";
 import type { AbilityResponses } from "./types";
 
 describe("ability tests are well-formed", () => {
@@ -159,6 +160,27 @@ describe("CHC battery aggregation", () => {
 
   it("returns null with no CHC data", () => {
     expect(buildBattery([{}, { chc: {} }])).toBeNull();
+  });
+
+  it("keeps judgment/creativity domains out of the battery (no CHC mapping)", () => {
+    expect(chcFromDomains([{ domain: "interpersonal", percentile: 80 }, { domain: "integrity", percentile: 70 }])).toEqual({});
+  });
+});
+
+describe("creative thinking (fluency)", () => {
+  it("counts distinct uses per object and rewards more ideas", () => {
+    const many = scoreCreativity([
+      { prompt: "a brick", uses: ["doorstop", "weapon", "build a wall", "paperweight", "art", "exercise weight", "heat sink"] },
+      { prompt: "a paperclip", uses: ["pick a lock", "earring", "reset button", "bookmark", "hook", "fix a zipper"] },
+    ]);
+    const few = scoreCreativity([{ prompt: "a brick", uses: ["build"] }, { prompt: "a paperclip", uses: [] }]);
+    expect(many.fluency).toBe(13);
+    expect(many.percentile).toBeGreaterThan(few.percentile);
+  });
+
+  it("de-duplicates repeated uses within an object", () => {
+    const r = scoreCreativity([{ prompt: "a brick", uses: ["doorstop", "Doorstop", " doorstop ", "weapon"] }]);
+    expect(r.fluency).toBe(2);
   });
 });
 

@@ -741,6 +741,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .speed-actions { display: flex; gap: 14px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
 .speed-actions .btn { min-width: 168px; justify-content: center; }
 
+/* Creative Thinking (Alternative Uses) */
+.use-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.use-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border-soft); color: var(--text-dim); animation: viewIn 0.25s ease both; }
+.use-x { border: none; background: none; color: var(--text-faint); cursor: pointer; font-size: 16px; line-height: 1; padding: 0; }
+.use-x:hover { color: var(--danger); }
+
 /* Implicit Association Test */
 .iat-sides { display: flex; justify-content: space-between; gap: 14px; margin-top: 18px; }
 .iat-side { flex: 1; max-width: 240px; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 14px; background: var(--surface); font-family: var(--display); font-weight: 600; font-size: 1.05rem; }

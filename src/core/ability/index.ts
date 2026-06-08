@@ -4,8 +4,9 @@ import { culturefair } from "./tests/culturefair";
 import { speed } from "./tests/speed";
 import { critical } from "./tests/critical";
 import { mechanical } from "./tests/mechanical";
+import { sjt } from "./tests/sjt";
 
-export const ABILITY_TESTS: AbilityTest[] = [cognitive, culturefair, speed, critical, mechanical];
+export const ABILITY_TESTS: AbilityTest[] = [cognitive, culturefair, speed, critical, mechanical, sjt];
 
 const BY_ID = new Map(ABILITY_TESTS.map((t) => [t.id, t]));
 export function getAbilityTest(id: string): AbilityTest | undefined {
@@ -13,5 +14,5 @@ export function getAbilityTest(id: string): AbilityTest | undefined {
 }
 
 export { scoreAbility } from "./score";
-export { cognitive, culturefair, speed, critical, mechanical };
+export { cognitive, culturefair, speed, critical, mechanical, sjt };
 export type { AbilityTest, AbilityItem, AbilityResult, AbilityResponses, AbilityDomain, DomainScore, AbilityDomainId } from "./types";

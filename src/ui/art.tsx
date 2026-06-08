@@ -815,6 +815,23 @@ Object.assign(GLYPHS, {
       <circle className="gold gold-fill" cx="24" cy="26" r="2" />
     </>
   ),
+  // Creative Thinking — one seed branching into many ideas.
+  "alternative-uses": () => (
+    <>
+      <path d="M16,24 L30,12 M16,24 L34,21 M16,24 L33,31 M16,24 L28,39" />
+      <circle className="gold gold-fill" cx="16" cy="24" r="3.4" />
+      <circle cx="30" cy="12" r="2.4" /><circle cx="34" cy="21" r="2.4" /><circle cx="33" cy="31" r="2.4" /><circle cx="28" cy="39" r="2.4" />
+    </>
+  ),
+  // Situational Judgment — a signpost / decision fork.
+  "situational-judgment": () => (
+    <>
+      <line x1="24" y1="42" x2="24" y2="22" />
+      <path className="gold gold-fill" d="M24,10 L37,15 L24,20 Z" />
+      <path d="M24,22 L12,28 M24,22 L36,28" />
+      <circle cx="12" cy="29" r="2.4" /><circle className="gold gold-fill" cx="36" cy="29" r="2.4" />
+    </>
+  ),
   // Implicit Associations — two linked concepts with a fast spark.
   "iat-demo": () => (
     <>

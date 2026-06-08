@@ -6,6 +6,7 @@ import { MEMORY_TEST, CORSI_TEST } from "@core/ability/memory";
 import { PROCESSING_TEST } from "@core/ability/processing";
 import { ADAPTIVE_TEST } from "@core/ability/adaptive";
 import { IAT_TEST } from "@core/ability/iat";
+import { CREATIVITY_TEST } from "@core/ability/creativity";
 import { CATEGORIES } from "@core/categories";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 
@@ -19,6 +20,7 @@ export function Home({
   onStartSpeed,
   onStartAdaptive,
   onStartIat,
+  onStartCreativity,
   onBattery,
 }: {
   onStart: (instrument: Instrument) => void;
@@ -30,6 +32,7 @@ export function Home({
   onStartSpeed: () => void;
   onStartAdaptive: () => void;
   onStartIat: () => void;
+  onStartCreativity: () => void;
   onBattery?: () => void;
 }) {
   return (
@@ -112,8 +115,8 @@ export function Home({
             <CategoryEmblem id="cognition" />
           </span>
           <div>
-            <h3 className="cat-name">Cognitive Ability</h3>
-            <p className="cat-blurb">Timed reasoning tests with right and wrong answers — an honest, research-based estimate of how you think. Not a clinical IQ.</p>
+            <h3 className="cat-name">Cognitive &amp; Performance</h3>
+            <p className="cat-blurb">Tests with right answers — reasoning, memory, speed, judgment, and more. Honest, research-based estimates of how you think and perform. Not a clinical IQ.</p>
           </div>
         </div>
         {onBattery && (
@@ -222,6 +225,21 @@ export function Home({
             </div>
             <p className="cite">A neutral demonstration of the Implicit Association Test (Greenwald et al.).</p>
             <button className="btn primary" onClick={onStartIat}>Begin {IAT_TEST.shortName} →</button>
+          </article>
+          <article className="card">
+            <span className="card-watermark cat-cognition" aria-hidden="true">
+              <InstrumentGlyph id="alternative-uses" category="cognition" />
+            </span>
+            <span className="kind">Performance test</span>
+            <h3>{CREATIVITY_TEST.name}</h3>
+            <p className="tagline">{CREATIVITY_TEST.tagline}</p>
+            <div className="facts">
+              <span>⏱ ~3 min</span>
+              <span>💡 open-ended</span>
+              <span>📐 divergent thinking</span>
+            </div>
+            <p className="cite">Guilford's Alternative Uses Task — the classic measure of idea fluency.</p>
+            <button className="btn primary" onClick={onStartCreativity}>Begin {CREATIVITY_TEST.shortName} →</button>
           </article>
         </div>
       </div>
