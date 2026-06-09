@@ -7,7 +7,7 @@ import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "prompt" | "result";
 
-export function CreativityFlow({ name, onExit, onComplete }: { name?: string; onExit: () => void; onComplete?: (r: CreativityResult) => void }) {
+export function CreativityFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: CreativityResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [pi, setPi] = useState(0);
   const [uses, setUses] = useState<string[]>([]);
@@ -115,7 +115,7 @@ export function CreativityFlow({ name, onExit, onComplete }: { name?: string; on
             <ul className="caveats">{(meta.caveats ?? CREATIVITY_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
-          <CognitionGrowth testId="alternative-uses" />
+          <CognitionGrowth testId="alternative-uses" unlocked={!!unlocked} onPurchase={onPurchase ?? (() => {})} busy={busy} />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={() => { setDone([]); setResult(null); beginPrompt(0); }}>↻ {i18.t("cog.tryAgain")}</button>

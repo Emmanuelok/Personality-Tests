@@ -78,10 +78,13 @@ export default function App() {
   const [abilityTest, setAbilityTest] = useState<AbilityTest | null>(null);
   const [abilityResult, setAbilityResult] = useState<ARes | null>(null);
   const [abilityNonce, setAbilityNonce] = useState(0);
+  // The most recent standalone cognition mini-test result, for gating its full report.
+  const [cog, setCog] = useState<{ id: string; fingerprint: string } | null>(null);
 
   const name = profile?.name || undefined;
   const unlocked = useMemo(() => !!result && isUnlocked(result.responseFingerprint), [result, unlockNonce]);
   const abilityUnlocked = useMemo(() => !!abilityResult && isUnlocked(abilityResult.fingerprint), [abilityResult, unlockNonce]);
+  const cogUnlocked = useMemo(() => !!cog && isUnlocked(cog.fingerprint), [cog, unlockNonce]);
   const battery = useMemo(() => buildBattery(profile?.cognitiveHistory ?? []), [profile]);
 
   // Rescore the latest take of each completed instrument for synthesis.
@@ -231,6 +234,7 @@ export default function App() {
       headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} digits`, percentile: r.percentile,
       chc: { Gsm: r.percentile },
     }));
+    setCog({ id: MEMORY_TEST.id, fingerprint: r.fingerprint });
   };
   const corsiDone = (r: MemoryResult) => {
     const base = profile ?? createProfile("", []);
@@ -239,6 +243,7 @@ export default function App() {
       headline: `Forward ${r.maxForward} · Backward ${r.maxBackward} blocks`, percentile: r.percentile,
       chc: { Gv: r.percentile },
     }));
+    setCog({ id: CORSI_TEST.id, fingerprint: r.fingerprint });
   };
   const speedDone = (r: SpeedResult) => {
     const base = profile ?? createProfile("", []);
@@ -247,6 +252,7 @@ export default function App() {
       headline: `${r.correct} correct · ${r.rate}/min`, percentile: r.percentile,
       chc: { Gs: r.percentile },
     }));
+    setCog({ id: PROCESSING_TEST.id, fingerprint: r.fingerprint });
   };
   const adaptiveDone = (r: AdaptiveResult) => {
     const base = profile ?? createProfile("", []);
@@ -255,6 +261,7 @@ export default function App() {
       headline: `${r.band} · ${r.iqLow}–${r.iqHigh}`, percentile: r.percentile,
       chc: { Gf: r.percentile },
     }));
+    setCog({ id: ADAPTIVE_TEST.id, fingerprint: r.fingerprint });
   };
   const retakeAbility = () => {
     setAbilityResult(null);
@@ -276,6 +283,23 @@ export default function App() {
     if ("redirected" in outcome) return;
     if ("demo" in outcome) {
       grantProduct(productId, abilityResult.fingerprint);
+      setUnlockNonce((n) => n + 1);
+      setBusy(false);
+      top();
+    } else {
+      setError(outcome.error);
+      setBusy(false);
+    }
+  };
+  const onPurchaseCognition = async () => {
+    if (!cog) return;
+    setError(null);
+    setBusy(true);
+    const pending: PendingResult = { instrumentId: cog.id, responses: {}, fingerprint: cog.fingerprint, productId: "cognitive" };
+    const outcome = await startCheckout("cognitive", pending);
+    if ("redirected" in outcome) return;
+    if ("demo" in outcome) {
+      grantProduct("cognitive", cog.fingerprint);
       setUnlockNonce((n) => n + 1);
       setBusy(false);
       top();
@@ -319,6 +343,7 @@ export default function App() {
       id: CREATIVITY_TEST.id, name: CREATIVITY_TEST.name, takenAt: new Date().toISOString(),
       headline: `${r.fluency} uses · ${r.band}`, percentile: r.percentile,
     }));
+    setCog({ id: CREATIVITY_TEST.id, fingerprint: r.fingerprint });
   };
 
   const beginInstrument = (inst: Instrument) => {
@@ -465,17 +490,17 @@ export default function App() {
         />
       )}
 
-      {view === "memory" && <MemoryFlow name={name} onExit={goHome} onComplete={memoryDone} />}
+      {view === "memory" && <MemoryFlow name={name} onExit={goHome} onComplete={memoryDone} unlocked={cogUnlocked} onPurchase={onPurchaseCognition} busy={busy} />}
 
-      {view === "corsi" && <CorsiFlow name={name} onExit={goHome} onComplete={corsiDone} />}
+      {view === "corsi" && <CorsiFlow name={name} onExit={goHome} onComplete={corsiDone} unlocked={cogUnlocked} onPurchase={onPurchaseCognition} busy={busy} />}
 
-      {view === "speed" && <SpeedFlow name={name} onExit={goHome} onComplete={speedDone} />}
+      {view === "speed" && <SpeedFlow name={name} onExit={goHome} onComplete={speedDone} unlocked={cogUnlocked} onPurchase={onPurchaseCognition} busy={busy} />}
 
-      {view === "adaptive" && <AdaptiveFlow name={name} onExit={goHome} onComplete={adaptiveDone} />}
+      {view === "adaptive" && <AdaptiveFlow name={name} onExit={goHome} onComplete={adaptiveDone} unlocked={cogUnlocked} onPurchase={onPurchaseCognition} busy={busy} />}
 
       {view === "iat" && <IatFlow name={name} onExit={goHome} onComplete={iatDone} />}
 
-      {view === "creativity" && <CreativityFlow name={name} onExit={goHome} onComplete={creativityDone} />}
+      {view === "creativity" && <CreativityFlow name={name} onExit={goHome} onComplete={creativityDone} unlocked={cogUnlocked} onPurchase={onPurchaseCognition} busy={busy} />}
 
       {view === "battery" && battery && (
         <BatteryView battery={battery} takes={profile?.cognitiveHistory ?? []} name={name} onExit={goHome} />

@@ -14,7 +14,7 @@ const TRIALS: { mode: SpanMode; span: number }[] = [
 
 type Phase = "intro" | "show" | "recall" | "result";
 
-export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void }) {
+export function MemoryFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [trialIdx, setTrialIdx] = useState(0);
   const [shown, setShown] = useState("");
@@ -114,7 +114,7 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
             <ul className="caveats">{(meta.caveats ?? MEMORY_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
-          <CognitionGrowth testId="memory-span" />
+          <CognitionGrowth testId="memory-span" unlocked={!!unlocked} onPurchase={onPurchase ?? (() => {})} busy={busy} />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ {i18.t("cog.tryAgain")}</button>

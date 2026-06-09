@@ -8,7 +8,7 @@ import { useI18n } from "../../i18n";
 type Phase = "intro" | "run" | "result";
 type Trial = ReturnType<typeof makeSpeedTrial>;
 
-export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit: () => void; onComplete?: (r: SpeedResult) => void }) {
+export function SpeedFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: SpeedResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [timeLeft, setTimeLeft] = useState<number>(PROCESSING_TEST.durationSec);
   const [trial, setTrial] = useState<Trial>(makeSpeedTrial());
@@ -124,7 +124,7 @@ export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit:
             <ul className="caveats">{(meta.caveats ?? PROCESSING_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
-          <CognitionGrowth testId="processing-speed" />
+          <CognitionGrowth testId="processing-speed" unlocked={!!unlocked} onPurchase={onPurchase ?? (() => {})} busy={busy} />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={start}>↻ {i18.t("cog.tryAgain")}</button>

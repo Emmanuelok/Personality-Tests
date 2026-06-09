@@ -14,7 +14,7 @@ const pretty = (s: string) => (s ? s.split("-").map((n) => +n + 1).join("·") : 
 
 type Phase = "intro" | "show" | "recall" | "result";
 
-export function CorsiFlow({ name, onExit, onComplete }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void }) {
+export function CorsiFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [trialIdx, setTrialIdx] = useState(0);
   const [seq, setSeq] = useState<number[]>([]);
@@ -149,7 +149,7 @@ export function CorsiFlow({ name, onExit, onComplete }: { name?: string; onExit:
             <ul className="caveats">{(meta.caveats ?? CORSI_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
-          <CognitionGrowth testId="corsi-blocks" />
+          <CognitionGrowth testId="corsi-blocks" unlocked={!!unlocked} onPurchase={onPurchase ?? (() => {})} busy={busy} />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ {i18.t("cog.tryAgain")}</button>

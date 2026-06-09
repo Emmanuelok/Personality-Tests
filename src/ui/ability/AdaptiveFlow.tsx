@@ -9,7 +9,7 @@ import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "quiz" | "calc" | "result";
 
-export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onExit: () => void; onComplete?: (r: AdaptiveResult) => void }) {
+export function AdaptiveFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: AdaptiveResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [level, setLevel] = useState<number>(ADAPTIVE_TEST.startLevel);
   const [item, setItem] = useState<AdaptiveItem | null>(null);
@@ -108,7 +108,7 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
             <ul className="caveats">{(meta.caveats ?? ADAPTIVE_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
 
-          <CognitionGrowth testId="adaptive-reasoning" />
+          <CognitionGrowth testId="adaptive-reasoning" unlocked={!!unlocked} onPurchase={onPurchase ?? (() => {})} busy={busy} />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={begin}>↻ {i18.t("cog.tryAgain")}</button>

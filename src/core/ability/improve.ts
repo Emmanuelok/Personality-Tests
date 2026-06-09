@@ -19,11 +19,18 @@ export interface AbilityGrowth {
   tips: AbilityTip[];
   /** The honest limitation, always shown. */
   caveat: string;
+  /** Paywall microcopy shown when the full report is locked. */
+  teaser: string;
+  unlockCta: string;
+  unlockTrust: string;
 }
 
 interface Bundle {
   basics: AbilityTip[];
   caveat: string;
+  teaser: string;
+  unlockCta: string;
+  unlockTrust: string;
   defaultHeadline: string;
   perTest: Record<string, { headline: string; tips: AbilityTip[] }>;
 }
@@ -36,6 +43,9 @@ const EN: Bundle = {
   ],
   caveat:
     "Be skeptical of “brain training”: practising a task makes you better at that task, but the gains rarely transfer to general intelligence or everyday life (Melby-Lervåg & Hulme, 2013; Simons et al., 2016). The habits here — sleep, exercise, and learning real things — have far better evidence than any app, and your score is an educational estimate, not a fixed ceiling.",
+  teaser: "Your full cognitive report turns this score into a personalized, evidence-based plan to strengthen it — with the honest science on what actually helps.",
+  unlockCta: "Unlock the full report",
+  unlockTrust: "🔒 No account needed. Secure one-time purchase.",
   defaultHeadline: "Supporting your cognitive performance",
   perTest: {
     "memory-span": { headline: "Working memory is fairly stable — but you can work cleverly with it", tips: [
@@ -70,6 +80,9 @@ const ES: Bundle = {
   ],
   caveat:
     "Desconfía del «entrenamiento cerebral»: practicar una tarea te hace mejor en esa tarea, pero las mejoras rara vez se transfieren a la inteligencia general o a la vida diaria (Melby-Lervåg y Hulme, 2013; Simons et al., 2016). Los hábitos de aquí —dormir, hacer ejercicio y aprender cosas reales— tienen mucha mejor evidencia que cualquier app, y tu resultado es una estimación educativa, no un techo fijo.",
+  teaser: "Tu informe cognitivo completo convierte esta puntuación en un plan personalizado y basado en la evidencia para reforzarla, con la ciencia honesta sobre lo que de verdad ayuda.",
+  unlockCta: "Desbloquear el informe completo",
+  unlockTrust: "🔒 Sin cuenta. Compra única y segura.",
   defaultHeadline: "Apoyar tu rendimiento cognitivo",
   perTest: {
     "memory-span": { headline: "La memoria de trabajo es bastante estable, pero puedes trabajar con astucia con ella", tips: [
@@ -104,6 +117,9 @@ const FR: Bundle = {
   ],
   caveat:
     "Méfiez-vous de l'« entraînement cérébral » : s'exercer à une tâche vous y rend meilleur, mais les gains se transfèrent rarement à l'intelligence générale ou à la vie quotidienne (Melby-Lervåg & Hulme, 2013 ; Simons et al., 2016). Les habitudes ici — sommeil, exercice et apprendre de vraies choses — ont bien plus de preuves que n'importe quelle appli, et votre score est une estimation éducative, pas un plafond figé.",
+  teaser: "Votre rapport cognitif complet transforme ce score en un plan personnalisé et fondé sur des preuves pour le renforcer — avec la science honnête de ce qui aide vraiment.",
+  unlockCta: "Débloquer le rapport complet",
+  unlockTrust: "🔒 Sans compte. Achat unique et sécurisé.",
   defaultHeadline: "Soutenir vos performances cognitives",
   perTest: {
     "memory-span": { headline: "La mémoire de travail est assez stable — mais vous pouvez ruser avec elle", tips: [
@@ -140,5 +156,8 @@ export function abilityGrowth(testId: string, locale?: string): AbilityGrowth {
     headline: t?.headline ?? b.defaultHeadline,
     tips: [...(t?.tips ?? []), ...b.basics],
     caveat: b.caveat,
+    teaser: b.teaser,
+    unlockCta: b.unlockCta,
+    unlockTrust: b.unlockTrust,
   };
 }
