@@ -1,12 +1,14 @@
 import { abilityGrowth } from "@core/ability/improve";
+import { useI18n } from "../../i18n";
 
 /**
  * "How to strengthen this" section for a cognition result. Evidence-honest:
  * task strategies + brain-health basics, with a standing caveat about limited
- * transfer (see core/ability/improve.ts).
+ * transfer (see core/ability/improve.ts). Localized via the active locale.
  */
 export function CognitionGrowth({ testId }: { testId: string }) {
-  const g = abilityGrowth(testId);
+  const { locale } = useI18n();
+  const g = abilityGrowth(testId, locale);
   return (
     <section className="panel sec">
       <h3 style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{g.headline}</h3>

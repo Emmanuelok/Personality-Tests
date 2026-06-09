@@ -22,6 +22,13 @@ describe("cognitive improvement guidance", () => {
     expect(def.tips.length).toBeGreaterThanOrEqual(3); // basics still present
     expect(def.caveat.length).toBeGreaterThan(0);
   });
+
+  it("localizes the guidance into es/fr (English fallback otherwise)", () => {
+    expect(abilityGrowth("memory-span", "es").caveat).toMatch(/entrenamiento cerebral/);
+    expect(abilityGrowth("memory-span", "fr").caveat).toMatch(/entraînement cérébral/);
+    expect(abilityGrowth("memory-span", "es").headline).not.toBe(abilityGrowth("memory-span", "en").headline);
+    expect(abilityGrowth("memory-span", "de").caveat).toBe(abilityGrowth("memory-span", "en").caveat); // unknown locale → English
+  });
 });
 
 describe("ability tests are well-formed", () => {
