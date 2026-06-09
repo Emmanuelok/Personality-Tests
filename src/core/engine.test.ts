@@ -356,6 +356,19 @@ describe("instrument localization", () => {
     expect(eFr.title.startsWith("Type 5")).toBe(true);
     expect(eFr.title).toContain("Investigateur");
     expect(eFr.code).toBe(baseCode);
+
+    // Jung: all-high resolves to ENFJ; title + component labels + function stack localize, code stable
+    const jAns = allHigh(jungTypes);
+    expect(scoreAssessment(jungTypes, jAns).type!.title).toBe("The Teacher");
+    const jEs = scoreAssessment(localizeInstrument(jungTypes, "es"), jAns).type!;
+    expect(jEs.code).toBe("ENFJ");
+    expect(jEs.title).toBe("El Maestro");
+    expect(jEs.components.some((c) => c.label === "Energía")).toBe(true);
+    expect(jEs.components.find((c) => c.label === "Pila de funciones cognitivas")!.value).toContain("Sentimiento extravertido");
+    const jFr = scoreAssessment(localizeInstrument(jungTypes, "fr"), jAns).type!;
+    expect(jFr.code).toBe("ENFJ");
+    expect(jFr.title).toBe("Le Mentor");
+    expect(jFr.components.some((c) => c.label === "Énergie")).toBe(true);
   });
 
   it("translates the wellbeing + HEXACO + Dark Triad sets (es/fr) preserving ids, keying, scale ids, and scores", () => {

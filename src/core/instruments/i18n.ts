@@ -665,6 +665,80 @@ export function enneaTypeStrings(locale?: string): EnneaTypeBundle | undefined {
   return locale === "es" ? ENNEA_TYPE_ES : locale === "fr" ? ENNEA_TYPE_FR : undefined;
 }
 
+export interface JungTypeBundle {
+  types: Record<string, { title: string; summary: string }>;
+  functions: Record<string, string>;
+  clarity: { veryClear: string; clear: string; moderate: string; slight: string };
+  axisValues: Record<string, string>; // E,I,N,S,F,T,J,P → display
+  labels: { energy: string; information: string; decisions: string; structure: string; stack: string };
+  stackPos: [string, string, string, string];
+  pref: string; // "{c} preference"
+}
+
+const JUNG_TYPE_ES: JungTypeBundle = {
+  types: {
+    ISTJ: { title: "El Inspector", summary: "Fiable, metódico/a y leal a sus compromisos y estándares." },
+    ISFJ: { title: "El Protector", summary: "Cálido/a, concienzudo/a y discretamente entregado/a a cuidar de los demás." },
+    INFJ: { title: "El Consejero", summary: "Perspicaz y con principios, guiado/a por una visión privada de lo que podría ser." },
+    INTJ: { title: "El Arquitecto", summary: "Estratégico/a e independiente, construye sistemas de largo alcance hacia una meta." },
+    ISTP: { title: "El Artesano", summary: "Solucionador/a práctico/a que domina cómo funcionan realmente las cosas." },
+    ISFP: { title: "El Compositor", summary: "Amable, centrado/a en el presente y guiado/a por valores personales muy arraigados." },
+    INFP: { title: "El Mediador", summary: "Idealista e imaginativo/a, anclado/a a una fuerte brújula moral interior." },
+    INTP: { title: "El Lógico", summary: "Analítico/a e inventivo/a, movido/a a comprender la lógica que subyace a las cosas." },
+    ESTP: { title: "El Dinamizador", summary: "Audaz y pragmático/a, prospera con la acción y la resolución en tiempo real." },
+    ESFP: { title: "El Animador", summary: "Espontáneo/a y cálido/a, aporta energía y deleite al momento presente." },
+    ENFP: { title: "El Inspirador", summary: "Entusiasta e imaginativo/a, ve posibilidad y potencial en las personas." },
+    ENTP: { title: "El Visionario", summary: "Ágil e inventivo/a debatiendo, le encanta generar y poner a prueba ideas nuevas." },
+    ESTJ: { title: "El Supervisor", summary: "Organizado/a y decidido/a, moviliza personas y recursos para lograr resultados." },
+    ESFJ: { title: "El Proveedor", summary: "Sociable y cumplidor/a, atento/a a las necesidades de los demás y a la armonía del grupo." },
+    ENFJ: { title: "El Maestro", summary: "Carismático/a y empático/a, saca lo mejor de quienes le rodean." },
+    ENTJ: { title: "El Comandante", summary: "Líder estratégico/a que organiza el mundo hacia una visión ambiciosa." },
+  },
+  functions: {
+    Ni: "Intuición introvertida", Ne: "Intuición extravertida", Si: "Sensación introvertida", Se: "Sensación extravertida",
+    Ti: "Pensamiento introvertido", Te: "Pensamiento extravertido", Fi: "Sentimiento introvertido", Fe: "Sentimiento extravertido",
+  },
+  clarity: { veryClear: "muy clara", clear: "clara", moderate: "moderada", slight: "leve" },
+  axisValues: { E: "Extraversión", I: "Introversión", N: "Intuición", S: "Sensación", F: "Sentimiento", T: "Pensamiento", J: "Juicio", P: "Percepción" },
+  labels: { energy: "Energía", information: "Información", decisions: "Decisiones", structure: "Estructura", stack: "Pila de funciones cognitivas" },
+  stackPos: ["dominante", "auxiliar", "terciaria", "inferior"],
+  pref: "preferencia {c}",
+};
+
+const JUNG_TYPE_FR: JungTypeBundle = {
+  types: {
+    ISTJ: { title: "L'Inspecteur", summary: "Fiable, méthodique et loyal(e) envers ses engagements et ses standards." },
+    ISFJ: { title: "Le Protecteur", summary: "Chaleureux(se), consciencieux(se) et discrètement dévoué(e) à prendre soin des autres." },
+    INFJ: { title: "Le Conseiller", summary: "Perspicace et intègre, guidé(e) par une vision intime de ce qui pourrait être." },
+    INTJ: { title: "L'Architecte", summary: "Stratège et indépendant(e), bâtit des systèmes à long terme vers un objectif." },
+    ISTP: { title: "L'Artisan", summary: "Résolveur(se) pragmatique qui maîtrise le fonctionnement réel des choses." },
+    ISFP: { title: "Le Compositeur", summary: "Doux(ce), ancré(e) dans le présent et guidé(e) par des valeurs personnelles profondes." },
+    INFP: { title: "Le Médiateur", summary: "Idéaliste et imaginatif(ve), ancré(e) à une forte boussole morale intérieure." },
+    INTP: { title: "Le Logicien", summary: "Analytique et inventif(ve), poussé(e) à comprendre la logique sous-jacente des choses." },
+    ESTP: { title: "Le Fonceur", summary: "Audacieux(se) et pragmatique, s'épanouit dans l'action et la résolution en temps réel." },
+    ESFP: { title: "L'Amuseur", summary: "Spontané(e) et chaleureux(se), apporte énergie et plaisir à l'instant présent." },
+    ENFP: { title: "L'Inspirateur", summary: "Enthousiaste et imaginatif(ve), voit la possibilité et le potentiel chez les gens." },
+    ENTP: { title: "Le Visionnaire", summary: "Vif(ve) et inventif(ve) dans le débat, adore générer et tester des idées nouvelles." },
+    ESTJ: { title: "Le Superviseur", summary: "Organisé(e) et décidé(e), mobilise gens et ressources pour obtenir des résultats." },
+    ESFJ: { title: "Le Pourvoyeur", summary: "Sociable et dévoué(e), attentif(ve) aux besoins des autres et à l'harmonie du groupe." },
+    ENFJ: { title: "Le Mentor", summary: "Charismatique et empathique, révèle le meilleur de son entourage." },
+    ENTJ: { title: "Le Commandant", summary: "Leader stratège qui organise le monde vers une vision ambitieuse." },
+  },
+  functions: {
+    Ni: "Intuition introvertie", Ne: "Intuition extravertie", Si: "Sensation introvertie", Se: "Sensation extravertie",
+    Ti: "Pensée introvertie", Te: "Pensée extravertie", Fi: "Sentiment introverti", Fe: "Sentiment extraverti",
+  },
+  clarity: { veryClear: "très nette", clear: "nette", moderate: "modérée", slight: "légère" },
+  axisValues: { E: "Extraversion", I: "Introversion", N: "Intuition", S: "Sensation", F: "Sentiment", T: "Pensée", J: "Jugement", P: "Perception" },
+  labels: { energy: "Énergie", information: "Information", decisions: "Décisions", structure: "Structure", stack: "Pile de fonctions cognitives" },
+  stackPos: ["dominante", "auxiliaire", "tertiaire", "inférieure"],
+  pref: "préférence {c}",
+};
+
+export function jungTypeStrings(locale?: string): JungTypeBundle | undefined {
+  return locale === "es" ? JUNG_TYPE_ES : locale === "fr" ? JUNG_TYPE_FR : undefined;
+}
+
 /** Return a locale-translated clone of the instrument (English fallback per field). */
 export function localizeInstrument(inst: Instrument, locale: string): Instrument {
   const tr = TRANSLATIONS[locale]?.[inst.id];
