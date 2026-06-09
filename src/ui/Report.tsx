@@ -9,6 +9,7 @@ import { InstrumentGlyph, Crest, Flourish, TraitIcon } from "./art";
 import { ImprovementPlanner } from "./ImprovementPlanner";
 import { Companion } from "./Companion";
 import { downloadJSON, downloadMarkdown } from "./exports";
+import { levelLabel, pctLabel } from "./fmt";
 import { downloadShareCard } from "./shareCard";
 import { fetchNorms, communityPercentile } from "../calibration";
 import { hasPoster } from "../store";
@@ -157,10 +158,10 @@ export function Report({
               <div className="trait" key={t.scaleId}>
                 <div className="thead">
                   <h4><TraitIcon seed={t.scaleId} />{t.name}</h4>
-                  <span className="level">{t.level} · {t.poleLabel}</span>
+                  <span className="level">{levelLabel(t.level, i18.locale)} · {t.poleLabel}</span>
                 </div>
                 <ScaleBar value={t.normalized} leftLabel={sd?.poles?.low} rightLabel={sd?.poles?.high} />
-                <div className="pct">{ordinalPct(t.percentile)} percentile</div>
+                <div className="pct">{pctLabel(t.percentile, i18.locale)}</div>
                 <p className="narr">{t.narrative}</p>
                 <div className="sw">
                   <div className="col good">
@@ -266,6 +267,7 @@ export function Report({
 
 /** Live community percentiles (only renders when the opt-in backend has enough data). */
 function CommunityCalibration({ instrumentId, traits }: { instrumentId: string; traits: { scaleId: string; name: string; normalized: number }[] }) {
+  const i18 = useI18n();
   const [norms, setNorms] = useState<Record<string, number[]> | null>(null);
   useEffect(() => {
     let on = true;
@@ -281,20 +283,13 @@ function CommunityCalibration({ instrumentId, traits }: { instrumentId: string; 
 
   return (
     <section className="panel sec">
-      <h3>How you compare to the community</h3>
-      <p>Live percentiles from people who opted in to anonymous calibration — these sharpen as more take it.</p>
+      <h3>{i18.t("report.community")}</h3>
+      <p>{i18.t("report.communityLede")}</p>
       {rows.map((r, i) => (
         <div className="cdim" key={i}>
-          <div className="top"><b>{r.name}</b><span className="vals">{ordinalPct(r.p)} percentile</span></div>
+          <div className="top"><b>{r.name}</b><span className="vals">{pctLabel(r.p, i18.locale)}</span></div>
         </div>
       ))}
     </section>
   );
-}
-
-function ordinalPct(n: number): string {
-  const r = Math.round(n);
-  const s = ["th", "st", "nd", "rd"];
-  const v = r % 100;
-  return r + (s[(v - 20) % 10] || s[v] || s[0]);
 }

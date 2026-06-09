@@ -50,7 +50,7 @@ export type StringKey =
   // Personalized home surface
   | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
   | "home.greetMorning" | "home.greetAfternoon" | "home.greetEvening"
-  | "intro.forYou" | "report.nextLede" | "intro.assessment"
+  | "intro.forYou" | "report.nextLede" | "intro.assessment" | "report.community" | "report.communityLede"
   // Home marketing & catalog chrome
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
   | "h.pill1" | "h.pill2" | "h.pill3" | "h.pill4"
@@ -154,6 +154,8 @@ const en: Dict = {
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
   "intro.assessment": "Assessment",
+  "report.community": "How you compare to the community",
+  "report.communityLede": "Live percentiles from people who opted in to anonymous calibration — these sharpen as more take it.",
   "h.eyebrow": "Know Yourself",
   "h.h1a": "Know yourself with", "h.h1grad": "scientific depth", "h.h1b": "Then choose who you become.",
   "h.lead1": "{n} science-backed assessments. One report that's ", "h.leadU": "uniquely yours", "h.lead2": " — then a plan to actually grow.",
@@ -285,6 +287,8 @@ const es: Dict = {
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
   "intro.assessment": "Evaluación",
+  "report.community": "Cómo te comparas con la comunidad",
+  "report.communityLede": "Percentiles en vivo de quienes aceptaron la calibración anónima; se afinan a medida que más personas la hacen.",
   "h.eyebrow": "Conócete",
   "h.h1a": "Conócete con", "h.h1grad": "profundidad científica", "h.h1b": "Y luego elige en quién te conviertes.",
   "h.lead1": "{n} evaluaciones con base científica. Un informe que es ", "h.leadU": "únicamente tuyo", "h.lead2": " — y luego un plan para crecer de verdad.",
@@ -416,6 +420,8 @@ const fr: Dict = {
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
   "intro.assessment": "Évaluation",
+  "report.community": "Comment vous vous situez dans la communauté",
+  "report.communityLede": "Des centiles en direct, issus des personnes ayant accepté la calibration anonyme — ils s'affinent à mesure que d'autres participent.",
   "h.eyebrow": "Connais-toi",
   "h.h1a": "Connaissez-vous avec une", "h.h1grad": "profondeur scientifique", "h.h1b": "Puis choisissez qui vous devenez.",
   "h.lead1": "{n} évaluations fondées sur la science. Un rapport ", "h.leadU": "uniquement vôtre", "h.lead2": " — puis un plan pour vraiment progresser.",

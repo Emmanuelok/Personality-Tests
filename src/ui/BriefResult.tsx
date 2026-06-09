@@ -3,6 +3,7 @@ import type { PersonalityReport } from "@core/report";
 import { PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart } from "./charts";
 import { InstrumentGlyph, Crest, TraitIcon } from "./art";
+import { levelLabel, pctLabel } from "./fmt";
 import { useI18n } from "../i18n";
 
 function shortLabel(name: string): string {
@@ -66,7 +67,7 @@ export function BriefResult({
               <div className="trait" key={t.scaleId} style={{ marginBottom: 10 }}>
                 <div className="thead">
                   <h4><TraitIcon seed={t.scaleId} />{t.name}</h4>
-                  <span className="level">{t.level} · {Math.round(t.percentile)}th pct</span>
+                  <span className="level">{levelLabel(t.level, i18.locale)} · {pctLabel(t.percentile, i18.locale)}</span>
                 </div>
               </div>
             ))}
