@@ -55,6 +55,7 @@ import { pid5 } from "./pid5";
 import { optimism } from "./optimism";
 import { hope } from "./hope";
 import { curiosity } from "./curiosity";
+import { selfControl } from "./selfcontrol";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -114,6 +115,7 @@ export const INSTRUMENTS: Instrument[] = [
   optimism,
   hope,
   curiosity,
+  selfControl,
 ];
 
 const BY_ID = new Map(INSTRUMENTS.map((i) => [i.id, i]));
@@ -184,4 +186,5 @@ export {
   optimism,
   hope,
   curiosity,
+  selfControl,
 };
