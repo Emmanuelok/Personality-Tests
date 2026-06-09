@@ -300,7 +300,7 @@ describe("instrument localization", () => {
 
   it("falls back to the original for locales/instruments without a translation", () => {
     expect(localizeInstrument(bigFive, "en")).toBe(bigFive);
-    expect(localizeInstrument(hexaco, "es")).toBe(hexaco);
+    expect(localizeInstrument(jungTypes, "es")).toBe(jungTypes); // no translation yet → original returned
   });
 
   it("translates DISC (es/fr) while preserving ids and type resolution", () => {
@@ -358,8 +358,8 @@ describe("instrument localization", () => {
     expect(eFr.code).toBe(baseCode);
   });
 
-  it("translates the wellbeing set (es/fr) preserving ids, keying, scale ids, and scores", () => {
-    for (const inst of [perma, lifeSatisfaction, resilience, selfEsteem, mood]) {
+  it("translates the wellbeing + HEXACO + Dark Triad sets (es/fr) preserving ids, keying, scale ids, and scores", () => {
+    for (const inst of [perma, lifeSatisfaction, resilience, selfEsteem, mood, hexaco, darkTriad]) {
       for (const loc of ["es", "fr"]) {
         const t = localizeInstrument(inst, loc);
         expect(t.name).not.toBe(inst.name);

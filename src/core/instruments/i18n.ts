@@ -417,16 +417,110 @@ const MOOD_FR: InstrumentTranslation = {
   },
 };
 
+/* ── HEXACO + Dark Triad (dimensional; reports localize via the shared composer) ── */
+
+const HEXACO_ES: InstrumentTranslation = {
+  name: "Personalidad HEXACO (6 dimensiones)",
+  shortName: "HEXACO",
+  tagline: "Los Cinco Grandes, más el factor que les faltaba: Honestidad-Humildad.",
+  description:
+    "HEXACO es un modelo de seis dimensiones con un fuerte respaldo intercultural. Junto a Emocionalidad, " +
+    "eXtraversión, Amabilidad, Responsabilidad y Apertura, añade la Honestidad-Humildad —la tendencia a la " +
+    "sinceridad, la justicia y la modestia—, que predice el comportamiento ético más allá de los Cinco Grandes.",
+  scales: {
+    H: { name: "Honestidad-Humildad", description: "Sinceridad, justicia, modestia y ausencia de codicia.", poles: { low: "Interesado/a", high: "Honesto/a-Humilde" }, highDescriptor: "sincero/a, justo/a, modesto/a y poco dispuesto/a a explotar a los demás", lowDescriptor: "en busca de estatus, autopromocional y dispuesto/a a torcer las reglas por ventaja" },
+    E: { name: "Emocionalidad", description: "Temor, ansiedad, sentimentalidad y necesidad de apoyo.", poles: { low: "Poco sentimental", high: "Sensible" }, highDescriptor: "sensible, sentimental y atento/a al riesgo y al vínculo", lowDescriptor: "duro/a, autosuficiente y tranquilo/a ante el peligro" },
+    X: { name: "eXtraversión", description: "Autoestima social, audacia, sociabilidad y vitalidad.", poles: { low: "Reservado/a", high: "Extrovertido/a" }, highDescriptor: "extrovertido/a, vivaz, con confianza social y con energía entre la gente", lowDescriptor: "reservado/a, discreto/a y a gusto en su propia compañía" },
+    A: { name: "Amabilidad (vs. Ira)", description: "Perdón, gentileza, flexibilidad y paciencia.", poles: { low: "Crítico/a", high: "Amable" }, highDescriptor: "indulgente, gentil, fácil de tratar y lento/a para la ira", lowDescriptor: "crítico/a, terco/a y rápido/a en sentirse agraviado/a" },
+    C: { name: "Responsabilidad", description: "Organización, diligencia, perfeccionismo y prudencia.", poles: { low: "Espontáneo/a", high: "Disciplinado/a" }, highDescriptor: "organizado/a, disciplinado/a, cuidadoso/a y minucioso/a", lowDescriptor: "espontáneo/a, flexible y cómodo/a con el desorden" },
+    O: { name: "Apertura a la experiencia", description: "Aprecio estético, curiosidad, creatividad y heterodoxia.", poles: { low: "Convencional", high: "Inventivo/a" }, highDescriptor: "curioso/a, imaginativo/a y atraído/a por el arte, las ideas y lo poco convencional", lowDescriptor: "práctico/a, convencional y centrado/a en lo familiar" },
+  },
+  items: {
+    H1: "No usaría la adulación para conseguir un aumento o un ascenso, aunque funcionara.", H2: "Si supiera que nunca me pillarían, estaría dispuesto/a a torcer las reglas en beneficio propio.", H3: "Tener mucho dinero y lujo no me importa demasiado.", H4: "Siento que merezco más respeto y trato especial que la persona media.",
+    E1: "Sentiría bastante miedo si tuviera que viajar con muy mal tiempo.", E2: "Me preocupo bastante por cómo saldrán las cosas.", E3: "Puedo manejar situaciones difíciles sin necesitar apoyo emocional de los demás.", E4: "Siento una emoción intensa cuando alguien cercano se marcha por mucho tiempo.",
+    X1: "Me siento razonablemente satisfecho/a conmigo mismo/a y con mi vida.", X2: "En situaciones sociales, suelo ser quien da el primer paso.", X3: "Disfruto de tener mucha gente alrededor con quien hablar.", X4: "La mayoría de la gente es más alegre y animada que yo.",
+    A1: "Rara vez guardo rencor, ni siquiera a quienes me han agraviado gravemente.", A2: "A veces me dicen que soy demasiado crítico/a con los demás.", A3: "Suelo estar dispuesto/a a ceder en lugar de insistir en salirme con la mía.", A4: "Pierdo los estribos más fácilmente que la mayoría.",
+    C1: "Mantengo mis cosas ordenadas y bien organizadas.", C2: "Cuando trabajo en algo, me exijo mucho para hacerlo bien.", C3: "A menudo tomo decisiones de forma impulsiva.", C4: "Reviso los detalles con cuidado antes de dar una tarea por terminada.",
+    O1: "Me cautiva la belleza en el arte o la naturaleza.", O2: "Me gusta hacer preguntas sobre cosas que la mayoría da por sentadas.", O3: "La gente me describiría como imaginativo/a y original.", O4: "Evito las ideas y las personas que parecen extrañas o poco convencionales.",
+  },
+};
+
+const HEXACO_FR: InstrumentTranslation = {
+  name: "Personnalité HEXACO (6 dimensions)",
+  shortName: "HEXACO",
+  tagline: "Les Big Five, plus le facteur qui leur manquait : Honnêteté-Humilité.",
+  description:
+    "HEXACO est un modèle à six dimensions solidement appuyé par les études interculturelles. À côté de l'Émotivité, " +
+    "de l'eXtraversion, de l'Agréabilité, du caractère Consciencieux et de l'Ouverture, il ajoute l'Honnêteté-Humilité " +
+    "— la tendance à la sincérité, à l'équité et à la modestie —, qui prédit le comportement éthique au-delà des Big Five.",
+  scales: {
+    H: { name: "Honnêteté-Humilité", description: "Sincérité, équité, modestie et absence d'avidité.", poles: { low: "Intéressé(e)", high: "Honnête-Humble" }, highDescriptor: "sincère, équitable, modeste et peu enclin(e) à exploiter autrui", lowDescriptor: "en quête de statut, porté(e) à l'autopromotion et prêt(e) à contourner les règles pour un avantage" },
+    E: { name: "Émotivité", description: "Peur, anxiété, sentimentalité et besoin de soutien.", poles: { low: "Peu sentimental(e)", high: "Sensible" }, highDescriptor: "sensible, sentimental(e) et attentif(ve) au risque et au lien", lowDescriptor: "endurci(e), autonome et calme face au danger" },
+    X: { name: "eXtraversion", description: "Estime de soi sociale, audace, sociabilité et entrain.", poles: { low: "Réservé(e)", high: "Extraverti(e)" }, highDescriptor: "sociable, vif(ve), sûr(e) de soi en société et stimulé(e) par les autres", lowDescriptor: "réservé(e), discret(ète) et bien dans sa propre compagnie" },
+    A: { name: "Agréabilité (vs. Colère)", description: "Pardon, douceur, souplesse et patience.", poles: { low: "Critique", high: "Agréable" }, highDescriptor: "indulgent(e), doux(ce), facile à vivre et lent(e) à la colère", lowDescriptor: "critique, têtu(e) et prompt(e) à se sentir lésé(e)" },
+    C: { name: "Caractère consciencieux", description: "Organisation, diligence, perfectionnisme et prudence.", poles: { low: "Spontané(e)", high: "Discipliné(e)" }, highDescriptor: "organisé(e), discipliné(e), soigneux(se) et minutieux(se)", lowDescriptor: "spontané(e), souple et à l'aise avec le désordre" },
+    O: { name: "Ouverture à l'expérience", description: "Sens esthétique, curiosité, créativité et non-conformisme.", poles: { low: "Conventionnel(le)", high: "Inventif(ve)" }, highDescriptor: "curieux(se), imaginatif(ve) et attiré(e) par l'art, les idées et l'inhabituel", lowDescriptor: "pratique, conventionnel(le) et centré(e) sur le familier" },
+  },
+  items: {
+    H1: "Je n'utiliserais pas la flatterie pour obtenir une augmentation ou une promotion, même si cela marchait.", H2: "Si je savais que je ne me ferais jamais prendre, je serais prêt(e) à contourner les règles à mon profit.", H3: "Avoir beaucoup d'argent et de luxe ne m'importe pas particulièrement.", H4: "J'estime mériter plus de respect et de traitement de faveur que la moyenne des gens.",
+    E1: "J'aurais assez peur si je devais voyager par très mauvais temps.", E2: "Je me soucie beaucoup de la façon dont les choses vont tourner.", E3: "Je peux gérer des situations difficiles sans avoir besoin du soutien émotionnel des autres.", E4: "Je ressens une émotion forte quand un proche part pour longtemps.",
+    X1: "Je me sens raisonnablement satisfait(e) de moi-même et de ma vie.", X2: "Dans les situations sociales, je suis souvent celui/celle qui fait le premier pas.", X3: "J'aime avoir beaucoup de monde autour de moi pour discuter.", X4: "La plupart des gens sont plus gais et enjoués que moi.",
+    A1: "Je garde rarement rancune, même envers ceux qui m'ont gravement lésé(e).", A2: "On me dit parfois que je suis trop critique envers les autres.", A3: "Je suis généralement prêt(e) à faire des compromis plutôt qu'à imposer ma façon de voir.", A4: "Je m'emporte plus facilement que la plupart des gens.",
+    C1: "Je garde mes affaires nettes et bien rangées.", C2: "Quand je travaille sur quelque chose, je me pousse à le réussir.", C3: "Je prends souvent des décisions sur un coup de tête.", C4: "Je vérifie soigneusement les détails avant de considérer une tâche terminée.",
+    O1: "La beauté dans l'art ou la nature me captive.", O2: "J'aime poser des questions sur ce que la plupart des gens tiennent pour acquis.", O3: "On me décrirait comme imaginatif(ve) et original(e).", O4: "J'évite les idées et les personnes qui semblent étranges ou non conventionnelles.",
+  },
+};
+
+const DARKTRIAD_ES: InstrumentTranslation = {
+  name: "La Tríada Oscura",
+  shortName: "Tríada Oscura",
+  tagline: "Tres rasgos de sombra, medidos con honestidad, para comprender, no para juzgar.",
+  description:
+    "La Tríada Oscura —Maquiavelismo (manipulación estratégica), Narcisismo (grandiosidad y necesidad de admiración) " +
+    "y Psicopatía (frialdad e impulsividad)— capta el lado «más oscuro» de la personalidad normal. Ver tus niveles con " +
+    "claridad es una vía hacia el autoconocimiento, no un veredicto sobre tu carácter.",
+  scales: {
+    MACH: { name: "Maquiavelismo", description: "Estratégico, calculador y dispuesto a manipular para lograr sus metas.", poles: { low: "Directo/a", high: "Estratégico/a" }, highDescriptor: "estratégico/a, cauteloso/a y cómodo/a maniobrando para obtener resultados", lowDescriptor: "directo/a, confiado/a y sin interés en manipular" },
+    NARC: { name: "Narcisismo", description: "Grandiosidad, sentido de superioridad y necesidad de admiración.", poles: { low: "Modesto/a", high: "Grandioso/a" }, highDescriptor: "seguro/a de sí, buscador/a de atención y ávido/a de reconocimiento", lowDescriptor: "modesto/a, humilde y cómodo/a fuera del foco" },
+    PSYCH: { name: "Psicopatía", description: "Frialdad, impulsividad y búsqueda de emociones (rango normal).", poles: { low: "Empático/a", high: "Frío/a" }, highDescriptor: "audaz, impulsivo/a, buscador/a de emociones y con poca culpa o empatía", lowDescriptor: "cauteloso/a, empático/a y considerado/a con los demás" },
+  },
+  items: {
+    M1: "Es sensato guardarte alguna información sobre ti para cuando resulte útil.", M2: "Estoy dispuesto/a a orientar una situación para obtener el resultado que quiero.", M3: "A casi todo el mundo se le puede ganar con el enfoque adecuado, y yo lo aprovecho.", M4: "Prefiero actuar entre bastidores antes que enfrentarme a la gente de frente.", M5: "Es inteligente esperar el momento oportuno para devolvérsela a alguien.", M6: "Me aseguro de que mis planes sirvan a mis intereses, aunque no lo anuncie.",
+    N1: "La gente me ve como un líder natural, y estoy de acuerdo.", N2: "Me gusta ser el centro de atención.", N3: "Tengo la firme sensación de ser especial o excepcional.", N4: "Disfruto que me admiren, y me molesta cuando no es así.", N5: "Espero un buen reconocimiento por lo que hago.", N6: "Soy más capaz que la mayoría de la gente que me rodea.",
+    P1: "Tiendo a actuar por impulso sin preocuparme mucho por las consecuencias.", P2: "El sufrimiento de los demás no me conmueve con facilidad.", P3: "Me gusta arriesgarme y buscar emociones fuertes.", P4: "Vengarse puede ser satisfactorio.", P5: "Rara vez me siento culpable, incluso cuando probablemente debería.", P6: "Las reglas me parecen más bien sugerencias.",
+  },
+};
+
+const DARKTRIAD_FR: InstrumentTranslation = {
+  name: "La Triade noire",
+  shortName: "Triade noire",
+  tagline: "Trois traits de l'ombre — mesurés honnêtement, pour comprendre, pas pour juger.",
+  description:
+    "La Triade noire — Machiavélisme (manipulation stratégique), Narcissisme (grandiosité et besoin d'admiration) et " +
+    "Psychopathie (froideur et impulsivité) — capte le côté « plus sombre » de la personnalité normale. Voir vos " +
+    "niveaux clairement est une voie vers la connaissance de soi, pas un verdict sur votre caractère.",
+  scales: {
+    MACH: { name: "Machiavélisme", description: "Stratège, calculateur et prêt à manipuler pour atteindre ses buts.", poles: { low: "Direct(e)", high: "Stratège" }, highDescriptor: "stratège, sur ses gardes et à l'aise pour manœuvrer afin d'obtenir des résultats", lowDescriptor: "direct(e), confiant(e) et sans intérêt pour la manipulation" },
+    NARC: { name: "Narcissisme", description: "Grandiosité, sentiment d'importance et besoin d'admiration.", poles: { low: "Modeste", high: "Grandiose" }, highDescriptor: "sûr(e) de lui/elle, en quête d'attention et avide de reconnaissance", lowDescriptor: "modeste, effacé(e) et à l'aise hors des projecteurs" },
+    PSYCH: { name: "Psychopathie", description: "Froideur, impulsivité et recherche de sensations (registre normal).", poles: { low: "Empathique", high: "Froid(e)" }, highDescriptor: "audacieux(se), impulsif(ve), en quête de sensations et peu sujet(te) à la culpabilité ou à l'empathie", lowDescriptor: "prudent(e), empathique et soucieux(se) des autres" },
+  },
+  items: {
+    M1: "Il est sage de garder en réserve certaines informations sur soi pour quand elles seront utiles.", M2: "Je suis prêt(e) à orienter une situation pour obtenir le résultat que je veux.", M3: "On peut convaincre presque tout le monde avec la bonne approche — et j'en joue.", M4: "Je préfère agir en coulisses plutôt que d'affronter les gens directement.", M5: "Il est malin d'attendre le bon moment pour rendre la pareille à quelqu'un.", M6: "Je m'assure que mes plans servent mes intérêts, même si je ne l'affiche pas.",
+    N1: "Les gens me voient comme un leader naturel — et je suis d'accord.", N2: "J'aime être le centre de l'attention.", N3: "J'ai le sentiment fort d'être spécial(e) ou exceptionnel(le).", N4: "J'aime être admiré(e), et cela me dérange quand je ne le suis pas.", N5: "J'attends une bonne dose de reconnaissance pour ce que je fais.", N6: "Je suis plus capable que la plupart des gens autour de moi.",
+    P1: "J'ai tendance à agir sur l'impulsion sans trop me soucier des conséquences.", P2: "La souffrance des autres ne me touche pas facilement.", P3: "J'aime prendre des risques et rechercher des sensations fortes.", P4: "Prendre sa revanche peut être satisfaisant.", P5: "Je me sens rarement coupable, même quand je le devrais probablement.", P6: "Les règles me semblent plutôt des suggestions.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
     "perma-flourishing": PERMA_ES, "life-satisfaction-swls": SWLS_ES, "brief-resilience": RESILIENCE_ES,
-    "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES,
+    "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES, "hexaco-24": HEXACO_ES, "dark-triad-18": DARKTRIAD_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
     "perma-flourishing": PERMA_FR, "life-satisfaction-swls": SWLS_FR, "brief-resilience": RESILIENCE_FR,
-    "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR,
+    "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR, "hexaco-24": HEXACO_FR, "dark-triad-18": DARKTRIAD_FR,
   },
 };
 
