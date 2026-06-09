@@ -7,7 +7,22 @@ import { genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
 import { IAT_BLOCKS, makeIatStimulus, scoreIat, type IatTrial } from "./iat";
 import { scoreCreativity } from "./creativity";
 import { localizeBand, localizeAbilityMeta, hasAbilityTranslation } from "./i18n";
+import { abilityGrowth } from "./improve";
 import type { AbilityResponses } from "./types";
+
+describe("cognitive improvement guidance", () => {
+  it("gives honest, evidence-based tips per test plus brain-health basics", () => {
+    for (const id of ["memory-span", "corsi-blocks", "processing-speed", "adaptive-reasoning", "alternative-uses"]) {
+      const g = abilityGrowth(id);
+      expect(g.tips.length).toBeGreaterThanOrEqual(4); // domain tips + basics
+      expect(g.headline.length).toBeGreaterThan(0);
+      expect(g.caveat).toMatch(/transfer|brain training/i); // honesty about limited transfer
+    }
+    const def = abilityGrowth("unknown");
+    expect(def.tips.length).toBeGreaterThanOrEqual(3); // basics still present
+    expect(def.caveat.length).toBeGreaterThan(0);
+  });
+});
 
 describe("ability tests are well-formed", () => {
   for (const test of ABILITY_TESTS) {
