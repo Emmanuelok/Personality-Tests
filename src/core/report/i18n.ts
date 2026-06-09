@@ -14,7 +14,7 @@
 
 import { ordinal } from "../variation";
 import { LEVEL_OPENERS, NUANCE_CLAUSES, BIG_FIVE_COLOR, BIG_FIVE_DYNAMICS, type LevelKey, type TraitColor, type DynamicRule } from "./phrasebank";
-import { BIG_FIVE_COLOR_ES, BIG_FIVE_DYNAMICS_ES } from "./color.i18n";
+import { BIG_FIVE_COLOR_ES, BIG_FIVE_DYNAMICS_ES, BIG_FIVE_COLOR_FR, BIG_FIVE_DYNAMICS_FR } from "./color.i18n";
 
 export interface ReportStrings {
   /** Trait opener templates, conditioned on level. Placeholders {name}{pct}{hd}{ld}{hi}{lo}. */
@@ -412,9 +412,8 @@ const FR: ReportStrings = {
   uniquenessNote:
     "Ce rapport a été composé à partir de l'ensemble de vos réponses, plus une graine de génération unique. " +
     "Deux générations ne produisent jamais une prose identique — même à partir de réponses identiques.",
-  // French Big-Five color/dynamics fall back to English until translated.
-  color: BIG_FIVE_COLOR,
-  dynamics: BIG_FIVE_DYNAMICS,
+  color: BIG_FIVE_COLOR_FR,
+  dynamics: BIG_FIVE_DYNAMICS_FR,
 };
 
 const BUNDLES: Record<string, ReportStrings> = { en: EN, es: ES, fr: FR };

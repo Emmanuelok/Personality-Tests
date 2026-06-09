@@ -411,15 +411,20 @@ describe("report localization", () => {
     expect(r.traits.some((t) => /percentile/.test(t.narrative))).toBe(true);
   });
 
-  it("localizes the Big Five concrete color and dynamics banks (es)", () => {
-    const esInst = localizeInstrument(bigFive, "es");
-    const r = composeReport(esInst, scoreAssessment(esInst, allHigh(bigFive)), { seed: 5, locale: "es" });
+  it("localizes the Big Five concrete color and dynamics banks (es/fr)", () => {
     const en = composeReport(bigFive, scoreAssessment(bigFive, allHigh(bigFive)), { seed: 5, locale: "en" });
-    // pairwise dynamics use the Spanish factor names; English uses English ones
-    expect(r.dynamics.join(" ")).toMatch(/Apertura|Extraversión|Responsabilidad/);
     expect(en.dynamics.join(" ")).toMatch(/Openness|Extraversion|Conscientiousness/);
-    // the concrete color prose genuinely differs from English
-    expect(r.traits.map((t) => t.narrative).join(" ")).not.toBe(en.traits.map((t) => t.narrative).join(" "));
+    const enProse = en.traits.map((t) => t.narrative).join(" ");
+
+    const esInst = localizeInstrument(bigFive, "es");
+    const rEs = composeReport(esInst, scoreAssessment(esInst, allHigh(bigFive)), { seed: 5, locale: "es" });
+    expect(rEs.dynamics.join(" ")).toMatch(/Apertura|Extraversión|Responsabilidad/);
+    expect(rEs.traits.map((t) => t.narrative).join(" ")).not.toBe(enProse);
+
+    const frInst = localizeInstrument(bigFive, "fr");
+    const rFr = composeReport(frInst, scoreAssessment(frInst, allHigh(bigFive)), { seed: 5, locale: "fr" });
+    expect(rFr.dynamics.join(" ")).toMatch(/Ouverture|Agréabilité|Névrosisme/);
+    expect(rFr.traits.map((t) => t.narrative).join(" ")).not.toBe(enProse);
   });
 });
 

@@ -122,3 +122,117 @@ const DYN_ES: string[][] = [
 
 /** Spanish dynamics reuse the English predicates and ordering; only the prose differs. */
 export const BIG_FIVE_DYNAMICS_ES: DynamicRule[] = BIG_FIVE_DYNAMICS.map((rule, i) => ({ ...rule, variants: DYN_ES[i] }));
+
+export const BIG_FIVE_COLOR_FR: Record<string, TraitColor> = {
+  O: {
+    high: {
+      strengths: ["repérer des liens que d'autres manquent", "générer des idées originales", "à l'aise avec l'ambiguïté et la nuance", "ampleur esthétique et intellectuelle"],
+      watchouts: ["courir après la nouveauté au lieu de finir ce que vous commencez", "compliquer à l'excès des problèmes simples", "l'ennui face à la routine nécessaire"],
+      behavior: ["Vous collectionnez idées, livres et « et si… » comme d'autres collectionnent des souvenirs.", "Les problèmes abstraits qui ennuient les autres sont précisément ceux qui vous animent.", "Vous remettez vite en question la façon dont les choses ont « toujours été faites »."],
+      relationships: ["Vous êtes attiré(e) par les gens qui échangent des idées et vous surprennent.", "Vous aurez peut-être besoin d'un(e) partenaire qui tolère votre besoin d'explorer et de vous réinventer."],
+      work: ["Vous prospérez là où l'invention, la stratégie et les problèmes ouverts sont récompensés.", "Les postes très répétitifs vous épuiseront ; intégrez de la variété à votre semaine."],
+      stress: ["Sous stress, vous pouvez vous éparpiller entre trop de possibilités à la fois ; en retenir une seule est l'antidote."],
+    },
+    low: {
+      strengths: ["sens pratique et bon sens", "rester ancré(e) dans ce qui marche", "constance et prévisibilité", "attention au concret et à l'éprouvé"],
+      watchouts: ["écarter trop vite des idées nouvelles utiles", "inconfort quand les plans changent", "préférer le familier au-delà de son utilité"],
+      behavior: ["Vous faites confiance à l'éprouvé plutôt qu'à la dernière théorie.", "Vous préférez peaufiner une méthode connue que la réinventer.", "Les tâches concrètes et manuelles vous conviennent mieux que la spéculation abstraite."],
+      relationships: ["Vous offrez à vos partenaires de la stabilité et une fiabilité sans détour.", "Vous pouvez vous heurter à ceux qui veulent une nouveauté ou une réinvention constantes."],
+      work: ["Vous excellez dans les rôles qui récompensent l'exécution, les standards et une livraison fiable.", "Vous ramenez en douceur sur terre les grandes idées des autres."],
+      stress: ["Le changement soudain est votre principal facteur de stress ; un préavis et un plan clair vous apaisent."],
+    },
+    mid: ["Vous pouvez passer de visionnaire à pragmatique, ce qui fait de vous un pont utile entre les rêveurs et les exécutants."],
+  },
+  C: {
+    high: {
+      strengths: ["constance et fiabilité", "organisation et planification", "autodiscipline face à la tentation", "exigences personnelles élevées"],
+      watchouts: ["perfectionnisme et difficulté à déléguer", "rigidité quand les plans doivent changer", "être dur(e) envers vous-même pour de petits manquements"],
+      behavior: ["Vous faites un plan et vous l'exécutez.", "Les choses en suspens vous dérangent vraiment jusqu'à ce qu'elles soient réglées.", "Les gens apprennent que si vous avez dit que vous le feriez, c'est fait."],
+      relationships: ["Vous êtes la personne fiable sur qui les autres s'appuient.", "Vous devrez peut-être adoucir vos attentes envers des partenaires moins organisés."],
+      work: ["On vous confie des responsabilités et des objectifs complexes à long terme.", "Attention à trop en prendre parce que vous ne supportez pas de laisser filer les standards."],
+      stress: ["En surcharge, vous redoublez de contrôle ; baisser volontairement la barre d'un cran vous protège de l'épuisement."],
+    },
+    low: {
+      strengths: ["flexibilité et spontanéité", "aisance avec l'imprévu", "peu de rigidité et des virages rapides", "détendu(e) face à l'imperfection"],
+      watchouts: ["procrastination et délais manqués", "perdre le fil des détails", "commencer plus que vous ne finissez"],
+      behavior: ["Vous préférez garder les choses ouvertes plutôt que verrouillées à un planning.", "Vous travaillez par bouffées d'énergie plutôt que par incréments réguliers.", "La structure vous semble plus une cage qu'un réconfort."],
+      relationships: ["Vous apportez légèreté et adaptabilité aux relations.", "Des partenaires fiables peuvent avoir besoin que vous consolidiez le suivi des engagements communs."],
+      work: ["Vous brillez dans des environnements rapides, improvisés et peu bureaucratiques.", "Une structure externe — délais, responsabilité, listes — transforme votre énergie en résultats."],
+      stress: ["Sous pression, les tâches s'accumulent ; une seule « prochaine action » débloque l'embouteillage mieux qu'un grand plan."],
+    },
+    mid: ["Vous pouvez être organisé(e) quand cela compte et souple quand ça ne compte pas — utile, à condition de choisir à dessein plutôt que par défaut."],
+  },
+  E: {
+    high: {
+      strengths: ["dynamiser une pièce", "initier et relier", "assertivité et chaleur visible", "à l'aise sous les regards"],
+      watchouts: ["parler par-dessus les plus discrets", "avoir besoin de stimulation jusqu'à l'agitation", "penser à voix haute avant d'avoir mûri votre idée"],
+      behavior: ["Vous vous rechargez entouré(e) et vous flétrissez dans trop de solitude.", "Vous parlez souvent pour penser, pas seulement pour livrer une idée achevée.", "Vous gravitez vers le centre de l'action."],
+      relationships: ["Vous apportez énergie, initiative et ciment social.", "Des partenaires plus discrets peuvent avoir besoin que vous laissiez de l'espace et écoutiez plus longtemps."],
+      work: ["Vous réussissez là où le réseautage, la persuasion et le leadership visible comptent.", "De longues plages de travail solitaire et concentré vous videront — prévoyez de l'interaction."],
+      stress: ["Stressé(e), vous pouvez chercher de la compagnie de façon compulsive ; une conversation sincère vaut mieux que beaucoup de superficielles."],
+    },
+    low: {
+      strengths: ["la profondeur plutôt que l'ampleur", "une présence calme et réfléchie", "à l'aise avec la solitude et la concentration", "écouter plus que diffuser"],
+      watchouts: ["passer inaperçu(e) faute de vous mettre en avant", "vous épuiser vite dans les grands événements", "retenir des idées qui méritent d'être partagées"],
+      behavior: ["Vous vous rechargez seul(e) et payez un impôt d'énergie pour socialiser.", "Vous pensez d'abord et parlez une fois l'idée formée.", "Vous préférez quelques conversations profondes à une pièce bondée."],
+      relationships: ["Vous offrez stabilité, attention profonde et loyauté à un cercle restreint.", "Rendez votre monde intérieur visible : les partenaires ne peuvent pas lire la profondeur que vous n'exprimez pas."],
+      work: ["Vous excellez dans le travail concentré, indépendant et profond, et dans l'influence en tête-à-tête.", "Défendez vos contributions ; l'excellence discrète peut passer inaperçue."],
+      stress: ["Trop socialiser est en soi un facteur de stress ; une solitude protégée est votre réinitialisation la plus fiable."],
+    },
+    mid: ["Vous pouvez animer une pièce puis disparaître avec plaisir pour vous recharger — l'amplitude d'un(e) ambivert(e) qui vous permet de rejoindre les gens là où ils sont."],
+  },
+  A: {
+    high: {
+      strengths: ["empathie et chaleur", "bâtir la confiance et la coopération", "générosité et tact", "lire les sentiments des autres"],
+      watchouts: ["difficulté à dire non", "éviter le conflit nécessaire", "vous faire exploiter", "réprimer vos propres besoins"],
+      behavior: ["Vous cherchez d'instinct la voie coopérative gagnant-gagnant.", "La détresse d'autrui vous atteint vite et physiquement.", "Vous préférez aplanir les choses plutôt que d'avoir le dernier mot."],
+      relationships: ["Vous êtes un(e) partenaire et ami(e) profondément soutenant(e) et attentionné(e).", "Entraînez-vous à exprimer vos besoins aussi clairement que vous honorez ceux des autres."],
+      work: ["Vous bâtissez des équipes soudées et désamorcez les frictions.", "En négociation, gardez-vous de trop concéder au nom de l'harmonie."],
+      stress: ["Vous absorbez le stress des autres comme le vôtre ; une limite n'est pas une trahison, c'est de l'entretien."],
+    },
+    low: {
+      strengths: ["franchise et honnêteté", "à l'aise avec le conflit et la compétition", "objectivité sous pression émotionnelle", "prêt(e) à être la voix dissidente"],
+      watchouts: ["paraître brusque ou froid(e)", "un scepticisme qui tourne au cynisme", "gagner les disputes au prix des relations"],
+      behavior: ["Vous dites la vérité difficile que les autres contournent sur la pointe des pieds.", "Vous pesez les affirmations avec scepticisme avant d'accorder votre confiance.", "Vous êtes à l'aise pour rivaliser et tenir une position impopulaire."],
+      relationships: ["Vous offrez à vos partenaires de l'honnêteté et une fermeté sur laquelle compter.", "Ajoutez de la chaleur à votre franchise : avoir raison et être bienveillant ne s'opposent pas."],
+      work: ["Vous prenez les décisions difficiles et donnez le retour direct que d'autres évitent.", "Le tact est une compétence à cultiver à dessein, pas une trahison de l'honnêteté."],
+      stress: ["Sous stress, les angles s'aiguisent ; nommer l'objectif que vous partagez avec l'autre fait baisser la température."],
+    },
+    mid: ["Vous pouvez être chaleureux(se) et ferme, ce qui vous permet de coopérer sans être un paillasson — à condition de choisir le registre à dessein."],
+  },
+  N: {
+    high: {
+      strengths: ["sensibilité émotionnelle et conscience de soi", "vigilance au risque et aux problèmes", "profondeur et sérieux du ressenti", "empathie née d'un ressenti intense"],
+      watchouts: ["rumination et inquiétude", "le stress qui déborde sur l'humeur", "prendre les revers personnellement", "autocritique sévère"],
+      behavior: ["Vous ressentez les choses en haute résolution — le bon comme le difficile.", "Votre esprit scrute à l'avance ce qui pourrait mal tourner.", "Les revers peuvent résonner plus longtemps chez vous que chez d'autres."],
+      relationships: ["Votre sensibilité vous rend accordé(e) et attentionné(e) quand elle est tournée vers l'extérieur.", "Partagez tôt ce que vous ressentez : les partenaires ne peuvent apaiser une tempête qu'ils ne voient pas."],
+      work: ["Votre radar du risque repère des problèmes que d'autres manquent.", "Mettez en place des rituels de récupération ; sans eux, la pression s'accumule jusqu'au débordement."],
+      stress: ["Votre système nerveux réagit fort et récupère lentement ; nommer l'émotion et ralentir la respiration ne sont pas des clichés pour vous : ça marche."],
+    },
+    low: {
+      strengths: ["calme sous pression", "résilience émotionnelle", "humeur égale et stable", "ne pas être ébranlé(e) par les revers"],
+      watchouts: ["sous-estimer les risques réels", "manquer les signaux émotionnels des autres", "paraître indifférent(e) quand d'autres ont besoin que vous vous souciiez"],
+      behavior: ["Vous restez posé(e) quand les choses se tendent.", "Les revers glissent sur vous plus vite que sur la plupart.", "Vous êtes rarement emporté(e) par vos propres humeurs."],
+      relationships: ["Vous êtes une présence stabilisante et rassurante dans la tempête.", "Veillez à ce que votre calme ne se lise pas comme de l'indifférence face à quelqu'un qui souffre."],
+      work: ["Vous êtes la main sûre en cas de crise et dans les décisions à fort enjeu.", "Appuyez-vous sur le radar du risque de collègues plus anxieux ; le calme peut négliger un danger réel."],
+      stress: ["Vous gérez bien le stress — si bien que votre angle mort est d'ignorer les signaux précoces jusqu'à ce qu'ils deviennent grands."],
+    },
+    mid: ["Vous ressentez les choses sans en être gouverné(e) : assez sensible pour être accordé(e), assez stable pour fonctionner sous charge."],
+  },
+};
+
+const DYN_FR: string[][] = [
+  ["Une forte Ouverture associée à un fort caractère Consciencieux est la rare combinaison du « visionnaire qui exécute » : vous générez des idées originales et vous les menez vraiment à terme.", "Comme votre imagination et votre discipline sont élevées à la fois, vous pouvez concevoir un système puis le construire ; chez vous, les idées meurent rarement en chemin."],
+  ["Vos idées dépassent votre suivi : l'Ouverture est forte mais le caractère Consciencieux est plus faible, donc votre goulot d'étranglement est de capter et de finir, pas de générer.", "Vous êtes riche en idées et léger(ère) en structure ; un échafaudage externe (délais, un collaborateur qui termine) transforme votre créativité en résultats."],
+  ["Une forte Extraversion plus une forte Agréabilité font de vous un(e) connecteur(trice) naturel(le) : chaleureux(se), sociable et sincèrement apprécié(e).", "Vous combinez énergie sociale et chaleur, ce qui tend à faire de vous le ciment des groupes et la personne vers qui les autres gravitent."],
+  ["Une Extraversion plus faible avec un Névrosisme plus élevé signifie que vous avez à la fois besoin de solitude et ressentez les choses intensément : un temps calme protégé n'est pas un luxe pour vous, c'est de l'entretien.", "Vous êtes tourné(e) vers l'intérieur et sensible à la fois ; une récupération calme et peu stimulante est ce qui vous garde régulé(e)."],
+  ["Un fort caractère Consciencieux avec un faible Névrosisme est le profil de « l'opérateur imperturbable » : organisé(e) et calme, vous êtes la personne en qui les autres ont confiance en cas de crise.", "Vous combinez fiabilité et stabilité émotionnelle, ce qui fait de vous une force stabilisante sous pression."],
+  ["Une faible Agréabilité avec un fort caractère Consciencieux vous rend exigeant(e) et franc(he) : vous tenez une barre haute et vous le dites sans détour.", "Vous alliez des standards élevés à la franchise ; excellent pour la qualité, à tempérer d'un peu de chaleur dans la forme."],
+  ["Une forte Ouverture et une forte Extraversion font de vous un(e) diffuseur(se) expressif(ve) d'idées : vous pensez à voix haute et faites entrer les autres dans votre imagination.", "Votre curiosité est tournée vers l'extérieur et sociale ; les étincelles jaillissent avec les autres et vous transformez les conversations en découverte."],
+  ["Une forte Agréabilité avec un Névrosisme plus élevé signifie que vous ressentez vivement la douleur d'autrui et pouvez l'absorber : la compassion est une force, mais les limites la rendent durable.", "Vous êtes profondément empathique et émotionnellement poreux(se) à la fois ; protéger vos réserves fait durer votre attention aux autres."],
+  ["Un fort caractère Consciencieux avec une Ouverture plus faible fait de vous un(e) finisseur(se) fiable qui préfère les méthodes éprouvées aux expériences : excellent pour exécuter, à associer à quelqu'un d'idées.", "Vous apportez ordre et fiabilité et faites confiance à ce qui marche ; les approches nouvelles semblent risquées tant qu'elles n'ont pas fait leurs preuves."],
+  ["Une forte Extraversion et un fort caractère Consciencieux forment un profil de leadership : vous mobilisez les gens et vous tenez vos engagements, alliant élan et exécution.", "Vous dynamisez les autres et vous exécutez à la fois, ce qui explique pourquoi cette combinaison finit si souvent aux commandes."],
+];
+
+/** French dynamics reuse the English predicates and ordering; only the prose differs. */
+export const BIG_FIVE_DYNAMICS_FR: DynamicRule[] = BIG_FIVE_DYNAMICS.map((rule, i) => ({ ...rule, variants: DYN_FR[i] }));
