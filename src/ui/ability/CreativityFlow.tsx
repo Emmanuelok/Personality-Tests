@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CREATIVITY_TEST, scoreCreativity, type CreativityPromptResult, type CreativityResult } from "@core/ability/creativity";
 import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "prompt" | "result";
@@ -113,6 +114,8 @@ export function CreativityFlow({ name, onExit, onComplete }: { name?: string; on
             <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
             <ul className="caveats">{(meta.caveats ?? CREATIVITY_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
+
+          <CognitionGrowth testId="alternative-uses" />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={() => { setDone([]); setResult(null); beginPrompt(0); }}>↻ {i18.t("cog.tryAgain")}</button>

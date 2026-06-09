@@ -4,6 +4,7 @@ import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
 import { Calculating } from "../Calculating";
 import { Figure } from "./Figure";
+import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "quiz" | "calc" | "result";
@@ -106,6 +107,8 @@ export function AdaptiveFlow({ name, onExit, onComplete }: { name?: string; onEx
             <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
             <ul className="caveats">{(meta.caveats ?? ADAPTIVE_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
+
+          <CognitionGrowth testId="adaptive-reasoning" />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={begin}>↻ {i18.t("cog.tryAgain")}</button>

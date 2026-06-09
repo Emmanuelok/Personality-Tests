@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PROCESSING_TEST, makeSpeedTrial, scoreProcessing, type SpeedResult } from "@core/ability/processing";
 import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "run" | "result";
@@ -122,6 +123,8 @@ export function SpeedFlow({ name, onExit, onComplete }: { name?: string; onExit:
             <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
             <ul className="caveats">{(meta.caveats ?? PROCESSING_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
+
+          <CognitionGrowth testId="processing-speed" />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={start}>↻ {i18.t("cog.tryAgain")}</button>

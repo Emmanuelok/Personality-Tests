@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MEMORY_TEST, makeDigits, scoreMemory, type MemoryTrial, type MemoryResult, type SpanMode } from "@core/ability/memory";
 import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
+import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
 
 const reverse = (s: string) => s.split("").reverse().join("");
@@ -112,6 +113,8 @@ export function MemoryFlow({ name, onExit, onComplete }: { name?: string; onExit
             <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 20, marginTop: 0 }}>{i18.t("cog.readHonestly")}</h3>
             <ul className="caveats">{(meta.caveats ?? MEMORY_TEST.caveats).map((c, i) => <li key={i}>{c}</li>)}</ul>
           </section>
+
+          <CognitionGrowth testId="memory-span" />
 
           <div className="row-actions no-print">
             <button className="btn" onClick={() => { setResults([]); setResult(null); beginTrial(0); }}>↻ {i18.t("cog.tryAgain")}</button>
