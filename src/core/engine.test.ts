@@ -705,6 +705,23 @@ describe("daily nudge engine", () => {
   });
 });
 
+describe("category localization", () => {
+  it("translates every category for es and fr, and falls back for unknown locales", async () => {
+    const { CATEGORIES } = await import("./categories");
+    const { localizeCategory } = await import("./categories.i18n");
+    for (const c of CATEGORIES) {
+      for (const L of ["es", "fr"] as const) {
+        const lc = localizeCategory(c, L);
+        expect(lc.name.length).toBeGreaterThan(2);
+        expect(lc.blurb.length).toBeGreaterThan(10);
+        expect(lc.name).not.toBe(c.name);
+      }
+      expect(localizeCategory(c, "de")).toBe(c);
+      expect(localizeCategory(c, "en")).toBe(c);
+    }
+  });
+});
+
 describe("standout traits helper", () => {
   it("localizes trait names through the instrument layer", () => {
     const e = [{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }];

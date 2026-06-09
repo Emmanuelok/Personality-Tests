@@ -50,7 +50,21 @@ export type StringKey =
   // Personalized home surface
   | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
   | "home.greetMorning" | "home.greetAfternoon" | "home.greetEvening"
-  | "intro.forYou" | "report.nextLede";
+  | "intro.forYou" | "report.nextLede" | "intro.assessment"
+  // Home marketing & catalog chrome
+  | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
+  | "h.pill1" | "h.pill2" | "h.pill3" | "h.pill4"
+  | "h.startPack" | "h.browseAll" | "h.themesLine" | "h.choose"
+  | "h.typology" | "h.dimensional" | "h.minutes" | "h.items" | "h.axes" | "h.factors"
+  | "h.grounded" | "h.source" | "h.sources"
+  | "h.cogName" | "h.cogBlurb" | "h.batteryTitle" | "h.batteryBody" | "h.batteryBtn"
+  | "h.abilityKind" | "h.rtKind" | "h.perfKind" | "h.questions" | "h.domains"
+  | "h.citeIcar" | "h.citeDigit" | "h.citeCorsi" | "h.citeSymbol" | "h.citeAdaptive" | "h.citeIat" | "h.citeAut"
+  | "h.liveRecall" | "h.fwdBwd" | "h.tapRecall" | "h.spatialSpan" | "h.timed" | "h.symbolSearch"
+  | "h.adaptiveFact" | "h.puzzles" | "h.fluid" | "h.keyedFact" | "h.implicit" | "h.openEnded" | "h.divergent"
+  | "h.twoTitle" | "h.compatTitle" | "h.compatBody" | "h.compatBtn"
+  | "h.how" | "h.s1t" | "h.s1b" | "h.s2t" | "h.s2b" | "h.s3t" | "h.s3b" | "h.s4t" | "h.s4b"
+  | "h.noteLead" | "h.noteBody" | "h.footer1" | "h.footer2";
 
 type Dict = Record<StringKey, string>;
 
@@ -139,6 +153,50 @@ const en: Dict = {
   "home.greetMorning": "Good morning", "home.greetAfternoon": "Good afternoon", "home.greetEvening": "Good evening",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
+  "intro.assessment": "Assessment",
+  "h.eyebrow": "Know Yourself",
+  "h.h1a": "Know yourself with", "h.h1grad": "scientific depth", "h.h1b": "Then choose who you become.",
+  "h.lead1": "{n} science-backed assessments. One report that's ", "h.leadU": "uniquely yours", "h.lead2": " — then a plan to actually grow.",
+  "h.pill1": "📚 Built on **original, authoritative** research",
+  "h.pill2": "🧬 **No two reports** are ever identical",
+  "h.pill3": "📈 A **growth engine**, not just a test",
+  "h.pill4": "🔒 **Private** — answers never leave your device",
+  "h.startPack": "Start a guided 3-test pack", "h.browseAll": "Browse all {n}",
+  "h.themesLine": "{n} assessments across {c} themes — each a mirror for self-reflection.",
+  "h.choose": "Choose an assessment",
+  "h.typology": "Typology", "h.dimensional": "Dimensional",
+  "h.minutes": "{m} min", "h.items": "{n} items", "h.axes": "{n} axes", "h.factors": "{n} factors",
+  "h.grounded": "Grounded in {n} {s}, incl. {ref}.", "h.source": "source", "h.sources": "sources",
+  "h.cogName": "Cognitive & Performance",
+  "h.cogBlurb": "Tests with right answers — reasoning, memory, speed, judgment, and more. Honest, research-based estimates of how you think and perform. Not a clinical IQ.",
+  "h.batteryTitle": "Your Cognitive Battery",
+  "h.batteryBody": "Merge every cognitive test you've taken into one Cattell-Horn-Carroll profile — a single cross-test portrait of how your mind works.",
+  "h.batteryBtn": "View battery →",
+  "h.abilityKind": "Ability test", "h.rtKind": "Reaction-time demo", "h.perfKind": "Performance test",
+  "h.questions": "{n} questions", "h.domains": "{n} domains",
+  "h.citeIcar": "Modeled on the public-domain ICAR item bank and Cattell-Horn-Carroll theory.",
+  "h.citeDigit": "Digit span — a core working-memory subtest of the WAIS.",
+  "h.citeCorsi": "The Corsi block-tapping test — the visual-spatial counterpart to digit span.",
+  "h.citeSymbol": "In the spirit of the WAIS Symbol Search processing-speed subtest.",
+  "h.citeAdaptive": "A computer-adaptive matrix test — difficulty tracks your level for a tighter estimate.",
+  "h.citeIat": "A neutral demonstration of the Implicit Association Test (Greenwald et al.).",
+  "h.citeAut": "Guilford's Alternative Uses Task — the classic measure of idea fluency.",
+  "h.liveRecall": "live recall", "h.fwdBwd": "forward & backward", "h.tapRecall": "tap to recall", "h.spatialSpan": "spatial span",
+  "h.timed": "timed", "h.symbolSearch": "symbol search", "h.adaptiveFact": "adaptive", "h.puzzles": "{n} puzzles",
+  "h.fluid": "fluid reasoning", "h.keyedFact": "keyed", "h.implicit": "implicit method", "h.openEnded": "open-ended", "h.divergent": "divergent thinking",
+  "h.twoTitle": "Just for two",
+  "h.compatTitle": "Relationship Compatibility",
+  "h.compatBody": "Take a relational assessment, share your private result code, and compare with a partner, friend, or teammate to get a tailored compatibility read — strengths, friction points, and how to bridge them.",
+  "h.compatBtn": "Open compatibility →",
+  "h.how": "How it works",
+  "h.s1t": "Answer honestly", "h.s1b": "Real science — no pop-quiz filler.",
+  "h.s2t": "One-of-a-kind report", "h.s2b": "Never the same twice — even for your exact type.",
+  "h.s3t": "See yourself clearly", "h.s3b": "Scores, strengths, blind spots — the real you.",
+  "h.s4t": "Actually grow", "h.s4b": "An evidence-based plan to change, on purpose.",
+  "h.noteLead": "An honest note.",
+  "h.noteBody": "These are tools for insight and growth, not clinical diagnoses — a mirror and a map, never a verdict.",
+  "h.footer1": "Psyche Atlas — an open, science-grounded personality platform.",
+  "h.footer2": "Big Five items are public-domain IPIP markers; the other instruments are original measures grounded in the cited research, and are not affiliated with the MBTI® or any trademark holder.",
 };
 
 const es: Dict = {
@@ -226,6 +284,50 @@ const es: Dict = {
   "home.greetMorning": "Buenos días", "home.greetAfternoon": "Buenas tardes", "home.greetEvening": "Buenas noches",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
+  "intro.assessment": "Evaluación",
+  "h.eyebrow": "Conócete",
+  "h.h1a": "Conócete con", "h.h1grad": "profundidad científica", "h.h1b": "Y luego elige en quién te conviertes.",
+  "h.lead1": "{n} evaluaciones con base científica. Un informe que es ", "h.leadU": "únicamente tuyo", "h.lead2": " — y luego un plan para crecer de verdad.",
+  "h.pill1": "📚 Basado en investigación **original y de referencia**",
+  "h.pill2": "🧬 **No hay dos informes** idénticos",
+  "h.pill3": "📈 Un **motor de crecimiento**, no solo un test",
+  "h.pill4": "🔒 **Privado** — tus respuestas nunca salen de tu dispositivo",
+  "h.startPack": "Empieza un pack guiado de 3 tests", "h.browseAll": "Explorar las {n}",
+  "h.themesLine": "{n} evaluaciones en {c} temas — cada una, un espejo para la autorreflexión.",
+  "h.choose": "Elige una evaluación",
+  "h.typology": "Tipología", "h.dimensional": "Dimensional",
+  "h.minutes": "{m} min", "h.items": "{n} ítems", "h.axes": "{n} ejes", "h.factors": "{n} factores",
+  "h.grounded": "Fundamentada en {n} {s}, incl. {ref}.", "h.source": "fuente", "h.sources": "fuentes",
+  "h.cogName": "Cognición y rendimiento",
+  "h.cogBlurb": "Pruebas con respuestas correctas: razonamiento, memoria, velocidad, juicio y más. Estimaciones honestas y basadas en investigación de cómo piensas y rindes. No es un CI clínico.",
+  "h.batteryTitle": "Tu batería cognitiva",
+  "h.batteryBody": "Fusiona todas las pruebas cognitivas que has hecho en un perfil Cattell-Horn-Carroll: un único retrato transversal de cómo funciona tu mente.",
+  "h.batteryBtn": "Ver batería →",
+  "h.abilityKind": "Prueba de aptitud", "h.rtKind": "Demo de tiempo de reacción", "h.perfKind": "Prueba de desempeño",
+  "h.questions": "{n} preguntas", "h.domains": "{n} dominios",
+  "h.citeIcar": "Modelada sobre el banco de ítems de dominio público ICAR y la teoría Cattell-Horn-Carroll.",
+  "h.citeDigit": "Amplitud de dígitos: subprueba central de memoria de trabajo de la WAIS.",
+  "h.citeCorsi": "La prueba de cubos de Corsi: la contraparte visoespacial de la amplitud de dígitos.",
+  "h.citeSymbol": "En el espíritu de la subprueba de velocidad de procesamiento Búsqueda de Símbolos de la WAIS.",
+  "h.citeAdaptive": "Una prueba de matrices adaptativa: la dificultad sigue tu nivel para una estimación más precisa.",
+  "h.citeIat": "Una demostración neutral del Test de Asociación Implícita (Greenwald et al.).",
+  "h.citeAut": "La Tarea de Usos Alternativos de Guilford: la medida clásica de fluidez de ideas.",
+  "h.liveRecall": "recuerdo en vivo", "h.fwdBwd": "directo e inverso", "h.tapRecall": "toca para recordar", "h.spatialSpan": "amplitud espacial",
+  "h.timed": "cronometrada", "h.symbolSearch": "búsqueda de símbolos", "h.adaptiveFact": "adaptativa", "h.puzzles": "{n} acertijos",
+  "h.fluid": "razonamiento fluido", "h.keyedFact": "con teclas", "h.implicit": "método implícito", "h.openEnded": "abierta", "h.divergent": "pensamiento divergente",
+  "h.twoTitle": "Para dos",
+  "h.compatTitle": "Compatibilidad de pareja",
+  "h.compatBody": "Haz una evaluación relacional, comparte tu código privado de resultado y compáralo con tu pareja, una amistad o un colega para una lectura de compatibilidad a medida: fortalezas, puntos de fricción y cómo salvarlos.",
+  "h.compatBtn": "Abrir compatibilidad →",
+  "h.how": "Cómo funciona",
+  "h.s1t": "Responde con honestidad", "h.s1b": "Ciencia real, sin relleno de revista.",
+  "h.s2t": "Un informe irrepetible", "h.s2b": "Nunca el mismo dos veces, ni siquiera para tu tipo exacto.",
+  "h.s3t": "Mírate con claridad", "h.s3b": "Puntuaciones, fortalezas, puntos ciegos: tu yo real.",
+  "h.s4t": "Crece de verdad", "h.s4b": "Un plan con base científica para cambiar, a propósito.",
+  "h.noteLead": "Una nota honesta.",
+  "h.noteBody": "Estas son herramientas de comprensión y crecimiento, no diagnósticos clínicos: un espejo y un mapa, nunca un veredicto.",
+  "h.footer1": "Psyche Atlas: una plataforma de personalidad abierta y con base científica.",
+  "h.footer2": "Los ítems de los Cinco Grandes son marcadores IPIP de dominio público; los demás instrumentos son medidas originales fundamentadas en la investigación citada y no están afiliados al MBTI® ni a ningún titular de marca.",
 };
 
 const fr: Dict = {
@@ -313,6 +415,50 @@ const fr: Dict = {
   "home.greetMorning": "Bonjour", "home.greetAfternoon": "Bon après-midi", "home.greetEvening": "Bonsoir",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
+  "intro.assessment": "Évaluation",
+  "h.eyebrow": "Connais-toi",
+  "h.h1a": "Connaissez-vous avec une", "h.h1grad": "profondeur scientifique", "h.h1b": "Puis choisissez qui vous devenez.",
+  "h.lead1": "{n} évaluations fondées sur la science. Un rapport ", "h.leadU": "uniquement vôtre", "h.lead2": " — puis un plan pour vraiment progresser.",
+  "h.pill1": "📚 Bâti sur une recherche **originale et de référence**",
+  "h.pill2": "🧬 **Deux rapports ne sont jamais** identiques",
+  "h.pill3": "📈 Un **moteur de croissance**, pas seulement un test",
+  "h.pill4": "🔒 **Privé** — vos réponses ne quittent jamais votre appareil",
+  "h.startPack": "Commencer un parcours guidé de 3 tests", "h.browseAll": "Parcourir les {n}",
+  "h.themesLine": "{n} évaluations réparties en {c} thèmes — chacune, un miroir pour la réflexion.",
+  "h.choose": "Choisissez une évaluation",
+  "h.typology": "Typologie", "h.dimensional": "Dimensionnel",
+  "h.minutes": "{m} min", "h.items": "{n} items", "h.axes": "{n} axes", "h.factors": "{n} facteurs",
+  "h.grounded": "Fondée sur {n} {s}, dont {ref}.", "h.source": "source", "h.sources": "sources",
+  "h.cogName": "Cognition et performance",
+  "h.cogBlurb": "Des tests avec de bonnes réponses : raisonnement, mémoire, vitesse, jugement et plus. Des estimations honnêtes, fondées sur la recherche, de votre façon de penser et de performer. Pas un QI clinique.",
+  "h.batteryTitle": "Votre batterie cognitive",
+  "h.batteryBody": "Fusionnez tous vos tests cognitifs en un profil Cattell-Horn-Carroll — un portrait transversal unique du fonctionnement de votre esprit.",
+  "h.batteryBtn": "Voir la batterie →",
+  "h.abilityKind": "Test d'aptitude", "h.rtKind": "Démo de temps de réaction", "h.perfKind": "Test de performance",
+  "h.questions": "{n} questions", "h.domains": "{n} domaines",
+  "h.citeIcar": "Modelé sur la banque d'items ICAR (domaine public) et la théorie Cattell-Horn-Carroll.",
+  "h.citeDigit": "Empan de chiffres — sous-test central de mémoire de travail de la WAIS.",
+  "h.citeCorsi": "Le test des blocs de Corsi — le pendant visuospatial de l'empan de chiffres.",
+  "h.citeSymbol": "Dans l'esprit du sous-test de vitesse de traitement Recherche de symboles de la WAIS.",
+  "h.citeAdaptive": "Un test de matrices adaptatif — la difficulté suit votre niveau pour une estimation plus fine.",
+  "h.citeIat": "Une démonstration neutre du Test d'Association Implicite (Greenwald et al.).",
+  "h.citeAut": "La tâche des usages alternatifs de Guilford — la mesure classique de la fluidité d'idées.",
+  "h.liveRecall": "rappel en direct", "h.fwdBwd": "endroit et envers", "h.tapRecall": "toucher pour rappeler", "h.spatialSpan": "empan spatial",
+  "h.timed": "chronométré", "h.symbolSearch": "recherche de symboles", "h.adaptiveFact": "adaptatif", "h.puzzles": "{n} énigmes",
+  "h.fluid": "raisonnement fluide", "h.keyedFact": "au clavier", "h.implicit": "méthode implicite", "h.openEnded": "ouverte", "h.divergent": "pensée divergente",
+  "h.twoTitle": "Rien que pour deux",
+  "h.compatTitle": "Compatibilité relationnelle",
+  "h.compatBody": "Faites une évaluation relationnelle, partagez votre code de résultat privé et comparez avec un partenaire, un ami ou un collègue pour une lecture de compatibilité sur mesure : forces, points de friction et comment les surmonter.",
+  "h.compatBtn": "Ouvrir la compatibilité →",
+  "h.how": "Comment ça marche",
+  "h.s1t": "Répondez honnêtement", "h.s1b": "De la vraie science — sans remplissage de magazine.",
+  "h.s2t": "Un rapport unique en son genre", "h.s2b": "Jamais deux fois le même — même pour votre type exact.",
+  "h.s3t": "Voyez-vous clairement", "h.s3b": "Scores, forces, angles morts — le vrai vous.",
+  "h.s4t": "Progressez vraiment", "h.s4b": "Un plan fondé sur les preuves pour changer, à dessein.",
+  "h.noteLead": "Une note honnête.",
+  "h.noteBody": "Ce sont des outils de compréhension et de croissance, pas des diagnostics cliniques — un miroir et une carte, jamais un verdict.",
+  "h.footer1": "Psyche Atlas — une plateforme de personnalité ouverte et fondée sur la science.",
+  "h.footer2": "Les items des Big Five sont des marqueurs IPIP du domaine public ; les autres instruments sont des mesures originales fondées sur la recherche citée, sans affiliation au MBTI® ni à aucun détenteur de marque.",
 };
 
 export const STRINGS: Record<Locale, Dict> = { en, es, fr };

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Instrument } from "@core/types";
 import { getCategory } from "@core/categories";
+import { localizeCategory } from "@core/categories.i18n";
 import { relevanceNote } from "@core/recommend";
 import type { SynthEntry } from "@core/synthesis";
 import { InstrumentGlyph } from "./art";
@@ -31,7 +32,7 @@ export function Intro({
         <span className={`intro-emblem cat-${instrument.category}`} aria-hidden="true">
           <InstrumentGlyph id={instrument.id} category={instrument.category} />
         </span>
-        <p className="eyebrow">{cat ? cat.name : "Assessment"}</p>
+        <p className="eyebrow">{cat ? localizeCategory(cat, locale).name : t("intro.assessment")}</p>
         <h1>{instrument.name}</h1>
         <p className="lede">{instrument.description}</p>
 
