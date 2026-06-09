@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark, keirsey, kolb } from "./instruments";
+import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark, keirsey, kolb, optimism, hope, curiosity } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
@@ -373,8 +373,8 @@ describe("instrument localization", () => {
     expect(jFr.components.some((c) => c.label === "Énergie")).toBe(true);
   });
 
-  it("translates the wellbeing + HEXACO + Dark Triad sets (es/fr) preserving ids, keying, scale ids, and scores", () => {
-    for (const inst of [perma, lifeSatisfaction, resilience, selfEsteem, mood, hexaco, darkTriad]) {
+  it("translates the wellbeing + HEXACO + Dark Triad + Optimism/Hope/Curiosity sets (es/fr) preserving ids, keying, scale ids, and scores", () => {
+    for (const inst of [perma, lifeSatisfaction, resilience, selfEsteem, mood, hexaco, darkTriad, optimism, hope, curiosity]) {
       for (const loc of ["es", "fr"]) {
         const t = localizeInstrument(inst, loc);
         expect(t.name).not.toBe(inst.name);

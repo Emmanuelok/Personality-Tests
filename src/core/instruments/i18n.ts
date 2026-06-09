@@ -557,18 +557,128 @@ const JUNG_FR: InstrumentTranslation = {
   },
 };
 
+/* ── Optimism, Hope, Curiosity (the newly-added emotional/focused instruments) ── */
+
+const OPTIMISM_ES: InstrumentTranslation = {
+  name: "Optimismo (orientación vital)",
+  shortName: "Optimismo",
+  tagline: "¿Esperas lo mejor, te preparas para lo peor, o ambas cosas?",
+  description:
+    "El optimismo disposicional es la expectativa general de que vienen cosas buenas, y es uno de los predictores más " +
+    "fiables de la resiliencia, el afrontamiento y el bienestar. Este perfilador mide el Optimismo y el Pesimismo como " +
+    "dos tendencias separables —mucha gente tiene algo de cada una— y plantea ambas como actitudes que puedes cambiar con la práctica, no destinos fijos.",
+  scales: {
+    OPT: { name: "Optimismo", description: "Expectativa general de que vienen buenos resultados.", poles: { low: "Cauteloso/a", high: "Optimista" }, highDescriptor: "esperando buenos resultados y mirando el lado bueno", lowDescriptor: "prudente y comedido/a sobre lo que viene" },
+    PES: { name: "Pesimismo", description: "Expectativa general de que las cosas saldrán mal.", poles: { low: "Esperanzado/a", high: "Pesimista" }, highDescriptor: "preparándote para la decepción y esperando reveses", lowDescriptor: "rara vez anticipando lo peor" },
+  },
+  items: {
+    O1: "En tiempos inciertos, suelo esperar lo mejor.", O2: "En general, soy optimista sobre mi futuro.", O3: "En conjunto, espero que me ocurran más cosas buenas que malas.", O4: "Suelo creer que las cosas saldrán bien al final.", O5: "Cuando empiezo algo nuevo, espero que vaya bien.", O6: "Normalmente encuentro el lado bueno de una situación difícil.",
+    P1: "Si algo puede salirme mal, saldrá mal.", P2: "Casi nunca espero que las cosas vayan a mi favor.", P3: "Rara vez cuento con que me pasen cosas buenas.", P4: "Tiendo a prepararme para lo peor.", P5: "Los reveses me hacen dudar de que las cosas mejoren.", P6: "A menudo espero llevarme una decepción.",
+  },
+};
+
+const OPTIMISM_FR: InstrumentTranslation = {
+  name: "Optimisme (orientation de vie)",
+  shortName: "Optimisme",
+  tagline: "Attendez-vous le meilleur, vous préparez-vous au pire — ou les deux ?",
+  description:
+    "L'optimisme dispositionnel est l'attente générale que de bonnes choses arrivent, et c'est l'un des prédicteurs les " +
+    "plus fiables de la résilience, de l'adaptation et du bien-être. Ce profil mesure l'Optimisme et le Pessimisme comme " +
+    "deux tendances distinctes — beaucoup de gens ont un peu des deux — et présente les deux comme des attitudes que l'on peut faire évoluer avec la pratique, non des destins figés.",
+  scales: {
+    OPT: { name: "Optimisme", description: "Attente générale de bons résultats.", poles: { low: "Prudent(e)", high: "Optimiste" }, highDescriptor: "attendant de bons résultats et voyant le bon côté", lowDescriptor: "mesuré(e) et prudent(e) quant à l'avenir" },
+    PES: { name: "Pessimisme", description: "Attente générale que les choses tournent mal.", poles: { low: "Confiant(e)", high: "Pessimiste" }, highDescriptor: "vous préparant à la déception et anticipant les revers", lowDescriptor: "anticipant rarement le pire" },
+  },
+  items: {
+    O1: "En période d'incertitude, je m'attends généralement au meilleur.", O2: "Dans l'ensemble, je suis optimiste quant à mon avenir.", O3: "Globalement, je m'attends à plus de bonnes choses que de mauvaises.", O4: "Je crois généralement que les choses finiront par s'arranger.", O5: "Quand je commence quelque chose de nouveau, je m'attends à ce que ça se passe bien.", O6: "Je trouve généralement le bon côté d'une situation difficile.",
+    P1: "Si quelque chose peut mal tourner pour moi, ça tournera mal.", P2: "Je m'attends rarement à ce que les choses aillent dans mon sens.", P3: "Je compte rarement sur de bonnes choses.", P4: "J'ai tendance à me préparer au pire.", P5: "Les revers me font douter que les choses s'améliorent.", P6: "Je m'attends souvent à être déçu(e).",
+  },
+};
+
+const HOPE_ES: InstrumentTranslation = {
+  name: "Esperanza (agencia y rutas)",
+  shortName: "Esperanza",
+  tagline: "La voluntad y el camino: dos mitades de cómo persigues tus metas.",
+  description:
+    "En el modelo de Snyder, la esperanza no es un sentimiento ilusorio, sino una forma de pensar sobre las metas. Tiene " +
+    "dos motores: la AGENCIA, el impulso y la fuerza de voluntad para perseguir lo que quieres, y las RUTAS, la habilidad " +
+    "para encontrar caminos hacia ello. La esperanza fuerte necesita ambas. Este perfilador muestra el equilibrio entre tu voluntad y tu camino, y ambas mitades crecen con la práctica.",
+  scales: {
+    AGENCY: { name: "Agencia (la voluntad)", description: "Energía y determinación dirigidas a metas.", poles: { low: "Poco impulso", high: "Decidido/a" }, highDescriptor: "con impulso y persistencia hacia tus metas", lowDescriptor: "con menos impulso hacia las metas ahora mismo" },
+    PATHWAYS: { name: "Rutas (el camino)", description: "Capacidad de generar caminos hacia tus metas.", poles: { low: "Pocas rutas", high: "Ingenioso/a" }, highDescriptor: "ingenioso/a para encontrar rodeos a los obstáculos", lowDescriptor: "con menos rutas a tus metas a mano" },
+  },
+  items: {
+    A1: "Persigo con energía las metas que me propongo.", A2: "Aun desanimado/a, sigo avanzando hacia lo que quiero.", A3: "Me siento impulsado/a a cumplir las metas que me importan.", A4: "Mis experiencias pasadas me dan confianza para el futuro.", A5: "Suelo encontrar la motivación para seguir con una meta.", A6: "Una vez que me comprometo con una meta, la llevo a cabo.",
+    W1: "Se me ocurren muchas maneras de alcanzar mis metas.", W2: "Cuando me atasco, encuentro la forma de rodear el obstáculo.", W3: "Hay muchas formas de rodear cualquier problema.", W4: "Normalmente encuentro varias rutas hacia lo que quiero.", W5: "Cuando un enfoque falla, ideo otro.", W6: "Soy ingenioso/a para encontrar caminos hacia mis metas.",
+  },
+};
+
+const HOPE_FR: InstrumentTranslation = {
+  name: "Espoir (volonté et chemins)",
+  shortName: "Espoir",
+  tagline: "La volonté et le chemin — deux moitiés de votre poursuite des objectifs.",
+  description:
+    "Dans le modèle de Snyder, l'espoir n'est pas un vœu pieux, mais une manière de penser les objectifs. Il a deux " +
+    "moteurs : l'AGENTIVITÉ, l'élan et la volonté de poursuivre ce que vous voulez, et les CHEMINS, l'art de trouver des " +
+    "voies pour y parvenir. Un espoir fort a besoin des deux. Ce profil montre l'équilibre entre votre volonté et votre chemin, et les deux moitiés grandissent avec la pratique.",
+  scales: {
+    AGENCY: { name: "Agentivité (la volonté)", description: "Énergie et détermination orientées vers les buts.", poles: { low: "Peu d'élan", high: "Déterminé(e)" }, highDescriptor: "porté(e) et persévérant(e) vers vos objectifs", lowDescriptor: "avec moins d'élan vers les objectifs en ce moment" },
+    PATHWAYS: { name: "Chemins (la voie)", description: "Capacité à générer des voies vers vos buts.", poles: { low: "Peu de voies", high: "Ingénieux(se)" }, highDescriptor: "ingénieux(se) pour contourner les obstacles", lowDescriptor: "avec moins de voies vers vos buts qui viennent à l'esprit" },
+  },
+  items: {
+    A1: "Je poursuis avec énergie les objectifs que je me fixe.", A2: "Même découragé(e), je continue vers ce que je veux.", A3: "Je me sens poussé(e) à atteindre les objectifs qui comptent pour moi.", A4: "Mes expériences passées me donnent confiance pour l'avenir.", A5: "Je trouve généralement la motivation de persévérer vers un but.", A6: "Une fois engagé(e) dans un objectif, je le mène à bien.",
+    W1: "Je peux imaginer de nombreuses façons d'atteindre mes objectifs.", W2: "Quand je suis bloqué(e), je trouve un moyen de contourner l'obstacle.", W3: "Il y a beaucoup de façons de contourner n'importe quel problème.", W4: "Je trouve généralement plusieurs voies vers ce que je veux.", W5: "Quand une approche échoue, j'en imagine une autre.", W6: "Je suis ingénieux(se) pour trouver des chemins vers mes objectifs.",
+  },
+};
+
+const CURIOSITY_ES: InstrumentTranslation = {
+  name: "Curiosidad y exploración",
+  shortName: "Curiosidad",
+  tagline: "Con qué fuerza buscas lo nuevo y con qué facilidad abrazas lo desconocido.",
+  description:
+    "La curiosidad como rasgo tiene dos caras: el IMPULSO EXPLORADOR —el apetito por nuevos conocimientos, habilidades y " +
+    "experiencias— y la APERTURA —la disposición a inclinarte hacia la novedad, la incertidumbre y lo impredecible—. " +
+    "Juntas alimentan el aprendizaje, la creatividad y un sentido más rico. Este perfilador muestra con qué fuerza corre cada una en ti y dónde podría crecer tu curiosidad.",
+  scales: {
+    STRETCH: { name: "Impulso explorador", description: "Búsqueda activa de nuevos conocimientos y experiencias.", poles: { low: "Asentado/a", high: "Buscador/a" }, highDescriptor: "ávido/a de nuevos conocimientos, habilidades y experiencias", lowDescriptor: "a gusto con lo familiar y conocido" },
+    EMBRACE: { name: "Apertura", description: "Acoger la novedad, la ambigüedad y lo impredecible.", poles: { low: "Prefiere la certeza", high: "Abraza la novedad" }, highDescriptor: "estimulado/a por la incertidumbre y lo desconocido", lowDescriptor: "prefiriendo la previsibilidad y la certeza" },
+  },
+  items: {
+    S1: "Busco activamente nuevas experiencias e información.", S2: "Me encanta explorar temas de los que sé poco.", S3: "Soy de los que salen a buscar novedad.", S4: "Vaya donde vaya, estoy atento/a a cosas nuevas que aprender.", S5: "Aprender sobre temas desconocidos me da energía.", S6: "Busco a propósito desafíos que me exijan.",
+    E1: "Disfruto de la incertidumbre y lo impredecible.", E2: "Me siento cómodo/a sin saber cómo saldrán las cosas.", E3: "Las situaciones desconocidas me emocionan más que me inquietan.", E4: "Doy la bienvenida a las sorpresas y la ambigüedad.", E5: "Prefiero enfrentarme a algo nuevo que quedarme con lo conocido.", E6: "Las personas e ideas impredecibles me intrigan.",
+  },
+};
+
+const CURIOSITY_FR: InstrumentTranslation = {
+  name: "Curiosité et exploration",
+  shortName: "Curiosité",
+  tagline: "Avec quelle force vous cherchez le nouveau — et quelle aisance vous accueillez l'inconnu.",
+  description:
+    "La curiosité comme trait a deux faces : l'ÉLAN EXPLORATOIRE — l'appétit pour de nouvelles connaissances, compétences " +
+    "et expériences — et l'OUVERTURE — la disposition à se pencher vers la nouveauté, l'incertitude et l'imprévisible. " +
+    "Ensemble, elles nourrissent l'apprentissage, la créativité et un sens plus riche. Ce profil montre la force de chacune en vous et où votre curiosité pourrait grandir.",
+  scales: {
+    STRETCH: { name: "Élan exploratoire", description: "Recherche active de nouvelles connaissances et expériences.", poles: { low: "Posé(e)", high: "Chercheur(se)" }, highDescriptor: "avide de nouvelles connaissances, compétences et expériences", lowDescriptor: "à l'aise avec le familier et le connu" },
+    EMBRACE: { name: "Ouverture", description: "Accueillir la nouveauté, l'ambiguïté et l'imprévisible.", poles: { low: "Préfère la certitude", high: "Accueille la nouveauté" }, highDescriptor: "stimulé(e) par l'incertitude et l'inconnu", lowDescriptor: "préférant la prévisibilité et la certitude" },
+  },
+  items: {
+    S1: "Je recherche activement de nouvelles expériences et informations.", S2: "J'adore explorer des sujets que je connais peu.", S3: "Je suis du genre à partir en quête de nouveauté.", S4: "Où que j'aille, je guette de nouvelles choses à apprendre.", S5: "Apprendre sur des sujets inconnus me dynamise.", S6: "Je recherche exprès des défis qui me poussent.",
+    E1: "J'aime l'incertitude et l'imprévisible.", E2: "Je suis à l'aise sans savoir comment les choses vont tourner.", E3: "Les situations inconnues m'enthousiasment plus qu'elles ne m'inquiètent.", E4: "J'accueille les surprises et l'ambiguïté.", E5: "Je préfère affronter du nouveau que rester dans le familier.", E6: "Les personnes et idées imprévisibles m'intriguent.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
     "perma-flourishing": PERMA_ES, "life-satisfaction-swls": SWLS_ES, "brief-resilience": RESILIENCE_ES,
     "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES, "hexaco-24": HEXACO_ES, "dark-triad-18": DARKTRIAD_ES,
-    "jung-16-types": JUNG_ES,
+    "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
     "perma-flourishing": PERMA_FR, "life-satisfaction-swls": SWLS_FR, "brief-resilience": RESILIENCE_FR,
     "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR, "hexaco-24": HEXACO_FR, "dark-triad-18": DARKTRIAD_FR,
-    "jung-16-types": JUNG_FR,
+    "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
   },
 };
 
