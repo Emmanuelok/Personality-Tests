@@ -9,7 +9,7 @@ import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./compan
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
-import { buildGrowthPlan } from "./improvement/plan";
+import { buildGrowthPlan, suggestTargets } from "./improvement/plan";
 
 /** Answer every item via a function of the item (lets us drive a scale to a pole). */
 function answerAll(instrument: Instrument, fn: (item: Item) => number): ResponseMap {
@@ -456,6 +456,18 @@ describe("growth planning", () => {
     const plan = buildGrowthPlan(bigFive, result, [{ scaleId: "C", target: 98 }], { seed: 1 });
     const area = plan.areas.find((a) => a.scaleId === "C");
     expect(area?.direction).toBe("maintain");
+    expect(area?.steps.length).toBeGreaterThan(0); // maintenance now carries protect-the-strength steps
+  });
+
+  it("produces substantive, evidence-backed plans for instruments without a hand-written bank", () => {
+    const res = scoreAssessment(disc, answerAll(disc, (i) => (i.scale === "D" ? 5 : 1)));
+    const plan = buildGrowthPlan(disc, res, suggestTargets(disc, res), { seed: 2 });
+    const moving = plan.areas.filter((a) => a.direction !== "maintain");
+    expect(moving.length).toBeGreaterThan(0);
+    for (const a of moving) {
+      expect(a.steps.length).toBeGreaterThanOrEqual(3); // not a 2-step stub
+      expect(a.steps.every((s) => s.detail.length > 20 && Boolean(s.evidence))).toBe(true);
+    }
   });
 });
 

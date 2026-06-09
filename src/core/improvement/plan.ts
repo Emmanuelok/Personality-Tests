@@ -1,4 +1,4 @@
-import type { AssessmentResult, Citation, Instrument, ScaleScore } from "../types";
+import type { AssessmentResult, Citation, Instrument, ScaleDef, ScaleScore } from "../types";
 import { Rng, nonce, seedFrom } from "../prng";
 import { clamp, ordinal, round1, sentence } from "../variation";
 
@@ -159,38 +159,57 @@ function levelWord(n: number): string {
   return "very high";
 }
 
-function genericSteps(rng: Rng, name: string, direction: GrowthDirection): GrowthStep[] {
-  if (direction === "maintain") return [];
-  const verb = direction === "increase" ? "strengthen" : "soften";
-  return [
-    {
-      title: `Define one concrete behavior that would ${verb} your ${name}`,
-      detail: `Translate the goal into a single observable action you can do this week — vague intentions don’t move traits; specific repeated behaviors do.`,
-      cadence: "Weekly",
-      evidence: "Hudson & Fraley (2015)",
-    },
-    {
-      title: `Track it and review`,
-      detail: `Log the behavior daily and review weekly. What gets measured, and reflected on, tends to shift.`,
-      cadence: "Daily / weekly review",
-      evidence: "Roberts et al. (2017)",
-    },
-  ].map((s) => ({ ...s, title: rng.chance(0.5) ? s.title : s.title }));
+/** Protect-the-strength steps for areas already at their target. */
+const MAINTAIN_STEPS: GrowthStep[] = [
+  { title: "Name what keeps this steady", detail: "Write down the specific habits and conditions that hold this where you want it, so you protect them deliberately rather than by luck.", cadence: "Once, then revisit monthly", evidence: "Self-monitoring; relapse-prevention principles" },
+  { title: "Guard against quiet drift", detail: "Strengths erode silently under stress and busyness. A simple monthly check-in catches early slippage before it compounds.", cadence: "Monthly", evidence: "Roberts et al. (2017)" },
+  { title: "Put it to work on something you care about", detail: "Point this strength at a real project, relationship, or community. Strengths grow through deliberate use, not preservation under glass.", cadence: "Ongoing", evidence: "Seligman et al. (2005), using signature strengths" },
+];
+
+function maintainSteps(rng: Rng): GrowthStep[] {
+  return rng.sample(MAINTAIN_STEPS, 2);
 }
+
+/**
+ * Universal, evidence-based change techniques, tailored to the specific scale and
+ * direction. Used for any instrument without a hand-written strategy bank, so every
+ * plan — for all 50+ instruments — is concrete and substantive rather than a stub.
+ */
+function genericSteps(rng: Rng, scaleDef: ScaleDef, direction: GrowthDirection): GrowthStep[] {
+  if (direction === "maintain") return maintainSteps(rng);
+  const lower = scaleDef.name.toLowerCase();
+  const verb = direction === "increase" ? "strengthen" : "soften";
+  const toward =
+    direction === "increase" ? scaleDef.poles?.high ?? "that side" : scaleDef.poles?.low ?? "that side";
+  const pool: GrowthStep[] = [
+    { title: "Turn the goal into an if-then plan", detail: `Write an implementation intention: “When [a specific recurring situation] happens, I will [a concrete action that leans toward ${toward}].” Naming the cue and the response roughly doubles follow-through versus a vague resolve.`, cadence: "One per recurring situation", evidence: "Gollwitzer (1999); Gollwitzer & Sheeran (2006)" },
+    { title: "Stack the new behavior onto an old one", detail: `Anchor one small ${lower}-building action immediately after a routine you already do without fail, so the established habit becomes its trigger.`, cadence: "Daily", evidence: "Wood & Neal (2007); Clear (2018)" },
+    { title: "Run a one-week behavioral experiment", detail: `Pick a single concrete behavior that expresses the ${toward} side of your ${lower}, do it deliberately for a week, and note what shifted. Acting “as if” — rather than waiting to feel different — is how traits actually move.`, cadence: "Weekly", evidence: "Hudson & Fraley (2015); Fleeson (2001)" },
+    { title: "Adopt the identity, not just the task", detail: `Frame it as “I’m becoming someone who ${verb}s their ${lower},” not a one-off fix. Identity-based goals outlast outcome-based ones.`, cadence: "Ongoing", evidence: "Clear (2018); Oyserman et al. (2015)" },
+    { title: "Design the environment around it", detail: `Make the ${toward} choice the easy one: strip cues and friction from the old pattern, and add cues and convenience for the new one.`, cadence: "Weekly setup", evidence: "Duckworth, Gendler & Gross (2016)" },
+    { title: "Track it and review weekly", detail: `Log the target behavior daily and review it every week. What gets measured — and honestly reflected on — is what tends to change.`, cadence: "Daily log / weekly review", evidence: "Roberts et al. (2017)" },
+  ];
+  return rng.sample(pool, 4);
+}
+
+/**
+ * Per-instrument, per-scale, per-direction hand-written strategy banks. Instruments
+ * not listed here use the (still substantive) generic techniques above.
+ */
+const STRATEGY_BANKS: Record<string, Record<string, Record<"increase" | "decrease", GrowthStep[]>>> = {
+  "big-five-ipip50": BIG_FIVE_STRATEGIES,
+};
 
 function strategiesFor(
   rng: Rng,
   instrument: Instrument,
-  scaleId: string,
-  name: string,
+  scaleDef: ScaleDef,
   direction: GrowthDirection,
 ): GrowthStep[] {
-  if (direction === "maintain") return [];
-  const bank = instrument.id === "big-five-ipip50" ? BIG_FIVE_STRATEGIES[scaleId]?.[direction] : undefined;
-  if (bank && bank.length) {
-    return rng.sample(bank, Math.min(3, bank.length));
-  }
-  return genericSteps(rng, name, direction);
+  if (direction === "maintain") return maintainSteps(rng);
+  const bank = STRATEGY_BANKS[instrument.id]?.[scaleDef.id]?.[direction];
+  if (bank && bank.length) return rng.sample(bank, Math.min(3, bank.length));
+  return genericSteps(rng, scaleDef, direction);
 }
 
 /**
@@ -249,7 +268,7 @@ export function buildGrowthPlan(
       gap,
       direction,
       rationale,
-      steps: strategiesFor(rng, instrument, t.scaleId, scaleDef.name, direction),
+      steps: strategiesFor(rng, instrument, scaleDef, direction),
     });
   }
 
