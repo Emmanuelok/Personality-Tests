@@ -895,3 +895,18 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 @media (max-width: 560px) {
   .foryou { padding: 26px 22px 24px; }
 }
+
+/* Personalized intro callout — "Why this is for you" */
+.intro-relevance {
+  display: flex; gap: 13px; align-items: flex-start; text-align: left;
+  margin: 22px auto 4px; max-width: 560px;
+  padding: 15px 18px; border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, rgba(199, 154, 62, 0.10), rgba(154, 123, 46, 0.04));
+  border: 1px solid var(--border-soft); border-left: 3px solid var(--accent);
+}
+.intro-relevance-mark { color: var(--accent); font-size: 18px; line-height: 1.4; flex: none; }
+.intro-relevance-label {
+  display: block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent-2); font-weight: 700; margin-bottom: 3px;
+}
+.intro-relevance p { margin: 0; color: var(--text-dim); font-size: 14.5px; line-height: 1.5; }

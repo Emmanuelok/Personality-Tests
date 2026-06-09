@@ -1,24 +1,29 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Instrument } from "@core/types";
 import { getCategory } from "@core/categories";
+import { relevanceNote } from "@core/recommend";
+import type { SynthEntry } from "@core/synthesis";
 import { InstrumentGlyph } from "./art";
 import { useI18n } from "../i18n";
 
 export function Intro({
   instrument,
   initialName,
+  entries = [],
   onBegin,
   onBack,
 }: {
   instrument: Instrument;
   initialName?: string;
+  entries?: SynthEntry[];
   onBegin: (name: string) => void;
   onBack: () => void;
 }) {
   const [name, setName] = useState(initialName ?? "");
   const cat = getCategory(instrument.category);
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const meta = t("intro.meta").replace("{m}", String(instrument.estMinutes)).replace("{n}", String(instrument.items.length));
+  const relevance = useMemo(() => relevanceNote(instrument, entries, { locale }), [instrument, entries, locale]);
 
   return (
     <div className="container">
@@ -29,6 +34,16 @@ export function Intro({
         <p className="eyebrow">{cat ? cat.name : "Assessment"}</p>
         <h1>{instrument.name}</h1>
         <p className="lede">{instrument.description}</p>
+
+        {relevance && (
+          <div className="intro-relevance">
+            <span className="intro-relevance-mark" aria-hidden="true">✦</span>
+            <div>
+              <span className="intro-relevance-label">{t("intro.forYou")}</span>
+              <p>{relevance}</p>
+            </div>
+          </div>
+        )}
 
         <div className="name-field">
           <input

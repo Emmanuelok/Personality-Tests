@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark, keirsey, kolb, optimism, hope, curiosity } from "./instruments";
+import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark, keirsey, kolb, optimism, hope, curiosity, needForCognition } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight, type SynthEntry } from "./synthesis";
-import { recommendNext, profileSpotlight } from "./recommend";
+import { recommendNext, profileSpotlight, relevanceNote } from "./recommend";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -627,6 +627,35 @@ describe("recommendation engine", () => {
     const enNfc = en.find((r) => r.instrument.id === "need-for-cognition")!;
     const frNfc = fr.find((r) => r.instrument.id === "need-for-cognition")!;
     expect(enNfc.reason).not.toBe(frNfc.reason);
+  });
+});
+
+describe("relevance note (personalized intro)", () => {
+  const bfHighO = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, (it) => (it.scale === "O" ? (it.keyed === 1 ? 5 : 1) : 3))) };
+
+  it("is null for first-time visitors", () => {
+    expect(relevanceNote(hexaco, [], {})).toBeNull();
+  });
+
+  it("explains a trait-driven match in the user's terms", () => {
+    const note = relevanceNote(needForCognition, [bfHighO], {});
+    expect(note).toBeTruthy();
+    expect(note!.length).toBeGreaterThan(15);
+  });
+
+  it("explains a flagship pairing (Big Five → HEXACO)", () => {
+    const note = relevanceNote(hexaco, [bfHighO], { locale: "fr" });
+    expect(note).toBeTruthy();
+  });
+
+  it("falls back to a warm journey note for unrelated tests", () => {
+    const note = relevanceNote(vark, [bfHighO], {});
+    expect(note).toBeTruthy();
+    expect(note).toContain("1");
+  });
+
+  it("returns null for an already-completed instrument", () => {
+    expect(relevanceNote(bigFive, [bfHighO], {})).toBeNull();
   });
 });
 

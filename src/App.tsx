@@ -512,7 +512,7 @@ export default function App() {
       {view === "admin" && <AdminNorms onBack={goHome} />}
 
       {view === "intro" && instrument && (
-        <Intro instrument={instrument} initialName={name} onBegin={beginQuiz} onBack={goHome} />
+        <Intro instrument={instrument} initialName={name} entries={entries} onBegin={beginQuiz} onBack={goHome} />
       )}
 
       {view === "quiz" && instrument && <Quiz instrument={instrument} onComplete={complete} onCancel={goHome} />}

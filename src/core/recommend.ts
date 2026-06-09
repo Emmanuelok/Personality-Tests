@@ -376,6 +376,45 @@ export function recommendNext(
   return out;
 }
 
+/* ── per-instrument relevance (personalized intro copy) ─────────────────── */
+
+const GENERIC_RELEVANCE: Record<Loc, string> = {
+  en: "This adds a fresh dimension to the {n}-assessment portrait you're already building.",
+  es: "Esto añade una dimensión nueva al retrato de {n} evaluaciones que ya estás construyendo.",
+  fr: "Ceci ajoute une dimension nouvelle au portrait de {n} évaluations que vous construisez déjà.",
+};
+
+/**
+ * A localized "why this matters for you" line for a specific instrument, given
+ * what the user has already completed. Powers a personalized intro on every test.
+ * Returns null for first-time visitors (nothing to personalize against yet).
+ */
+export function relevanceNote(target: Instrument, entries: SynthEntry[], opts: { locale?: string } = {}): string | null {
+  if (!entries.length) return null;
+  const L = loc(opts.locale);
+  if (entries.some((e) => e.instrument.id === target.id)) return null;
+
+  const g = lookup(entries);
+  let best: { score: number; arch: ArchKey } | null = null;
+  for (const r of TRAIT_RULES) {
+    if (r.target !== target.id) continue;
+    const norm = g(r.inst, r.scale);
+    if (norm == null) continue;
+    const inten = r.dir === "high" ? (norm - 50) / 50 : (50 - norm) / 50;
+    if (inten < r.threshold) continue;
+    const score = inten * r.weight;
+    if (!best || score > best.score) best = { score, arch: r.arch };
+  }
+  if (best) return ARCH[best.arch][L];
+
+  for (const e of entries) {
+    for (const p of PAIRINGS[e.instrument.id] ?? []) {
+      if (p.target === target.id) return ARCH[p.arch][L];
+    }
+  }
+  return GENERIC_RELEVANCE[L].replace("{n}", String(entries.length));
+}
+
 /* ── personal spotlight (lightweight, localized) ────────────────────────── */
 
 /** Instruments whose standout scales read as clean, nameable trait descriptors. */

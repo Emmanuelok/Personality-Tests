@@ -48,7 +48,8 @@ export type StringKey =
   // Likert take flow + answer-style choice
   | "take.exit" | "take.answered" | "take.tip" | "answer.style" | "answer.scale" | "answer.sentences"
   // Personalized home surface
-  | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount";
+  | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
+  | "intro.forYou";
 
 type Dict = Record<StringKey, string>;
 
@@ -131,6 +132,7 @@ const en: Dict = {
   "answer.style": "Answer style", "answer.scale": "Scale", "answer.sentences": "Sentences",
   "home.forYou": "For you", "home.nextSteps": "Your next steps", "home.seeIntegrated": "See your integrated self →",
   "home.begin": "Begin", "home.completedAll": "You've explored the whole atlas — extraordinary.", "home.takenCount": "{n} taken so far",
+  "intro.forYou": "Why this is for you",
 };
 
 const es: Dict = {
@@ -212,6 +214,7 @@ const es: Dict = {
   "answer.style": "Estilo de respuesta", "answer.scale": "Escala", "answer.sentences": "Frases",
   "home.forYou": "Para ti", "home.nextSteps": "Tus siguientes pasos", "home.seeIntegrated": "Ve tu yo integrado →",
   "home.begin": "Comenzar", "home.completedAll": "Has explorado todo el atlas: extraordinario.", "home.takenCount": "{n} realizadas hasta ahora",
+  "intro.forYou": "Por qué es para ti",
 };
 
 const fr: Dict = {
@@ -293,6 +296,7 @@ const fr: Dict = {
   "answer.style": "Style de réponse", "answer.scale": "Échelle", "answer.sentences": "Phrases",
   "home.forYou": "Pour vous", "home.nextSteps": "Vos prochaines étapes", "home.seeIntegrated": "Voir votre portrait intégré →",
   "home.begin": "Commencer", "home.completedAll": "Vous avez exploré tout l'atlas — extraordinaire.", "home.takenCount": "{n} réalisés à ce jour",
+  "intro.forYou": "Pourquoi c'est pour vous",
 };
 
 export const STRINGS: Record<Locale, Dict> = { en, es, fr };
