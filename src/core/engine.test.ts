@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
 import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark, keirsey, kolb, optimism, hope, curiosity, needForCognition } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
-import { starterPack } from "./starter";
+import { starterPack, adaptivePack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight, type SynthEntry } from "./synthesis";
 import { recommendNext, profileSpotlight, relevanceNote } from "./recommend";
@@ -656,6 +656,20 @@ describe("relevance note (personalized intro)", () => {
 
   it("returns null for an already-completed instrument", () => {
     expect(relevanceNote(bigFive, [bfHighO], {})).toBeNull();
+  });
+});
+
+describe("adaptive starter pack", () => {
+  it("falls back to the classic focus-based trio for new visitors", () => {
+    expect(adaptivePack([], ["relationships"])).toEqual(starterPack(["relationships"]));
+  });
+
+  it("builds a fresh trio of uncompleted tests for returning users", () => {
+    const e = { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) };
+    const pack = adaptivePack([e], []);
+    expect(pack.length).toBe(3);
+    expect(pack).not.toContain("big-five-ipip50"); // already taken
+    expect(new Set(pack).size).toBe(3); // no duplicates
   });
 });
 

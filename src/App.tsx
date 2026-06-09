@@ -6,7 +6,7 @@ import { composeReport } from "@core/report/composer";
 import { getInstrument } from "@core/instruments";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { buildIntegratedProfile, type IntegratedProfile as IP, type SynthEntry } from "@core/synthesis";
-import { starterPack } from "@core/starter";
+import { adaptivePack } from "@core/starter";
 import { Home } from "./ui/Home";
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
@@ -463,7 +463,7 @@ export default function App() {
           onStart={start}
           onCompatibility={goCompat}
           onIntegrated={entries.length ? goIntegrated : undefined}
-          onStartPack={() => startPack(starterPack(profile?.focus ?? []))}
+          onStartPack={() => startPack(adaptivePack(entries, profile?.focus ?? []))}
           onStartAbility={startAbility}
           onStartMemory={startMemory}
           onStartCorsi={startCorsi}
