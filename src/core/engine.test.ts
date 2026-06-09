@@ -469,6 +469,18 @@ describe("growth planning", () => {
       expect(a.steps.every((s) => s.detail.length > 20 && Boolean(s.evidence))).toBe(true);
     }
   });
+
+  it("grows wellbeing toward flourishing with domain-specific interventions", () => {
+    const res = scoreAssessment(perma, answerAll(perma, () => 3)); // mid wellbeing
+    const targets = suggestTargets(perma, res);
+    // every pillar is nudged upward, not toward the midpoint
+    expect(targets.every((t) => t.target >= res.scales[t.scaleId].normalized)).toBe(true);
+    const plan = buildGrowthPlan(perma, res, targets, { seed: 4 });
+    const pos = plan.areas.find((a) => a.scaleId === "POS");
+    expect(pos?.direction).toBe("increase");
+    // pulls the hand-written positive-psychology bank, not the generic fallback
+    expect(pos?.steps.some((s) => /gratitude|savor|lifts you/i.test(s.title + s.detail))).toBe(true);
+  });
 });
 
 describe("every catalog instrument is structurally sound", () => {
