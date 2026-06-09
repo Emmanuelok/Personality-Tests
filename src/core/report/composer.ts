@@ -1,7 +1,7 @@
 import type { AssessmentResult, Instrument, ScaleDef, ScaleScore } from "../types";
 import { Rng, hashHex, nonce, seedFrom } from "../prng";
 import { round1, sentence, tidy } from "../variation";
-import { BIG_FIVE_COLOR, BIG_FIVE_DYNAMICS, type TraitColor } from "./phrasebank";
+import { type TraitColor } from "./phrasebank";
 import { reportStrings, type ReportStrings } from "./i18n";
 import type { GenerateOptions, PersonalityReport, ReportSection, TraitInsight } from "./types";
 
@@ -86,8 +86,8 @@ function dimensionalHeadline(rng: Rng, loc: ReportStrings, instrument: Instrumen
   return { title: `The ${adj} ${noun}`, subtitle: tmpl(rng.pick(loc.genericSubtitle), { top: top.sc.name, second: second.sc.name }) };
 }
 
-function colorFor(instrument: Instrument, scaleId: string): TraitColor | null {
-  if (instrument.id === "big-five-ipip50") return BIG_FIVE_COLOR[scaleId] ?? null;
+function colorFor(loc: ReportStrings, instrument: Instrument, scaleId: string): TraitColor | null {
+  if (instrument.id === "big-five-ipip50") return loc.color[scaleId] ?? null;
   return null;
 }
 
@@ -103,7 +103,7 @@ function buildTraitInsight(rng: Rng, loc: ReportStrings, instrument: Instrument,
   };
   const opener = fill(rng.pick(loc.openers[score.level]), ctx);
 
-  const color = colorFor(instrument, scale.id);
+  const color = colorFor(loc, instrument, scale.id);
   const poleHigh = score.normalized >= 50;
   let behaviorSentence = "";
   let strengths: string[];
@@ -146,11 +146,11 @@ function buildTraitInsight(rng: Rng, loc: ReportStrings, instrument: Instrument,
   };
 }
 
-function buildDynamics(rng: Rng, instrument: Instrument, scales: Record<string, ScaleScore>): string[] {
+function buildDynamics(rng: Rng, loc: ReportStrings, instrument: Instrument, scales: Record<string, ScaleScore>): string[] {
   // Big-Five-specific concrete dynamics (English; paired with the English color bank).
   if (instrument.id !== "big-five-ipip50") return [];
   const fired: string[] = [];
-  for (const rule of BIG_FIVE_DYNAMICS) {
+  for (const rule of loc.dynamics) {
     const na = scales[rule.a]?.normalized;
     const nb = scales[rule.b]?.normalized;
     if (na == null || nb == null) continue;
@@ -227,7 +227,7 @@ function buildSections(
 
   // Relationships & Work & Stress from color banks (Big Five) or generic.
   const colorTraits = topTraits
-    .map((t) => ({ t, color: colorFor(instrument, t.scaleId), poleHigh: t.normalized >= 50 }))
+    .map((t) => ({ t, color: colorFor(loc, instrument, t.scaleId), poleHigh: t.normalized >= 50 }))
     .filter((x) => x.color) as { t: TraitInsight; color: TraitColor; poleHigh: boolean }[];
 
   if (colorTraits.length) {
@@ -340,7 +340,7 @@ export function composeReport(
     : dimensionalHeadline(rng, loc, instrument, result.scales);
 
   const overview = buildOverview(rng, loc, instrument, result, traits, headline, opts.name);
-  const dynamics = buildDynamics(rng, instrument, result.scales);
+  const dynamics = buildDynamics(rng, loc, instrument, result.scales);
   const sections = buildSections(rng, loc, instrument, result, traits);
   const signatureResponses = buildSignatureResponses(rng, loc, instrument, result);
 

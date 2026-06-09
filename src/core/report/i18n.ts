@@ -13,7 +13,8 @@
  */
 
 import { ordinal } from "../variation";
-import { LEVEL_OPENERS, NUANCE_CLAUSES, type LevelKey } from "./phrasebank";
+import { LEVEL_OPENERS, NUANCE_CLAUSES, BIG_FIVE_COLOR, BIG_FIVE_DYNAMICS, type LevelKey, type TraitColor, type DynamicRule } from "./phrasebank";
+import { BIG_FIVE_COLOR_ES, BIG_FIVE_DYNAMICS_ES } from "./color.i18n";
 
 export interface ReportStrings {
   /** Trait opener templates, conditioned on level. Placeholders {name}{pct}{hd}{ld}{hi}{lo}. */
@@ -60,6 +61,9 @@ export interface ReportStrings {
   portraitSub: (instrumentName: string) => string;
   /** The uniqueness footnote. */
   uniquenessNote: string;
+  /** Big-Five concrete color bank (by scale id) and pairwise dynamics; English for untranslated locales. */
+  color: Record<string, TraitColor>;
+  dynamics: DynamicRule[];
 }
 
 const EN: ReportStrings = {
@@ -150,6 +154,8 @@ const EN: ReportStrings = {
   uniquenessNote:
     "This report was composed from your full response pattern plus a unique generation seed. " +
     "No two generations produce identical prose — even from identical answers.",
+  color: BIG_FIVE_COLOR,
+  dynamics: BIG_FIVE_DYNAMICS,
 };
 
 const ES: ReportStrings = {
@@ -277,6 +283,8 @@ const ES: ReportStrings = {
   uniquenessNote:
     "Este informe se compuso a partir de tu patrón completo de respuestas más una semilla de generación única. " +
     "No hay dos generaciones que produzcan una prosa idéntica, ni siquiera con las mismas respuestas.",
+  color: BIG_FIVE_COLOR_ES,
+  dynamics: BIG_FIVE_DYNAMICS_ES,
 };
 
 const FR: ReportStrings = {
@@ -404,6 +412,9 @@ const FR: ReportStrings = {
   uniquenessNote:
     "Ce rapport a été composé à partir de l'ensemble de vos réponses, plus une graine de génération unique. " +
     "Deux générations ne produisent jamais une prose identique — même à partir de réponses identiques.",
+  // French Big-Five color/dynamics fall back to English until translated.
+  color: BIG_FIVE_COLOR,
+  dynamics: BIG_FIVE_DYNAMICS,
 };
 
 const BUNDLES: Record<string, ReportStrings> = { en: EN, es: ES, fr: FR };

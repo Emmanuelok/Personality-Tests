@@ -410,6 +410,17 @@ describe("report localization", () => {
     expect(r.uniqueness.note).toContain("generation seed");
     expect(r.traits.some((t) => /percentile/.test(t.narrative))).toBe(true);
   });
+
+  it("localizes the Big Five concrete color and dynamics banks (es)", () => {
+    const esInst = localizeInstrument(bigFive, "es");
+    const r = composeReport(esInst, scoreAssessment(esInst, allHigh(bigFive)), { seed: 5, locale: "es" });
+    const en = composeReport(bigFive, scoreAssessment(bigFive, allHigh(bigFive)), { seed: 5, locale: "en" });
+    // pairwise dynamics use the Spanish factor names; English uses English ones
+    expect(r.dynamics.join(" ")).toMatch(/Apertura|Extraversión|Responsabilidad/);
+    expect(en.dynamics.join(" ")).toMatch(/Openness|Extraversion|Conscientiousness/);
+    // the concrete color prose genuinely differs from English
+    expect(r.traits.map((t) => t.narrative).join(" ")).not.toBe(en.traits.map((t) => t.narrative).join(" "));
+  });
 });
 
 describe("growth planning", () => {
