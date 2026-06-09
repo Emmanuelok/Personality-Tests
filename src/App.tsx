@@ -458,8 +458,11 @@ export default function App() {
 
       {view === "home" && (
         <Home
+          entries={entries}
+          name={name}
           onStart={start}
           onCompatibility={goCompat}
+          onIntegrated={entries.length ? goIntegrated : undefined}
           onStartPack={() => startPack(starterPack(profile?.focus ?? []))}
           onStartAbility={startAbility}
           onStartMemory={startMemory}

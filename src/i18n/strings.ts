@@ -46,7 +46,9 @@ export type StringKey =
   | "cog.iat.magNone" | "cog.iat.magSlight" | "cog.iat.magMod" | "cog.iat.magStrong" | "cog.iat.flowers" | "cog.iat.insects"
   | "cog.iat.almostEveryone" | "cog.iat.endLeft" | "cog.iat.endRight" | "cog.iat.dHow" | "cog.iat.dExplain" | "cog.iat.or" | "cog.iat.startRound" | "cog.iat.keyHint"
   // Likert take flow + answer-style choice
-  | "take.exit" | "take.answered" | "take.tip" | "answer.style" | "answer.scale" | "answer.sentences";
+  | "take.exit" | "take.answered" | "take.tip" | "answer.style" | "answer.scale" | "answer.sentences"
+  // Personalized home surface
+  | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount";
 
 type Dict = Record<StringKey, string>;
 
@@ -127,6 +129,8 @@ const en: Dict = {
   "cog.iat.or": "or", "cog.iat.startRound": "Start this round →", "cog.iat.keyHint": "Left = E key · Right = I key (or tap the buttons)",
   "take.exit": "Exit", "take.answered": "{a} of {n} answered", "take.tip": "Tip: press {a}–{b} on your keyboard to answer fast",
   "answer.style": "Answer style", "answer.scale": "Scale", "answer.sentences": "Sentences",
+  "home.forYou": "For you", "home.nextSteps": "Your next steps", "home.seeIntegrated": "See your integrated self →",
+  "home.begin": "Begin", "home.completedAll": "You've explored the whole atlas — extraordinary.", "home.takenCount": "{n} taken so far",
 };
 
 const es: Dict = {
@@ -206,6 +210,8 @@ const es: Dict = {
   "cog.iat.or": "o", "cog.iat.startRound": "Comenzar esta ronda →", "cog.iat.keyHint": "Izquierda = tecla E · Derecha = tecla I (o toca los botones)",
   "take.exit": "Salir", "take.answered": "{a} de {n} respondidas", "take.tip": "Consejo: pulsa {a}–{b} en tu teclado para responder rápido",
   "answer.style": "Estilo de respuesta", "answer.scale": "Escala", "answer.sentences": "Frases",
+  "home.forYou": "Para ti", "home.nextSteps": "Tus siguientes pasos", "home.seeIntegrated": "Ve tu yo integrado →",
+  "home.begin": "Comenzar", "home.completedAll": "Has explorado todo el atlas: extraordinario.", "home.takenCount": "{n} realizadas hasta ahora",
 };
 
 const fr: Dict = {
@@ -285,6 +291,8 @@ const fr: Dict = {
   "cog.iat.or": "ou", "cog.iat.startRound": "Commencer cette manche →", "cog.iat.keyHint": "Gauche = touche E · Droite = touche I (ou touchez les boutons)",
   "take.exit": "Quitter", "take.answered": "{a} sur {n} répondues", "take.tip": "Astuce : appuyez sur {a}–{b} au clavier pour répondre vite",
   "answer.style": "Style de réponse", "answer.scale": "Échelle", "answer.sentences": "Phrases",
+  "home.forYou": "Pour vous", "home.nextSteps": "Vos prochaines étapes", "home.seeIntegrated": "Voir votre portrait intégré →",
+  "home.begin": "Commencer", "home.completedAll": "Vous avez exploré tout l'atlas — extraordinaire.", "home.takenCount": "{n} réalisés à ce jour",
 };
 
 export const STRINGS: Record<Locale, Dict> = { en, es, fr };

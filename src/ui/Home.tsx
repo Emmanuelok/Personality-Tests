@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useMemo } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
@@ -9,12 +9,17 @@ import { IAT_TEST } from "@core/ability/iat";
 import { CREATIVITY_TEST } from "@core/ability/creativity";
 import { CATEGORIES } from "@core/categories";
 import { localizeInstrument } from "@core/instruments/i18n";
+import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
+import type { SynthEntry } from "@core/synthesis";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { useI18n } from "../i18n";
 
 export function Home({
+  entries = [],
+  name,
   onStart,
   onCompatibility,
+  onIntegrated,
   onStartPack,
   onStartAbility,
   onStartMemory,
@@ -25,8 +30,11 @@ export function Home({
   onStartCreativity,
   onBattery,
 }: {
+  entries?: SynthEntry[];
+  name?: string;
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
+  onIntegrated?: () => void;
   onStartPack: () => void;
   onStartAbility: (test: AbilityTest) => void;
   onStartMemory: () => void;
@@ -37,7 +45,10 @@ export function Home({
   onStartCreativity: () => void;
   onBattery?: () => void;
 }) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const spotlight = useMemo(() => profileSpotlight(entries, { name, locale }), [entries, name, locale]);
+  const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
+
   return (
     <div className="container">
       <HeroBackdrop />
@@ -68,6 +79,50 @@ export function Home({
           {INSTRUMENTS.length} assessments across {CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length} themes — each a mirror for self-reflection.
         </p>
       </section>
+
+      {spotlight && (
+        <section className="foryou" aria-label={t("home.forYou")}>
+          <div className="foryou-aura" aria-hidden="true" />
+          <span className="eyebrow">{t("home.forYou")}</span>
+          <h2 className="foryou-title">{spotlight.headline}</h2>
+          <p className="foryou-line">{spotlight.complete && !spotlight.chips.length ? t("home.completedAll") : spotlight.line}</p>
+          {spotlight.chips.length > 0 && (
+            <div className="foryou-chips">
+              {spotlight.chips.map((c) => (
+                <span className="trait-chip" key={c}>{c}</span>
+              ))}
+              <span className="trait-chip muted">{t("home.takenCount").replace("{n}", String(entries.length))}</span>
+            </div>
+          )}
+          {recs.length > 0 && (
+            <>
+              <h3 className="foryou-sub">{t("home.nextSteps")}</h3>
+              <div className="grid rec-grid">
+                {recs.map((r) => (
+                  <article className={`card rec-card rec-${r.kind}`} key={r.instrument.id}>
+                    <span className={`card-watermark cat-${r.instrument.category}`} aria-hidden="true">
+                      <InstrumentGlyph id={r.instrument.id} category={r.instrument.category} />
+                    </span>
+                    <span className={`rec-badge rec-badge-${r.kind}`}>{recBadgeGlyph(r.kind)} {r.badge}</span>
+                    <h3>{r.instrument.name}</h3>
+                    <p className="rec-reason">{r.reason}</p>
+                    <div className="facts">
+                      <span>⏱ {r.instrument.estMinutes} min</span>
+                      <span>📝 {r.instrument.items.length}</span>
+                    </div>
+                    <button className="btn primary" onClick={() => onStart(r.instrument)}>{t("home.begin")} {r.instrument.shortName} →</button>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
+          {onIntegrated && entries.length >= 2 && (
+            <div className="foryou-foot">
+              <button className="btn ghost" onClick={onIntegrated}>{t("home.seeIntegrated")}</button>
+            </div>
+          )}
+        </section>
+      )}
 
       <Flourish />
 
@@ -289,6 +344,17 @@ export function Home({
       </div>
     </div>
   );
+}
+
+const REC_GLYPH: Record<RecKind, string> = {
+  foundation: "✦",
+  deepen: "↡",
+  pairing: "⇄",
+  explore: "✲",
+  support: "♥",
+};
+function recBadgeGlyph(kind: RecKind): string {
+  return REC_GLYPH[kind] ?? "✦";
 }
 
 const STEP_GLYPH = ["✶", "❖", "◉", "➜"];
