@@ -4,7 +4,8 @@ import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, d
 import { localizeInstrument } from "./instruments/i18n";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
-import { buildIntegratedProfile, dailyInsight } from "./synthesis";
+import { buildIntegratedProfile, dailyInsight, type SynthEntry } from "./synthesis";
+import { recommendNext, profileSpotlight } from "./recommend";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -558,4 +559,88 @@ describe("every catalog instrument is structurally sound", () => {
       expect(rep.overview.length).toBeGreaterThan(0);
     });
   }
+});
+
+describe("recommendation engine", () => {
+  const entry = (inst: Instrument, resp: ResponseMap): SynthEntry => ({ instrument: inst, result: scoreAssessment(inst, resp) });
+  // High on one Big Five factor, neutral elsewhere.
+  const bfFactor = (scale: string) => entry(bigFive, answerAll(bigFive, (it) => (it.scale === scale ? (it.keyed === 1 ? 5 : 1) : 3)));
+  const bfLow = (scale: string) => entry(bigFive, answerAll(bigFive, (it) => (it.scale === scale ? (it.keyed === 1 ? 1 : 5) : 3)));
+
+  it("starts a brand-new visitor on the Big Five foundation", () => {
+    const recs = recommendNext([], {});
+    expect(recs.length).toBeGreaterThan(0);
+    expect(recs[0].instrument.id).toBe("big-five-ipip50");
+    expect(recs[0].kind).toBe("foundation");
+    expect(recs[0].reason.length).toBeGreaterThan(10);
+  });
+
+  it("never recommends an instrument the user already completed", () => {
+    const recs = recommendNext([bfFactor("O")], {});
+    expect(recs.every((r) => r.instrument.id !== "big-five-ipip50")).toBe(true);
+  });
+
+  it("deepens high Openness toward the thinking-style scales", () => {
+    const recs = recommendNext([bfFactor("O")], { limit: 8 });
+    const ids = recs.map((r) => r.instrument.id);
+    expect(ids).toContain("need-for-cognition");
+    const nfc = recs.find((r) => r.instrument.id === "need-for-cognition")!;
+    expect(nfc.kind).toBe("deepen");
+  });
+
+  it("routes high Neuroticism to supportive wellbeing tools", () => {
+    const recs = recommendNext([bfFactor("N")], { limit: 8 });
+    expect(recs.some((r) => r.kind === "support")).toBe(true);
+  });
+
+  it("offers low-Conscientiousness users a self-control deep dive", () => {
+    const recs = recommendNext([bfLow("C")], { limit: 8 });
+    expect(recs.map((r) => r.instrument.id)).toContain("self-control-bscs");
+  });
+
+  it("pairs the Big Five with HEXACO", () => {
+    const recs = recommendNext([bfFactor("O")], { limit: 8 });
+    const hex = recs.find((r) => r.instrument.id === "hexaco-24");
+    expect(hex).toBeTruthy();
+    expect(hex!.kind === "pairing" || hex!.kind === "explore").toBe(true);
+  });
+
+  it("respects the limit and returns localized, well-formed reasons", () => {
+    const recs = recommendNext([bfFactor("O")], { limit: 3, locale: "es" });
+    expect(recs.length).toBeLessThanOrEqual(3);
+    for (const r of recs) {
+      expect(r.reason.trim().length).toBeGreaterThan(8);
+      expect(r.badge.trim().length).toBeGreaterThan(0);
+      expect(r.score).toBeGreaterThan(0);
+    }
+  });
+
+  it("is deterministic for identical inputs", () => {
+    const a = recommendNext([bfFactor("O")], { seed: 42 });
+    const b = recommendNext([bfFactor("O")], { seed: 42 });
+    expect(a.map((r) => r.instrument.id)).toEqual(b.map((r) => r.instrument.id));
+  });
+
+  it("localizes reasons differently across languages", () => {
+    const en = recommendNext([bfFactor("O")], { seed: 1, locale: "en" });
+    const fr = recommendNext([bfFactor("O")], { seed: 1, locale: "fr" });
+    const enNfc = en.find((r) => r.instrument.id === "need-for-cognition")!;
+    const frNfc = fr.find((r) => r.instrument.id === "need-for-cognition")!;
+    expect(enNfc.reason).not.toBe(frNfc.reason);
+  });
+});
+
+describe("profile spotlight", () => {
+  it("returns null with no history", () => {
+    expect(profileSpotlight([], {})).toBeNull();
+  });
+
+  it("names standout traits as chips for a vivid profile", () => {
+    const res = scoreAssessment(bigFive, allHigh(bigFive));
+    const spot = profileSpotlight([{ instrument: bigFive, result: res }], { name: "Sam" });
+    expect(spot).toBeTruthy();
+    expect(spot!.headline).toContain("Sam");
+    expect(spot!.chips.length).toBeGreaterThan(0);
+    expect(spot!.line.length).toBeGreaterThan(10);
+  });
 });
