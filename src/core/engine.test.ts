@@ -300,7 +300,7 @@ describe("instrument localization", () => {
 
   it("falls back to the original for locales/instruments without a translation", () => {
     expect(localizeInstrument(bigFive, "en")).toBe(bigFive);
-    expect(localizeInstrument(jungTypes, "es")).toBe(jungTypes); // no translation yet → original returned
+    expect(localizeInstrument(via, "es")).toBe(via); // no translation yet → original returned
   });
 
   it("translates DISC (es/fr) while preserving ids and type resolution", () => {

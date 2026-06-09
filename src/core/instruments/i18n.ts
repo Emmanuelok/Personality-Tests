@@ -511,16 +511,64 @@ const DARKTRIAD_FR: InstrumentTranslation = {
   },
 };
 
+/* ── Jungian 16 Types (typological; type card localized separately via jungTypeStrings) ── */
+
+const JUNG_ES: InstrumentTranslation = {
+  name: "Perfilador de tipos junguianos (16 tipos)",
+  shortName: "16 Tipos",
+  tagline: "Cuatro dicotomías, dieciséis tipos: el mapa junguiano de la mente.",
+  description:
+    "Basado en la teoría de los tipos psicológicos de Carl Jung y el marco de cuatro dicotomías popularizado por Myers " +
+    "y Briggs. Estima tus preferencias en cuatro ejes —Extraversión/Introversión, Sensación/Intuición, Pensamiento/" +
+    "Sentimiento, Juicio/Percepción— y las resuelve en uno de dieciséis tipos, con la pila de funciones cognitivas junguianas que lo sustenta.",
+  scales: {
+    EI: { name: "Extraversión–Introversión", description: "Hacia dónde se dirigen principalmente la atención y la energía.", poles: { low: "Introversión", high: "Extraversión" }, highDescriptor: "hacia fuera, hacia la gente y la acción", lowDescriptor: "hacia dentro, hacia la reflexión y la profundidad" },
+    SN: { name: "Sensación–Intuición", description: "Cómo se capta y en qué se confía la información.", poles: { low: "Sensación", high: "Intuición" }, highDescriptor: "patrones abstractos y posibilidad futura", lowDescriptor: "hechos concretos y realidad presente" },
+    TF: { name: "Pensamiento–Sentimiento", description: "Cómo se sopesan y toman las decisiones.", poles: { low: "Pensamiento", high: "Sentimiento" }, highDescriptor: "valores, empatía e impacto humano", lowDescriptor: "lógica imparcial y principio objetivo" },
+    JP: { name: "Juicio–Percepción", description: "Cómo se aborda el mundo exterior.", poles: { low: "Percepción", high: "Juicio" }, highDescriptor: "planificado, decidido y estructurado", lowDescriptor: "abierto, flexible y espontáneo" },
+  },
+  items: {
+    EI1: "Conocer gente nueva tiende a darme más energía que a quitármela.", EI2: "Pienso en voz alta, desarrollando las ideas al comentarlas con otros.", EI3: "En un grupo animado, suelo ser de los más habladores.", EI4: "Busco activamente eventos sociales para recargarme tras una temporada ajetreada.", EI5: "Después de socializar mucho, necesito soledad para volver a sentirme yo.", EI6: "Pienso mejor en silencio y a solas antes de compartirlo.", EI7: "Prefiero unas pocas amistades profundas a un amplio círculo de conocidos.", EI8: "Las reuniones grandes a menudo me dejan agotado/a en lugar de con energía.",
+    SN1: "Me atraen las ideas abstractas, los patrones y lo que las cosas podrían llegar a ser.", SN2: "A menudo noto conexiones y significados que no son evidentes a primera vista.", SN3: "Disfruto más imaginando posibilidades futuras que gestionando los detalles del presente.", SN4: "Confío en las teorías y las corazonadas casi tanto como en los hechos.", SN5: "Me centro en los hechos concretos y en lo que tengo realmente delante.", SN6: "Confío más en la experiencia directa que en la especulación sobre posibilidades.", SN7: "Prefiero instrucciones prácticas paso a paso a los conceptos abiertos.", SN8: "Tiendo a fijarme en detalles sensoriales concretos que otros pasan por alto.",
+    TF1: "Al decidir, sopeso cómo se verá afectada la gente tanto como la lógica.", TF2: "Mantener la armonía en un grupo me importa muchísimo.", TF3: "Mis valores personales y mi empatía guían cómo juzgo una situación.", TF4: "Me resulta fácil sentir lo que siente otra persona.", TF5: "Prefiero decidir con lógica imparcial, aunque hiera algunos sentimientos.", TF6: "Valoro ser sincero/a y coherente por encima de ser diplomático/a.", TF7: "Tiendo a analizar los problemas con objetividad, dejando la emoción a un lado.", TF8: "La justicia según un principio claro me importa más que la comodidad de todos.",
+    JP1: "Me gusta planificar con antelación y cerrar las decisiones mucho antes del plazo.", JP2: "Me siento más tranquilo/a cuando mi día sigue un horario organizado.", JP3: "Prefiero los asuntos decididos y cerrados a dejarlos abiertos.", JP4: "Hago listas y disfruto tachando tareas en orden.", JP5: "Prefiero mantener mis opciones abiertas que comprometerme con un plan fijo.", JP6: "Trabajo mejor en arranques espontáneos que con un esfuerzo constante y programado.", JP7: "La flexibilidad de última hora me va mejor que una rutina fija.", JP8: "A menudo empiezo algo nuevo antes de haber terminado lo anterior.",
+  },
+};
+
+const JUNG_FR: InstrumentTranslation = {
+  name: "Profileur de types jungiens (16 types)",
+  shortName: "16 Types",
+  tagline: "Quatre dichotomies, seize types — la carte jungienne de l'esprit.",
+  description:
+    "Fondé sur la théorie des types psychologiques de Carl Jung et le cadre des quatre dichotomies popularisé par Myers " +
+    "et Briggs. Il estime vos préférences sur quatre axes — Extraversion/Introversion, Sensation/Intuition, Pensée/" +
+    "Sentiment, Jugement/Perception — et les résout en l'un des seize types, avec la pile de fonctions cognitives jungiennes qui le sous-tend.",
+  scales: {
+    EI: { name: "Extraversion–Introversion", description: "Vers où l'attention et l'énergie sont principalement dirigées.", poles: { low: "Introversion", high: "Extraversion" }, highDescriptor: "vers l'extérieur, vers les gens et l'action", lowDescriptor: "vers l'intérieur, vers la réflexion et la profondeur" },
+    SN: { name: "Sensation–Intuition", description: "Comment l'information est captée et à quoi on se fie.", poles: { low: "Sensation", high: "Intuition" }, highDescriptor: "des schémas abstraits et la possibilité future", lowDescriptor: "des faits concrets et la réalité présente" },
+    TF: { name: "Pensée–Sentiment", description: "Comment les décisions sont pesées et prises.", poles: { low: "Pensée", high: "Sentiment" }, highDescriptor: "les valeurs, l'empathie et l'impact humain", lowDescriptor: "la logique impartiale et le principe objectif" },
+    JP: { name: "Jugement–Perception", description: "Comment le monde extérieur est abordé.", poles: { low: "Perception", high: "Jugement" }, highDescriptor: "planifié, décidé et structuré", lowDescriptor: "ouvert, flexible et spontané" },
+  },
+  items: {
+    EI1: "Rencontrer de nouvelles personnes me donne plutôt de l'énergie que cela ne m'en retire.", EI2: "Je pense à voix haute, en développant mes idées en les discutant avec les autres.", EI3: "Dans un groupe animé, je suis souvent l'un(e) des plus bavard(e)s.", EI4: "Je recherche activement les événements sociaux pour me ressourcer après une période chargée.", EI5: "Après avoir beaucoup socialisé, j'ai besoin de solitude pour me sentir à nouveau moi-même.", EI6: "Je réfléchis le mieux au calme et seul(e) avant de partager.", EI7: "Je préfère quelques amitiés profondes à un large cercle de connaissances.", EI8: "Les grands rassemblements me laissent souvent vidé(e) plutôt que dynamisé(e).",
+    SN1: "Je suis attiré(e) par les idées abstraites, les schémas et ce que les choses pourraient devenir.", SN2: "Je remarque souvent des liens et des sens qui ne sont pas évidents en surface.", SN3: "J'aime davantage imaginer des possibilités futures que gérer les détails du présent.", SN4: "Je fais presque autant confiance aux théories et aux intuitions qu'aux faits concrets.", SN5: "Je me concentre sur les faits concrets et sur ce qui est réellement devant moi.", SN6: "Je fais plus confiance à l'expérience directe qu'à la spéculation sur les possibilités.", SN7: "Je préfère des instructions pratiques, étape par étape, aux concepts ouverts.", SN8: "J'ai tendance à remarquer des détails sensoriels précis que d'autres négligent.",
+    TF1: "Quand je décide, je pèse autant l'effet sur les gens que la logique.", TF2: "Préserver l'harmonie dans un groupe compte énormément pour moi.", TF3: "Mes valeurs personnelles et mon empathie guident ma façon de juger une situation.", TF4: "Il m'est facile de ressentir ce que ressent une autre personne.", TF5: "Je préfère décider par une logique impartiale, même si cela froisse quelques sensibilités.", TF6: "Je valorise la franchise et la cohérence plus que le tact.", TF7: "J'ai tendance à analyser les problèmes objectivement, en mettant l'émotion de côté.", TF8: "L'équité selon un principe clair compte plus pour moi que le confort de chacun.",
+    JP1: "J'aime planifier à l'avance et trancher les décisions bien avant l'échéance.", JP2: "Je me sens plus serein(e) quand ma journée suit un emploi du temps organisé.", JP3: "Je préfère les affaires décidées et closes plutôt que laissées ouvertes.", JP4: "Je fais des listes et j'aime cocher les tâches dans l'ordre.", JP5: "Je préfère garder mes options ouvertes que m'engager dans un plan figé.", JP6: "Je travaille mieux par élans spontanés que par un effort régulier et programmé.", JP7: "La flexibilité de dernière minute me convient mieux qu'une routine fixe.", JP8: "Je commence souvent quelque chose de nouveau avant d'avoir fini le précédent.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
     "perma-flourishing": PERMA_ES, "life-satisfaction-swls": SWLS_ES, "brief-resilience": RESILIENCE_ES,
     "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES, "hexaco-24": HEXACO_ES, "dark-triad-18": DARKTRIAD_ES,
+    "jung-16-types": JUNG_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
     "perma-flourishing": PERMA_FR, "life-satisfaction-swls": SWLS_FR, "brief-resilience": RESILIENCE_FR,
     "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR, "hexaco-24": HEXACO_FR, "dark-triad-18": DARKTRIAD_FR,
+    "jung-16-types": JUNG_FR,
   },
 };
 
