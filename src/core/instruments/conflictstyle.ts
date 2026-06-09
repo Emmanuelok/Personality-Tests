@@ -7,35 +7,31 @@ import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
  * practical things you can learn for relationships, teams, and negotiation.
  */
 
+// The Thomas–Kilmann model is natively forced/multiple-choice: in a given conflict you can
+// only do one thing, so each scenario offers one option per mode and you pick what you'd
+// actually do — surfacing your default and backup, not five separate frequency ratings.
 const L = { min: 1, max: 5, labels: ["Rarely", "Sometimes", "Often", "Usually", "Almost always"] };
-const it = (id: string, text: string, scale: string): Item => ({ id, text, scale, keyed: 1 });
+const MODES5 = ["COMPETE", "COLLAB", "COMPROMISE", "AVOID", "ACCOMM"] as const;
+/** Build a single-select conflict scenario whose five options each vote for one mode. */
+const mc = (id: string, primary: string, text: string, opts: [string, string, string, string, string]): Item => ({
+  id,
+  text,
+  scale: primary,
+  keyed: 1,
+  options: MODES5.map((s, i) => ({ text: opts[i], scale: s })),
+});
 
 const items: Item[] = [
-  // Competing (assertive, uncooperative)
-  it("CMP1", "When we disagree, I push hard to get my position adopted.", "COMPETE"),
-  it("CMP2", "I stand firm and argue for what I think is right, even if others resist.", "COMPETE"),
-  it("CMP3", "Winning the point matters to me in a conflict.", "COMPETE"),
-  it("CMP4", "I'll use my authority or leverage to settle a dispute my way.", "COMPETE"),
-  // Collaborating (assertive, cooperative)
-  it("COL1", "I try to find a solution that fully satisfies everyone's concerns.", "COLLAB"),
-  it("COL2", "I dig into the real issue so we can solve it together, not just paper over it.", "COLLAB"),
-  it("COL3", "I share my views openly and invite others to share theirs.", "COLLAB"),
-  it("COL4", "I look for creative options that meet both sides' needs.", "COLLAB"),
-  // Compromising (middle)
-  it("CMR1", "I look for a fair middle ground where we each give a little.", "COMPROMISE"),
-  it("CMR2", "I'd rather split the difference than fight it out.", "COMPROMISE"),
-  it("CMR3", "I aim for a workable deal even if no one gets everything.", "COMPROMISE"),
-  it("CMR4", "I trade concessions to reach a quick resolution.", "COMPROMISE"),
-  // Avoiding (unassertive, uncooperative)
-  it("AVD1", "When conflict heats up, I tend to step back or postpone it.", "AVOID"),
-  it("AVD2", "I'd often rather sidestep a disagreement than engage it.", "AVOID"),
-  it("AVD3", "I stay out of arguments that don't directly concern me.", "AVOID"),
-  it("AVD4", "I let things cool down rather than confront them head-on.", "AVOID"),
-  // Accommodating (unassertive, cooperative)
-  it("ACC1", "I often give in to keep the relationship harmonious.", "ACCOMM"),
-  it("ACC2", "I put others' needs ahead of my own to avoid friction.", "ACCOMM"),
-  it("ACC3", "I'd rather yield than risk upsetting someone.", "ACCOMM"),
-  it("ACC4", "Keeping the peace matters more to me than getting my way.", "ACCOMM"),
+  mc("CS1", "COMPETE", "A colleague pushes a plan you think is wrong. You're most likely to…", ["make your case firmly and push for your approach", "dig into the real issue together to find the best answer", "look for a middle ground you can both live with", "let it go for now and revisit later if it matters", "go along with their plan to keep things smooth"]),
+  mc("CS2", "COLLAB", "Tension is rising in a disagreement. Your instinct is to…", ["hold your ground and keep arguing your point", "slow down and work through what's really going on", "propose a quick, fair split so you can both move on", "step back and let things cool down", "yield to keep the peace"]),
+  mc("CS3", "COMPROMISE", "You and a friend want different things for a shared plan. You…", ["advocate hard for what you want", "look for an option that gives you both what matters most", "each give a little and meet in the middle", "go with the flow and avoid making it a thing", "defer to what they'd prefer"]),
+  mc("CS4", "AVOID", "Someone challenges you in a meeting. You tend to…", ["push back and defend your position", "invite their view and build toward a solution", "find a compromise that satisfies enough of both", "deflect and move the discussion along", "concede to avoid friction"]),
+  mc("CS5", "ACCOMM", "When a conflict just isn't resolving, you're most likely to…", ["press until it's settled your way", "keep working it until everyone's needs are met", "broker a deal where everyone gives something", "table it and step away for now", "give in so it's over"]),
+  mc("CS6", "COMPETE", "Your top priority in most disagreements is to…", ["get the right outcome, as you see it", "solve the underlying problem fully", "reach a fair, workable resolution fast", "keep things calm and low-drama", "protect the relationship and harmony"]),
+  mc("CS7", "COLLAB", "A family member wants something you don't. You usually…", ["stand firm on what you need", "talk it all the way through to a real solution", "find a halfway point", "let it slide to avoid a row", "give them their way to keep the peace"]),
+  mc("CS8", "COMPROMISE", "Under pressure in a dispute, your default is to be…", ["decisive and forceful", "open and solution-focused", "practical and even-handed", "low-key and disengaging", "gracious and yielding"]),
+  mc("CS9", "AVOID", "Looking back at conflicts you've had, you most often…", ["fought for your position", "worked toward a win-win", "split the difference", "stepped away from it", "let the other person have their way"]),
+  mc("CS10", "ACCOMM", "The trap you're most prone to in conflict is…", ["winning the point but straining the relationship", "over-investing time in small disputes", "settling for less than was possible", "leaving real issues unaddressed", "burying your own needs"]),
 ];
 
 const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
@@ -47,8 +43,7 @@ const META: Record<string, { name: string; title: string; desc: string; summary:
 };
 
 function resolveType(s: Record<string, ScaleScore>): TypeResolution {
-  const ids = ["COMPETE", "COLLAB", "COMPROMISE", "AVOID", "ACCOMM"];
-  const sorted = ids.map((id) => ({ id, mean: s[id].mean })).sort((a, b) => b.mean - a.mean);
+  const sorted = MODES5.map((id) => ({ id, n: s[id].normalized })).sort((a, b) => b.n - a.n);
   const top = sorted[0];
   const second = sorted[1];
   const meta = META[top.id];
@@ -62,7 +57,7 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
       { label: "Full order", value: sorted.map((x) => META[x.id].name).join(" › ") },
       { label: "Grow", value: "The mode you use least is often the one worth practicing for hard situations." },
     ],
-    confidence: Math.max(0.2, Math.min(0.98, 0.5 + (top.mean - second.mean))),
+    confidence: Math.max(0.2, Math.min(0.98, 0.5 + (top.n - second.n) / 100)),
     secondary: META[second.id].name,
   };
 }
@@ -72,6 +67,7 @@ export const conflictStyle: Instrument = {
   name: "Conflict Style (Thomas–Kilmann)",
   shortName: "Conflict Style",
   kind: "typological",
+  format: "choice",
   category: "relationships",
   tagline: "How you handle disagreement — your default mode, and your backup.",
   description:

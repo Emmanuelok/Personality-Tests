@@ -186,7 +186,8 @@ describe("temperaments, careers & trait screens", () => {
 
 describe("conflict, chronotype, moral foundations & starter pack", () => {
   it("resolves a dominant conflict style", () => {
-    const responses = answerAll(conflictStyle, (i) => (i.scale === "COMPETE" ? 5 : 1));
+    // choice format: pick the Competing option (index 0) on every scenario
+    const responses = Object.fromEntries(conflictStyle.items.map((i) => [i.id, 0]));
     expect(scoreAssessment(conflictStyle, responses).type?.code).toBe("Competing");
   });
 
