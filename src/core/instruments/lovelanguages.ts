@@ -9,25 +9,31 @@ import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
  * heavily peer-validated psychometric scale.
  */
 
+// Love Languages is naturally forced/multiple-choice: each scenario offers one option per
+// language and you pick what lands deepest, so the result is your true ranking of the five —
+// not five separate agreement ratings (which tend to all run high).
 const L = { min: 1, max: 5, labels: ["Not really", "A little", "Somewhat", "A lot", "Exactly"] };
-const it = (id: string, text: string, scale: string): Item => ({ id, text, scale, keyed: 1 });
+const SCALES5 = ["WORDS", "TIME", "SERVICE", "GIFTS", "TOUCH"] as const;
+/** Build a single-select scenario whose five options each vote for one love language. */
+const mc = (id: string, primary: string, text: string, opts: [string, string, string, string, string]): Item => ({
+  id,
+  text,
+  scale: primary,
+  keyed: 1,
+  options: SCALES5.map((s, i) => ({ text: opts[i], scale: s })),
+});
 
 const items: Item[] = [
-  it("WA1", "I feel most loved when someone tells me they appreciate me.", "WORDS"),
-  it("WA2", "Kind, encouraging words mean the world to me.", "WORDS"),
-  it("WA3", "A heartfelt compliment can make my whole day.", "WORDS"),
-  it("QT1", "I feel closest to people when we share focused, uninterrupted time.", "TIME"),
-  it("QT2", "Undivided attention means more to me than almost anything.", "TIME"),
-  it("QT3", "I'd rather have a long, present conversation than receive a gift.", "TIME"),
-  it("AS1", "I feel loved when someone helps me with tasks or chores.", "SERVICE"),
-  it("AS2", "Actions speak louder than words — doing things for me shows love.", "SERVICE"),
-  it("AS3", "When someone lightens my load, I feel truly cared for.", "SERVICE"),
-  it("RG1", "A thoughtful gift makes me feel remembered and loved.", "GIFTS"),
-  it("RG2", "I treasure meaningful gifts and keepsakes.", "GIFTS"),
-  it("RG3", "Receiving a small surprise present really touches me.", "GIFTS"),
-  it("PT1", "A hug or a hand to hold makes me feel deeply connected.", "TOUCH"),
-  it("PT2", "I feel most loved through warm, affectionate touch.", "TOUCH"),
-  it("PT3", "An embrace communicates love to me better than words.", "TOUCH"),
+  mc("LL1", "WORDS", "After a hard week, what from a loved one would mean the most?", ["hearing “I'm proud of you — you've got this”", "an evening with their full, undistracted attention", "them quietly handling a chore you'd been dreading", "a small surprise that says they were thinking of you", "a long hug and sitting close together"]),
+  mc("LL2", "TIME", "You feel most loved in a relationship when your partner…", ["tells you often what they appreciate about you", "sets aside real, focused time for just the two of you", "pitches in and lightens your load without being asked", "brings you little tokens that show they remembered", "is warmly affectionate — hugs, hand-holding, closeness"]),
+  mc("LL3", "SERVICE", "A friend wants to show they care. You'd be most touched if they…", ["wrote you a heartfelt message", "cleared their day to spend it with you", "showed up to help you move or fix something", "brought a small gift that fit you perfectly", "greeted you with a big, warm hug"]),
+  mc("LL4", "GIFTS", "What would hurt most to go without from someone close?", ["any words of appreciation or encouragement", "real, undivided time together", "any practical help or support", "any sign they think of you when you're apart", "affectionate physical closeness"]),
+  mc("LL5", "TOUCH", "On your birthday, the gesture that lands deepest is…", ["a sincere note about what you mean to them", "an unhurried day spent entirely with you", "them taking everything off your plate that day", "a meaningful, well-chosen present", "lots of warmth and physical affection"]),
+  mc("LL6", "WORDS", "You instinctively show others love by…", ["telling them what you admire about them", "giving them your full presence", "doing helpful things for them", "picking out thoughtful gifts", "hugging them and being physically affectionate"]),
+  mc("LL7", "TIME", "Which compliment about your relationship would please you most?", ["“They always make me feel appreciated.”", "“We really make time for each other.”", "“They're always there to help me.”", "“They give the most thoughtful gifts.”", "“You can tell how affectionate they are.”"]),
+  mc("LL8", "SERVICE", "After a disagreement, what helps you feel reconnected fastest?", ["a sincere, reassuring talk", "spending calm time together again", "them doing something kind to make up for it", "a small peace-offering that shows they care", "a hug and physical closeness"]),
+  mc("LL9", "GIFTS", "When you miss someone, you most wish you could…", ["hear them say something warm", "just be present together", "have them help with what's on your plate", "find a little something that reminds you of them", "hold them, or be held"]),
+  mc("LL10", "TOUCH", "The phrase that resonates most with you is…", ["“Tell me you love me.”", "“Spend time with me.”", "“Let me help you.”", "“I got you something.”", "“Hold me.”"]),
 ];
 
 const META: Record<string, { name: string; summary: string }> = {
@@ -39,12 +45,12 @@ const META: Record<string, { name: string; summary: string }> = {
 };
 
 function resolveType(s: Record<string, ScaleScore>): TypeResolution {
-  const arr = Object.keys(META).map((id) => ({ id, mean: s[id].mean }));
-  const sorted = [...arr].sort((a, b) => b.mean - a.mean);
+  const arr = SCALES5.map((id) => ({ id, n: s[id].normalized }));
+  const sorted = [...arr].sort((a, b) => b.n - a.n);
   const top = sorted[0];
   const second = sorted[1];
   const meta = META[top.id];
-  const confidence = Math.max(0.2, Math.min(0.98, 0.5 + (top.mean - second.mean)));
+  const confidence = Math.max(0.2, Math.min(0.98, 0.5 + (top.n - second.n) / 100));
   return {
     code: meta.name,
     title: `Primary: ${meta.name}`,
@@ -65,6 +71,7 @@ export const loveLanguages: Instrument = {
   name: "Love Languages",
   shortName: "Love Languages",
   kind: "typological",
+  format: "choice",
   category: "relationships",
   tagline: "How you most deeply give and receive love.",
   description:

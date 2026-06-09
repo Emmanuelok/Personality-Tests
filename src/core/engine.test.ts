@@ -127,7 +127,8 @@ describe("strengths, values, EQ, love languages, grit", () => {
   });
 
   it("Love Languages resolves a primary language", () => {
-    const responses = answerAll(loveLanguages, (i) => (i.scale === "TOUCH" ? 5 : 1));
+    // choice format: pick the Physical Touch option (index 4) on every scenario
+    const responses = Object.fromEntries(loveLanguages.items.map((i) => [i.id, 4]));
     expect(scoreAssessment(loveLanguages, responses).type?.code).toBe("Physical Touch");
   });
 
