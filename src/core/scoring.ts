@@ -40,12 +40,58 @@ function keyedValue(raw: number, keyed: 1 | -1, min: number, max: number): numbe
 }
 
 /**
+ * Score a multiple-choice (single-select) instrument: each answered question casts one
+ * vote for the chosen option's scale. A scale's standing is its share of votes, so the
+ * dominant channel/type falls out naturally. Used for instruments whose native format is
+ * choice (e.g., VARK) rather than Likert agreement.
+ */
+function scoreChoice(instrument: Instrument, responses: ResponseMap): AssessmentResult {
+  const choiceItems = instrument.items.filter((i) => i.options && i.options.length);
+  let total = 0;
+  const votes: Record<string, number> = {};
+  for (const item of choiceItems) {
+    const r = responses[item.id];
+    if (r == null || Number.isNaN(r)) continue;
+    const opt = item.options![r];
+    if (!opt) continue;
+    total += 1;
+    votes[opt.scale] = (votes[opt.scale] ?? 0) + 1;
+  }
+
+  const scales: Record<string, ScaleScore> = {};
+  for (const scale of instrument.scales) {
+    const v = votes[scale.id] ?? 0;
+    const normalized = total > 0 ? clamp((v / total) * 100, 0, 100) : 0;
+    scales[scale.id] = {
+      scaleId: scale.id,
+      name: scale.name,
+      raw: v,
+      mean: v,
+      normalized,
+      percentile: normalized, // share of choices; no parametric norm for choice formats
+      level: levelFromPercentile(normalized),
+      itemCount: v,
+      facets: {},
+    };
+  }
+
+  const type = instrument.resolveType ? instrument.resolveType(scales) : undefined;
+  const canonical = Object.keys(responses)
+    .sort()
+    .map((k) => `${k}=${responses[k]}`)
+    .join("|");
+  const responseFingerprint = hashHex(`${instrument.id}::${canonical}`);
+  return { instrumentId: instrument.id, takenAt: new Date().toISOString(), responses, scales, type, responseFingerprint };
+}
+
+/**
  * Score a completed (or partially completed) assessment into continuous scale
  * scores, percentiles, levels, optional facets, and — for typological
  * instruments — a resolved type. Missing responses are simply omitted from the
  * means rather than imputed.
  */
 export function scoreAssessment(instrument: Instrument, responses: ResponseMap): AssessmentResult {
+  if (instrument.format === "choice") return scoreChoice(instrument, responses);
   const { min, max } = instrument.responseFormat;
   const midpoint = (min + max) / 2;
 

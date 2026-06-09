@@ -19,17 +19,29 @@ export interface LikertScale {
 /** Direction an item is keyed: +1 loads positively on its scale, -1 is reverse-scored. */
 export type KeyDirection = 1 | -1;
 
+/** One selectable answer on a multiple-choice item; the chosen option votes for its scale. */
+export interface ItemOption {
+  /** Option text shown to the respondent. */
+  text: string;
+  /** Id of the {@link ScaleDef} this option loads on when chosen. */
+  scale: string;
+}
+
 /** A single questionnaire item. */
 export interface Item {
   id: string;
-  /** The statement shown to the respondent. */
+  /** The statement (Likert) or question stem (multiple-choice) shown to the respondent. */
   text: string;
-  /** Id of the {@link ScaleDef} this item loads on. */
+  /** Id of the {@link ScaleDef} this item loads on. For a multiple-choice item this is the
+   *  primary/representative scale; scoring uses the chosen option's scale via {@link options}. */
   scale: string;
-  /** Keying direction relative to the scale's high pole. */
+  /** Keying direction relative to the scale's high pole (Likert items). */
   keyed: KeyDirection;
   /** Optional finer-grained facet id within the scale. */
   facet?: string;
+  /** When present, this is a single-select multiple-choice item: the response value is the
+   *  index of the chosen option, and that option's scale receives one vote. */
+  options?: ItemOption[];
 }
 
 /** Definition of a measured dimension (a factor, dichotomy pole group, or type axis). */
@@ -74,6 +86,9 @@ export interface Instrument {
   name: string;
   shortName: string;
   kind: InstrumentKind;
+  /** Response model: "likert" (default — rate each statement) or "choice" (pick one option
+   *  per question, each option voting for a scale). Items carry their own {@link Item.options}. */
+  format?: "likert" | "choice";
   /** Theme/construct category id (see core/categories.ts) used to group the catalog. */
   category: string;
   /** One-line hook for listings. */

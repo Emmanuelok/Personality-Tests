@@ -60,8 +60,15 @@ export function Quiz({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const span = max - min;
       const k = Number(e.key);
+      const opts = item.options;
+      if (opts && opts.length) {
+        // Multiple-choice: number keys map to the option index.
+        if (!Number.isNaN(k) && k >= 1 && k <= opts.length) choose(k - 1);
+        else if (e.key === "ArrowLeft" || e.key === "Backspace") goBack();
+        return;
+      }
+      const span = max - min;
       if (!Number.isNaN(k) && k >= 1 && k <= span + 1) {
         choose(min + (k - 1));
       } else if (e.key === "ArrowLeft" || e.key === "Backspace") {
@@ -75,6 +82,8 @@ export function Quiz({
   // Values from min..max, rendered with the instrument's anchor labels.
   const values = Array.from({ length: max - min + 1 }, (_, i) => min + i);
   const current = responses[item.id];
+  // Multiple-choice items carry their own options; the response value is the chosen index.
+  const choiceOptions = item.options && item.options.length ? item.options : null;
 
   return (
     <div className="container quiz-wrap">
@@ -91,18 +100,34 @@ export function Quiz({
       <div className="qcard" key={item.id}>
         <div className="qcard-top">
           <div className="qnum">{i18.t("ability.qOf").replace("{i}", String(index + 1)).replace("{n}", String(items.length))}</div>
-          <div className="answer-style" role="group" aria-label={i18.t("answer.style")}>
-            <button className={`as-seg ${style === "sentences" ? "on" : ""}`} onClick={() => setAnswerStyle("sentences")} aria-pressed={style === "sentences"}>
-              {i18.t("answer.sentences")}
-            </button>
-            <button className={`as-seg ${style === "scale" ? "on" : ""}`} onClick={() => setAnswerStyle("scale")} aria-pressed={style === "scale"}>
-              {i18.t("answer.scale")}
-            </button>
-          </div>
+          {!choiceOptions && (
+            <div className="answer-style" role="group" aria-label={i18.t("answer.style")}>
+              <button className={`as-seg ${style === "sentences" ? "on" : ""}`} onClick={() => setAnswerStyle("sentences")} aria-pressed={style === "sentences"}>
+                {i18.t("answer.sentences")}
+              </button>
+              <button className={`as-seg ${style === "scale" ? "on" : ""}`} onClick={() => setAnswerStyle("scale")} aria-pressed={style === "scale"}>
+                {i18.t("answer.scale")}
+              </button>
+            </div>
+          )}
         </div>
         <div className="stmt">{item.text}</div>
 
-        {style === "sentences" ? (
+        {choiceOptions ? (
+          <div className="likert">
+            {choiceOptions.map((opt, oi) => (
+              <button
+                key={oi}
+                className={current === oi ? "active" : ""}
+                onClick={() => choose(oi)}
+                aria-pressed={current === oi}
+              >
+                <span className="dot">{String.fromCharCode(65 + oi)}</span>
+                <span>{opt.text}</span>
+              </button>
+            ))}
+          </div>
+        ) : style === "sentences" ? (
           <div className="likert">
             {values.map((v, i) => (
               <button
@@ -140,7 +165,7 @@ export function Quiz({
 
       <div className="quiz-actions">
         <button className="btn ghost" onClick={goBack} disabled={index === 0}>← {i18.t("common.back")}</button>
-        <span className="hint">{i18.t("take.tip").replace("{a}", "1").replace("{b}", String(max - min + 1))}</span>
+        <span className="hint">{i18.t("take.tip").replace("{a}", "1").replace("{b}", String(choiceOptions ? choiceOptions.length : max - min + 1))}</span>
         <span style={{ width: 70 }} />
       </div>
     </div>
