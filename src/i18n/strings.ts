@@ -44,7 +44,9 @@ export type StringKey =
   // Implicit Association Test (framing localized; stimulus words/labels stay in source language)
   | "cog.iat.eyebrow" | "cog.iat.how" | "cog.iat.meta" | "cog.iat.title" | "cog.iat.super" | "cog.iat.sub" | "cog.iat.narrNone" | "cog.iat.narrDir"
   | "cog.iat.magNone" | "cog.iat.magSlight" | "cog.iat.magMod" | "cog.iat.magStrong" | "cog.iat.flowers" | "cog.iat.insects"
-  | "cog.iat.almostEveryone" | "cog.iat.endLeft" | "cog.iat.endRight" | "cog.iat.dHow" | "cog.iat.dExplain" | "cog.iat.or" | "cog.iat.startRound" | "cog.iat.keyHint";
+  | "cog.iat.almostEveryone" | "cog.iat.endLeft" | "cog.iat.endRight" | "cog.iat.dHow" | "cog.iat.dExplain" | "cog.iat.or" | "cog.iat.startRound" | "cog.iat.keyHint"
+  // Likert take flow + answer-style choice
+  | "take.exit" | "take.answered" | "take.tip" | "answer.style" | "answer.scale" | "answer.sentences";
 
 type Dict = Record<StringKey, string>;
 
@@ -123,6 +125,8 @@ const en: Dict = {
   "cog.iat.endLeft": "Insects + Pleasant", "cog.iat.endRight": "Flowers + Pleasant", "cog.iat.dHow": "How the D-score works",
   "cog.iat.dExplain": "The score (Greenwald, Nosek & Banaji, 2003) compares your speed when flowers share a key with “pleasant” versus when insects do, scaled by your own variability. Positive means faster on the flowers-pleasant pairing.",
   "cog.iat.or": "or", "cog.iat.startRound": "Start this round →", "cog.iat.keyHint": "Left = E key · Right = I key (or tap the buttons)",
+  "take.exit": "Exit", "take.answered": "{a} of {n} answered", "take.tip": "Tip: press {a}–{b} on your keyboard to answer fast",
+  "answer.style": "Answer style", "answer.scale": "Scale", "answer.sentences": "Sentences",
 };
 
 const es: Dict = {
@@ -200,6 +204,8 @@ const es: Dict = {
   "cog.iat.endLeft": "Insectos + Agradable", "cog.iat.endRight": "Flores + Agradable", "cog.iat.dHow": "Cómo funciona la puntuación D",
   "cog.iat.dExplain": "La puntuación (Greenwald, Nosek y Banaji, 2003) compara tu velocidad cuando las flores comparten tecla con «agradable» frente a cuando lo hacen los insectos, escalada por tu propia variabilidad. Un valor positivo significa que fuiste más rápido en el emparejamiento flores-agradable.",
   "cog.iat.or": "o", "cog.iat.startRound": "Comenzar esta ronda →", "cog.iat.keyHint": "Izquierda = tecla E · Derecha = tecla I (o toca los botones)",
+  "take.exit": "Salir", "take.answered": "{a} de {n} respondidas", "take.tip": "Consejo: pulsa {a}–{b} en tu teclado para responder rápido",
+  "answer.style": "Estilo de respuesta", "answer.scale": "Escala", "answer.sentences": "Frases",
 };
 
 const fr: Dict = {
@@ -277,6 +283,8 @@ const fr: Dict = {
   "cog.iat.endLeft": "Insectes + Agréable", "cog.iat.endRight": "Fleurs + Agréable", "cog.iat.dHow": "Comment fonctionne le score D",
   "cog.iat.dExplain": "Le score (Greenwald, Nosek & Banaji, 2003) compare votre vitesse quand les fleurs partagent une touche avec « agréable » par rapport aux insectes, mis à l'échelle par votre propre variabilité. Un score positif signifie que vous étiez plus rapide sur l'appariement fleurs-agréable.",
   "cog.iat.or": "ou", "cog.iat.startRound": "Commencer cette manche →", "cog.iat.keyHint": "Gauche = touche E · Droite = touche I (ou touchez les boutons)",
+  "take.exit": "Quitter", "take.answered": "{a} sur {n} répondues", "take.tip": "Astuce : appuyez sur {a}–{b} au clavier pour répondre vite",
+  "answer.style": "Style de réponse", "answer.scale": "Échelle", "answer.sentences": "Phrases",
 };
 
 export const STRINGS: Record<Locale, Dict> = { en, es, fr };
