@@ -41,6 +41,9 @@ export interface GrowthPlan {
 /** A meaningful gap; below this we treat the target as "maintain". */
 const GAP_THRESHOLD = 8;
 
+/** Wellbeing instruments grow toward flourishing rather than toward the midpoint. */
+const WELLBEING_IDS = new Set(["perma-flourishing", "brief-resilience", "self-esteem-rses", "mood-checkin", "life-satisfaction-swls"]);
+
 /**
  * Suggest sensible default growth targets so a plan can be shown (and put into the
  * PDF) before the user customizes anything. For the Big Five we nudge toward the
@@ -67,6 +70,8 @@ export function suggestTargets(instrument: Instrument, result: AssessmentResult)
       target = cur > 45 ? clamp(cur - 16, 10, 90) : cur; // soften elevated dark traits
     } else if (instrument.id === "attachment-styles") {
       target = clamp(cur - 18, 8, 92); // move toward security: lower anxiety & avoidance
+    } else if (WELLBEING_IDS.has(instrument.id)) {
+      target = clamp(cur + (cur < 70 ? 12 : 6), 5, 95); // grow toward flourishing, not the middle
     } else {
       // DISC and other typologies: gently moderate extremes.
       if (cur > 60) target = Math.max(50, cur - 12);
@@ -193,11 +198,76 @@ function genericSteps(rng: Rng, scaleDef: ScaleDef, direction: GrowthDirection):
 }
 
 /**
- * Per-instrument, per-scale, per-direction hand-written strategy banks. Instruments
- * not listed here use the (still substantive) generic techniques above.
+ * Evidence-based positive-psychology interventions for the wellbeing instruments,
+ * keyed by scale. Wellbeing is almost always grown (increase); the decrease side
+ * falls back to the generic techniques.
  */
-const STRATEGY_BANKS: Record<string, Record<string, Record<"increase" | "decrease", GrowthStep[]>>> = {
+type DirSteps = Partial<Record<"increase" | "decrease", GrowthStep[]>>;
+
+const PERMA_STRATEGIES: Record<string, DirSteps> = {
+  POS: { increase: [
+    { title: "Run a daily gratitude practice", detail: "Each evening note three specific good things from the day and why each happened. One of the most replicated ways to raise positive emotion and lower low mood.", cadence: "Daily, 5 min", evidence: "Emmons & McCullough (2003); Seligman et al. (2005)" },
+    { title: "Savor deliberately", detail: "Pick one pleasant moment a day and stretch it — attend fully, replay it, share it. Savoring turns ordinary experiences into lasting positive feeling.", cadence: "Daily", evidence: "Bryant & Veroff (2007)" },
+    { title: "Schedule what lifts you", detail: "Put two activities you know reliably brighten your mood on the calendar this week, and do them even if motivation is low.", cadence: "Weekly", evidence: "Behavioral activation (Jacobson et al., 1996)" },
+  ] },
+  ENG: { increase: [
+    { title: "Engineer flow", detail: "Match one challenging-but-doable task to an uninterrupted block, kill distractions, and set a clear goal. Flow appears where challenge meets skill.", cadence: "Several times a week", evidence: "Csikszentmihalyi (1990)" },
+    { title: "Use a signature strength in a new way", detail: "Identify a top strength and deploy it on a fresh task each week — a reliable, tested lift to engagement and well-being.", cadence: "Weekly", evidence: "Seligman et al. (2005)" },
+    { title: "Protect one block of single-tasking", detail: "Defend a daily stretch of full absorption in something that matters, with no switching. Attention is the raw material of engagement.", cadence: "Daily", evidence: "Attention-and-flow research" },
+  ] },
+  REL: { increase: [
+    { title: "Respond actively and constructively", detail: "When someone shares good news, react with genuine, enthusiastic interest. How you celebrate others' wins predicts bond strength more than how you handle their setbacks.", cadence: "In conversation", evidence: "Gable et al. (2004), capitalization" },
+    { title: "Invest in one tie a week", detail: "Reach out deliberately to one person — a call, a meet-up, a real message. Connection grows from frequency and depth, not chance.", cadence: "Weekly", evidence: "Social-connection research" },
+    { title: "Perform small acts of kindness", detail: "Do a few deliberate kind acts for others each week; giving reliably raises the giver's well-being and strengthens relationships.", cadence: "Weekly", evidence: "Lyubomirsky et al. (2005)" },
+  ] },
+  MEA: { increase: [
+    { title: "Connect daily tasks to a bigger why", detail: "Write one sentence linking your routine work to something beyond yourself you care about. Reframing toward purpose raises meaning and resilience.", cadence: "Weekly", evidence: "Steger (2012); job-crafting research" },
+    { title: "Contribute to something larger", detail: "Give time to a cause, community, or person beyond your own circle. Meaning grows most through contribution.", cadence: "Ongoing", evidence: "Eudaimonic well-being research" },
+    { title: "Clarify and act on your values", detail: "Name your top values and one concrete action this week that expresses each. Values clarity anchors a sense of meaning.", cadence: "Monthly review", evidence: "Acceptance & Commitment Therapy (Hayes et al., 1999)" },
+  ] },
+  ACC: { increase: [
+    { title: "Set specific, hard-but-reachable goals", detail: "Replace vague aims with one specific, measurable, slightly stretching goal and a deadline. Specific challenging goals beat 'do your best.'", cadence: "Per goal", evidence: "Locke & Latham (2002)" },
+    { title: "Track small wins", detail: "Log incremental progress daily; visible forward motion is itself one of the strongest motivators.", cadence: "Daily", evidence: "Amabile & Kramer (2011), the progress principle" },
+    { title: "Reduce each goal to its next action", detail: "Define the single next physical step for every goal. Momentum comes from finishing small, concrete actions.", cadence: "Ongoing", evidence: "Goal-striving research" },
+  ] },
+};
+
+const STRATEGY_BANKS: Record<string, Record<string, DirSteps>> = {
   "big-five-ipip50": BIG_FIVE_STRATEGIES,
+  "perma-flourishing": PERMA_STRATEGIES,
+  "brief-resilience": {
+    RES: { increase: [
+      { title: "Build your reappraisal skill", detail: "After a setback, deliberately reframe it — 'what can I learn or control here?' Cognitive reappraisal is the engine of bouncing back.", cadence: "After setbacks", evidence: "Gross (2002); Southwick & Charney (2018)" },
+      { title: "Strengthen your support network", detail: "Identify two people you can genuinely lean on and stay in real contact. Social support is the single most robust predictor of resilience.", cadence: "Ongoing", evidence: "Southwick & Charney (2018)" },
+      { title: "Practice self-compassion", detail: "In hard moments, speak to yourself as you would to a good friend. Self-compassion speeds recovery where self-criticism prolongs it.", cadence: "In the moment", evidence: "Neff (2003)" },
+      { title: "Keep the physical basics steady", detail: "Protect sleep, movement, and routine — the physiological floor recovery stands on.", cadence: "Daily", evidence: "Stress-recovery & exercise research" },
+    ] },
+  },
+  "self-esteem-rses": {
+    EST: { increase: [
+      { title: "Catch and challenge the inner critic", detail: "Notice harsh self-talk, write it down, and answer it with the evidence you'd offer a friend. CBT-style restructuring durably lifts self-worth.", cadence: "Daily", evidence: "Fennell (1999); Beck (1979)" },
+      { title: "Favor self-compassion over esteem-chasing", detail: "Treat yourself kindly regardless of performance; this gives steadier self-worth than esteem that rides on winning.", cadence: "Daily", evidence: "Neff (2003)" },
+      { title: "Build an evidence trail", detail: "Do small things that align with who you want to be and log them. Self-worth grows from a track record, not affirmations alone.", cadence: "Weekly", evidence: "Behavioral self-esteem research" },
+    ] },
+  },
+  "mood-checkin": {
+    MOOD: { increase: [
+      { title: "Schedule rewarding activity", detail: "Plan and do small, rewarding or meaningful activities even when motivation is low. Behavioral activation is a frontline, evidence-based lift for low mood.", cadence: "Daily", evidence: "Behavioral activation (Dimidjian et al., 2006)" },
+      { title: "Challenge bleak, absolute thoughts", detail: "When your mind says something dark and all-or-nothing, write it down and find the more balanced, accurate version.", cadence: "As needed", evidence: "Cognitive therapy (Beck, 1979)" },
+      { title: "Reach out — you don't have to do it alone", detail: "Tell one trusted person how you've been. If low mood lasts beyond two weeks or affects daily life, talk to a doctor or therapist.", cadence: "This week", evidence: "Social support; clinical guidance" },
+    ] },
+    ENRG: { increase: [
+      { title: "Anchor a consistent sleep schedule", detail: "Same wake time daily, morning light, screens down at night. Regular sleep is the foundation of energy and mood.", cadence: "Daily", evidence: "Sleep-hygiene research" },
+      { title: "Move your body regularly", detail: "Even short, regular aerobic activity reliably raises energy and lifts mood.", cadence: "Most days", evidence: "Exercise–affect literature" },
+    ] },
+  },
+  "life-satisfaction-swls": {
+    SWL: { increase: [
+      { title: "Practice gratitude and savoring", detail: "Regularly note what's going well and stretch good moments. Both reliably raise the reflective judgment that life is going well.", cadence: "Weekly", evidence: "Emmons & McCullough (2003); Bryant & Veroff (2007)" },
+      { title: "Align your time with your values", detail: "Audit where your week actually goes and shift one recurring block toward what you most value. Satisfaction tracks living by your own standards.", cadence: "Monthly", evidence: "Self-concordance (Sheldon & Elliot, 1999)" },
+      { title: "Invest in close ties and a meaningful goal", detail: "Put deliberate effort into your closest relationships and one goal that matters; both are among the strongest correlates of life satisfaction.", cadence: "Ongoing", evidence: "Diener & Seligman (2002)" },
+    ] },
+  },
 };
 
 function strategiesFor(
