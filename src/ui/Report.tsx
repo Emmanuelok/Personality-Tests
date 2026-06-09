@@ -42,7 +42,10 @@ export function Report({
   name?: string;
 }) {
   const i18 = useI18n();
-  const nextSteps = useMemo(() => recommendNext(entries, { locale: i18.locale, limit: 2 }), [entries, i18.locale]);
+  const nextSteps = useMemo(
+    () => recommendNext(entries, { locale: i18.locale, limit: 3 }).filter((r) => r.instrument.id !== instrument.id).slice(0, 2),
+    [entries, i18.locale, instrument.id],
+  );
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((tr) => ({ label: shortLabel(tr.name), value: tr.normalized }));
   const [pdfBusy, setPdfBusy] = useState(false);

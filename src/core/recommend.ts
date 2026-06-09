@@ -81,7 +81,7 @@ const EXPLORE_REASON: Record<Loc, string[]> = {
 /** Reason archetypes for trait-driven and pairing recommendations (trait/source baked in per language). */
 type ArchKey =
   | "open_nfc" | "open_curio" | "consc_selfcontrol" | "consc_grit" | "neuro_stress"
-  | "neuro_esteem" | "extra_disc" | "agree_empathy" | "agree_shadow" | "lowmood_perma"
+  | "neuro_esteem" | "extra_disc" | "agree_empathy" | "lowmood_perma"
   | "stress_cope" | "burnout_cope"
   | "bf_hexaco" | "bf_aspects" | "jung_ennea" | "jung_keirsey" | "ennea_jung"
   | "disc_color" | "att_love" | "att_conflict" | "via_values" | "riasec_anchor" | "eq_empathy";
@@ -126,11 +126,6 @@ const ARCH: Record<ArchKey, Record<Loc, string>> = {
     en: "Your warmth (high Agreeableness) stood out. The Empathy index splits that into feeling with others versus seeing through their eyes.",
     es: "Tu calidez (Amabilidad alta) destacó. El índice de Empatía la divide en sentir con los demás frente a ver con sus ojos.",
     fr: "Votre chaleur (Agréabilité élevée) a ressorti. L'indice d'Empathie la distingue : ressentir avec les autres ou voir par leurs yeux.",
-  },
-  agree_shadow: {
-    en: "You answered Agreeableness on the lower side — an honest, non-judgmental look at the harder-edged traits could be revealing.",
-    es: "Respondiste la Amabilidad algo baja: una mirada honesta y sin juicios a los rasgos más duros podría ser reveladora.",
-    fr: "Vous avez répondu plutôt bas en Agréabilité — un regard honnête et sans jugement sur les traits plus durs pourrait être révélateur.",
   },
   lowmood_perma: {
     en: "Your recent check-in pointed to a heavier stretch. PERMA maps the five buildable pillars of a life going well — a hopeful next step.",
@@ -227,7 +222,6 @@ const TRAIT_RULES: TraitRule[] = [
   { inst: "big-five-ipip50", scale: "N", dir: "high", target: "self-esteem-rses", arch: "neuro_esteem", kind: "support", threshold: 0.34, weight: 0.85 },
   { inst: "big-five-ipip50", scale: "E", dir: "high", target: "disc-4", arch: "extra_disc", kind: "deepen", threshold: 0.34, weight: 0.8 },
   { inst: "big-five-ipip50", scale: "A", dir: "high", target: "empathy-iri", arch: "agree_empathy", kind: "deepen", threshold: 0.34, weight: 0.85 },
-  { inst: "big-five-ipip50", scale: "A", dir: "low", target: "dark-triad-18", arch: "agree_shadow", kind: "deepen", threshold: 0.42, weight: 0.55 },
   // HEXACO mirrors a few of the same routes for users who took it instead of Big Five.
   { inst: "hexaco-24", scale: "O", dir: "high", target: "need-for-cognition", arch: "open_nfc", kind: "deepen", threshold: 0.34, weight: 0.9 },
   { inst: "hexaco-24", scale: "C", dir: "high", target: "grit-resilience", arch: "consc_grit", kind: "deepen", threshold: 0.34, weight: 0.85 },
