@@ -439,15 +439,22 @@ function firstClause(desc: string): string {
   return desc.split(/,| and | y | et /)[0].trim();
 }
 
-/** A warm, localized header that names the user's most distinctive descriptors so far. */
-export function profileSpotlight(entries: SynthEntry[], opts: { name?: string; locale?: string } = {}): Spotlight | null {
-  if (!entries.length) return null;
-  const L = loc(opts.locale);
-  const s = SPOT[L];
-  const complete = entries.length >= INSTRUMENTS.length - 2;
+/** One distinctly high or low scale in the user's results, with a localized descriptor. */
+export interface StandoutTrait {
+  /** Localized scale name, e.g. "Openness". */
+  name: string;
+  /** Localized first-clause descriptor of where they actually are. */
+  desc: string;
+  /** Whether they sit on the high pole. */
+  high: boolean;
+  /** Distance from the midline (0..50) — bigger is more distinctive. */
+  dist: number;
+}
 
-  type Pick = { label: string; desc: string; dist: number };
-  const picks: Pick[] = [];
+/** The user's most distinctive trait positions across clean, nameable instruments. */
+export function standoutTraits(entries: SynthEntry[], opts: { locale?: string; limit?: number } = {}): StandoutTrait[] {
+  const L = loc(opts.locale);
+  const picks: StandoutTrait[] = [];
   const seen = new Set<string>();
   for (const e of entries) {
     if (!SPOTLIGHT_INSTRUMENTS.has(e.instrument.id)) continue;
@@ -457,23 +464,32 @@ export function profileSpotlight(entries: SynthEntry[], opts: { name?: string; l
       if (!def) continue;
       const dist = Math.abs(sc.normalized - 50);
       if (dist < 18) continue;
-      // Low Neuroticism is a strength, not a deficit; flip the descriptor sense.
+      // The descriptor always names where they actually are (low pole included),
+      // so framing stays honest in either direction.
       const high = sc.normalized >= 50;
       const desc = firstClause(high ? def.highDescriptor : def.lowDescriptor);
-      const key = def.name;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      picks.push({ label: `${def.name} ${high ? "↑" : "↓"}`, desc, dist });
+      if (seen.has(def.name)) continue;
+      seen.add(def.name);
+      picks.push({ name: def.name, desc, high, dist });
     }
   }
   picks.sort((a, b) => b.dist - a.dist);
-  const top = picks.slice(0, 3);
+  return picks.slice(0, opts.limit ?? 3);
+}
+
+/** A warm, localized header that names the user's most distinctive descriptors so far. */
+export function profileSpotlight(entries: SynthEntry[], opts: { name?: string; locale?: string } = {}): Spotlight | null {
+  if (!entries.length) return null;
+  const L = loc(opts.locale);
+  const s = SPOT[L];
+  const complete = entries.length >= INSTRUMENTS.length - 2;
+  const top = standoutTraits(entries, { locale: L, limit: 3 });
 
   const line = top.length ? s.line(oxfordLite(top.map((p) => p.desc), L)) : (complete ? s.all : s.head(opts.name));
   return {
     headline: s.head(opts.name),
     line: complete && !top.length ? s.all : line,
-    chips: top.map((p) => p.label),
+    chips: top.map((p) => `${p.name} ${p.high ? "↑" : "↓"}`),
     complete,
   };
 }

@@ -906,3 +906,7 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 @media (prefers-reduced-motion: reduce) {
   .foryou-aura { animation: none; }
 }
+
+/* "Today" daily nudge inside the For-you block */
+.foryou-today { margin-top: 20px; padding: 20px 22px; }
+.foryou-today h3 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; margin: 7px 0 8px; }

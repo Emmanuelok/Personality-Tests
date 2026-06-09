@@ -10,6 +10,7 @@ import { CREATIVITY_TEST } from "@core/ability/creativity";
 import { CATEGORIES } from "@core/categories";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
+import { dailyNudge } from "@core/daily";
 import type { SynthEntry } from "@core/synthesis";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { useI18n } from "../i18n";
@@ -48,6 +49,7 @@ export function Home({
   const { locale, t } = useI18n();
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
   const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
+  const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     const key = h < 12 ? "home.greetMorning" : h < 18 ? "home.greetAfternoon" : "home.greetEvening";
@@ -97,6 +99,16 @@ export function Home({
                 <span className="trait-chip" key={c}>{c}</span>
               ))}
               <span className="trait-chip muted">{t("home.takenCount").replace("{n}", String(entries.length))}</span>
+            </div>
+          )}
+          {nudge && (
+            <div className="panel insight-card foryou-today">
+              <span className="eyebrow2">{nudge.eyebrow}</span>
+              <h3>{nudge.title}</h3>
+              <p style={{ color: "var(--text-dim)", margin: 0 }}>{nudge.line}</p>
+              <div className="practice">
+                <b>{nudge.practiceLabel}:</b> {nudge.practice}
+              </div>
             </div>
           )}
           {recs.length > 0 && (

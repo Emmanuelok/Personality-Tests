@@ -5,7 +5,8 @@ import { localizeInstrument } from "./instruments/i18n";
 import { starterPack, adaptivePack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
 import { buildIntegratedProfile, dailyInsight, type SynthEntry } from "./synthesis";
-import { recommendNext, profileSpotlight, relevanceNote } from "./recommend";
+import { recommendNext, profileSpotlight, relevanceNote, standoutTraits } from "./recommend";
+import { dailyNudge } from "./daily";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -656,6 +657,62 @@ describe("relevance note (personalized intro)", () => {
 
   it("returns null for an already-completed instrument", () => {
     expect(relevanceNote(bigFive, [bfHighO], {})).toBeNull();
+  });
+});
+
+describe("daily nudge engine", () => {
+  const vivid = () => [{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }];
+  const day = new Date("2026-06-09T10:00:00Z");
+
+  it("returns null with no history", () => {
+    expect(dailyNudge([], {})).toBeNull();
+  });
+
+  it("composes a trait-anchored nudge with all parts present", () => {
+    const n = dailyNudge(vivid(), { date: day })!;
+    expect(n.eyebrow).toContain("Today");
+    expect(n.title.length).toBeGreaterThan(8);
+    expect(n.line.length).toBeGreaterThan(30);
+    expect(n.practice.length).toBeGreaterThan(10);
+    expect(n.title).not.toContain("{trait}");
+    expect(n.line).not.toContain("{desc}");
+  });
+
+  it("is stable within a day and changes across days", () => {
+    const a = dailyNudge(vivid(), { date: day })!;
+    const b = dailyNudge(vivid(), { date: day })!;
+    expect(a).toEqual(b);
+    const days = new Set<string>();
+    for (let i = 0; i < 8; i++) {
+      const d = new Date(day.getTime() + i * 86400000);
+      days.add(dailyNudge(vivid(), { date: d })!.title + dailyNudge(vivid(), { date: d })!.practice);
+    }
+    expect(days.size).toBeGreaterThan(2);
+  });
+
+  it("keeps the same selection across languages, with translated wording", () => {
+    const en = dailyNudge(vivid(), { date: day, locale: "en" })!;
+    const fr = dailyNudge(vivid(), { date: day, locale: "fr" })!;
+    expect(fr.eyebrow).toContain("Aujourd'hui");
+    expect(fr.title).not.toBe(en.title);
+    expect(fr.practiceLabel).toBe("Une petite pratique");
+  });
+
+  it("falls back to the steady-center message for balanced profiles", () => {
+    const mid = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, () => 3)) };
+    const n = dailyNudge([mid], { date: day })!;
+    expect(n.title).toBe("Your steady center");
+  });
+});
+
+describe("standout traits helper", () => {
+  it("localizes trait names through the instrument layer", () => {
+    const e = [{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }];
+    const en = standoutTraits(e, { locale: "en" });
+    const es = standoutTraits(e, { locale: "es" });
+    expect(en.length).toBeGreaterThan(0);
+    expect(es.length).toBe(en.length);
+    expect(es.map((p) => p.name)).not.toEqual(en.map((p) => p.name));
   });
 });
 
