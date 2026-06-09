@@ -76,9 +76,7 @@ export function BriefResult({
         {/* Paywall */}
         <section className="panel paywall">
           <h2 style={{ fontFamily: "var(--serif)", fontSize: 26, margin: "0 0 4px" }}>{i18.t("paywall.unlock")}</h2>
-          <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
-            Your snapshot above is just the surface. The full report goes deep — and turns your result into a plan to grow.
-          </p>
+          <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{i18.t("paywall.lede")}</p>
 
           <div className="prod-grid">
             {PRODUCTS.map((p) => (
@@ -91,7 +89,7 @@ export function BriefResult({
                   {p.includes.map((inc, i) => <li key={i}>{inc}</li>)}
                 </ul>
                 <button className={`btn ${p.id === "report" ? "primary" : ""}`} disabled={busy} onClick={() => onPurchase(p.id)}>
-                  {busy ? "…" : `Unlock — ${formatPrice(p.priceCents, p.currency)}`}
+                  {busy ? "…" : i18.t("paywall.unlockPrice").replace("{price}", formatPrice(p.priceCents, p.currency))}
                 </button>
               </div>
             ))}
@@ -99,10 +97,7 @@ export function BriefResult({
 
           {error && <p className="note" style={{ borderLeftColor: "var(--danger)", marginTop: 14 }}>{error}</p>}
 
-          <p className="trust">
-            🔒 No account needed. Secure one-time purchase — pay and your report unlocks instantly.
-            Powered by Stripe. Your answers stay on your device.
-          </p>
+          <p className="trust">{i18.t("paywall.trust")}</p>
         </section>
 
         <div className="row-actions">

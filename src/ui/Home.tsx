@@ -46,8 +46,13 @@ export function Home({
   onBattery?: () => void;
 }) {
   const { locale, t } = useI18n();
-  const spotlight = useMemo(() => profileSpotlight(entries, { name, locale }), [entries, name, locale]);
+  const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
   const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
+  const greeting = useMemo(() => {
+    const h = new Date().getHours();
+    const key = h < 12 ? "home.greetMorning" : h < 18 ? "home.greetAfternoon" : "home.greetEvening";
+    return name ? `${t(key)}, ${name}` : t(key);
+  }, [name, t]);
 
   return (
     <div className="container">
@@ -81,9 +86,9 @@ export function Home({
       </section>
 
       {spotlight && (
-        <section className="foryou" aria-label={t("home.forYou")}>
+        <section className="foryou view-enter" aria-label={t("home.forYou")}>
           <div className="foryou-aura" aria-hidden="true" />
-          <span className="eyebrow">{t("home.forYou")}</span>
+          <span className="eyebrow">{greeting}</span>
           <h2 className="foryou-title">{spotlight.headline}</h2>
           <p className="foryou-line">{spotlight.complete && !spotlight.chips.length ? t("home.completedAll") : spotlight.line}</p>
           {spotlight.chips.length > 0 && (

@@ -21,7 +21,7 @@ export type StringKey =
   | "report.personal" | "report.snapshot" | "report.glance" | "report.traitByTrait" | "report.dimByDim"
   | "report.dynamics" | "report.unique" | "report.responsibly" | "report.strengths" | "report.watchouts"
   | "report.takeAnother" | "report.shareCard"
-  | "paywall.unlock" | "paywall.takeDifferent"
+  | "paywall.unlock" | "paywall.takeDifferent" | "paywall.lede" | "paywall.unlockPrice" | "paywall.trust"
   | "ability.before" | "ability.timed" | "ability.beginTest" | "ability.next" | "ability.seeResult" | "ability.qOf" | "ability.changeAnswers"
   // Standalone cognition flows (shared chrome)
   | "cog.how" | "cog.begin" | "cog.tryAgain" | "cog.readHonestly" | "cog.estimated" | "cog.pct" | "cog.poss" | "cog.possNamed"
@@ -49,6 +49,7 @@ export type StringKey =
   | "take.exit" | "take.answered" | "take.tip" | "answer.style" | "answer.scale" | "answer.sentences"
   // Personalized home surface
   | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
+  | "home.greetMorning" | "home.greetAfternoon" | "home.greetEvening"
   | "intro.forYou" | "report.nextLede";
 
 type Dict = Record<StringKey, string>;
@@ -68,6 +69,9 @@ const en: Dict = {
   "report.responsibly": "Read responsibly", "report.strengths": "Strengths", "report.watchouts": "Watch-outs",
   "report.takeAnother": "Take another", "report.shareCard": "Share card",
   "paywall.unlock": "Unlock your full report", "paywall.takeDifferent": "Take a different assessment",
+  "paywall.lede": "Your snapshot above is just the surface. The full report goes deep — and turns your result into a plan to grow.",
+  "paywall.unlockPrice": "Unlock — {price}",
+  "paywall.trust": "🔒 No account needed. Secure one-time purchase — pay and your report unlocks instantly. Powered by Stripe. Your answers stay on your device.",
   "ability.before": "Before you start",
   "ability.timed": "This is a timed ability test — the questions have right and wrong answers. Work somewhere quiet, move quickly but carefully, and don't look anything up. Your result is an educational estimate, shown as a range — never a clinical IQ score.",
   "ability.beginTest": "Begin the test →", "ability.next": "Next →", "ability.seeResult": "See my result →",
@@ -132,6 +136,7 @@ const en: Dict = {
   "answer.style": "Answer style", "answer.scale": "Scale", "answer.sentences": "Sentences",
   "home.forYou": "For you", "home.nextSteps": "Your next steps", "home.seeIntegrated": "See your integrated self →",
   "home.begin": "Begin", "home.completedAll": "You've explored the whole atlas — extraordinary.", "home.takenCount": "{n} taken so far",
+  "home.greetMorning": "Good morning", "home.greetAfternoon": "Good afternoon", "home.greetEvening": "Good evening",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
 };
@@ -151,6 +156,9 @@ const es: Dict = {
   "report.responsibly": "Léelo con responsabilidad", "report.strengths": "Fortalezas", "report.watchouts": "Puntos de atención",
   "report.takeAnother": "Hacer otra", "report.shareCard": "Tarjeta para compartir",
   "paywall.unlock": "Desbloquea tu informe completo", "paywall.takeDifferent": "Hacer otra evaluación",
+  "paywall.lede": "Tu vistazo de arriba es solo la superficie. El informe completo profundiza y convierte tu resultado en un plan para crecer.",
+  "paywall.unlockPrice": "Desbloquear — {price}",
+  "paywall.trust": "🔒 Sin cuenta. Compra única y segura: paga y tu informe se desbloquea al instante. Con tecnología de Stripe. Tus respuestas permanecen en tu dispositivo.",
   "ability.before": "Antes de empezar",
   "ability.timed": "Esta es una prueba de aptitud cronometrada: las preguntas tienen respuestas correctas e incorrectas. Hazla en un lugar tranquilo, ve rápido pero con cuidado y no consultes nada. Tu resultado es una estimación educativa, mostrada como un rango, nunca un CI clínico.",
   "ability.beginTest": "Comenzar la prueba →", "ability.next": "Siguiente →", "ability.seeResult": "Ver mi resultado →",
@@ -215,6 +223,7 @@ const es: Dict = {
   "answer.style": "Estilo de respuesta", "answer.scale": "Escala", "answer.sentences": "Frases",
   "home.forYou": "Para ti", "home.nextSteps": "Tus siguientes pasos", "home.seeIntegrated": "Ve tu yo integrado →",
   "home.begin": "Comenzar", "home.completedAll": "Has explorado todo el atlas: extraordinario.", "home.takenCount": "{n} realizadas hasta ahora",
+  "home.greetMorning": "Buenos días", "home.greetAfternoon": "Buenas tardes", "home.greetEvening": "Buenas noches",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
 };
@@ -234,6 +243,9 @@ const fr: Dict = {
   "report.responsibly": "À lire avec discernement", "report.strengths": "Forces", "report.watchouts": "Points de vigilance",
   "report.takeAnother": "En faire un autre", "report.shareCard": "Carte à partager",
   "paywall.unlock": "Débloquez votre rapport complet", "paywall.takeDifferent": "Faire une autre évaluation",
+  "paywall.lede": "Votre aperçu ci-dessus n'est que la surface. Le rapport complet va en profondeur — et transforme votre résultat en un plan pour progresser.",
+  "paywall.unlockPrice": "Débloquer — {price}",
+  "paywall.trust": "🔒 Aucun compte requis. Achat unique et sécurisé : payez et votre rapport se débloque aussitôt. Propulsé par Stripe. Vos réponses restent sur votre appareil.",
   "ability.before": "Avant de commencer",
   "ability.timed": "Ceci est un test d'aptitude chronométré — les questions ont de bonnes et de mauvaises réponses. Installez-vous au calme, allez vite mais avec soin, et ne cherchez rien. Votre résultat est une estimation éducative, présentée sous forme de fourchette — jamais un QI clinique.",
   "ability.beginTest": "Commencer le test →", "ability.next": "Suivant →", "ability.seeResult": "Voir mon résultat →",
@@ -298,6 +310,7 @@ const fr: Dict = {
   "answer.style": "Style de réponse", "answer.scale": "Échelle", "answer.sentences": "Phrases",
   "home.forYou": "Pour vous", "home.nextSteps": "Vos prochaines étapes", "home.seeIntegrated": "Voir votre portrait intégré →",
   "home.begin": "Commencer", "home.completedAll": "Vous avez exploré tout l'atlas — extraordinaire.", "home.takenCount": "{n} réalisés à ce jour",
+  "home.greetMorning": "Bonjour", "home.greetAfternoon": "Bon après-midi", "home.greetEvening": "Bonsoir",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
 };
