@@ -40,37 +40,49 @@ function keyedValue(raw: number, keyed: 1 | -1, min: number, max: number): numbe
 }
 
 /**
- * Score a multiple-choice (single-select) instrument: each answered question casts one
- * vote for the chosen option's scale. A scale's standing is its share of votes, so the
- * dominant channel/type falls out naturally. Used for instruments whose native format is
- * choice (e.g., VARK) rather than Likert agreement.
+ * Score a multiple-choice (single-select) instrument. Two shapes are supported, detected
+ * per scale from the option keying:
+ *  • Categorical (VARK, Love Languages, conflict style): every option is its own scale and
+ *    keyed +1, so a scale's standing is its share of all choices (votes / total).
+ *  • Forced-choice bipolar (Keirsey, Kolb): two options share a scale with opposite keying,
+ *    so the scale's standing is the proportion of high-pole picks, p / (p + n).
+ * The dominant channel/type or the axis position then falls out naturally.
  */
 function scoreChoice(instrument: Instrument, responses: ResponseMap): AssessmentResult {
   const choiceItems = instrument.items.filter((i) => i.options && i.options.length);
+  // A scale is bipolar if any of its options is keyed to the low pole.
+  const bipolar: Record<string, boolean> = {};
+  for (const item of choiceItems) for (const o of item.options!) if ((o.keyed ?? 1) === -1) bipolar[o.scale] = true;
+
   let total = 0;
-  const votes: Record<string, number> = {};
+  const pos: Record<string, number> = {};
+  const neg: Record<string, number> = {};
   for (const item of choiceItems) {
     const r = responses[item.id];
     if (r == null || Number.isNaN(r)) continue;
     const opt = item.options![r];
     if (!opt) continue;
     total += 1;
-    votes[opt.scale] = (votes[opt.scale] ?? 0) + 1;
+    if ((opt.keyed ?? 1) === -1) neg[opt.scale] = (neg[opt.scale] ?? 0) + 1;
+    else pos[opt.scale] = (pos[opt.scale] ?? 0) + 1;
   }
 
   const scales: Record<string, ScaleScore> = {};
   for (const scale of instrument.scales) {
-    const v = votes[scale.id] ?? 0;
-    const normalized = total > 0 ? clamp((v / total) * 100, 0, 100) : 0;
+    const p = pos[scale.id] ?? 0;
+    const n = neg[scale.id] ?? 0;
+    const normalized = bipolar[scale.id]
+      ? clamp(p + n > 0 ? (p / (p + n)) * 100 : 50, 0, 100) // axis position toward the high pole
+      : clamp(total > 0 ? (p / total) * 100 : 0, 0, 100); // share of all choices
     scales[scale.id] = {
       scaleId: scale.id,
       name: scale.name,
-      raw: v,
-      mean: v,
+      raw: p + n,
+      mean: normalized,
       normalized,
-      percentile: normalized, // share of choices; no parametric norm for choice formats
+      percentile: normalized, // no parametric norm for choice formats
       level: levelFromPercentile(normalized),
-      itemCount: v,
+      itemCount: p + n,
       facets: {},
     };
   }

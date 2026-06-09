@@ -8,24 +8,31 @@ import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
  * (cooperative vs. utilitarian). Items are ORIGINAL to this platform.
  */
 
+// Keirsey's two axes are natural forced choices: in any moment you lean one way or the
+// other, and the pick pins your temperament far more cleanly than rating six statements.
 const L = { min: 1, max: 5, labels: ["Not like me", "Slightly", "Somewhat", "Mostly like me", "Exactly like me"] };
-const it = (id: string, text: string, scale: string, keyed: 1 | -1 = 1): Item => ({ id, text, scale, keyed });
+/** Forced-choice pair on one bipolar axis: option 0 = high pole (+1), option 1 = low pole (−1). */
+const fc = (id: string, scale: string, text: string, hi: string, lo: string): Item => ({
+  id,
+  text,
+  scale,
+  keyed: 1,
+  options: [{ text: hi, scale, keyed: 1 }, { text: lo, scale, keyed: -1 }],
+});
 
 const items: Item[] = [
   // Communication: high = Abstract / introspective, low = Concrete / observant
-  it("C1", "I'm drawn to theories, patterns, and what things could mean.", "COMM"),
-  it("C2", "I often think about the future and abstract possibilities.", "COMM"),
-  it("C3", "I enjoy symbolic, imaginative, or philosophical conversation.", "COMM"),
-  it("C4", "I focus on concrete facts and what's actually in front of me.", "COMM", -1),
-  it("C5", "I trust hands-on experience over theory.", "COMM", -1),
-  it("C6", "I prefer practical, literal, down-to-earth talk.", "COMM", -1),
+  fc("KC1", "COMM", "When you talk and think, you're more drawn to…", "theories, patterns, and what things could mean", "concrete facts and what's right in front of you"),
+  fc("KC2", "COMM", "You'd rather a good conversation be…", "imaginative, symbolic, or philosophical", "practical, literal, and down-to-earth"),
+  fc("KC3", "COMM", "Your attention naturally goes to…", "future possibilities and what could be", "present realities and what actually is"),
+  fc("KC4", "COMM", "You trust more…", "theory and the patterns you infer", "hands-on experience and the tangible"),
+  fc("KC5", "COMM", "Your mind tends to drift toward…", "abstractions and big-picture meaning", "specifics, details, and the concrete"),
   // Action: high = Utilitarian / effective, low = Cooperative / proper
-  it("A1", "I do whatever works to get the result, even if it breaks convention.", "ACT"),
-  it("A2", "Effectiveness matters to me more than following the rules.", "ACT"),
-  it("A3", "I'll improvise my own method if the official one is inefficient.", "ACT"),
-  it("A4", "I think it matters to do things the right and proper way.", "ACT", -1),
-  it("A5", "I prefer to cooperate and honor accepted procedures.", "ACT", -1),
-  it("A6", "I feel better when I act in socially approved ways.", "ACT", -1),
+  fc("KA1", "ACT", "To reach a goal, you'd rather…", "do whatever works, even if unconventional", "do it the right and proper way"),
+  fc("KA2", "ACT", "What guides you more?", "effectiveness and results", "rules and accepted procedure"),
+  fc("KA3", "ACT", "When the official method is inefficient, you…", "improvise your own that works", "follow it anyway, out of propriety"),
+  fc("KA4", "ACT", "You feel better when you…", "get the outcome by any sensible means", "act in socially approved ways"),
+  fc("KA5", "ACT", "You'd describe yourself as more…", "pragmatic and utilitarian", "cooperative and proper"),
 ];
 
 type Key = "Guardian" | "Artisan" | "Idealist" | "Rational";
@@ -65,6 +72,7 @@ export const keirsey: Instrument = {
   name: "Keirsey Temperaments",
   shortName: "Keirsey",
   kind: "typological",
+  format: "choice",
   category: "types",
   tagline: "Four temperaments — Guardian, Artisan, Idealist, Rational.",
   description:

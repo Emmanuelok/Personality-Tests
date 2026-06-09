@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { Instrument, Item, ResponseMap } from "./types";
-import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark } from "./instruments";
+import { INSTRUMENTS, bigFive, jungTypes, enneagram, hexaco, disc, attachment, darkTriad, via, values, eq, loveLanguages, grit, conflictStyle, chronotype, moralFoundations, temperaments, riasec, adhd, autism, perma, lifeSatisfaction, resilience, selfEsteem, mood, vark, keirsey, kolb } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { starterPack } from "./starter";
 import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from "./compatibility";
@@ -498,6 +498,23 @@ describe("multiple-choice (choice-format) scoring", () => {
     // An even spread across all four channels resolves to multimodal.
     const spread: ResponseMap = Object.fromEntries(vark.items.map((i, idx) => [i.id, idx % 4]));
     expect(scoreAssessment(vark, spread).type?.code).toBe("Multimodal");
+  });
+
+  it("scores forced-choice bipolar instruments by axis position (Keirsey, Kolb)", () => {
+    expect(keirsey.format).toBe("choice");
+    expect(kolb.format).toBe("choice");
+    // Keirsey: picking the high pole (index 0) on every pair → abstract + utilitarian → Rational (NT)
+    const kHi = scoreAssessment(keirsey, Object.fromEntries(keirsey.items.map((i) => [i.id, 0])));
+    expect(kHi.scales.COMM.normalized).toBe(100);
+    expect(kHi.scales.ACT.normalized).toBe(100);
+    expect(kHi.type?.code).toBe("NT");
+    // picking the low pole (index 1) everywhere → concrete + cooperative → Guardian (SJ)
+    const kLo = scoreAssessment(keirsey, Object.fromEntries(keirsey.items.map((i) => [i.id, 1])));
+    expect(kLo.scales.COMM.normalized).toBe(0);
+    expect(kLo.type?.code).toBe("SJ");
+    // Kolb: all high → abstract + active → Converging; all low → concrete + reflective → Diverging
+    expect(scoreAssessment(kolb, Object.fromEntries(kolb.items.map((i) => [i.id, 0]))).type?.code).toBe("Converging");
+    expect(scoreAssessment(kolb, Object.fromEntries(kolb.items.map((i) => [i.id, 1]))).type?.code).toBe("Diverging");
   });
 });
 

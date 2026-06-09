@@ -25,6 +25,9 @@ export interface ItemOption {
   text: string;
   /** Id of the {@link ScaleDef} this option loads on when chosen. */
   scale: string;
+  /** Pole direction for forced-choice on a bipolar scale: +1 votes the high pole, -1 the low.
+   *  Omit (defaults to +1) for categorical choices where each option is its own scale. */
+  keyed?: KeyDirection;
 }
 
 /** A single questionnaire item. */

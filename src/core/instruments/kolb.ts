@@ -9,24 +9,29 @@ import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
  * this platform.
  */
 
+// Kolb's two axes are forced choices: you grasp experience one way or the other, and
+// transform it one way or the other. Picking between the poles places your style cleanly.
 const L = { min: 1, max: 5, labels: ["Not like me", "Slightly", "Somewhat", "Mostly like me", "Exactly like me"] };
-const it = (id: string, text: string, scale: string, keyed: 1 | -1 = 1): Item => ({ id, text, scale, keyed });
+/** Forced-choice pair on one bipolar axis: option 0 = high pole (+1), option 1 = low pole (−1). */
+const fc = (id: string, scale: string, text: string, hi: string, lo: string): Item => ({
+  id,
+  text,
+  scale,
+  keyed: 1,
+  options: [{ text: hi, scale, keyed: 1 }, { text: lo, scale, keyed: -1 }],
+});
 
 const items: Item[] = [
   // Grasping: high = Abstract (thinking), low = Concrete (feeling)
-  it("G1", "I learn by analyzing ideas and thinking things through.", "GRASP"),
-  it("G2", "I rely on theories and concepts to make sense of experience.", "GRASP"),
-  it("G3", "I trust logical analysis over gut feeling.", "GRASP"),
-  it("G4", "I learn best by feeling my way through a concrete experience.", "GRASP", -1),
-  it("G5", "I tune into the specifics of the moment more than abstract theory.", "GRASP", -1),
-  it("G6", "I learn most from direct, personal, hands-on experience.", "GRASP", -1),
+  fc("KG1", "GRASP", "You make sense of something new mainly by…", "analyzing the ideas and thinking it through", "feeling your way through the concrete experience"),
+  fc("KG2", "GRASP", "You trust more…", "theories, concepts, and logical analysis", "direct, hands-on, personal experience"),
+  fc("KG3", "GRASP", "You'd rather learn from…", "models and abstract principles", "the concrete specifics of the moment"),
+  fc("KG4", "GRASP", "Your instinct is to…", "step back to the underlying idea", "stay with the tangible details"),
   // Transforming: high = Active (doing), low = Reflective (watching)
-  it("T1", "I learn by doing and trying things out.", "TRANS"),
-  it("T2", "I'd rather jump in and experiment than sit and watch.", "TRANS"),
-  it("T3", "I make sense of things by acting on them.", "TRANS"),
-  it("T4", "I learn best by watching and reflecting before I act.", "TRANS", -1),
-  it("T5", "I like to observe from several angles before forming a view.", "TRANS", -1),
-  it("T6", "I prefer to think things over quietly rather than dive in.", "TRANS", -1),
+  fc("KT1", "TRANS", "You learn best by…", "doing and trying things out", "watching and reflecting first"),
+  fc("KT2", "TRANS", "Faced with something new, you'd rather…", "jump in and experiment", "observe from several angles before acting"),
+  fc("KT3", "TRANS", "You make sense of things by…", "acting on them", "thinking them over quietly"),
+  fc("KT4", "TRANS", "Your default is to…", "get hands-on right away", "form a considered view first"),
 ];
 
 type Key = "Diverging" | "Assimilating" | "Converging" | "Accommodating";
@@ -65,6 +70,7 @@ export const kolb: Instrument = {
   name: "Kolb Learning Style",
   shortName: "Kolb",
   kind: "typological",
+  format: "choice",
   category: "learning",
   tagline: "Diverging, Assimilating, Converging, Accommodating — your learning style.",
   description:
