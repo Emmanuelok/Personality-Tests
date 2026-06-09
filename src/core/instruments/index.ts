@@ -52,6 +52,9 @@ import { resilience } from "./resilience";
 import { darkTriad } from "./darktriad";
 import { darkTetrad } from "./darktetrad";
 import { pid5 } from "./pid5";
+import { optimism } from "./optimism";
+import { hope } from "./hope";
+import { curiosity } from "./curiosity";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -108,6 +111,9 @@ export const INSTRUMENTS: Instrument[] = [
   darkTriad,
   darkTetrad,
   pid5,
+  optimism,
+  hope,
+  curiosity,
 ];
 
 const BY_ID = new Map(INSTRUMENTS.map((i) => [i.id, i]));
@@ -175,4 +181,7 @@ export {
   darkTriad,
   darkTetrad,
   pid5,
+  optimism,
+  hope,
+  curiosity,
 };
