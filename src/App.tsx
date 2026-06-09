@@ -525,8 +525,10 @@ export default function App() {
             instrument={instrument}
             result={result}
             report={report}
+            entries={entries}
             onRegenerate={regenerate}
             onRestart={goHome}
+            onStartInstrument={start}
             onCompatibility={goCompat}
             name={name}
           />

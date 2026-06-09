@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { AssessmentResult, Instrument, ScaleDef } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { buildReportKnowledge } from "@core/companion";
+import { recommendNext } from "@core/recommend";
+import type { SynthEntry } from "@core/synthesis";
 import { RadarChart, ScaleBar, Gauge } from "./charts";
 import { InstrumentGlyph, Crest, Flourish, TraitIcon } from "./art";
 import { ImprovementPlanner } from "./ImprovementPlanner";
@@ -22,23 +24,28 @@ export function Report({
   instrument,
   result,
   report,
+  entries = [],
   onRegenerate,
   onRestart,
+  onStartInstrument,
   onCompatibility,
   name,
 }: {
   instrument: Instrument;
   result: AssessmentResult;
   report: PersonalityReport;
+  entries?: SynthEntry[];
   onRegenerate: () => void;
   onRestart: () => void;
+  onStartInstrument?: (instrument: Instrument) => void;
   onCompatibility: () => void;
   name?: string;
 }) {
+  const i18 = useI18n();
+  const nextSteps = useMemo(() => recommendNext(entries, { locale: i18.locale, limit: 2 }), [entries, i18.locale]);
   const scaleById = new Map<string, ScaleDef>(instrument.scales.map((s) => [s.id, s]));
   const radarData = report.traits.map((tr) => ({ label: shortLabel(tr.name), value: tr.normalized }));
   const [pdfBusy, setPdfBusy] = useState(false);
-  const i18 = useI18n();
 
   const withPdf = async (fn: "downloadReportPdf" | "downloadPosterPdf") => {
     setPdfBusy(true);
@@ -203,6 +210,24 @@ export function Report({
         <section className="panel">
           <ImprovementPlanner instrument={instrument} result={result} />
         </section>
+
+        {/* Personalized next steps */}
+        {onStartInstrument && nextSteps.length > 0 && (
+          <section className="panel">
+            <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 22, margin: "0 0 4px" }}>{i18.t("home.nextSteps")}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{i18.t("report.nextLede")}</p>
+            <div className="grid rec-grid">
+              {nextSteps.map((r) => (
+                <article className={`card rec-card rec-${r.kind}`} key={r.instrument.id}>
+                  <span className={`rec-badge rec-badge-${r.kind}`}>{r.badge}</span>
+                  <h3>{r.instrument.name}</h3>
+                  <p className="rec-reason">{r.reason}</p>
+                  <button className="btn primary" onClick={() => onStartInstrument(r.instrument)}>{i18.t("home.begin")} {r.instrument.shortName} →</button>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Caveats + citations */}
         <section className="panel">

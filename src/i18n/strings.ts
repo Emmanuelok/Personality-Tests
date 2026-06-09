@@ -49,7 +49,7 @@ export type StringKey =
   | "take.exit" | "take.answered" | "take.tip" | "answer.style" | "answer.scale" | "answer.sentences"
   // Personalized home surface
   | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
-  | "intro.forYou";
+  | "intro.forYou" | "report.nextLede";
 
 type Dict = Record<StringKey, string>;
 
@@ -133,6 +133,7 @@ const en: Dict = {
   "home.forYou": "For you", "home.nextSteps": "Your next steps", "home.seeIntegrated": "See your integrated self →",
   "home.begin": "Begin", "home.completedAll": "You've explored the whole atlas — extraordinary.", "home.takenCount": "{n} taken so far",
   "intro.forYou": "Why this is for you",
+  "report.nextLede": "Chosen for you, based on what this result just revealed.",
 };
 
 const es: Dict = {
@@ -215,6 +216,7 @@ const es: Dict = {
   "home.forYou": "Para ti", "home.nextSteps": "Tus siguientes pasos", "home.seeIntegrated": "Ve tu yo integrado →",
   "home.begin": "Comenzar", "home.completedAll": "Has explorado todo el atlas: extraordinario.", "home.takenCount": "{n} realizadas hasta ahora",
   "intro.forYou": "Por qué es para ti",
+  "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
 };
 
 const fr: Dict = {
@@ -297,6 +299,7 @@ const fr: Dict = {
   "home.forYou": "Pour vous", "home.nextSteps": "Vos prochaines étapes", "home.seeIntegrated": "Voir votre portrait intégré →",
   "home.begin": "Commencer", "home.completedAll": "Vous avez exploré tout l'atlas — extraordinaire.", "home.takenCount": "{n} réalisés à ce jour",
   "intro.forYou": "Pourquoi c'est pour vous",
+  "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
 };
 
 export const STRINGS: Record<Locale, Dict> = { en, es, fr };
