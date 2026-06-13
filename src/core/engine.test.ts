@@ -664,6 +664,12 @@ describe("recommendation engine", () => {
     }
   });
 
+  it("recommends a triangulating cross-check for a singly-measured trait", () => {
+    const eysenck = INSTRUMENTS.find((i) => i.id === "eysenck-pen")!;
+    const recs = recommendNext([{ instrument: eysenck, result: scoreAssessment(eysenck, allHigh(eysenck)) }], { limit: 12 });
+    expect(recs.some((r) => r.kind === "triangulate")).toBe(true);
+  });
+
   it("is deterministic for identical inputs", () => {
     const a = recommendNext([bfFactor("O")], { seed: 42 });
     const b = recommendNext([bfFactor("O")], { seed: 42 });

@@ -247,6 +247,44 @@ export function analyzeConvergence(
     });
   }
 
+  return finalizeReadings(readings);
+}
+
+/** Per-construct coverage: how many of a user's tests measure it, whether they
+ *  diverge, and which not-yet-taken instruments would add a fresh angle. Powers
+ *  convergence-aware ("triangulating") recommendations. */
+export interface ConstructGap {
+  id: string;
+  name: string;
+  /** Distinct instruments the user has taken that measure this construct. */
+  sources: number;
+  divergent: boolean;
+  /** Instrument ids that measure this construct but the user hasn't taken (priority order). */
+  candidates: string[];
+}
+export function constructGaps(
+  entries: { instrument: Instrument; result: AssessmentResult }[],
+  opts: { locale?: string } = {},
+): ConstructGap[] {
+  const loc = cLoc(opts.locale);
+  const done = new Set(entries.map((e) => e.instrument.id));
+  const conv = analyzeConvergence(entries, { locale: loc });
+  const divById = new Map(conv.readings.map((r) => [r.id, r.divergent]));
+  const gaps: ConstructGap[] = [];
+  for (const c of CONSTRUCTS) {
+    const measuring = new Set<string>();
+    const candidates: string[] = [];
+    const seen = new Set<string>();
+    for (const s of c.sources) {
+      if (done.has(s.inst)) measuring.add(s.inst);
+      else if (!seen.has(s.inst) && getInstrument(s.inst)) { seen.add(s.inst); candidates.push(s.inst); }
+    }
+    gaps.push({ id: c.id, name: c.name[loc], sources: measuring.size, divergent: divById.get(c.id) ?? false, candidates });
+  }
+  return gaps;
+}
+
+function finalizeReadings(readings: ConstructReading[]): ConvergenceResult {
   // Most striking first: agreement × distinctiveness.
   readings.sort((a, b) => (b.agreement * Math.abs(b.position - 50)) - (a.agreement * Math.abs(a.position - 50)));
   const topConvergent = [...readings].filter((r) => r.convergent && Math.abs(r.position - 50) >= 12).sort((a, b) => b.agreement * Math.abs(b.position - 50) - a.agreement * Math.abs(a.position - 50))[0];

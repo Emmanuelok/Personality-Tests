@@ -2,6 +2,7 @@ import type { Instrument } from "./types";
 import type { SynthEntry } from "./synthesis";
 import { INSTRUMENTS, getInstrument } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
+import { constructGaps } from "./converge";
 import { Rng, seedFrom } from "./prng";
 
 /**
@@ -17,7 +18,7 @@ import { Rng, seedFrom } from "./prng";
  * reasons read naturally in English, Spanish, and French.
  */
 
-export type RecKind = "foundation" | "deepen" | "pairing" | "explore" | "support";
+export type RecKind = "foundation" | "deepen" | "pairing" | "explore" | "support" | "triangulate";
 
 export interface Recommendation {
   instrument: Instrument;
@@ -52,6 +53,23 @@ const BADGE: Record<RecKind, Record<Loc, string>> = {
   pairing: { en: "Natural next step", es: "Siguiente paso natural", fr: "Suite naturelle" },
   explore: { en: "New territory", es: "Territorio nuevo", fr: "Nouveau terrain" },
   support: { en: "For you right now", es: "Para ti ahora", fr: "Pour vous, maintenant" },
+  triangulate: { en: "Cross-check", es: "Verificación cruzada", fr: "Recoupement" },
+};
+
+/** Reasons for convergence-aware (triangulating) recommendations. */
+const TRI: Record<Loc, { single: (c: string) => string; diverge: (c: string) => string }> = {
+  en: {
+    single: (c) => `You've measured your ${c} just one way. This adds a second lens so the platform can cross-check it.`,
+    diverge: (c) => `Your tests disagree about your ${c}. This adds another reading that could help settle it.`,
+  },
+  es: {
+    single: (c) => `Has medido tu ${c} de una sola forma. Esto añade una segunda mirada para poder cruzarla.`,
+    diverge: (c) => `Tus pruebas no coinciden en tu ${c}. Esto añade otra lectura que podría ayudar a resolverlo.`,
+  },
+  fr: {
+    single: (c) => `Vous n'avez mesuré votre ${c} que d'une seule façon. Ceci ajoute un second regard pour pouvoir le recouper.`,
+    diverge: (c) => `Vos tests divergent sur votre ${c}. Ceci ajoute une autre lecture qui pourrait aider à trancher.`,
+  },
 };
 
 const FOUNDATION_REASON: Record<Loc, string> = {
@@ -342,6 +360,14 @@ export function recommendNext(
   for (const [catId, flagshipId] of Object.entries(CATEGORY_FLAGSHIP)) {
     if (doneCats.has(catId)) continue;
     add(flagshipId, 44, "explore", rng.pick(EXPLORE_REASON[L]));
+  }
+
+  // 3b. Convergence-aware triangulation — add a fresh angle on a trait measured
+  //     only once, or one where the tests currently disagree.
+  for (const gap of constructGaps(entries, { locale: L })) {
+    if (!gap.candidates.length) continue;
+    if (gap.divergent) add(gap.candidates[0], 62, "triangulate", TRI[L].diverge(gap.name.toLowerCase()));
+    else if (gap.sources === 1) add(gap.candidates[0], 50, "triangulate", TRI[L].single(gap.name.toLowerCase()));
   }
 
   // 4. Always have a fallback so the surface is never empty while tests remain.

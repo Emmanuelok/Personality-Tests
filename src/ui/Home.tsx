@@ -462,6 +462,7 @@ const REC_GLYPH: Record<RecKind, string> = {
   pairing: "⇄",
   explore: "✲",
   support: "♥",
+  triangulate: "⟗",
 };
 function recBadgeGlyph(kind: RecKind): string {
   return REC_GLYPH[kind] ?? "✦";
