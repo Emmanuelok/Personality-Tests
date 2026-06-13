@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { AssessmentResult, Instrument, ResponseMap } from "@core/types";
 import type { PersonalityReport } from "@core/report";
 import { scoreAssessment } from "@core/scoring";
@@ -16,20 +16,21 @@ import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
 import { Report } from "./ui/Report";
 import { BriefResult } from "./ui/BriefResult";
-import { Compatibility } from "./ui/Compatibility";
-import { Growth } from "./ui/Growth";
-import { IntegratedProfile } from "./ui/IntegratedProfile";
 import { PackStep } from "./ui/PackStep";
-import { AbilityFlow } from "./ui/ability/AbilityFlow";
-import { AbilityResult } from "./ui/ability/AbilityResult";
-import { MemoryFlow } from "./ui/ability/MemoryFlow";
-import { CorsiFlow } from "./ui/ability/CorsiFlow";
-import { SpeedFlow } from "./ui/ability/SpeedFlow";
-import { AdaptiveFlow } from "./ui/ability/AdaptiveFlow";
-import { IatFlow } from "./ui/ability/IatFlow";
-import { CreativityFlow } from "./ui/ability/CreativityFlow";
-import { BatteryView } from "./ui/ability/BatteryView";
-import { AdminNorms } from "./ui/AdminNorms";
+// Heavy, non-first-paint views are code-split so the initial load stays lean.
+const Compatibility = lazy(() => import("./ui/Compatibility").then((m) => ({ default: m.Compatibility })));
+const Growth = lazy(() => import("./ui/Growth").then((m) => ({ default: m.Growth })));
+const IntegratedProfile = lazy(() => import("./ui/IntegratedProfile").then((m) => ({ default: m.IntegratedProfile })));
+const AbilityFlow = lazy(() => import("./ui/ability/AbilityFlow").then((m) => ({ default: m.AbilityFlow })));
+const AbilityResult = lazy(() => import("./ui/ability/AbilityResult").then((m) => ({ default: m.AbilityResult })));
+const MemoryFlow = lazy(() => import("./ui/ability/MemoryFlow").then((m) => ({ default: m.MemoryFlow })));
+const CorsiFlow = lazy(() => import("./ui/ability/CorsiFlow").then((m) => ({ default: m.CorsiFlow })));
+const SpeedFlow = lazy(() => import("./ui/ability/SpeedFlow").then((m) => ({ default: m.SpeedFlow })));
+const AdaptiveFlow = lazy(() => import("./ui/ability/AdaptiveFlow").then((m) => ({ default: m.AdaptiveFlow })));
+const IatFlow = lazy(() => import("./ui/ability/IatFlow").then((m) => ({ default: m.IatFlow })));
+const CreativityFlow = lazy(() => import("./ui/ability/CreativityFlow").then((m) => ({ default: m.CreativityFlow })));
+const BatteryView = lazy(() => import("./ui/ability/BatteryView").then((m) => ({ default: m.BatteryView })));
+const AdminNorms = lazy(() => import("./ui/AdminNorms").then((m) => ({ default: m.AdminNorms })));
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import { buildBattery } from "@core/ability/chc";
 import {
@@ -517,6 +518,8 @@ export default function App() {
         </header>
       )}
 
+      <Suspense fallback={<div className="container" style={{ padding: "80px 22px", textAlign: "center", color: "var(--text-faint)" }}>…</div>}>
+
       {view === "home" && (
         <Home
           entries={entries}
@@ -637,6 +640,7 @@ export default function App() {
       {settingsOpen && profile && (
         <Settings profile={profile} onSaveName={saveName} onReset={resetAll} onClose={() => setSettingsOpen(false)} />
       )}
+      </Suspense>
     </>
   );
 }
