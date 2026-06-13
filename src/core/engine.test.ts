@@ -9,6 +9,7 @@ import { recommendNext, profileSpotlight, relevanceNote, standoutTraits } from "
 import { dailyNudge } from "./daily";
 import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
+import { analyzeConvergence } from "./converge";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -832,6 +833,44 @@ describe("new focused instruments", () => {
   it("threads the new instruments into goal roadmaps", () => {
     expect(buildRoadmap([], ["Grow & improve"], { length: 8 }).steps.map((s) => s.instrumentId)).toContain("self-efficacy-gse");
     expect(buildRoadmap([], ["Emotional wellbeing"], { length: 8 }).steps.map((s) => s.instrumentId)).toContain("emotion-regulation-erq");
+  });
+});
+
+describe("cross-test convergence", () => {
+  const driveScale = (inst: Instrument, scale: string, high: boolean) =>
+    ({ instrument: inst, result: scoreAssessment(inst, answerAll(inst, (it) => (it.scale === scale ? (it.keyed === 1 ? (high ? inst.responseFormat.max : inst.responseFormat.min) : (high ? inst.responseFormat.min : inst.responseFormat.max)) : Math.round((inst.responseFormat.min + inst.responseFormat.max) / 2)))) });
+
+  it("needs at least two instruments to cross-check a construct", () => {
+    const r = analyzeConvergence([{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }], {});
+    expect(r.readings).toHaveLength(0);
+  });
+
+  it("flags a high-confidence convergence when two tests agree", () => {
+    const entries = [driveScale(bigFive, "E", true), driveScale(hexaco, "X", true)];
+    const r = analyzeConvergence(entries, {});
+    const ext = r.readings.find((x) => x.id === "extraversion")!;
+    expect(ext).toBeTruthy();
+    expect(ext.sources.length).toBe(2);
+    expect(ext.position).toBeGreaterThan(60);
+    expect(ext.convergent).toBe(true);
+    expect(ext.agreement).toBeGreaterThan(0.66);
+  });
+
+  it("flags a divergence when two tests disagree about the same trait", () => {
+    const entries = [driveScale(bigFive, "E", true), driveScale(hexaco, "X", false)];
+    const r = analyzeConvergence(entries, {});
+    const ext = r.readings.find((x) => x.id === "extraversion")!;
+    expect(ext.divergent).toBe(true);
+    expect(ext.agreement).toBeLessThan(0.5);
+    expect(r.topDivergent?.id).toBe("extraversion");
+  });
+
+  it("localizes construct names and insights", () => {
+    const entries = [driveScale(bigFive, "E", true), driveScale(hexaco, "X", true)];
+    const en = analyzeConvergence(entries, { locale: "en" }).readings.find((x) => x.id === "extraversion")!;
+    const fr = analyzeConvergence(entries, { locale: "fr" }).readings.find((x) => x.id === "extraversion")!;
+    expect(en.name).toBe("Extraversion");
+    expect(fr.insight).not.toBe(en.insight);
   });
 });
 
