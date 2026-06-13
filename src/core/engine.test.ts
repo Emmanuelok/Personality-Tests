@@ -778,6 +778,28 @@ describe("personalized roadmap", () => {
   });
 });
 
+describe("new focused instruments", () => {
+  it("scores Self-Efficacy as a single dimension", () => {
+    const inst = INSTRUMENTS.find((i) => i.id === "self-efficacy-gse")!;
+    expect(inst).toBeTruthy();
+    const res = scoreAssessment(inst, allHigh(inst));
+    expect(Object.keys(res.scales)).toHaveLength(1);
+    expect(res.scales.GSE.level).toBe("very high");
+  });
+
+  it("scores Emotion Regulation across reappraisal and suppression", () => {
+    const inst = INSTRUMENTS.find((i) => i.id === "emotion-regulation-erq")!;
+    expect(inst).toBeTruthy();
+    const res = scoreAssessment(inst, allHigh(inst));
+    expect(Object.keys(res.scales).sort()).toEqual(["REAP", "SUPP"]);
+  });
+
+  it("threads the new instruments into goal roadmaps", () => {
+    expect(buildRoadmap([], ["Grow & improve"], { length: 8 }).steps.map((s) => s.instrumentId)).toContain("self-efficacy-gse");
+    expect(buildRoadmap([], ["Emotional wellbeing"], { length: 8 }).steps.map((s) => s.instrumentId)).toContain("emotion-regulation-erq");
+  });
+});
+
 describe("milestones", () => {
   const e = (...insts: Instrument[]): SynthEntry[] => insts.map((i) => ({ instrument: i, result: scoreAssessment(i, allHigh(i)) }));
 
