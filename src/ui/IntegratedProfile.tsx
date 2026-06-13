@@ -112,6 +112,19 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
           </section>
         )}
 
+        {ip.responseStyle.summary && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("iep.readstyle")}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{ip.responseStyle.summary}</p>
+            {ip.responseStyle.flags.map((f) => (
+              <div className="rs-flag" key={f.id}>
+                <b>{f.label}</b>
+                <span>{f.note}</span>
+              </div>
+            ))}
+          </section>
+        )}
+
         {(ip.strengths.length > 0 || ip.growthEdges.length > 0) && (
           <section className="panel">
             <div className="sw">

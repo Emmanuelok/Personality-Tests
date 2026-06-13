@@ -3,6 +3,7 @@ import { Rng, hashHex, nonce, seedFrom } from "./prng";
 import { capitalize, oxford, sentence } from "./variation";
 import { localizeInstrument } from "./instruments/i18n";
 import { analyzeConvergence, type ConvergenceResult } from "./converge";
+import { analyzeResponseStyle, type ResponseStyle } from "./responsestyle";
 import {
   synthLoc, themeStr, buildHeadline, tensionStr, omText, OM_LABELS, OM_CONNECT_AVOID,
   STR_SCAFFOLD, EVID, assessWord, OVERVIEW, type Loc,
@@ -58,6 +59,8 @@ export interface IntegratedProfile {
   operatingManual: OperatingNote[];
   /** Cross-test meta-analysis: where instruments agree vs. diverge on shared traits. */
   convergence: ConvergenceResult;
+  /** How the person tends to answer (acquiescence, extremity…), to read results wisely. */
+  responseStyle: ResponseStyle;
   /** 0..100 how complete the picture is (more tests → higher). */
   depth: number;
 }
@@ -419,6 +422,7 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
     tensions: tensions.slice(0, 4),
     operatingManual: om,
     convergence: analyzeConvergence(entries, { locale: opts.locale }),
+    responseStyle: analyzeResponseStyle(entries, { locale: opts.locale }),
     depth,
   };
 }

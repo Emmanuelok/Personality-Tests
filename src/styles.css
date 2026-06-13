@@ -1220,3 +1220,9 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 /* Triangulate (cross-check) recommendation accent */
 .rec-card.rec-triangulate::before { background: var(--melancholic); }
 .rec-badge-triangulate { color: var(--accent-2); border-color: rgba(39, 119, 111, 0.4); }
+
+/* Response-style "how to read your results" flags */
+.rs-flag { padding: 12px 0; border-top: 1px solid var(--border-soft); }
+.rs-flag:first-of-type { border-top: none; }
+.rs-flag b { display: block; font-family: var(--serif); font-size: 16px; margin-bottom: 3px; }
+.rs-flag span { color: var(--text-dim); font-size: 14.5px; line-height: 1.55; }
