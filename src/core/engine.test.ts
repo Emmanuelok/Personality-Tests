@@ -10,6 +10,7 @@ import { dailyNudge } from "./daily";
 import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
+import { analyzeResponseStyle } from "./responsestyle";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -887,6 +888,48 @@ describe("cross-test convergence", () => {
     const fr = analyzeConvergence(entries, { locale: "fr" }).readings.find((x) => x.id === "extraversion")!;
     expect(en.name).toBe("Extraversion");
     expect(fr.insight).not.toBe(en.insight);
+  });
+});
+
+describe("response-style analysis", () => {
+  const entry = (resp: ResponseMap) => ({ instrument: bigFive, result: scoreAssessment(bigFive, resp) });
+  const all = (v: number) => entry(answerAll(bigFive, () => v));
+
+  it("stays quiet with nothing to analyze", () => {
+    const r = analyzeResponseStyle([], {});
+    expect(r.summary).toBeNull();
+    expect(r.itemsAnalyzed).toBe(0);
+  });
+
+  it("excludes choice-format instruments (option index, not a rating)", () => {
+    const resp = Object.fromEntries(loveLanguages.items.map((i) => [i.id, 0]));
+    const r = analyzeResponseStyle([{ instrument: loveLanguages, result: scoreAssessment(loveLanguages, resp) }], {});
+    expect(r.itemsAnalyzed).toBe(0);
+  });
+
+  it("detects yea-saying when everything is rated at the top", () => {
+    const r = analyzeResponseStyle([all(bigFive.responseFormat.max)], {});
+    expect(r.itemsAnalyzed).toBeGreaterThanOrEqual(24);
+    expect(r.acquiescence).toBeGreaterThan(0.9);
+    expect(r.flags.some((f) => f.id === "acquiescence")).toBe(true);
+    expect(r.extremity).toBeGreaterThan(0.9);
+    expect(r.flags.some((f) => f.id === "extreme")).toBe(true);
+  });
+
+  it("detects fence-sitting when everything is the midpoint", () => {
+    const r = analyzeResponseStyle([all(3)], {}); // 1..5 scale midpoint
+    expect(r.flags.some((f) => f.id === "middle")).toBe(true);
+    expect(r.middling).toBeGreaterThan(0.9);
+  });
+
+  it("calls a varied answer pattern balanced and localizes the note", () => {
+    let i = 0;
+    const varied = entry(answerAll(bigFive, () => [1, 2, 3, 4, 5][i++ % 5]));
+    const en = analyzeResponseStyle([varied], { locale: "en" });
+    const fr = analyzeResponseStyle([varied], { locale: "fr" });
+    expect(en.flags).toHaveLength(0);
+    expect(en.summary).toBeTruthy();
+    expect(fr.summary).not.toBe(en.summary);
   });
 });
 
