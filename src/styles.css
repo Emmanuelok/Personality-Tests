@@ -31,6 +31,7 @@
   --shadow: 0 14px 34px -26px rgba(43, 36, 24, 0.5);
   --maxw: 1080px;
   --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --display-alt: "Instrument Serif", "Fraunces", Georgia, serif;
   --serif: "Fraunces", Georgia, serif;
   --sans: "EB Garamond", Georgia, "Times New Roman", serif;
 }
@@ -1077,3 +1078,74 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .set-name { margin: 0; flex: 1; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
 .set-danger { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border-soft); align-items: flex-start; }
+
+/* ============================================================
+   Cinematic hero stage — dark "liquid glass" landing treatment
+   ============================================================ */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+.liquid-glass::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+
+/* The hero becomes a rounded, near-black cinematic stage (always dark, both themes). */
+.hero-stage {
+  position: relative; overflow: hidden; isolation: isolate;
+  margin: 22px 0 8px; padding: clamp(56px, 9vw, 104px) clamp(22px, 5vw, 64px) clamp(44px, 6vw, 72px);
+  border-radius: 32px; text-align: center;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #2a2114 0%, transparent 60%),
+    linear-gradient(168deg, #17140f 0%, #0d0b08 70%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.hero-aurora { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.85; }
+.hero-aurora::before, .hero-aurora::after {
+  content: ""; position: absolute; width: 60%; height: 90%; border-radius: 50%; filter: blur(60px); opacity: 0.5;
+}
+.hero-aurora::before { left: -10%; top: -30%; background: radial-gradient(circle, #c79a3e, transparent 65%); animation: heroDrift1 22s ease-in-out infinite; }
+.hero-aurora::after { right: -10%; top: -10%; background: radial-gradient(circle, #27776f, transparent 65%); animation: heroDrift2 28s ease-in-out infinite; }
+@keyframes heroDrift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(14%, 18%) scale(1.18); } }
+@keyframes heroDrift2 { 0%,100% { transform: translate(0,0) scale(1.05); } 50% { transform: translate(-12%, 14%) scale(0.9); } }
+
+.hero-stage .eyebrow { color: rgba(255, 255, 255, 0.55); border-color: rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.04); }
+.hero-stage .hero-title {
+  font-family: var(--display-alt); font-weight: 400; letter-spacing: -0.02em;
+  font-size: clamp(44px, 9vw, 104px); line-height: 0.98; margin: 18px auto 22px; max-width: 16ch; color: #fff;
+}
+.hero-stage .hero-title em { font-style: italic; }
+.hero-stage .hero-title .grad { background: linear-gradient(90deg, #e6c574, #c79a3e); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-stage .lead { font-size: clamp(16px, 2vw, 20px); color: rgba(255, 255, 255, 0.72); max-width: 640px; margin: 0 auto; }
+.hero-stage .lead b { color: #fff; }
+.hero-stage .pillars { margin-top: 28px; }
+.hero-stage .pill { color: rgba(255, 255, 255, 0.82); }
+.hero-stage .pill b { color: #fff; }
+.hero-fine { color: rgba(255, 255, 255, 0.42); margin-top: 22px; font-size: 13.5px; font-style: italic; }
+
+/* Glass CTA pills */
+.hero-stage .row-actions { gap: 14px; margin-top: 30px; }
+.glass-btn {
+  font-family: var(--display); font-size: 1rem; font-weight: 500; letter-spacing: 0.01em;
+  padding: 14px 28px; border-radius: 999px; cursor: pointer; color: #fff;
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+.glass-btn:hover { transform: translateY(-2px); }
+.glass-btn.primary { background: #fff; color: #14110b; box-shadow: 0 16px 34px -16px rgba(0,0,0,0.8); border: none; }
+.glass-btn.primary::before { display: none; }
+.glass-btn.primary:hover { box-shadow: 0 22px 44px -18px rgba(0,0,0,0.9); }
+.glass-btn.ghost:hover { background: rgba(255, 255, 255, 0.08); }
+
+@media (prefers-reduced-motion: reduce) { .hero-aurora::before, .hero-aurora::after { animation: none; } }
+@media (max-width: 560px) { .hero-stage { border-radius: 24px; } }

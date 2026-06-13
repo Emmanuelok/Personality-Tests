@@ -16,7 +16,7 @@ import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
 import type { SynthEntry } from "@core/synthesis";
 import { GOALS, labelsFor, keysFromFocus, toLoc } from "./goals";
-import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
+import { HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { Gauge } from "./charts";
 import { useI18n } from "../i18n";
 
@@ -79,13 +79,11 @@ export function Home({
   return (
     <div className="container">
       <HeroBackdrop />
-      <section className="hero">
-        <div className="hero-art-wrap" aria-hidden="true">
-          <HeroArt />
-        </div>
+      <section className="hero hero-stage">
+        <div className="hero-aurora" aria-hidden="true" />
         <span className="eyebrow">{t("h.eyebrow")}</span>
-        <h1>
-          {t("h.h1a")} <span className="grad">{t("h.h1grad")}</span>.
+        <h1 className="hero-title">
+          {t("h.h1a")} <em className="grad">{t("h.h1grad")}</em>.
           <br /> {t("h.h1b")}
         </h1>
         <p className="lead">
@@ -93,14 +91,14 @@ export function Home({
         </p>
         <div className="pillars">
           {(["h.pill1", "h.pill2", "h.pill3", "h.pill4"] as const).map((k) => (
-            <span className="pill" key={k}><Bold text={t(k)} /></span>
+            <span className="pill liquid-glass" key={k}><Bold text={t(k)} /></span>
           ))}
         </div>
-        <div className="row-actions" style={{ marginTop: 26 }}>
-          <button className="btn" onClick={onStartPack}>✨&nbsp;{t("h.startPack")}&nbsp;→</button>
-          <button className="btn ghost" onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
+        <div className="row-actions">
+          <button className="glass-btn primary" onClick={onStartPack}>✨&nbsp;{t("h.startPack")}&nbsp;→</button>
+          <button className="glass-btn ghost liquid-glass" onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
         </div>
-        <p style={{ color: "var(--text-faint)", marginTop: 20, fontSize: 14, fontStyle: "italic" }}>
+        <p className="hero-fine">
           {t("h.themesLine").replace("{n}", String(INSTRUMENTS.length)).replace("{c}", String(CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length))}
         </p>
       </section>
