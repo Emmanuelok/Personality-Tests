@@ -15,17 +15,17 @@ export const cLoc = (l?: string): Loc => (l === "es" || l === "fr" ? l : "en");
 /* ── suggested questions ────────────────────────────────────────────────── */
 const Q: Record<Loc, { integrated: string[]; report: string[]; trait: (n: string) => string }> = {
   en: {
-    integrated: ["What are my biggest strengths?", "Where should I focus on growing?", "How do I work best?", "How do I handle stress?", "Sum me up in a sentence."],
+    integrated: ["What are my biggest strengths?", "Where should I focus on growing?", "How consistent are my results?", "How do I handle stress?", "Sum me up in a sentence."],
     report: ["What does this mean for me?", "What are my strengths?", "What should I watch out for?", "How am I in relationships?", "How do I improve?"],
     trait: (n) => `Tell me about my ${n}.`,
   },
   es: {
-    integrated: ["¿Cuáles son mis mayores fortalezas?", "¿En qué debería centrarme para crecer?", "¿Cómo rindo mejor?", "¿Cómo manejo el estrés?", "Resúmeme en una frase."],
+    integrated: ["¿Cuáles son mis mayores fortalezas?", "¿En qué debería centrarme para crecer?", "¿Qué tan consistentes son mis resultados?", "¿Cómo manejo el estrés?", "Resúmeme en una frase."],
     report: ["¿Qué significa esto para mí?", "¿Cuáles son mis fortalezas?", "¿A qué debo prestar atención?", "¿Cómo soy en las relaciones?", "¿Cómo puedo mejorar?"],
     trait: (n) => `Háblame de mi ${n}.`,
   },
   fr: {
-    integrated: ["Quelles sont mes plus grandes forces ?", "Où devrais-je me concentrer pour progresser ?", "Comment suis-je le plus performant ?", "Comment gérer le stress ?", "Résumez-moi en une phrase."],
+    integrated: ["Quelles sont mes plus grandes forces ?", "Où devrais-je me concentrer pour progresser ?", "Mes résultats sont-ils cohérents ?", "Comment gérer le stress ?", "Résumez-moi en une phrase."],
     report: ["Qu'est-ce que cela signifie pour moi ?", "Quelles sont mes forces ?", "À quoi dois-je faire attention ?", "Comment suis-je en relation ?", "Comment progresser ?"],
     trait: (n) => `Parlez-moi de mon ${n}.`,
   },
@@ -40,7 +40,7 @@ export function cSuggest(kind: "report" | "integrated", distinctName: string | u
 
 /* ── intent keywords (each locale also carries the English words, so mixed or
  *    English input keeps working and the en path is unchanged) ───────────── */
-type IntentKey = "greet" | "thanks" | "improve" | "strengths" | "relationships" | "work" | "stress" | "type" | "summary" | "themes";
+type IntentKey = "greet" | "thanks" | "improve" | "strengths" | "relationships" | "work" | "stress" | "type" | "summary" | "themes" | "consistency";
 const KW_EN: Record<IntentKey, string[]> = {
   greet: ["hello", "hi ", "hey", "help", "what can you"],
   thanks: ["thank", "thanks", "appreciate"],
@@ -52,6 +52,7 @@ const KW_EN: Record<IntentKey, string[]> = {
   type: ["type", "what am i", "who am i", "my result", "code"],
   summary: ["summary", "sum me", "tell me about", "describe me", "overview", "in a sentence", "tldr"],
   themes: ["theme", "thread", "pattern", "core"],
+  consistency: ["consistent", "consisten", "agree", "disagree", "contradict", "conflict", "reliable", "accurate", "cross-check", "cross check", "line up", "match up", "the same"],
 };
 const KW_ES: Record<IntentKey, string[]> = {
   greet: ["hola", "ayuda", "qué puedes", "que puedes"],
@@ -64,6 +65,7 @@ const KW_ES: Record<IntentKey, string[]> = {
   type: ["tipo", "qué soy", "que soy", "quién soy", "quien soy", "mi resultado", "código", "codigo"],
   summary: ["resum", "descríbeme", "describeme", "visión general", "en una frase", "en pocas palabras"],
   themes: ["tema", "hilo", "patrón", "patron", "núcleo", "nucleo"],
+  consistency: ["consisten", "coincid", "coheren", "contradic", "conflicto", "fiable", "precis", "se cruzan", "concuerd", "lo mismo", "de acuerdo"],
 };
 const KW_FR: Record<IntentKey, string[]> = {
   greet: ["bonjour", "salut", "aide", "que peux", "que pouvez"],
@@ -76,6 +78,7 @@ const KW_FR: Record<IntentKey, string[]> = {
   type: ["type", "que suis-je", "qui suis-je", "mon résultat", "mon resultat", "code"],
   summary: ["résum", "resum", "décris-moi", "decris-moi", "aperçu", "apercu", "en une phrase", "en bref"],
   themes: ["thème", "theme", "fil", "motif", "noyau", "cœur", "coeur"],
+  consistency: ["cohéren", "coheren", "concord", "contradic", "conflit", "fiable", "précis", "precis", "recoup", "pareil", "d'accord", "se croisent"],
 };
 const KW: Record<Loc, Record<IntentKey, string[]>> = { en: KW_EN, es: KW_ES, fr: KW_FR };
 
@@ -214,6 +217,18 @@ export const CT = {
     if (loc === "es") return `${who}respondo mejor sobre tus fortalezas, márgenes de crecimiento, relaciones, estilo de trabajo, estrés y qué significa tu resultado.${traitHint} Prueba una sugerencia de abajo.`;
     if (loc === "fr") return `${who}je réponds le mieux sur vos forces, axes de progrès, relations, style de travail, stress et ce que signifie votre résultat.${traitHint} Essayez une suggestion ci-dessous.`;
     return `${who}I can answer best about your strengths, growth edges, relationships, work style, stress, and what your result means.${traitHint} Try a suggestion below.`;
+  },
+  consistency: (who: string, count: number, conv: { name: string; insight: string } | undefined, div: { insight: string } | undefined, loc: Loc): string => {
+    const agree = conv ? conv.insight : "";
+    const split = div ? " " + div.insight : "";
+    if (loc === "es") return `${who}he cruzado los rasgos profundos que comparten tus ${count} evaluaciones. ${agree}${split}`;
+    if (loc === "fr") return `${who}j'ai recoupé les traits profonds que partagent vos ${count} évaluations. ${agree}${split}`;
+    return `${who}I cross-checked the deep traits your ${count} assessments share. ${agree}${split}`;
+  },
+  consistencyNone: (who: string, loc: Loc): string => {
+    if (loc === "es") return `${who}aún no tienes suficientes pruebas que se solapen para cruzarlas. Haz una o dos más que midan rasgos parecidos y podré decirte dónde coinciden y dónde difieren.`;
+    if (loc === "fr") return `${who}vous n'avez pas encore assez de tests qui se recoupent pour les croiser. Passez-en un ou deux de plus mesurant des traits proches et je pourrai dire où ils concordent ou divergent.`;
+    return `${who}you don't yet have enough overlapping tests for me to cross-check. Take one or two more that measure similar traits and I'll show you where they agree and differ.`;
   },
   traitHint: (name: string, loc: Loc): string => {
     if (loc === "es") return ` También puedes preguntar por un rasgo concreto, como «${name}».`;

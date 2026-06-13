@@ -1,6 +1,7 @@
 import type { AssessmentResult, Instrument, TypeResolution } from "./types";
 import type { PersonalityReport, ReportSection, TraitInsight } from "./report/types";
 import type { IntegratedProfile } from "./synthesis";
+import type { ConvergenceResult } from "./converge";
 import { Rng, nonce, seedFrom } from "./prng";
 import { sentence } from "./variation";
 import { cLoc, cSuggest, hasIntent, pctPhrase, CT, type Loc } from "./companion.i18n";
@@ -40,6 +41,7 @@ export interface CompanionKnowledge {
   strengths?: string[];
   growthEdges?: string[];
   operatingManual?: { label: string; text: string }[];
+  convergence?: ConvergenceResult;
 }
 
 export function buildReportKnowledge(instrument: Instrument, result: AssessmentResult, report: PersonalityReport, name?: string): CompanionKnowledge {
@@ -86,6 +88,7 @@ export function buildIntegratedKnowledge(ip: IntegratedProfile): CompanionKnowle
     strengths: ip.strengths,
     growthEdges: ip.growthEdges,
     operatingManual: ip.operatingManual,
+    convergence: ip.convergence,
     sections: [],
   };
 }
@@ -195,6 +198,16 @@ export function askCompanion(k: CompanionKnowledge, question: string, seed?: num
     const sec = pickSection(k, "stress");
     if (sec?.paragraphs?.length) return wrap(`${w}${rng.pick(sec.paragraphs)}`);
     return wrap(CT.stressFallback(w, L));
+  }
+
+  // Consistency / cross-test convergence (integrated) — before "type" so
+  // "my result(s) consistent?" isn't captured by the type intent's "my result".
+  if (k.kind === "integrated" && hasIntent(q, L, "consistency")) {
+    const cv = k.convergence;
+    if (!cv || !cv.readings.length) return wrap(CT.consistencyNone(w, L));
+    const conv = cv.topConvergent ? { name: cv.topConvergent.name, insight: cv.topConvergent.insight } : undefined;
+    const div = cv.topDivergent ? { insight: cv.topDivergent.insight } : undefined;
+    return wrap(CT.consistency(w, cv.readings.length, conv, div, L));
   }
 
   // Type / "what am I"

@@ -10,7 +10,7 @@ import { dailyNudge } from "./daily";
 import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
-import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
+import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
@@ -237,6 +237,16 @@ describe("Ask Atlas companion", () => {
     expect(ans).not.toBe(askCompanion(k, "what are my strengths?", 1, "en").text);
     // French greeting routes to the localized greet answer.
     expect(askCompanion(k, "bonjour", 1, "fr").text.length).toBeGreaterThan(10);
+  });
+
+  it("answers cross-test consistency from the integrated convergence data", () => {
+    const drive = (inst: Instrument, scale: string, high: boolean) =>
+      ({ instrument: inst, result: scoreAssessment(inst, answerAll(inst, (it) => (it.scale === scale ? (it.keyed === 1 ? (high ? inst.responseFormat.max : inst.responseFormat.min) : (high ? inst.responseFormat.min : inst.responseFormat.max)) : 3))) });
+    const ip = buildIntegratedProfile([drive(bigFive, "E", true), drive(hexaco, "X", true)], { name: "Sam" });
+    const k = buildIntegratedKnowledge(ip);
+    const ans = askCompanion(k, "are my results consistent?").text;
+    expect(ans.length).toBeGreaterThan(20);
+    expect(ans.toLowerCase()).toContain("cross-check");
   });
 });
 
