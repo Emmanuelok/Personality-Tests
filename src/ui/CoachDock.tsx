@@ -17,8 +17,8 @@ export function CoachDock({ entries, name }: { entries: SynthEntry[]; name?: str
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
   const knowledge = useMemo(
-    () => buildIntegratedKnowledge(buildIntegratedProfile(entries, { name })),
-    [entries, name],
+    () => buildIntegratedKnowledge(buildIntegratedProfile(entries, { name, locale })),
+    [entries, name, locale],
   );
 
   // The coach has nothing to draw on until at least one assessment is done.

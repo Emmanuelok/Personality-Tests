@@ -235,6 +235,25 @@ describe("integrated cross-test synthesis", () => {
     expect(ip.depth).toBeGreaterThan(0);
   });
 
+  it("localizes the whole portrait — headline, themes, manual, overview", () => {
+    const drive = (i: typeof bigFive) => answerAll(i, (it) => (it.scale === "O" || it.scale === "C" ? (it.keyed === 1 ? 5 : 1) : 3));
+    const e1 = { instrument: bigFive, result: scoreAssessment(bigFive, drive(bigFive)) };
+    const en = buildIntegratedProfile([e1], { name: "Ada", seed: 9, locale: "en" });
+    const es = buildIntegratedProfile([e1], { name: "Ada", seed: 9, locale: "es" });
+    const fr = buildIntegratedProfile([e1], { name: "Ada", seed: 9, locale: "fr" });
+    // Structure identical, prose differs across languages.
+    expect(es.themes.length).toBe(en.themes.length);
+    expect(es.operatingManual).toHaveLength(5);
+    expect(es.headline).not.toBe(en.headline);
+    expect(fr.headline).not.toBe(en.headline);
+    expect(es.operatingManual[0].label).not.toBe(en.operatingManual[0].label);
+    expect(es.overview.join(" ")).not.toBe(en.overview.join(" "));
+    // English headline keeps the "The … " composition; es/fr don't.
+    expect(en.headline.startsWith("The ")).toBe(true);
+    expect(es.headline.startsWith("The ")).toBe(false);
+    if (es.themes.length) expect(es.themes[0].name).not.toBe(en.themes[0].name);
+  });
+
   it("produces a deterministic daily insight per day", () => {
     const e = { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) };
     const d = new Date("2026-06-10T09:00:00Z");

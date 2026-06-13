@@ -210,7 +210,7 @@ export default function App() {
   };
   const goIntegrated = () => {
     if (!entries.length) return;
-    setIntegrated(buildIntegratedProfile(entries, { name }));
+    setIntegrated(buildIntegratedProfile(entries, { name, locale }));
     setView("integrated");
     top();
   };

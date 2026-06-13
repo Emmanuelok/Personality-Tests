@@ -1,6 +1,11 @@
 import type { AssessmentResult, Instrument } from "./types";
 import { Rng, hashHex, nonce, seedFrom } from "./prng";
 import { capitalize, oxford, sentence } from "./variation";
+import { localizeInstrument } from "./instruments/i18n";
+import {
+  synthLoc, themeStr, buildHeadline, tensionStr, omText, OM_LABELS, OM_CONNECT_AVOID,
+  STR_SCAFFOLD, EVID, assessWord, OVERVIEW, type Loc,
+} from "./synthesis.i18n";
 
 /**
  * Cross-test synthesis — the heart of the platform's intelligence.
@@ -230,18 +235,19 @@ const THEMES: ThemeDef[] = [
 ];
 
 interface TensionDef {
+  id: string;
   a: Signal;
   b: Signal;
   title: string;
   detail: string;
 }
 const TENSIONS: TensionDef[] = [
-  { a: { i: "schwartz-values", s: "ST", d: "high", w: 1 }, b: { i: "big-five-ipip50", s: "C", d: "high", w: 1 }, title: "Adventure vs. structure", detail: "Part of you craves novelty and spontaneity; another part wants order and a plan. Your best life builds in scheduled room for the unplanned." },
-  { a: { i: "big-five-ipip50", s: "A", d: "high", w: 1 }, b: { i: "disc-4", s: "D", d: "high", w: 1 }, title: "Warmth vs. drive to win", detail: "You're both deeply considerate and strongly assertive. The growth move is learning when to lead hard and when to soften — and choosing on purpose." },
-  { a: { i: "schwartz-values", s: "PO", d: "high", w: 1 }, b: { i: "schwartz-values", s: "UN", d: "high", w: 1 }, title: "Ambition vs. altruism", detail: "You value both personal success and the wellbeing of all. Held well, this makes you a leader who lifts others; held badly, it pulls you in two." },
-  { a: { i: "big-five-ipip50", s: "O", d: "high", w: 1 }, b: { i: "big-five-ipip50", s: "C", d: "low", w: 1 }, title: "Ideas vs. execution", detail: "You generate far more ideas than you finish. External structure — deadlines, a finisher, a single next action — is how your creativity becomes real." },
-  { a: { i: "attachment-styles", s: "ANX", d: "high", w: 1 }, b: { i: "attachment-styles", s: "AV", d: "high", w: 1 }, title: "Craving and fearing closeness", detail: "You want connection and you protect yourself from it at the same time. Naming this pattern is the first, biggest step toward security." },
-  { a: { i: "big-five-ipip50", s: "N", d: "high", w: 1 }, b: { i: "grit-resilience", s: "PERS", d: "high", w: 1 }, title: "Sensitivity vs. relentless drive", detail: "You feel setbacks keenly and you push hard anyway. That's a powerful combination — as long as you build in real recovery, not just more effort." },
+  { id: "advstruct", a: { i: "schwartz-values", s: "ST", d: "high", w: 1 }, b: { i: "big-five-ipip50", s: "C", d: "high", w: 1 }, title: "Adventure vs. structure", detail: "Part of you craves novelty and spontaneity; another part wants order and a plan. Your best life builds in scheduled room for the unplanned." },
+  { id: "warmwin", a: { i: "big-five-ipip50", s: "A", d: "high", w: 1 }, b: { i: "disc-4", s: "D", d: "high", w: 1 }, title: "Warmth vs. drive to win", detail: "You're both deeply considerate and strongly assertive. The growth move is learning when to lead hard and when to soften — and choosing on purpose." },
+  { id: "ambalt", a: { i: "schwartz-values", s: "PO", d: "high", w: 1 }, b: { i: "schwartz-values", s: "UN", d: "high", w: 1 }, title: "Ambition vs. altruism", detail: "You value both personal success and the wellbeing of all. Held well, this makes you a leader who lifts others; held badly, it pulls you in two." },
+  { id: "ideaexec", a: { i: "big-five-ipip50", s: "O", d: "high", w: 1 }, b: { i: "big-five-ipip50", s: "C", d: "low", w: 1 }, title: "Ideas vs. execution", detail: "You generate far more ideas than you finish. External structure — deadlines, a finisher, a single next action — is how your creativity becomes real." },
+  { id: "closeness", a: { i: "attachment-styles", s: "ANX", d: "high", w: 1 }, b: { i: "attachment-styles", s: "AV", d: "high", w: 1 }, title: "Craving and fearing closeness", detail: "You want connection and you protect yourself from it at the same time. Naming this pattern is the first, biggest step toward security." },
+  { id: "sensdrive", a: { i: "big-five-ipip50", s: "N", d: "high", w: 1 }, b: { i: "grit-resilience", s: "PERS", d: "high", w: 1 }, title: "Sensitivity vs. relentless drive", detail: "You feel setbacks keenly and you push hard anyway. That's a powerful combination — as long as you build in real recovery, not just more effort." },
 ];
 
 function lookup(entries: SynthEntry[]) {
@@ -261,7 +267,14 @@ function intensity(norm: number, d: Dir): number {
 }
 
 function firstClause(desc: string): string {
-  return desc.split(/,| and /)[0].trim();
+  return desc.split(/,| and | y | et /)[0].trim();
+}
+
+/** Drop a leading definite article so theme names read cleanly mid-sentence. */
+function stripArticle(name: string, loc: Loc): string {
+  if (loc === "es") return name.replace(/^(El|La|Los|Las) /, "");
+  if (loc === "fr") return name.replace(/^(Le|La|Les) /, "").replace(/^L'/, "");
+  return name.replace(/^The /, "");
 }
 
 /** Instruments whose scales read as clean, celebratable trait strengths. */
@@ -274,15 +287,23 @@ const STRENGTH_INSTRUMENTS = new Set([
   "schwartz-values",
 ]);
 
-export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: string; seed?: number; now?: Date } = {}): IntegratedProfile {
+export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: string; seed?: number; now?: Date; locale?: string } = {}): IntegratedProfile {
   const now = opts.now ?? new Date();
+  const loc = synthLoc(opts.locale);
   const reportId = nonce(8);
   const seed = opts.seed ?? seedFrom("synth", entries.map((e) => e.result.responseFingerprint).join("|"), now.getTime(), reportId);
   const rng = new Rng(seed);
   const g = lookup(entries);
   const name = opts.name;
+  // Memoized localized instruments (descriptors, scale + short names).
+  const liCache = new Map<string, Instrument>();
+  const li = (inst: Instrument): Instrument => {
+    let v = liCache.get(inst.id);
+    if (!v) { v = localizeInstrument(inst, loc); liCache.set(inst.id, v); }
+    return v;
+  };
 
-  // 1. Themes.
+  // 1. Themes (localized name/blurb/narrative + evidence).
   const themeHits: ThemeHit[] = [];
   for (const t of THEMES) {
     let score = 0;
@@ -293,97 +314,90 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
       const inten = intensity(hit.norm, sig.d);
       if (inten > 0) {
         score += sig.w * inten;
-        if (inten >= 0.28) evidence.push(`${sig.d === "high" ? "high" : "low"} ${hit.scale.name} (${hit.instrument.shortName})`);
+        if (inten >= 0.28) {
+          const lhit = li(hit.instrument);
+          const sname = lhit.scales.find((x) => x.id === hit.scale.scaleId)?.name ?? hit.scale.name;
+          evidence.push(`${EVID[loc][sig.d]} ${sname} (${lhit.shortName})`);
+        }
       }
     }
     if (score >= 0.6 && evidence.length >= 1) {
-      themeHits.push({ id: t.id, name: t.name, blurb: t.blurb, score, evidence: evidence.slice(0, 4), narrative: t.narr });
+      const ts = themeStr(t.id, { name: t.name, adj: t.adj, noun: t.noun, blurb: t.blurb, narr: t.narr }, loc);
+      themeHits.push({ id: t.id, name: ts.name, blurb: ts.blurb, score, evidence: evidence.slice(0, 4), narrative: ts.narr });
     }
   }
   themeHits.sort((a, b) => b.score - a.score);
   const topThemes = themeHits.slice(0, 4);
-  const topDefs = topThemes.map((th) => THEMES.find((d) => d.id === th.id)!);
+  const topDefs = topThemes.map((th) => {
+    const d = THEMES.find((x) => x.id === th.id)!;
+    return themeStr(d.id, { name: d.name, adj: d.adj, noun: d.noun, blurb: d.blurb, narr: d.narr }, loc);
+  });
 
-  // 2. Headline.
-  let headline: string;
-  if (topDefs.length >= 2) headline = `The ${topDefs[0].adj}, ${topDefs[1].adj} ${topDefs[0].noun}`;
-  else if (topDefs.length === 1) headline = `The ${topDefs[0].adj} ${topDefs[0].noun}`;
-  else headline = name ? `${name}'s Emerging Portrait` : "Your Emerging Portrait";
+  // 2. Headline (grammar-aware per locale).
+  const headline = buildHeadline(topDefs.map((d) => ({ adj: d.adj, noun: d.noun })), name, loc);
 
-  // 3. Strengths & growth edges — only from instruments whose scales read as clean
-  //    trait strengths, and valence-aware (low Neuroticism is a strength, not a gap).
+  // 3. Strengths & growth edges — clean trait strengths only, valence-aware,
+  //    with localized descriptors and scaffolding.
+  const sc8 = STR_SCAFFOLD[loc];
   const strengthSet = new Map<string, number>();
   const growthSet = new Map<string, number>();
   for (const e of entries) {
     if (!STRENGTH_INSTRUMENTS.has(e.instrument.id)) continue;
+    const lInst = li(e.instrument);
     for (const sc of Object.values(e.result.scales)) {
-      const def = e.instrument.scales.find((x) => x.id === sc.scaleId);
+      const def = lInst.scales.find((x) => x.id === sc.scaleId);
       if (!def) continue;
       const isN = e.instrument.id === "big-five-ipip50" && sc.scaleId === "N";
       if (isN) {
-        if (sc.normalized >= 66) growthSet.set("Building emotional steadiness", Math.max(growthSet.get("Building emotional steadiness") ?? 0, sc.normalized));
-        else if (sc.normalized <= 42) strengthSet.set("Calm and emotionally steady", Math.max(strengthSet.get("Calm and emotionally steady") ?? 0, 100 - sc.normalized));
+        if (sc.normalized >= 66) growthSet.set(sc8.steadinessGrowth, Math.max(growthSet.get(sc8.steadinessGrowth) ?? 0, sc.normalized));
+        else if (sc.normalized <= 42) strengthSet.set(sc8.calmStrength, Math.max(strengthSet.get(sc8.calmStrength) ?? 0, 100 - sc.normalized));
         continue;
       }
       if (sc.normalized >= 66) {
         const phrase = capitalize(firstClause(def.highDescriptor));
         strengthSet.set(phrase, Math.max(strengthSet.get(phrase) ?? 0, sc.normalized));
       } else if (sc.normalized <= 34) {
-        growthSet.set(`Building your ${def.name}`, Math.max(growthSet.get(`Building your ${def.name}`) ?? 0, 100 - sc.normalized));
+        const phrase = sc8.building(def.name);
+        growthSet.set(phrase, Math.max(growthSet.get(phrase) ?? 0, 100 - sc.normalized));
       }
     }
   }
   const strengths = [...strengthSet.entries()].sort((a, b) => b[1] - a[1]).map((x) => x[0]).slice(0, 8);
   const growthEdges = [...growthSet.entries()].sort((a, b) => b[1] - a[1]).map((x) => x[0]).slice(0, 5);
 
-  // 4. Tensions.
+  // 4. Tensions (localized).
   const tensions: Tension[] = [];
   for (const t of TENSIONS) {
     const a = g(t.a.i, t.a.s);
     const b = g(t.b.i, t.b.s);
     if (a && b && intensity(a.norm, t.a.d) >= 0.2 && intensity(b.norm, t.b.d) >= 0.2) {
-      tensions.push({ title: t.title, detail: t.detail });
+      tensions.push(tensionStr(t.id, { title: t.title, detail: t.detail }, loc));
     }
   }
 
-  // 5. Operating manual.
+  // 5. Operating manual (localized labels + branch text).
+  const lab = OM_LABELS[loc];
+  const conn = omConnect(g);
   const om: OperatingNote[] = [
-    { label: "How you take in the world", text: omThink(g) },
-    { label: "How you decide", text: omDecide(g) },
-    { label: "How you do your best work", text: omWork(g) },
-    { label: "How you connect & recharge", text: omConnect(g) },
-    { label: "How you handle stress", text: omStress(g) },
+    { label: lab.think, text: omText(omThink(g), loc) },
+    { label: lab.decide, text: omText(omDecide(g), loc) },
+    { label: lab.work, text: omText(omWork(g), loc) },
+    { label: lab.connect, text: omText(conn.key, loc) + (conn.avoid ? OM_CONNECT_AVOID[loc] : "") },
+    { label: lab.stress, text: omText(omStress(g), loc) },
   ];
 
-  // 6. Overview.
+  // 6. Overview (localized templates).
   const n = entries.length;
-  const themeNames = topThemes.map((t) => t.name.replace(/^The /, "").toLowerCase());
-  const p1 = sentence(
-    name
-      ? rng.pick([
-          `${name}, this is the view from above — everything you've shared across ${n} ${n === 1 ? "assessment" : "assessments"}, woven into one portrait of you.`,
-          `${name}, most tests show you a slice. This is the whole mosaic: ${n} ${n === 1 ? "assessment" : "assessments"} synthesized into a single, integrated picture.`,
-        ])
-      : rng.pick([
-          `This is the view from above — everything across your ${n} ${n === 1 ? "assessment" : "assessments"}, woven into one integrated portrait.`,
-          `Most tests show a slice; this is the whole mosaic — ${n} ${n === 1 ? "assessment" : "assessments"} synthesized into one picture.`,
-        ]),
-  );
+  const w = assessWord(n, loc);
+  const ov = OVERVIEW[loc];
+  const conj = loc === "es" ? "y" : loc === "fr" ? "et" : "and";
+  const themeNames = topThemes.map((t) => stripArticle(t.name, loc).toLowerCase());
+  const p1 = sentence(rng.pick(name ? ov.p1Named(name, n, w) : ov.p1Anon(n, w)));
   const p2 =
     topThemes.length > 0
-      ? sentence(
-          rng.pick([
-            `The threads that keep surfacing: ${oxford(themeNames)}. ${topThemes[0].narrative}`,
-            `Read together, a few themes recur — ${oxford(themeNames)}. ${topThemes[0].narrative}`,
-          ]),
-        )
-      : sentence("Take a few more assessments and clear themes will start to emerge here, drawn from across everything you complete.");
-  const p3 = sentence(
-    rng.pick([
-      "None of this is a box. It's a high-resolution mirror — meant to help you understand yourself, play to your strengths, and grow on purpose.",
-      "Hold it lightly and use it deliberately: the point of seeing yourself this clearly is to choose, with intention, who you become next.",
-    ]),
-  );
+      ? sentence(rng.pick(ov.p2Themes(oxford(themeNames, conj), topThemes[0].narrative)))
+      : sentence(ov.p2Empty);
+  const p3 = sentence(rng.pick(ov.p3));
 
   const depth = Math.min(100, Math.round((n / 6) * 100));
 
@@ -392,9 +406,9 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
     generatedAt: now.toISOString(),
     reportId,
     seedHex: hashHex(String(seed)),
-    instrumentsUsed: entries.map((e) => ({ id: e.instrument.id, name: e.instrument.name, type: e.result.type?.code })),
+    instrumentsUsed: entries.map((e) => ({ id: e.instrument.id, name: li(e.instrument).name, type: e.result.type?.code })),
     headline,
-    subhead: topThemes.length ? topThemes.map((t) => t.name.replace(/^The /, "")).join(" · ") : `${n} ${n === 1 ? "assessment" : "assessments"} so far`,
+    subhead: topThemes.length ? topThemes.map((t) => capitalize(stripArticle(t.name, loc))).join(" · ") : ov.soFar(n, w),
     overview: [p1, p2, p3],
     themes: topThemes,
     strengths,
@@ -405,48 +419,45 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
   };
 }
 
-/* ── operating-manual facet writers ─────────────────────────────────────── */
+/* ── operating-manual facet writers (return locale-agnostic keys) ───────── */
 type G = (i: string, s: string) => { norm: number } | null;
 const lean = (v: { norm: number } | null, t = 12) => (v && Math.abs(v.norm - 50) >= t ? v.norm : null);
 
 function omThink(g: G): string {
   const sn = lean(g("jung-16-types", "SN"));
   const o = lean(g("big-five-ipip50", "O")) ?? lean(g("hexaco-24", "O"));
-  if (sn != null) return sn >= 50 ? "You take in the world through patterns and possibility — your mind reaches for meaning, connections, and what could be." : "You take in the world through concrete reality — you trust facts, direct experience, and what's actually in front of you.";
-  if (o != null) return o >= 50 ? "You're drawn to ideas, novelty, and the abstract; your imagination is always a little ahead of the present." : "You're practical and grounded, preferring the proven and tangible to the theoretical.";
-  return "You move fluidly between concrete detail and big-picture thinking, drawing on whichever the moment needs.";
+  if (sn != null) return sn >= 50 ? "think.sn.hi" : "think.sn.lo";
+  if (o != null) return o >= 50 ? "think.o.hi" : "think.o.lo";
+  return "think.default";
 }
 function omDecide(g: G): string {
   const tf = lean(g("jung-16-types", "TF"));
   const a = lean(g("big-five-ipip50", "A"));
-  if (tf != null) return tf >= 50 ? "You decide with your values and your read on people — what's right and humane weighs as much as what's logical." : "You decide with impartial logic — you step back, weigh the evidence, and follow the principle even when it's uncomfortable.";
-  if (a != null) return a >= 50 ? "You weigh how choices land on people, and you lean toward the cooperative path." : "You're willing to make the unpopular call and say the hard, true thing.";
-  return "You blend head and heart when you decide, balancing logic against human impact.";
+  if (tf != null) return tf >= 50 ? "decide.tf.hi" : "decide.tf.lo";
+  if (a != null) return a >= 50 ? "decide.a.hi" : "decide.a.lo";
+  return "decide.default";
 }
 function omWork(g: G): string {
   const c = lean(g("big-five-ipip50", "C")) ?? lean(g("hexaco-24", "C"));
   const grit = lean(g("grit-resilience", "PERS"));
-  if (c != null && c >= 50) return "You do your best work with structure and ownership: a clear goal, a plan, and the satisfaction of finishing. People trust you to deliver.";
-  if (c != null && c < 50) return "You do your best work in bursts of energy and flexibility; rigid systems drain you, so lean on light external scaffolding — deadlines, a list, a partner who finishes.";
-  if (grit != null && grit >= 50) return "You do your best work through sheer perseverance — you outlast problems other people give up on.";
-  return "You work best with a balance of structure and freedom — enough plan to aim, enough room to adapt.";
+  if (c != null && c >= 50) return "work.c.hi";
+  if (c != null && c < 50) return "work.c.lo";
+  if (grit != null && grit >= 50) return "work.grit";
+  return "work.default";
 }
-function omConnect(g: G): string {
+function omConnect(g: G): { key: string; avoid: boolean } {
   const e = lean(g("big-five-ipip50", "E")) ?? lean(g("jung-16-types", "EI"));
   const att = lean(g("attachment-styles", "AV"));
-  let base: string;
-  if (e != null) base = e >= 50 ? "You're energized by people and recharge in company; connection is fuel, and solitude in large doses can feel flat." : "You recharge in solitude and connect best one-to-one; after a lot of socializing, quiet time isn't a luxury — it's how you reset.";
-  else base = "You move between sociability and solitude, reading your own energy to know which you need.";
-  if (att != null && att >= 60) base += " You also guard your independence in close relationships — sharing your inner world more openly is a growth edge.";
-  return base;
+  const key = e != null ? (e >= 50 ? "connect.e.hi" : "connect.e.lo") : "connect.default";
+  return { key, avoid: att != null && att >= 60 };
 }
 function omStress(g: G): string {
   const nrt = lean(g("big-five-ipip50", "N"));
   const sr = lean(g("emotional-intelligence", "SR"));
-  if (nrt != null && nrt >= 55) return "Under stress your system reacts strongly and recovers slowly. Your most reliable tools are naming the feeling, slowing your breath, and protecting recovery before pressure compounds.";
-  if (sr != null && sr >= 55) return "Under stress you stay composed and reset quickly — your steadiness is a real asset. Watch only that calm doesn't tip into ignoring early warning signs.";
-  if (nrt != null && nrt < 45) return "You stay remarkably level under pressure; setbacks roll off you. Your blind spot is under-reacting to real risks until they're large.";
-  return "Under stress you're fairly resilient, with normal ups and downs; simple recovery rituals keep you steady.";
+  if (nrt != null && nrt >= 55) return "stress.n.hi";
+  if (sr != null && sr >= 55) return "stress.sr.hi";
+  if (nrt != null && nrt < 45) return "stress.n.lo";
+  return "stress.default";
 }
 
 /* ── daily companion ────────────────────────────────────────────────────── */
