@@ -1,21 +1,37 @@
 import { useMemo, useState } from "react";
 import { getInstrument } from "@core/instruments";
 import { scoreAssessment } from "@core/scoring";
-import { compareTakes, milestones, type RetakeComparison } from "@core/growth";
+import { compareTakes, type RetakeComparison } from "@core/growth";
+import { computeMilestones } from "@core/milestones";
+import type { SynthEntry } from "@core/synthesis";
 import { InstrumentGlyph } from "./art";
+import { localizeInstrument } from "@core/instruments/i18n";
+import { pctLabel } from "./fmt";
 import { calibConsent, setCalibConsent } from "../calibration";
-import { exportProfileCode, importProfileCode, type Profile, type SavedResult } from "../profile";
+import { exportProfileCode, importProfileCode, latestResult, completedInstrumentIds, type Profile, type SavedResult } from "../profile";
+import { useI18n } from "../i18n";
 
 export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void; onImport?: (p: Profile) => void }) {
+  const { t, locale } = useI18n();
   const timeline = useMemo(() => {
     const rows: { at: string; name: string; type?: string; id: string; category: string }[] = [];
     for (const h of profile.history) {
       const inst = getInstrument(h.instrumentId);
       if (!inst) continue;
       const res = scoreAssessment(inst, h.responses);
-      rows.push({ at: h.takenAt, name: inst.name, type: res.type?.code, id: inst.id, category: inst.category });
+      rows.push({ at: h.takenAt, name: localizeInstrument(inst, locale).name, type: res.type?.code, id: inst.id, category: inst.category });
     }
     return rows;
+  }, [profile, locale]);
+
+  const entries = useMemo<SynthEntry[]>(() => {
+    const out: SynthEntry[] = [];
+    for (const id of completedInstrumentIds(profile)) {
+      const inst = getInstrument(id);
+      const saved = latestResult(profile, id);
+      if (inst && saved) out.push({ instrument: inst, result: scoreAssessment(inst, saved.responses) });
+    }
+    return out;
   }, [profile]);
 
   const comparisons = useMemo<RetakeComparison[]>(() => {
@@ -43,8 +59,7 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
     return out;
   }, [profile]);
 
-  const distinct = new Set(profile.history.map((h) => h.instrumentId)).size;
-  const ms = milestones(distinct, profile.history.length, profile.streak.days);
+  const ms = computeMilestones(entries, { streakDays: profile.streak.days, cognitiveCount: profile.cognitiveHistory?.length ?? 0, locale });
 
   const [code, setCode] = useState("");
   const [importText, setImportText] = useState("");
@@ -54,21 +69,22 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
   return (
     <div className="container view-enter">
       <div className="iep-hero">
-        <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>Your Journey</div>
-        <h1>Growth over time</h1>
-        <div className="subtitle" style={{ color: "var(--text-dim)" }}>
-          Personality is changeable. Retake any assessment later to see how far you've moved.
-        </div>
+        <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{t("jr.eyebrow")}</div>
+        <h1>{t("jr.title")}</h1>
+        <div className="subtitle" style={{ color: "var(--text-dim)" }}>{t("jr.sub")}</div>
       </div>
 
       <div className="report-grid stagger">
         <section className="panel">
-          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Milestones</h3>
+          <div className="ms-panel-head" style={{ marginBottom: 4 }}>
+            <h3 style={{ marginTop: 0, marginBottom: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("home.milestones")}</h3>
+            <span className="ms-count">{ms.achievedCount} / {ms.total}</span>
+          </div>
           <div className="ms-grid">
-            {ms.map((m, i) => (
-              <div className={`ms ${m.reached ? "on" : ""}`} key={i}>
-                <span className="ms-ic">{m.reached ? m.icon : "🔒"}</span>
-                <span>{m.label}</span>
+            {ms.all.map((m) => (
+              <div className={`ms ${m.achieved ? "on" : ""}`} key={m.id} title={m.blurb}>
+                <span className="ms-ic">{m.achieved ? m.icon : "🔒"}</span>
+                <span>{m.title}</span>
               </div>
             ))}
           </div>
@@ -81,10 +97,10 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
                 <span className={`tl-ico cat-${getInstrument(c.instrumentId)?.category ?? "core"}`} aria-hidden="true" style={{ width: 26, height: 26 }}>
                   <InstrumentGlyph id={c.instrumentId} category={getInstrument(c.instrumentId)?.category ?? "core"} />
                 </span>
-                {c.instrumentName} — how you've changed
+                {localizeInstrument(getInstrument(c.instrumentId)!, locale).name} — {t("jr.howChanged")}
               </h3>
               <p style={{ color: "var(--text-faint)", marginTop: 0, fontSize: 13 }}>
-                {c.takes} takes · {new Date(c.firstAt).toLocaleDateString()} → {new Date(c.latestAt).toLocaleDateString()}
+                {t("jr.takes").replace("{n}", String(c.takes))} · {new Date(c.firstAt).toLocaleDateString(locale)} → {new Date(c.latestAt).toLocaleDateString(locale)}
                 {c.typeFirst && c.typeLatest && c.typeFirst !== c.typeLatest ? ` · ${c.typeFirst} → ${c.typeLatest}` : ""}
               </p>
               {[...c.deltas].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0, 6).map((d) => (
@@ -104,30 +120,27 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
           ))
         ) : (
           <section className="panel">
-            <h3 style={{ marginTop: 0 }}>Track real change</h3>
-            <p style={{ color: "var(--text-dim)" }}>
-              You haven't retaken any assessment yet. Come back in a few weeks and retake one — this is where you'll see
-              exactly which traits moved, and by how much, against your growth plan.
-            </p>
-            <button className="btn primary" onClick={onBrowse}>Retake or take an assessment →</button>
+            <h3 style={{ marginTop: 0 }}>{t("jr.trackTitle")}</h3>
+            <p style={{ color: "var(--text-dim)" }}>{t("jr.trackBody")}</p>
+            <button className="btn primary" onClick={onBrowse}>{t("jr.retakeCta")}</button>
           </section>
         )}
 
         {(profile.cognitiveHistory?.length ?? 0) > 0 && (
           <section className="panel">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-              <h3 style={{ margin: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Cognitive tests</h3>
-              {onBattery && <button className="btn sm" onClick={onBattery}>View full battery →</button>}
+              <h3 style={{ margin: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("jr.cognitive")}</h3>
+              {onBattery && <button className="btn sm" onClick={onBattery}>{t("jr.viewBattery")}</button>}
             </div>
             <div className="journey" style={{ marginTop: 14 }}>
-              {profile.cognitiveHistory!.map((t, i) => (
+              {profile.cognitiveHistory!.map((ct, i) => (
                 <div className="jcard" key={i} style={{ cursor: "default" }}>
-                  <span className="jicon cat-cognition"><span className="tl-ico"><InstrumentGlyph id={t.id} category="cognition" /></span></span>
+                  <span className="jicon cat-cognition"><span className="tl-ico"><InstrumentGlyph id={ct.id} category="cognition" /></span></span>
                   <div className="jbody">
-                    <div className="jname">{t.name}</div>
-                    <div className="jmeta">{new Date(t.takenAt).toLocaleDateString()} · ~{Math.round(t.percentile)}th percentile</div>
+                    <div className="jname">{ct.name}</div>
+                    <div className="jmeta">{new Date(ct.takenAt).toLocaleDateString(locale)} · {pctLabel(ct.percentile, locale)}</div>
                   </div>
-                  <span className="jtype">{t.headline}</span>
+                  <span className="jtype">{ct.headline}</span>
                 </div>
               ))}
             </div>
@@ -135,49 +148,46 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
         )}
 
         <section className="panel">
-          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Timeline</h3>
-          {timeline.length === 0 && <p style={{ color: "var(--text-dim)" }}>Your assessment history will appear here.</p>}
-          {timeline.map((t, i) => (
+          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("jr.timeline")}</h3>
+          {timeline.length === 0 && <p style={{ color: "var(--text-dim)" }}>{t("jr.timelineEmpty")}</p>}
+          {timeline.map((row, i) => (
             <div className="tl-row" key={i}>
-              <span className={`tl-ico cat-${t.category}`} aria-hidden="true"><InstrumentGlyph id={t.id} category={t.category} /></span>
-              <span className="tl-date">{new Date(t.at).toLocaleDateString()}</span>
-              <span className="tl-name">{t.name}</span>
-              {t.type && <span className="jtype">{t.type}</span>}
+              <span className={`tl-ico cat-${row.category}`} aria-hidden="true"><InstrumentGlyph id={row.id} category={row.category} /></span>
+              <span className="tl-date">{new Date(row.at).toLocaleDateString(locale)}</span>
+              <span className="tl-name">{row.name}</span>
+              {row.type && <span className="jtype">{row.type}</span>}
             </div>
           ))}
         </section>
 
         <section className="panel">
-          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>Back up &amp; move your data</h3>
-          <p style={{ color: "var(--text-dim)", marginTop: 0, fontSize: 14.5 }}>
-            No account needed. Your results live on this device — copy your private data code to back them up or carry
-            them to another device, then paste it there to restore. The code stays with you; nothing is uploaded.
-          </p>
+          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("jr.backupTitle")}</h3>
+          <p style={{ color: "var(--text-dim)", marginTop: 0, fontSize: 14.5 }}>{t("jr.backupBody")}</p>
           <div className="row-actions" style={{ justifyContent: "flex-start" }}>
-            <button className="btn sm" onClick={() => { setCode(exportProfileCode(profile)); setStatus(""); }}>Generate my data code</button>
-            {code && <button className="btn sm ghost" onClick={() => { navigator.clipboard?.writeText(code); setStatus("Copied to clipboard."); }}>Copy</button>}
+            <button className="btn sm" onClick={() => { setCode(exportProfileCode(profile)); setStatus(""); }}>{t("jr.genCode")}</button>
+            {code && <button className="btn sm ghost" onClick={() => { navigator.clipboard?.writeText(code); setStatus(t("jr.copied")); }}>{t("jr.copy")}</button>}
           </div>
           {code && <textarea className="code-input" readOnly value={code} style={{ marginTop: 10 }} onFocus={(e) => e.currentTarget.select()} />}
           <div style={{ marginTop: 16 }}>
-            <textarea className="code-input" placeholder="Paste a data code here to restore…" value={importText} onChange={(e) => setImportText(e.target.value)} />
+            <textarea className="code-input" placeholder={t("jr.pastePh")} value={importText} onChange={(e) => setImportText(e.target.value)} />
             <div className="row-actions" style={{ justifyContent: "flex-start", marginTop: 8 }}>
               <button className="btn sm" disabled={!importText.trim()} onClick={() => {
                 const p = importProfileCode(importText);
-                if (p && onImport) { onImport(p); setStatus("Restored! Your data has been loaded."); setImportText(""); }
-                else setStatus("That code didn't look valid — check you copied all of it.");
-              }}>Restore from code</button>
+                if (p && onImport) { onImport(p); setStatus(t("jr.restored")); setImportText(""); }
+                else setStatus(t("jr.invalidCode"));
+              }}>{t("jr.restore")}</button>
             </div>
           </div>
           {status && <p className="note" style={{ marginTop: 12 }}>{status}</p>}
           <label className="calib-opt" style={{ marginTop: 16 }}>
             <input type="checkbox" checked={consent} onChange={(e) => { setConsent(e.target.checked); setCalibConsent(e.target.checked); }} />
-            <span>Help calibrate percentiles. When on, completing a test anonymously contributes a coarse score band (no answers, no identity) so everyone's percentiles get more accurate. Off by default.</span>
+            <span>{t("jr.calib")}</span>
           </label>
         </section>
 
         <div className="row-actions">
-          <button className="btn primary" onClick={onBrowse}>＋ Take or retake an assessment</button>
-          <button className="btn ghost" onClick={onBack}>← Back</button>
+          <button className="btn primary" onClick={onBrowse}>{t("jr.takeRetake")}</button>
+          <button className="btn ghost" onClick={onBack}>← {t("common.back")}</button>
         </div>
       </div>
     </div>
