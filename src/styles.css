@@ -945,3 +945,41 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .roadmap-panel .roadmap { margin-top: 18px; }
 .rm-go { padding: 8px 16px; font-size: 13.5px; white-space: nowrap; align-self: center; }
 @media (max-width: 560px) { .rm-go { padding: 7px 12px; } .rm-head { gap: 12px; } }
+
+/* ============================================================
+   Always-on AI coach dock
+   ============================================================ */
+.coach-fab {
+  position: fixed; right: 22px; bottom: 22px; z-index: 60;
+  display: inline-flex; align-items: center; gap: 8px;
+  font: inherit; font-size: 14.5px; font-weight: 600; color: #fff;
+  background: var(--grad); border: none; border-radius: 999px;
+  padding: 13px 20px; cursor: pointer;
+  box-shadow: 0 14px 34px -12px rgba(154, 123, 46, 0.7);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.coach-fab:hover { transform: translateY(-2px); box-shadow: 0 20px 40px -14px rgba(154, 123, 46, 0.8); }
+.coach-fab.open { padding: 13px 16px; }
+.coach-fab-spark { font-size: 15px; }
+.coach-panel {
+  position: fixed; right: 22px; bottom: 84px; z-index: 60;
+  width: min(420px, calc(100vw - 32px)); max-height: min(620px, calc(100vh - 120px));
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+  box-shadow: 0 30px 70px -28px rgba(43, 36, 24, 0.7);
+  overflow: hidden;
+}
+.coach-panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-bottom: 1px solid var(--border-soft); background: var(--surface-2);
+}
+.coach-panel-title { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-family: var(--serif); }
+.coach-close { background: none; border: none; color: var(--text-faint); font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.coach-close:hover { color: var(--text); background: var(--surface-3); }
+.coach-panel-body { padding: 12px 14px; overflow-y: auto; }
+.coach-panel-body .companion { border: none; box-shadow: none; padding: 0; background: none; }
+@media (max-width: 560px) {
+  .coach-fab { right: 14px; bottom: 14px; }
+  .coach-panel { right: 12px; left: 12px; bottom: 72px; width: auto; }
+}
+@media print { .coach-fab, .coach-panel { display: none !important; } }

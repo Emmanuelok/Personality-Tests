@@ -9,6 +9,7 @@ import { buildIntegratedProfile, type IntegratedProfile as IP, type SynthEntry }
 import { adaptivePack } from "@core/starter";
 import { Home } from "./ui/Home";
 import { Onboarding } from "./ui/Onboarding";
+import { CoachDock } from "./ui/CoachDock";
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
@@ -592,6 +593,10 @@ export default function App() {
 
       {view === "packstep" && report && (
         <PackStep report={report} done={packTotal - pack.length} total={packTotal} name={name} onContinue={packNext} onSkip={skipPack} />
+      )}
+
+      {["home", "integrated", "growth", "compatibility", "battery"].includes(view) && (
+        <CoachDock entries={entries} name={name} />
       )}
     </>
   );
