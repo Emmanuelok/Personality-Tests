@@ -8,6 +8,7 @@ import { buildIntegratedProfile, dailyInsight, type SynthEntry } from "./synthes
 import { recommendNext, profileSpotlight, relevanceNote, standoutTraits } from "./recommend";
 import { dailyNudge } from "./daily";
 import { buildRoadmap, goalKeys } from "./roadmap";
+import { computeMilestones } from "./milestones";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -774,6 +775,47 @@ describe("personalized roadmap", () => {
       expect(s.reason.trim().length).toBeGreaterThan(8);
       expect(s.name.trim().length).toBeGreaterThan(1);
     }
+  });
+});
+
+describe("milestones", () => {
+  const e = (...insts: Instrument[]): SynthEntry[] => insts.map((i) => ({ instrument: i, result: scoreAssessment(i, allHigh(i)) }));
+
+  it("awards nothing meaningful with no history and points to a first target", () => {
+    const m = computeMilestones([], {});
+    expect(m.achievedCount).toBe(0);
+    expect(m.next).toBeTruthy();
+    expect(m.next!.progress).toBe(0);
+    expect(m.total).toBeGreaterThan(5);
+  });
+
+  it("unlocks First Light after one assessment", () => {
+    const m = computeMilestones(e(bigFive), {});
+    expect(m.achieved.some((x) => x.id === "first-light")).toBe(true);
+  });
+
+  it("unlocks themed milestones from the right categories", () => {
+    const m = computeMilestones(e(attachment), {});
+    expect(m.achieved.some((x) => x.id === "heart-mapped")).toBe(true);
+  });
+
+  it("counts cognition and streak from options", () => {
+    const m = computeMilestones(e(bigFive), { cognitiveCount: 1, streakDays: 7 });
+    expect(m.achieved.some((x) => x.id === "mind-mapped")).toBe(true);
+    expect(m.achieved.some((x) => x.id === "devoted")).toBe(true);
+  });
+
+  it("surfaces the closest locked milestone as the next target", () => {
+    const m = computeMilestones(e(bigFive, jungTypes), {}); // 2 tests → triangulated (2/3) is closest
+    expect(m.next).toBeTruthy();
+    expect(m.next!.achieved).toBe(false);
+    expect(m.next!.progress).toBeGreaterThan(0);
+  });
+
+  it("localizes titles", () => {
+    const en = computeMilestones(e(bigFive), { locale: "en" }).all[0];
+    const fr = computeMilestones(e(bigFive), { locale: "fr" }).all[0];
+    expect(en.title).not.toBe(fr.title);
   });
 });
 

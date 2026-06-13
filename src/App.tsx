@@ -492,6 +492,7 @@ export default function App() {
           name={name}
           focus={profile?.focus ?? []}
           streakDays={profile?.streak.days ?? 0}
+          cognitiveCount={profile?.cognitiveHistory?.length ?? 0}
           onStart={start}
           onCompatibility={goCompat}
           onIntegrated={entries.length ? goIntegrated : undefined}

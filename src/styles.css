@@ -76,6 +76,9 @@
 :root[data-theme="dark"] .badge.decrease,
 :root[data-theme="dark"] .gap-badge.wide { background: rgba(224, 98, 63, 0.16); color: #e89070; border-color: rgba(224, 98, 63, 0.4); }
 :root[data-theme="dark"] .qr-opt.chosen { background: rgba(224, 122, 79, 0.16); }
+:root[data-theme="dark"] .topbar { background: rgba(20, 18, 16, 0.82); }
+:root[data-theme="dark"] .practice,
+:root[data-theme="dark"] .aside { background: rgba(255, 250, 235, 0.04); }
 
 /* Theme toggle button (topbar) */
 .theme-toggle { font: inherit; font-size: 15px; line-height: 1; background: transparent; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; padding: 6px 9px; border-radius: 9px; margin-left: 4px; transition: 0.15s; }
@@ -1030,3 +1033,21 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
   .coach-panel { right: 12px; left: 12px; bottom: 72px; width: auto; }
 }
 @media print { .coach-fab, .coach-panel { display: none !important; } }
+
+/* Milestones / achievements on the dashboard */
+.ms-panel { margin-top: 20px; padding: 20px 22px; }
+.ms-panel-head { display: flex; align-items: baseline; justify-content: space-between; }
+.ms-panel-head h3 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; margin: 0; }
+.ms-count { color: var(--accent-ink); font-weight: 700; font-size: 14px; }
+.ms-badges { display: flex; flex-wrap: wrap; gap: 9px; margin: 14px 0 4px; }
+.ms-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-soft); background: var(--bg-2); color: var(--text-faint); font-size: 13px; font-weight: 600; opacity: 0.55; filter: grayscale(0.6); transition: 0.15s; }
+.ms-badge.on { opacity: 1; filter: none; color: var(--accent-ink); background: linear-gradient(180deg, rgba(199,154,62,0.16), rgba(154,123,46,0.07)); border-color: rgba(199,154,62,0.4); }
+.ms-badge .ms-ic { font-size: 15px; }
+.ms-next { display: flex; gap: 13px; align-items: flex-start; margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border-soft); }
+.ms-next-ic { font-size: 22px; line-height: 1.2; flex: none; }
+.ms-next-body { flex: 1; min-width: 0; }
+.ms-next-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ms-next-label { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; }
+.ms-bar { height: 7px; border-radius: 999px; background: var(--surface-3); overflow: hidden; margin: 7px 0 6px; }
+.ms-bar > i { display: block; height: 100%; background: var(--grad); transition: width 0.4s ease; }
+.ms-next-blurb { color: var(--text-dim); font-size: 13px; }

@@ -13,6 +13,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
 import { dailyNudge } from "@core/daily";
 import { buildRoadmap } from "@core/roadmap";
+import { computeMilestones } from "@core/milestones";
 import type { SynthEntry } from "@core/synthesis";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { Gauge } from "./charts";
@@ -23,6 +24,7 @@ export function Home({
   name,
   focus = [],
   streakDays = 0,
+  cognitiveCount = 0,
   onStart,
   onCompatibility,
   onIntegrated,
@@ -40,6 +42,7 @@ export function Home({
   name?: string;
   focus?: string[];
   streakDays?: number;
+  cognitiveCount?: number;
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onIntegrated?: () => void;
@@ -58,6 +61,7 @@ export function Home({
   const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
   const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
   const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
+  const milestones = useMemo(() => computeMilestones(entries, { streakDays, cognitiveCount, locale }), [entries, streakDays, cognitiveCount, locale]);
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     const key = h < 12 ? "home.greetMorning" : h < 18 ? "home.greetAfternoon" : "home.greetEvening";
@@ -144,6 +148,35 @@ export function Home({
               <div className="practice">
                 <b>{nudge.practiceLabel}:</b> {nudge.practice}
               </div>
+            </div>
+          )}
+          {milestones.achievedCount > 0 && (
+            <div className="panel ms-panel">
+              <div className="ms-panel-head">
+                <h3>{t("home.milestones")}</h3>
+                <span className="ms-count">{milestones.achievedCount} / {milestones.total}</span>
+              </div>
+              <div className="ms-badges">
+                {milestones.all.map((m) => (
+                  <span key={m.id} className={`ms-badge${m.achieved ? " on" : ""}`} title={`${m.title} — ${m.blurb}`}>
+                    <span className="ms-ic" aria-hidden="true">{m.icon}</span>
+                    <span className="ms-bt">{m.title}</span>
+                  </span>
+                ))}
+              </div>
+              {milestones.next && (
+                <div className="ms-next">
+                  <span className="ms-next-ic" aria-hidden="true">{milestones.next.icon}</span>
+                  <div className="ms-next-body">
+                    <div className="ms-next-top">
+                      <b>{t("home.nextMilestone")}: {milestones.next.title}</b>
+                      <span className="ms-next-label">{milestones.next.label}</span>
+                    </div>
+                    <div className="ms-bar"><i style={{ width: `${Math.round(milestones.next.progress * 100)}%` }} /></div>
+                    <span className="ms-next-blurb">{milestones.next.blurb}</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {entries.length > 0 && recs.length > 0 && (

@@ -51,6 +51,7 @@ export type StringKey =
   | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
   | "home.greetMorning" | "home.greetAfternoon" | "home.greetEvening"
   | "home.roadmap" | "home.roadmapProgress" | "home.streak" | "home.youAreHere" | "home.journeyStart" | "home.journeyLine"
+  | "home.milestones" | "home.nextMilestone"
   | "intro.forYou" | "report.nextLede" | "intro.assessment" | "report.community" | "report.communityLede"
   // Home marketing & catalog chrome
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
@@ -154,6 +155,7 @@ const en: Dict = {
   "home.greetMorning": "Good morning", "home.greetAfternoon": "Good afternoon", "home.greetEvening": "Good evening",
   "home.roadmap": "Your roadmap", "home.roadmapProgress": "{d} of {t} steps complete", "home.streak": "day streak", "home.youAreHere": "You're here",
   "home.journeyStart": "Your journey starts here", "home.journeyLine": "Built from your goals — a personalized path through the science of you. Begin step one whenever you're ready.",
+  "home.milestones": "Milestones", "home.nextMilestone": "Next",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
   "intro.assessment": "Assessment",
@@ -289,6 +291,7 @@ const es: Dict = {
   "home.greetMorning": "Buenos días", "home.greetAfternoon": "Buenas tardes", "home.greetEvening": "Buenas noches",
   "home.roadmap": "Tu itinerario", "home.roadmapProgress": "{d} de {t} pasos completados", "home.streak": "días seguidos", "home.youAreHere": "Estás aquí",
   "home.journeyStart": "Tu camino empieza aquí", "home.journeyLine": "Creado a partir de tus metas: un recorrido personalizado por la ciencia de quién eres. Empieza el primer paso cuando quieras.",
+  "home.milestones": "Hitos", "home.nextMilestone": "Siguiente",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
   "intro.assessment": "Evaluación",
@@ -424,6 +427,7 @@ const fr: Dict = {
   "home.greetMorning": "Bonjour", "home.greetAfternoon": "Bon après-midi", "home.greetEvening": "Bonsoir",
   "home.roadmap": "Votre feuille de route", "home.roadmapProgress": "{d} étapes sur {t} terminées", "home.streak": "jours d'affilée", "home.youAreHere": "Vous êtes ici",
   "home.journeyStart": "Votre parcours commence ici", "home.journeyLine": "Construit à partir de vos objectifs — un chemin personnalisé à travers la science de vous. Commencez la première étape quand vous voulez.",
+  "home.milestones": "Jalons", "home.nextMilestone": "Prochain",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
   "intro.assessment": "Évaluation",
