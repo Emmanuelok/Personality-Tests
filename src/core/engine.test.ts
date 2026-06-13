@@ -221,6 +221,22 @@ describe("Ask Atlas companion", () => {
     expect(askCompanion(k, "how do I improve?").text.length).toBeGreaterThan(10);
     expect(askCompanion(k, "thanks").text.toLowerCase()).toContain("sam");
   });
+
+  it("answers and suggests questions in the user's language", () => {
+    const result = scoreAssessment(bigFive, allHigh(bigFive));
+    const report = composeReport(bigFive, result, { seed: 4, name: "Sam" });
+    const k = buildReportKnowledge(bigFive, result, report, "Sam");
+    // Localized suggested questions.
+    const es = suggestedQuestions(k, "es");
+    expect(es.join(" ")).toMatch(/fortalezas|mejorar/i);
+    expect(es.join(" ")).not.toEqual(suggestedQuestions(k, "en").join(" "));
+    // Spanish keyword is understood and answered in Spanish.
+    const ans = askCompanion(k, "¿cuáles son mis fortalezas?", 1, "es").text;
+    expect(ans.length).toBeGreaterThan(10);
+    expect(ans).not.toBe(askCompanion(k, "what are my strengths?", 1, "en").text);
+    // French greeting routes to the localized greet answer.
+    expect(askCompanion(k, "bonjour", 1, "fr").text.length).toBeGreaterThan(10);
+  });
 });
 
 describe("integrated cross-test synthesis", () => {

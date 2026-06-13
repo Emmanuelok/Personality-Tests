@@ -2,7 +2,8 @@ import type { AssessmentResult, Instrument, TypeResolution } from "./types";
 import type { PersonalityReport, ReportSection, TraitInsight } from "./report/types";
 import type { IntegratedProfile } from "./synthesis";
 import { Rng, nonce, seedFrom } from "./prng";
-import { oxford, sentence } from "./variation";
+import { sentence } from "./variation";
+import { cLoc, cSuggest, hasIntent, pctPhrase, CT, type Loc } from "./companion.i18n";
 
 /**
  * "Ask Atlas" — a conversational companion that answers questions about a
@@ -95,15 +96,17 @@ export interface CompanionAnswer {
 }
 
 const has = (q: string, ...words: string[]) => words.some((w) => q.includes(w));
+const lower = (s: string) => s.toLowerCase();
 
-export function suggestedQuestions(k: CompanionKnowledge): string[] {
-  if (k.kind === "integrated") {
-    return ["What are my biggest strengths?", "Where should I focus on growing?", "How do I work best?", "How do I handle stress?", "Sum me up in a sentence."];
-  }
-  const base = ["What does this mean for me?", "What are my strengths?", "What should I watch out for?", "How am I in relationships?", "How do I improve?"];
-  const distinct = [...k.scales].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50))[0];
-  if (distinct) base.splice(2, 0, `Tell me about my ${distinct.name}.`);
-  return base.slice(0, 5);
+export function suggestedQuestions(k: CompanionKnowledge, loc: string = "en"): string[] {
+  const distinct = k.kind === "report" ? [...k.scales].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50))[0] : undefined;
+  return cSuggest(k.kind, distinct?.name, cLoc(loc));
+}
+
+/** Strip a localized "Building your …" prefix from a growth-edge phrase. */
+function stripBuilding(s: string, loc: Loc): string {
+  const re = loc === "es" ? /^desarrollar (tu )?/ : loc === "fr" ? /^développer (votre )?/ : /^building (your )?/;
+  return s.toLowerCase().replace(re, "");
 }
 
 function who(k: CompanionKnowledge): string {
@@ -127,98 +130,100 @@ function matchScale(k: CompanionKnowledge, q: string): KnowledgeScale | undefine
   return undefined;
 }
 
-export function askCompanion(k: CompanionKnowledge, question: string, seed?: number): CompanionAnswer {
+export function askCompanion(k: CompanionKnowledge, question: string, seed?: number, loc: string = "en"): CompanionAnswer {
+  const L = cLoc(loc);
   const rng = new Rng(seed ?? seedFrom("ask", question, nonce()));
   const q = question.toLowerCase().trim();
   const w = who(k);
-  const followups = suggestedQuestions(k).filter((s) => s.toLowerCase() !== q).slice(0, 3);
+  const followups = suggestedQuestions(k, L).filter((s) => s.toLowerCase() !== q).slice(0, 3);
   const wrap = (text: string): CompanionAnswer => ({ text: sentence(text), followups });
 
-  if (!q || has(q, "hello", "hi ", "hey", "help", "what can you")) {
-    return wrap(`${w}ask me anything about your ${k.kind === "integrated" ? "integrated profile" : "result"} — your strengths, your blind spots, how you show up in relationships or at work, or how to grow. Try one of the suggestions below.`);
+  if (!q || hasIntent(q, L, "greet")) {
+    return wrap(CT.greet(CT.profileWord(k.kind === "integrated", L), w, L));
   }
-  if (has(q, "thank", "thanks", "appreciate")) {
-    return wrap(rng.pick([`Anytime${k.name ? `, ${k.name}` : ""}. I'm here whenever you want to go deeper.`, `You're welcome${k.name ? `, ${k.name}` : ""}. Ask me anything else.`]));
+  if (hasIntent(q, L, "thanks")) {
+    return wrap(CT.thanks(k.name, L, rng.chance(0.5)));
   }
 
   // Trait lookup (report)
   const scale = k.kind === "report" ? matchScale(k, q) : undefined;
-  if (scale && !has(q, "improve", "grow", "better", "work on")) {
-    const lead = scale.narrative ?? `${w}your ${scale.name} sits at the ${ordinal(Math.round(scale.percentile))} percentile (${scale.level}).`;
-    const extra = scale.strengths?.length ? ` On the upside: ${oxford(scale.strengths.map((s) => s.toLowerCase()))}.` : "";
+  if (scale && !hasIntent(q, L, "improve")) {
+    const lead = scale.narrative ?? CT.traitLead(w, scale.name, pctPhrase(scale.percentile, L), scale.level, L);
+    const extra = scale.strengths?.length ? CT.upside(scale.strengths.map(lower), L) : "";
     return wrap(lead + extra);
   }
 
   // Strengths
-  if (has(q, "strength", "good at", "best", "superpower", "shine", "advantage")) {
-    if (k.kind === "integrated" && k.strengths?.length) return wrap(`${w}across everything you've taken, your standout strengths are ${oxford(k.strengths.slice(0, 5).map((s) => s.toLowerCase()))}. Lean on these — they're your home turf.`);
+  if (hasIntent(q, L, "strengths")) {
+    if (k.kind === "integrated" && k.strengths?.length) return wrap(CT.strengthsIntegrated(w, k.strengths.slice(0, 5).map(lower), L));
     const sec = pickSection(k, "strengths");
     const bullets = sec?.bullets?.length ? sec.bullets : topStrengths(k);
-    return wrap(`${w}your biggest strengths are ${oxford(bullets.slice(0, 4).map((s) => s.toLowerCase()))}. ${rng.pick(["These come cheaply to you and expensively to others.", "Build your life around these and you'll feel in your element.", "Use them on purpose, especially under pressure."])}`);
+    return wrap(CT.strengthsReport(w, bullets.slice(0, 4).map(lower), L, rng.int(3)));
   }
 
   // Growth / improvement
-  if (has(q, "improve", "grow", "better", "work on", "develop", "weak", "blind", "watch", "flaw")) {
+  if (hasIntent(q, L, "improve")) {
     if (scale) {
-      const watch = scale.watchouts?.length ? ` Watch for ${oxford(scale.watchouts.map((s) => s.toLowerCase()))}.` : "";
-      return wrap(`${w}to grow your ${scale.name}: pick one small, repeated behavior that nudges it, do it daily, and review weekly — traits move with practice, not willpower.${watch} The Growth Plan in your report turns this into specific steps.`);
+      const watch = scale.watchouts?.length ? CT.watch(scale.watchouts.map(lower), L) : "";
+      return wrap(CT.growthScale(w, scale.name, watch, L));
     }
-    if (k.kind === "integrated" && k.growthEdges?.length) return wrap(`${w}your clearest growth frontier right now is ${oxford(k.growthEdges.slice(0, 3).map((s) => s.toLowerCase().replace(/^building (your )?/, "")))}. Growth isn't a leap — it's one deliberate behavior, repeated. Start with the single one that matters most this season.`);
+    if (k.kind === "integrated" && k.growthEdges?.length) return wrap(CT.growthIntegrated(w, k.growthEdges.slice(0, 3).map((s) => stripBuilding(s, L)), L));
     const sec = pickSection(k, "growth-edges");
     const bullets = sec?.bullets?.length ? sec.bullets : ["the shadow side of your strongest traits"];
-    return wrap(`${w}your growth edges are ${oxford(bullets.slice(0, 3).map((s) => s.toLowerCase()))}. None are flaws — they're the cost of your particular wiring. Your report's Growth Plan maps concrete, evidence-based steps.`);
+    return wrap(CT.growthReport(w, bullets.slice(0, 3).map(lower), L));
   }
 
   // Relationships / love
-  if (has(q, "relationship", "partner", "love", "dating", "friend", "marriage", "romantic")) {
-    if (k.operatingManual) { const o = k.operatingManual.find((x) => /connect/i.test(x.label)); if (o) return wrap(o.text); }
+  if (hasIntent(q, L, "relationships")) {
+    if (k.operatingManual) { const o = k.operatingManual.find((x) => /connect|conect|relie/i.test(x.label)); if (o) return wrap(o.text); }
     const sec = pickSection(k, "relationships");
     if (sec?.paragraphs?.length) return wrap(`${w}${rng.pick(sec.paragraphs)}`);
-    return wrap(`${w}your profile shapes how you bond — try the Compatibility tool to compare with someone, and see the "In Relationships" section of your report.`);
+    return wrap(CT.relFallback(w, L));
   }
 
   // Work / career
-  if (has(q, "work", "career", "job", "team", "leader", "boss", "colleague", "profession", "manage")) {
-    if (k.operatingManual) { const o = k.operatingManual.find((x) => /work/i.test(x.label)); if (o) return wrap(o.text); }
+  if (hasIntent(q, L, "work")) {
+    if (k.operatingManual) { const o = k.operatingManual.find((x) => /work|trabaj|travail/i.test(x.label)); if (o) return wrap(o.text); }
     const sec = pickSection(k, "work");
     if (sec?.paragraphs?.length) return wrap(`${w}${rng.pick(sec.paragraphs)}`);
-    return wrap(`${w}your traits point to environments where you'll thrive — see the "At Work" section of your report for specifics.`);
+    return wrap(CT.workFallback(w, L));
   }
 
   // Stress
-  if (has(q, "stress", "anxiety", "overwhelm", "cope", "pressure", "burnout", "calm down", "anxious")) {
-    if (k.operatingManual) { const o = k.operatingManual.find((x) => /stress/i.test(x.label)); if (o) return wrap(o.text); }
+  if (hasIntent(q, L, "stress")) {
+    if (k.operatingManual) { const o = k.operatingManual.find((x) => /stress|estr|gérer|gerer/i.test(x.label)); if (o) return wrap(o.text); }
     const sec = pickSection(k, "stress");
     if (sec?.paragraphs?.length) return wrap(`${w}${rng.pick(sec.paragraphs)}`);
-    return wrap(`${w}under pressure, name the feeling, slow your breathing, and protect recovery before stress compounds — small resets beat big ones.`);
+    return wrap(CT.stressFallback(w, L));
   }
 
   // Type / "what am I"
-  if (has(q, "type", "what am i", "who am i", "my result", "code")) {
-    if (k.type) return wrap(`${w}you came out as ${k.type.code} — ${k.type.title}. ${k.type.summary}`);
-    return wrap(`${w}your profile reads as "${k.title}". ${k.overview[0] ?? ""}`);
+  if (hasIntent(q, L, "type")) {
+    if (k.type) return wrap(CT.typeIs(w, k.type.code, k.type.title, k.type.summary, L));
+    return wrap(CT.typeReads(w, k.title, k.overview[0] ?? "", L));
   }
 
   // Summary
-  if (has(q, "summary", "sum me", "tell me about", "describe me", "overview", "in a sentence", "tldr")) {
+  if (hasIntent(q, L, "summary")) {
     if (k.kind === "integrated") {
       const t = k.themes?.[0];
-      return wrap(`${w}in a sentence: you're "${k.title}". ${t ? t.narrative : k.overview[0] ?? ""}`);
+      return wrap(CT.summaryIntegrated(w, k.title, t ? t.narrative : k.overview[0] ?? "", L));
     }
-    return wrap(`${w}${k.overview[0] ?? `your result is "${k.title}".`}${k.type ? ` You're ${k.type.code} — ${k.type.title}.` : ""}`);
+    return wrap(`${w}${k.overview[0] ?? CT.summaryReportTitle(k.title, L)}${k.type ? CT.typeTail(k.type.code, k.type.title, L) : ""}`);
   }
 
   // Themes (integrated)
-  if (k.kind === "integrated" && has(q, "theme", "thread", "pattern", "core")) {
+  if (k.kind === "integrated" && hasIntent(q, L, "themes")) {
     const lines = (k.themes ?? []).slice(0, 3).map((t) => `${t.name} — ${t.narrative}`);
-    if (!lines.length) return wrap("Take a few more assessments and your recurring themes will emerge here.");
-    return { text: sentence(`${w}the threads that keep surfacing across your assessments are:`) + "\n\n• " + lines.join("\n\n• "), followups };
+    if (!lines.length) return wrap(CT.themesEmpty(L));
+    return { text: sentence(CT.themesIntro(w, L)) + "\n\n• " + lines.join("\n\n• "), followups };
   }
 
   // Fallback — be useful, not blank.
-  return wrap(
-    `${w}I can answer best about your strengths, growth edges, relationships, work style, stress, and what your result means. ${k.kind === "report" && k.scales.length ? `You can also ask about a specific trait, like "${[...k.scales].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50))[0].name}."` : ""} Try a suggestion below.`,
-  );
+  const hint = k.kind === "report" && k.scales.length
+    ? CT.traitHint([...k.scales].sort((a, b) => Math.abs(b.normalized - 50) - Math.abs(a.normalized - 50))[0].name, L)
+    : "";
+  return wrap(CT.fallback(w, hint, L));
 }
 
 function topStrengths(k: CompanionKnowledge): string[] {
@@ -226,10 +231,4 @@ function topStrengths(k: CompanionKnowledge): string[] {
     .filter((s) => s.normalized >= 60 && s.strengths?.length)
     .flatMap((s) => s.strengths ?? [])
     .slice(0, 4);
-}
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
