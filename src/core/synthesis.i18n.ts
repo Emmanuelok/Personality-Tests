@@ -224,6 +224,28 @@ export const EVID: Record<Loc, { high: string; low: string }> = {
 };
 
 /* ── overview paragraphs ────────────────────────────────────────────────── */
+/* ── cognitive ↔ portrait link (Integrated Self "Mind & reasoning") ─────── */
+export function reasoningAnchor(themeName: string | undefined, hasStrengths: boolean, loc: Loc): string {
+  if (loc === "es") return themeName ? `tu hilo «${themeName}»` : hasStrengths ? "tus fortalezas distintivas" : "el resto de tus fortalezas";
+  if (loc === "fr") return themeName ? `votre fil « ${themeName} »` : hasStrengths ? "vos forces marquantes" : "le reste de vos forces";
+  return themeName ? `your "${themeName}" thread` : hasStrengths ? "your standout strengths" : "the rest of your strengths";
+}
+export function reasoningLink(pct: number, anchor: string, loc: Loc): string {
+  if (loc === "es") {
+    if (pct >= 70) return `Un razonamiento fuerte aquí multiplica ${anchor}: apóyate en él cuando emprendas algo realmente nuevo o complejo, y deja que cargue con el trabajo analítico pesado.`;
+    if (pct >= 40) return `Un razonamiento fiable te da una buena herramienta; junto con ${anchor}, tu ventaja está menos en la potencia bruta y más en lo deliberado que eres al aplicarla.`;
+    return `Los tests de razonamiento captan solo una porción de una mente, y las habilidades se entrenan: tu verdadera palanca está en ${anchor}, con el razonamiento como apoyo.`;
+  }
+  if (loc === "fr") {
+    if (pct >= 70) return `Un raisonnement solide ici est un multiplicateur pour ${anchor} — appuyez-vous dessus pour ce qui est vraiment nouveau ou complexe, et laissez-le porter le gros du travail analytique.`;
+    if (pct >= 40) return `Un raisonnement fiable vous donne un bon outil ; associé à ${anchor}, votre avantage tient moins à la puissance brute qu'à la rigueur avec laquelle vous l'employez.`;
+    return `Les tests de raisonnement ne saisissent qu'une part d'un esprit, et ces aptitudes se travaillent — votre vrai levier se trouve dans ${anchor}, le raisonnement en soutien.`;
+  }
+  if (pct >= 70) return `Strong reasoning here is a multiplier for ${anchor} — lean on it when you take on something genuinely new or complex, and let it carry the heavy analytical lifting.`;
+  if (pct >= 40) return `Dependable reasoning gives you a solid tool; paired with ${anchor}, your edge is less about raw horsepower and more about how deliberately you apply it.`;
+  return `Reasoning tests capture just one slice of a mind, and the skills are trainable — your real leverage likely sits in ${anchor}, with reasoning as the supporting act.`;
+}
+
 export function assessWord(n: number, loc: Loc): string {
   if (loc === "es") return n === 1 ? "evaluación" : "evaluaciones";
   if (loc === "fr") return n === 1 ? "évaluation" : "évaluations";

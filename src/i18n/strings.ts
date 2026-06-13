@@ -57,6 +57,8 @@ export type StringKey =
   | "jr.cognitive" | "jr.viewBattery" | "jr.timeline" | "jr.timelineEmpty" | "jr.backupTitle" | "jr.backupBody"
   | "jr.genCode" | "jr.copy" | "jr.copied" | "jr.pastePh" | "jr.restore" | "jr.restored" | "jr.invalidCode" | "jr.calib" | "jr.takeRetake"
   | "nav.settings" | "set.title" | "set.name" | "set.save" | "set.appearance" | "set.language" | "set.danger" | "set.reset" | "set.resetConfirm" | "set.privacy"
+  | "iep.titleYours" | "iep.titleNamed" | "iep.depth" | "iep.woven" | "iep.threads" | "iep.manual" | "iep.manualSub"
+  | "iep.strengths" | "iep.growth" | "iep.noGrowth" | "iep.mind" | "iep.mindSub" | "iep.tensions" | "iep.tensionsSub" | "iep.deepen" | "iep.backDash"
   | "intro.forYou" | "report.nextLede" | "intro.assessment" | "report.community" | "report.communityLede"
   // Home marketing & catalog chrome
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
@@ -181,6 +183,15 @@ const en: Dict = {
   "set.appearance": "Appearance", "set.language": "Language", "set.danger": "Reset everything",
   "set.reset": "Erase my data…", "set.resetConfirm": "Yes, erase everything",
   "set.privacy": "🔒 Everything lives on this device. Resetting permanently erases your results, goals, and journey from this browser.",
+  "iep.titleYours": "Your Integrated Self", "iep.titleNamed": "{name}'s Integrated Self",
+  "iep.depth": "Portrait depth", "iep.woven": "{n} woven together",
+  "iep.threads": "The threads that define you", "iep.manual": "Your operating manual",
+  "iep.manualSub": "How you, specifically, tend to think, decide, work, connect, and cope — synthesized across everything you've taken.",
+  "iep.strengths": "Your standout strengths", "iep.growth": "Your growth frontier",
+  "iep.noGrowth": "No clear low points yet — take a few more tests to sharpen this.",
+  "iep.mind": "Mind & reasoning", "iep.mindSub": "How your measured reasoning fits the rest of your portrait — a tool in service of who you are, never a verdict on it.",
+  "iep.tensions": "Creative tensions", "iep.tensionsSub": "The places where different parts of you pull in different directions. Handled with awareness, these are your most interesting edges — not flaws.",
+  "iep.deepen": "＋ Deepen it — take another assessment", "iep.backDash": "← Back to dashboard",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
   "intro.assessment": "Assessment",
@@ -337,6 +348,15 @@ const es: Dict = {
   "set.appearance": "Apariencia", "set.language": "Idioma", "set.danger": "Restablecer todo",
   "set.reset": "Borrar mis datos…", "set.resetConfirm": "Sí, borrar todo",
   "set.privacy": "🔒 Todo vive en este dispositivo. Restablecer borra de forma permanente tus resultados, metas y camino de este navegador.",
+  "iep.titleYours": "Tu Yo Integrado", "iep.titleNamed": "El Yo Integrado de {name}",
+  "iep.depth": "Profundidad del retrato", "iep.woven": "{n} entretejidas",
+  "iep.threads": "Los hilos que te definen", "iep.manual": "Tu manual de uso",
+  "iep.manualSub": "Cómo tiendes tú, en concreto, a pensar, decidir, trabajar, conectar y afrontar, sintetizado a partir de todo lo que has hecho.",
+  "iep.strengths": "Tus fortalezas distintivas", "iep.growth": "Tu frontera de crecimiento",
+  "iep.noGrowth": "Aún no hay puntos bajos claros: haz algunas pruebas más para afinarlo.",
+  "iep.mind": "Mente y razonamiento", "iep.mindSub": "Cómo encaja tu razonamiento medido con el resto de tu retrato: una herramienta al servicio de quién eres, nunca un veredicto.",
+  "iep.tensions": "Tensiones creativas", "iep.tensionsSub": "Los lugares donde distintas partes de ti tiran en direcciones opuestas. Con conciencia, son tus aristas más interesantes, no defectos.",
+  "iep.deepen": "＋ Profundízalo: haz otra evaluación", "iep.backDash": "← Volver al panel",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
   "intro.assessment": "Evaluación",
@@ -493,6 +513,15 @@ const fr: Dict = {
   "set.appearance": "Apparence", "set.language": "Langue", "set.danger": "Tout réinitialiser",
   "set.reset": "Effacer mes données…", "set.resetConfirm": "Oui, tout effacer",
   "set.privacy": "🔒 Tout vit sur cet appareil. Réinitialiser efface définitivement vos résultats, objectifs et parcours de ce navigateur.",
+  "iep.titleYours": "Votre Soi intégré", "iep.titleNamed": "Le Soi intégré de {name}",
+  "iep.depth": "Profondeur du portrait", "iep.woven": "{n} entrelacées",
+  "iep.threads": "Les fils qui vous définissent", "iep.manual": "Votre mode d'emploi",
+  "iep.manualSub": "Votre façon, à vous, de penser, décider, travailler, vous relier et faire face — synthétisée à partir de tout ce que vous avez passé.",
+  "iep.strengths": "Vos forces marquantes", "iep.growth": "Votre frontière de croissance",
+  "iep.noGrowth": "Pas encore de points bas nets — passez quelques tests de plus pour l'affiner.",
+  "iep.mind": "Esprit et raisonnement", "iep.mindSub": "Comment votre raisonnement mesuré s'inscrit dans le reste de votre portrait — un outil au service de qui vous êtes, jamais un verdict.",
+  "iep.tensions": "Tensions créatives", "iep.tensionsSub": "Les endroits où différentes parts de vous tirent dans des sens opposés. Gérées avec lucidité, ce sont vos arêtes les plus intéressantes, pas des défauts.",
+  "iep.deepen": "＋ Approfondissez — passez une autre évaluation", "iep.backDash": "← Retour au tableau de bord",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
   "intro.assessment": "Évaluation",
