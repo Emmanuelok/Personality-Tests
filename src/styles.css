@@ -35,6 +35,53 @@
   --sans: "EB Garamond", Georgia, "Times New Roman", serif;
 }
 
+/* ---------- Dark theme: redefining tokens restyles the whole app ---------- */
+:root[data-theme="dark"] {
+  --bg: #141210;            /* warm near-black */
+  --paper-2: #1b1814;
+  --bg-2: rgba(230, 210, 170, 0.07);
+  --surface: #1d1a15;       /* card */
+  --surface-2: #232019;
+  --surface-3: #2c271f;
+  --solid: #1d1a15;
+  --border: #3a3329;        /* line */
+  --border-soft: #2c2620;
+  --text: #f3ead6;          /* warm paper ink, inverted */
+  --text-dim: #c7b594;
+  --text-faint: #9c8c6e;
+  --gold: #d8ad45;
+  --sanguine: #e0623f;
+  --choleric: #d98a2a;
+  --melancholic: #7d88ad;
+  --phlegmatic: #45b0a3;
+  --accent: #d8ad45;        /* gold, brightened for dark */
+  --accent-ink: #ecc973;
+  --accent-2: #45b0a3;
+  --accent-warm: #e0892a;
+  --pink: #e0623f;
+  --danger: #e07a4f;
+  --good: #79b65e;
+  --grad: linear-gradient(90deg, #d8ad45, #ecc973);
+  --grad-cool: linear-gradient(90deg, #45b0a3, #7d88ad);
+  --grad-warm: linear-gradient(90deg, #d98a2a, #e0623f);
+  --shadow: 0 18px 40px -26px rgba(0, 0, 0, 0.8);
+}
+:root[data-theme="dark"] body {
+  background-image:
+    radial-gradient(120% 80% at 50% -10%, rgba(216, 173, 69, 0.12), rgba(216, 173, 69, 0) 55%),
+    radial-gradient(140% 120% at 50% 120%, rgba(69, 176, 163, 0.10), rgba(69, 176, 163, 0) 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+}
+:root[data-theme="dark"] .prod.primary { background: linear-gradient(180deg, #262019, #201c16); }
+:root[data-theme="dark"] .badge.decrease,
+:root[data-theme="dark"] .gap-badge.wide { background: rgba(224, 98, 63, 0.16); color: #e89070; border-color: rgba(224, 98, 63, 0.4); }
+:root[data-theme="dark"] .qr-opt.chosen { background: rgba(224, 122, 79, 0.16); }
+
+/* Theme toggle button (topbar) */
+.theme-toggle { font: inherit; font-size: 15px; line-height: 1; background: transparent; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; padding: 6px 9px; border-radius: 9px; margin-left: 4px; transition: 0.15s; }
+.theme-toggle:hover { color: var(--text); border-color: var(--text-faint); background: var(--surface-2); }
+@media (max-width: 640px) { .theme-toggle { padding: 5px 7px; } }
+
 * { box-sizing: border-box; }
 
 html, body, #root { height: 100%; }

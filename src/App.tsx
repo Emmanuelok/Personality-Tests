@@ -47,6 +47,7 @@ import { IAT_TEST, type IatResult } from "@core/ability/iat";
 import { CREATIVITY_TEST, type CreativityResult } from "@core/ability/creativity";
 import { chcFromDomains } from "@core/ability/chc";
 import { useI18n, LanguageSwitcher } from "./i18n";
+import { ThemeToggle } from "./ui/theme";
 import { submitNorms } from "./calibration";
 import {
   completedInstrumentIds,
@@ -479,6 +480,7 @@ export default function App() {
               {hasHistory && <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>{t("nav.journey")}</button>}
               <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>{t("nav.compatibility")}</button>
               <LanguageSwitcher />
+              <ThemeToggle locale={locale} />
             </nav>
           </div>
         </header>
