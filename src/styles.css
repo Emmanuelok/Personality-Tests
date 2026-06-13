@@ -1226,3 +1226,10 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .rs-flag:first-of-type { border-top: none; }
 .rs-flag b { display: block; font-family: var(--serif); font-size: 16px; margin-bottom: 3px; }
 .rs-flag span { color: var(--text-dim); font-size: 14.5px; line-height: 1.55; }
+
+/* Dashboard cross-test insight teaser (links to the Integrated Self) */
+.xc-teaser { display: block; width: 100%; text-align: left; margin-top: 20px; padding: 18px 20px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius); transition: border-color 0.15s ease, transform 0.15s ease; font: inherit; }
+.xc-teaser:hover { border-color: var(--accent); transform: translateY(-2px); }
+.xc-teaser-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); font-weight: 700; }
+.xc-teaser p { color: var(--text); font-size: 15px; line-height: 1.55; margin: 7px 0 10px; }
+.xc-teaser-cta { color: var(--accent-ink); font-weight: 600; font-size: 14px; }

@@ -14,6 +14,7 @@ import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
 import { dailyNudge } from "@core/daily";
 import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
+import { analyzeConvergence } from "@core/converge";
 import type { SynthEntry } from "@core/synthesis";
 import { GOALS, labelsFor, keysFromFocus, toLoc } from "./goals";
 import { HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
@@ -65,6 +66,11 @@ export function Home({
   const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
   const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
   const milestones = useMemo(() => computeMilestones(entries, { streakDays, cognitiveCount, locale }), [entries, streakDays, cognitiveCount, locale]);
+  const crossInsight = useMemo(() => {
+    if (entries.length < 2) return null;
+    const c = analyzeConvergence(entries, { locale });
+    return (c.topConvergent ?? c.topDivergent ?? c.readings[0])?.insight ?? null;
+  }, [entries, locale]);
   const [editGoals, setEditGoals] = useState(false);
   const [goalSel, setGoalSel] = useState<string[]>([]);
   const openGoals = () => { setGoalSel(keysFromFocus(focus)); setEditGoals(true); };
@@ -227,9 +233,17 @@ export function Home({
             </>
           )}
           {onIntegrated && entries.length >= 2 && (
-            <div className="foryou-foot">
-              <button className="btn ghost" onClick={onIntegrated}>{t("home.seeIntegrated")}</button>
-            </div>
+            crossInsight ? (
+              <button className="panel xc-teaser" onClick={onIntegrated} type="button">
+                <span className="xc-teaser-label">{t("home.crossInsight")}</span>
+                <p>{crossInsight}</p>
+                <span className="xc-teaser-cta">{t("home.seeIntegrated")}</span>
+              </button>
+            ) : (
+              <div className="foryou-foot">
+                <button className="btn ghost" onClick={onIntegrated}>{t("home.seeIntegrated")}</button>
+              </div>
+            )
           )}
         </section>
       )}
