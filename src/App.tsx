@@ -55,6 +55,7 @@ import {
   recordCognitive,
   recordResult,
   saveProfile,
+  touchStreak,
   type Profile,
 } from "./profile";
 
@@ -153,6 +154,17 @@ export default function App() {
   // Operator norms dashboard via the ?admin URL param.
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("admin") !== null) setView("admin");
+  }, []);
+
+  // Keep the daily-visit streak current whenever a returning user opens the app.
+  useEffect(() => {
+    setProfile((p) => {
+      if (!p) return p;
+      const next = touchStreak(p);
+      if (next !== p) saveProfile(next);
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Recover a prior purchase for the current result (KV-backed), if any.
@@ -475,6 +487,8 @@ export default function App() {
         <Home
           entries={entries}
           name={name}
+          focus={profile?.focus ?? []}
+          streakDays={profile?.streak.days ?? 0}
           onStart={start}
           onCompatibility={goCompat}
           onIntegrated={entries.length ? goIntegrated : undefined}

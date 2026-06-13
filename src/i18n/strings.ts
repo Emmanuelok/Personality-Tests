@@ -50,6 +50,7 @@ export type StringKey =
   // Personalized home surface
   | "home.forYou" | "home.nextSteps" | "home.seeIntegrated" | "home.begin" | "home.completedAll" | "home.takenCount"
   | "home.greetMorning" | "home.greetAfternoon" | "home.greetEvening"
+  | "home.roadmap" | "home.roadmapProgress" | "home.streak" | "home.youAreHere" | "home.journeyStart" | "home.journeyLine"
   | "intro.forYou" | "report.nextLede" | "intro.assessment" | "report.community" | "report.communityLede"
   // Home marketing & catalog chrome
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
@@ -151,6 +152,8 @@ const en: Dict = {
   "home.forYou": "For you", "home.nextSteps": "Your next steps", "home.seeIntegrated": "See your integrated self →",
   "home.begin": "Begin", "home.completedAll": "You've explored the whole atlas — extraordinary.", "home.takenCount": "{n} taken so far",
   "home.greetMorning": "Good morning", "home.greetAfternoon": "Good afternoon", "home.greetEvening": "Good evening",
+  "home.roadmap": "Your roadmap", "home.roadmapProgress": "{d} of {t} steps complete", "home.streak": "day streak", "home.youAreHere": "You're here",
+  "home.journeyStart": "Your journey starts here", "home.journeyLine": "Built from your goals — a personalized path through the science of you. Begin step one whenever you're ready.",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
   "intro.assessment": "Assessment",
@@ -284,6 +287,8 @@ const es: Dict = {
   "home.forYou": "Para ti", "home.nextSteps": "Tus siguientes pasos", "home.seeIntegrated": "Ve tu yo integrado →",
   "home.begin": "Comenzar", "home.completedAll": "Has explorado todo el atlas: extraordinario.", "home.takenCount": "{n} realizadas hasta ahora",
   "home.greetMorning": "Buenos días", "home.greetAfternoon": "Buenas tardes", "home.greetEvening": "Buenas noches",
+  "home.roadmap": "Tu itinerario", "home.roadmapProgress": "{d} de {t} pasos completados", "home.streak": "días seguidos", "home.youAreHere": "Estás aquí",
+  "home.journeyStart": "Tu camino empieza aquí", "home.journeyLine": "Creado a partir de tus metas: un recorrido personalizado por la ciencia de quién eres. Empieza el primer paso cuando quieras.",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
   "intro.assessment": "Evaluación",
@@ -417,6 +422,8 @@ const fr: Dict = {
   "home.forYou": "Pour vous", "home.nextSteps": "Vos prochaines étapes", "home.seeIntegrated": "Voir votre portrait intégré →",
   "home.begin": "Commencer", "home.completedAll": "Vous avez exploré tout l'atlas — extraordinaire.", "home.takenCount": "{n} réalisés à ce jour",
   "home.greetMorning": "Bonjour", "home.greetAfternoon": "Bon après-midi", "home.greetEvening": "Bonsoir",
+  "home.roadmap": "Votre feuille de route", "home.roadmapProgress": "{d} étapes sur {t} terminées", "home.streak": "jours d'affilée", "home.youAreHere": "Vous êtes ici",
+  "home.journeyStart": "Votre parcours commence ici", "home.journeyLine": "Construit à partir de vos objectifs — un chemin personnalisé à travers la science de vous. Commencez la première étape quand vous voulez.",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
   "intro.assessment": "Évaluation",

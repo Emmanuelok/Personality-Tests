@@ -1,6 +1,6 @@
 import { type ReactNode, useMemo } from "react";
 import type { Instrument } from "@core/types";
-import { INSTRUMENTS, instrumentsByCategory } from "@core/instruments";
+import { INSTRUMENTS, instrumentsByCategory, getInstrument } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
 import { MEMORY_TEST, CORSI_TEST } from "@core/ability/memory";
 import { PROCESSING_TEST } from "@core/ability/processing";
@@ -12,13 +12,17 @@ import { localizeCategory } from "@core/categories.i18n";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
 import { dailyNudge } from "@core/daily";
+import { buildRoadmap } from "@core/roadmap";
 import type { SynthEntry } from "@core/synthesis";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
+import { Gauge } from "./charts";
 import { useI18n } from "../i18n";
 
 export function Home({
   entries = [],
   name,
+  focus = [],
+  streakDays = 0,
   onStart,
   onCompatibility,
   onIntegrated,
@@ -34,6 +38,8 @@ export function Home({
 }: {
   entries?: SynthEntry[];
   name?: string;
+  focus?: string[];
+  streakDays?: number;
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onIntegrated?: () => void;
@@ -51,6 +57,7 @@ export function Home({
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
   const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
   const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
+  const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     const key = h < 12 ? "home.greetMorning" : h < 18 ? "home.greetAfternoon" : "home.greetEvening";
@@ -86,18 +93,47 @@ export function Home({
         </p>
       </section>
 
-      {spotlight && (
+      {(spotlight || focus.length > 0) && (
         <section className="foryou view-enter" aria-label={t("home.forYou")}>
           <div className="foryou-aura" aria-hidden="true" />
           <span className="eyebrow">{greeting}</span>
-          <h2 className="foryou-title">{spotlight.headline}</h2>
-          <p className="foryou-line">{spotlight.complete && !spotlight.chips.length ? t("home.completedAll") : spotlight.line}</p>
-          {spotlight.chips.length > 0 && (
+          <h2 className="foryou-title">{spotlight ? spotlight.headline : t("home.journeyStart")}</h2>
+          <p className="foryou-line">{spotlight ? (spotlight.complete && !spotlight.chips.length ? t("home.completedAll") : spotlight.line) : t("home.journeyLine")}</p>
+          {spotlight && spotlight.chips.length > 0 && (
             <div className="foryou-chips">
               {spotlight.chips.map((c) => (
                 <span className="trait-chip" key={c}>{c}</span>
               ))}
               <span className="trait-chip muted">{t("home.takenCount").replace("{n}", String(entries.length))}</span>
+            </div>
+          )}
+          {roadmap.steps.length > 0 && (
+            <div className="panel roadmap-panel">
+              <div className="rm-head">
+                <Gauge value={roadmap.pct} size={92} />
+                <div className="rm-head-text">
+                  <h3>{t("home.roadmap")}</h3>
+                  <p>{t("home.roadmapProgress").replace("{d}", String(roadmap.doneCount)).replace("{t}", String(roadmap.total))}</p>
+                  {streakDays > 1 && <span className="streak">🔥 <b>{streakDays}</b> {t("home.streak")}</span>}
+                </div>
+              </div>
+              <ol className="roadmap">
+                {roadmap.steps.map((st, i) => {
+                  const inst = getInstrument(st.instrumentId);
+                  return (
+                    <li key={st.instrumentId} className={`rm-step${st.current ? " current" : ""}${st.done ? " done" : ""}`}>
+                      <span className="rm-node">{st.done ? "✓" : i + 1}</span>
+                      <div className="rm-body">
+                        <div className="rm-name">{st.name} {st.current && <span className="rm-badge">{t("home.youAreHere")}</span>}</div>
+                        <div className="rm-reason">{st.reason}</div>
+                      </div>
+                      {st.current && inst
+                        ? <button className="btn primary rm-go" onClick={() => onStart(inst)}>{t("home.begin")} →</button>
+                        : <span className="rm-min">{st.estMinutes} min</span>}
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
           )}
           {nudge && (
@@ -110,7 +146,7 @@ export function Home({
               </div>
             </div>
           )}
-          {recs.length > 0 && (
+          {entries.length > 0 && recs.length > 0 && (
             <>
               <h3 className="foryou-sub">{t("home.nextSteps")}</h3>
               <div className="grid rec-grid">
