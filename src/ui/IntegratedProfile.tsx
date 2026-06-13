@@ -1,6 +1,7 @@
 import type { IntegratedProfile as IP } from "@core/synthesis";
 import { buildIntegratedKnowledge } from "@core/companion";
 import { reasoningLink, reasoningAnchor, synthLoc } from "@core/synthesis.i18n";
+import { downloadIntegratedMarkdown } from "./exports";
 import { getInstrument } from "@core/instruments";
 import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
@@ -174,6 +175,12 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
 
         <div className="row-actions">
           <button className="btn primary" onClick={onBrowse}>{t("iep.deepen")}</button>
+          <button className="btn" onClick={() => downloadIntegratedMarkdown(ip, {
+            title: t("iep.titleYours"), threads: t("iep.threads"), manual: t("iep.manual"),
+            crosscheck: t("iep.crosscheck"), readstyle: t("iep.readstyle"), strengths: t("iep.strengths"),
+            growth: t("iep.growth"), tensions: t("iep.tensions"),
+            from: t("iep.exportFrom"), generated: t("iep.exportGen"),
+          })}>{t("iep.exportMd")}</button>
           <button className="btn ghost" onClick={onBack}>{t("iep.backDash")}</button>
         </div>
       </div>

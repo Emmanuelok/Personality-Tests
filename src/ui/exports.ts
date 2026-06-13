@@ -1,5 +1,6 @@
 import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
+import type { IntegratedProfile } from "@core/synthesis";
 
 export function downloadText(filename: string, text: string, mime = "text/plain") {
   const blob = new Blob([text], { type: mime });
@@ -77,4 +78,58 @@ export function reportToMarkdown(instrument: Instrument, report: PersonalityRepo
 
 export function downloadMarkdown(instrument: Instrument, report: PersonalityReport) {
   downloadText(`psyche-atlas-${report.reportId}.md`, reportToMarkdown(instrument, report), "text/markdown");
+}
+
+/** Localized section labels for the integrated-portrait export. */
+export interface IntegratedLabels {
+  title: string; threads: string; manual: string; crosscheck: string; readstyle: string;
+  strengths: string; growth: string; tensions: string; from: string; generated: string;
+}
+
+export function integratedToMarkdown(ip: IntegratedProfile, l: IntegratedLabels): string {
+  const L: string[] = [];
+  L.push(`# ${ip.headline}`);
+  L.push(`_${ip.subhead}_ — ${l.title} · #${ip.reportId}`);
+  L.push("");
+  ip.overview.forEach((p) => L.push(p + "\n"));
+
+  L.push(`_${l.from.replace("{n}", String(ip.instrumentsUsed.length))}: ${ip.instrumentsUsed.map((u) => u.name).join(", ")}_`);
+  L.push("");
+
+  if (ip.themes.length) {
+    L.push(`## ${l.threads}`);
+    ip.themes.forEach((t) => { L.push(`### ${t.name}`); L.push(t.narrative + "\n"); });
+  }
+
+  L.push(`## ${l.manual}`);
+  ip.operatingManual.forEach((o) => L.push(`- **${o.label}:** ${o.text}`));
+  L.push("");
+
+  if (ip.convergence.readings.length) {
+    L.push(`## ${l.crosscheck}`);
+    ip.convergence.readings.forEach((r) => L.push(`- **${r.name}** (${r.band}) — ${r.insight}`));
+    L.push("");
+  }
+
+  if (ip.responseStyle.summary) {
+    L.push(`## ${l.readstyle}`);
+    L.push(ip.responseStyle.summary);
+    ip.responseStyle.flags.forEach((f) => L.push(`- **${f.label}** — ${f.note}`));
+    L.push("");
+  }
+
+  if (ip.strengths.length) { L.push(`## ${l.strengths}`); ip.strengths.forEach((s) => L.push(`- ${s}`)); L.push(""); }
+  if (ip.growthEdges.length) { L.push(`## ${l.growth}`); ip.growthEdges.forEach((s) => L.push(`- ${s}`)); L.push(""); }
+  if (ip.tensions.length) {
+    L.push(`## ${l.tensions}`);
+    ip.tensions.forEach((t) => L.push(`- **${t.title}** — ${t.detail}`));
+    L.push("");
+  }
+
+  L.push(`_${l.generated} · ${new Date(ip.generatedAt).toLocaleString()}_`);
+  return L.join("\n");
+}
+
+export function downloadIntegratedMarkdown(ip: IntegratedProfile, l: IntegratedLabels) {
+  downloadText(`psyche-atlas-integrated-${ip.reportId}.md`, integratedToMarkdown(ip, l), "text/markdown");
 }
