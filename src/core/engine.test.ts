@@ -7,6 +7,7 @@ import { computeCompatibility, encodeSummary, decodeSummary, toSummary } from ".
 import { buildIntegratedProfile, dailyInsight, type SynthEntry } from "./synthesis";
 import { recommendNext, profileSpotlight, relevanceNote, standoutTraits } from "./recommend";
 import { dailyNudge } from "./daily";
+import { buildRoadmap, goalKeys } from "./roadmap";
 import { askCompanion, buildReportKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -730,6 +731,49 @@ describe("standout traits helper", () => {
     expect(en.length).toBeGreaterThan(0);
     expect(es.length).toBe(en.length);
     expect(es.map((p) => p.name)).not.toEqual(en.map((p) => p.name));
+  });
+});
+
+describe("personalized roadmap", () => {
+  it("maps multilingual focus labels to canonical goal keys", () => {
+    expect(goalKeys(["Better relationships"])).toEqual(["relationships"]);
+    expect(goalKeys(["Career & work"])).toEqual(["career"]);
+    expect(goalKeys(["Bienestar emocional"])).toEqual(["wellbeing"]);
+    expect(goalKeys([])).toEqual(["self"]);
+    expect(goalKeys(["Understand myself", "Career & work"])).toEqual(["self", "career"]);
+  });
+
+  it("always opens with the Big Five foundation", () => {
+    const r = buildRoadmap([], ["Better relationships"], {});
+    expect(r.steps[0].instrumentId).toBe("big-five-ipip50");
+    expect(r.steps[0].current).toBe(true);
+    expect(r.pct).toBe(0);
+  });
+
+  it("includes goal-relevant instruments for the chosen focus", () => {
+    const ids = buildRoadmap([], ["Better relationships"], {}).steps.map((s) => s.instrumentId);
+    expect(ids).toContain("attachment-styles");
+  });
+
+  it("tracks progress and advances the current step as tests complete", () => {
+    const e = [{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }];
+    const r = buildRoadmap(e, ["Understand myself"], {});
+    expect(r.steps[0].done).toBe(true);
+    expect(r.steps[0].current).toBe(false);
+    expect(r.doneCount).toBe(1);
+    expect(r.pct).toBeGreaterThan(0);
+    expect(r.nextStep).toBeTruthy();
+    expect(r.nextStep!.done).toBe(false);
+  });
+
+  it("respects the length cap and localizes step names + reasons", () => {
+    const r = buildRoadmap([], ["Understand myself"], { locale: "fr", length: 5 });
+    expect(r.steps.length).toBeLessThanOrEqual(5);
+    expect(r.total).toBe(r.steps.length);
+    for (const s of r.steps) {
+      expect(s.reason.trim().length).toBeGreaterThan(8);
+      expect(s.name.trim().length).toBeGreaterThan(1);
+    }
   });
 });
 
