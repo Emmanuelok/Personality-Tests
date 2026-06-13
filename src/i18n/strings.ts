@@ -59,6 +59,7 @@ export type StringKey =
   | "nav.settings" | "set.title" | "set.name" | "set.save" | "set.appearance" | "set.language" | "set.danger" | "set.reset" | "set.resetConfirm" | "set.privacy"
   | "iep.titleYours" | "iep.titleNamed" | "iep.depth" | "iep.woven" | "iep.threads" | "iep.manual" | "iep.manualSub"
   | "iep.strengths" | "iep.growth" | "iep.noGrowth" | "iep.mind" | "iep.mindSub" | "iep.tensions" | "iep.tensionsSub" | "iep.deepen" | "iep.backDash"
+  | "iep.crosscheck" | "iep.crosscheckSub" | "iep.agreeBadge" | "iep.mixedBadge" | "iep.divergeBadge"
   | "intro.forYou" | "report.nextLede" | "intro.assessment" | "report.community" | "report.communityLede"
   // Home marketing & catalog chrome
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
@@ -192,6 +193,8 @@ const en: Dict = {
   "iep.mind": "Mind & reasoning", "iep.mindSub": "How your measured reasoning fits the rest of your portrait — a tool in service of who you are, never a verdict on it.",
   "iep.tensions": "Creative tensions", "iep.tensionsSub": "The places where different parts of you pull in different directions. Handled with awareness, these are your most interesting edges — not flaws.",
   "iep.deepen": "＋ Deepen it — take another assessment", "iep.backDash": "← Back to dashboard",
+  "iep.crosscheck": "How your tests cross-check", "iep.crosscheckSub": "Many of your assessments quietly measure the same deep traits. Here's where they agree — a high-confidence read — and where they diverge, a nuance worth exploring.",
+  "iep.agreeBadge": "Tests agree", "iep.mixedBadge": "Mostly aligned", "iep.divergeBadge": "Tests differ",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
   "intro.assessment": "Assessment",
@@ -357,6 +360,8 @@ const es: Dict = {
   "iep.mind": "Mente y razonamiento", "iep.mindSub": "Cómo encaja tu razonamiento medido con el resto de tu retrato: una herramienta al servicio de quién eres, nunca un veredicto.",
   "iep.tensions": "Tensiones creativas", "iep.tensionsSub": "Los lugares donde distintas partes de ti tiran en direcciones opuestas. Con conciencia, son tus aristas más interesantes, no defectos.",
   "iep.deepen": "＋ Profundízalo: haz otra evaluación", "iep.backDash": "← Volver al panel",
+  "iep.crosscheck": "Cómo se cruzan tus pruebas", "iep.crosscheckSub": "Muchas de tus evaluaciones miden, sin decirlo, los mismos rasgos profundos. Aquí ves dónde coinciden —una lectura de alta confianza— y dónde divergen, un matiz que vale la pena explorar.",
+  "iep.agreeBadge": "Coinciden", "iep.mixedBadge": "Bastante alineadas", "iep.divergeBadge": "Difieren",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
   "intro.assessment": "Evaluación",
@@ -522,6 +527,8 @@ const fr: Dict = {
   "iep.mind": "Esprit et raisonnement", "iep.mindSub": "Comment votre raisonnement mesuré s'inscrit dans le reste de votre portrait — un outil au service de qui vous êtes, jamais un verdict.",
   "iep.tensions": "Tensions créatives", "iep.tensionsSub": "Les endroits où différentes parts de vous tirent dans des sens opposés. Gérées avec lucidité, ce sont vos arêtes les plus intéressantes, pas des défauts.",
   "iep.deepen": "＋ Approfondissez — passez une autre évaluation", "iep.backDash": "← Retour au tableau de bord",
+  "iep.crosscheck": "Comment vos tests se recoupent", "iep.crosscheckSub": "Beaucoup de vos évaluations mesurent discrètement les mêmes traits profonds. Voici où elles concordent — une lecture fiable — et où elles divergent, une nuance à explorer.",
+  "iep.agreeBadge": "Concordent", "iep.mixedBadge": "Plutôt alignés", "iep.divergeBadge": "Divergent",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
   "intro.assessment": "Évaluation",

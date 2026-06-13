@@ -2,6 +2,7 @@ import type { AssessmentResult, Instrument } from "./types";
 import { Rng, hashHex, nonce, seedFrom } from "./prng";
 import { capitalize, oxford, sentence } from "./variation";
 import { localizeInstrument } from "./instruments/i18n";
+import { analyzeConvergence, type ConvergenceResult } from "./converge";
 import {
   synthLoc, themeStr, buildHeadline, tensionStr, omText, OM_LABELS, OM_CONNECT_AVOID,
   STR_SCAFFOLD, EVID, assessWord, OVERVIEW, type Loc,
@@ -55,6 +56,8 @@ export interface IntegratedProfile {
   growthEdges: string[];
   tensions: Tension[];
   operatingManual: OperatingNote[];
+  /** Cross-test meta-analysis: where instruments agree vs. diverge on shared traits. */
+  convergence: ConvergenceResult;
   /** 0..100 how complete the picture is (more tests → higher). */
   depth: number;
 }
@@ -415,6 +418,7 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
     growthEdges,
     tensions: tensions.slice(0, 4),
     operatingManual: om,
+    convergence: analyzeConvergence(entries, { locale: opts.locale }),
     depth,
   };
 }

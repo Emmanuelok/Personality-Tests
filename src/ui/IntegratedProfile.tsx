@@ -88,6 +88,30 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
           </div>
         </section>
 
+        {ip.convergence.readings.length > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 24 }}>{t("iep.crosscheck")}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{t("iep.crosscheckSub")}</p>
+            {ip.convergence.readings.map((r) => (
+              <div className="xcheck" key={r.id}>
+                <div className="xc-top">
+                  <h4>{r.name} <span className="xc-band">· {r.band}</span></h4>
+                  <span className={`xc-badge ${r.convergent ? "agree" : r.divergent ? "diverge" : "mixed"}`}>
+                    {r.convergent ? "✓ " : r.divergent ? "⚠ " : "≈ "}{t(r.convergent ? "iep.agreeBadge" : r.divergent ? "iep.divergeBadge" : "iep.mixedBadge")}
+                  </span>
+                </div>
+                <ScaleBar value={r.position} leftLabel={r.lowLabel} rightLabel={r.highLabel} />
+                <p className="xc-insight">{r.insight}</p>
+                <div className="xc-sources">
+                  {r.sources.map((s) => (
+                    <span className="xc-src" key={s.instrumentId} title={`${s.scaleName} · ${s.position}`}>{s.instrumentName}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
         {(ip.strengths.length > 0 || ip.growthEdges.length > 0) && (
           <section className="panel">
             <div className="sw">

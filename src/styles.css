@@ -1202,3 +1202,17 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .onb .row-actions { margin-top: 28px; gap: 12px; }
 .onb .onb-roadmap { margin: 8px 0 6px; }
 .onb .trust { margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+/* Cross-test convergence (Integrated Self) */
+.xcheck { padding: 16px 0; border-bottom: 1px solid var(--border-soft); }
+.xcheck:last-child { border-bottom: none; }
+.xc-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.xc-top h4 { margin: 0; font-size: 17px; font-family: var(--serif); }
+.xc-band { color: var(--text-faint); font-weight: 400; font-style: italic; font-size: 14px; }
+.xc-badge { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; padding: 4px 11px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--border-soft); }
+.xc-badge.agree { color: var(--good); background: rgba(78, 122, 58, 0.1); border-color: rgba(78, 122, 58, 0.32); }
+.xc-badge.mixed { color: var(--accent-2); background: rgba(39, 119, 111, 0.1); border-color: rgba(39, 119, 111, 0.3); }
+.xc-badge.diverge { color: var(--accent-warm); background: rgba(179, 115, 14, 0.1); border-color: rgba(179, 115, 14, 0.32); }
+.xc-insight { color: var(--text-dim); font-size: 14.5px; line-height: 1.55; margin: 10px 0 10px; }
+.xc-sources { display: flex; flex-wrap: wrap; gap: 7px; }
+.xc-src { font-size: 11.5px; color: var(--text-faint); background: var(--surface-3); border-radius: 999px; padding: 4px 10px; }
