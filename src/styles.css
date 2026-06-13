@@ -1189,3 +1189,16 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .onb .rm-reason { color: rgba(255, 255, 255, 0.6); }
 .onb .rm-min { color: rgba(255, 255, 255, 0.45); }
 .onb .rm-badge { background: rgba(199, 154, 62, 0.25); color: #f1dca0; }
+
+/* Onboarding vertical rhythm — give the card room to breathe */
+.onb { padding: clamp(40px, 6vw, 64px) clamp(28px, 5vw, 56px); }
+.onb-mark { font-size: 40px; margin-bottom: 18px; }
+.onb-progress { margin-bottom: 30px; }
+.onb h1 { margin: 12px 0 20px; line-height: 1.06; }
+.onb p.sub { max-width: 46ch; margin: 0 auto 36px; line-height: 1.55; }
+.onb label.onb-step-label { margin: 0 0 14px; }
+.onb .name-input { margin: 0 0 26px; }
+.onb .chips { margin: 22px auto 34px; }
+.onb .row-actions { margin-top: 28px; gap: 12px; }
+.onb .onb-roadmap { margin: 8px 0 6px; }
+.onb .trust { margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
