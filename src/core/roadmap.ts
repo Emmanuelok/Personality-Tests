@@ -60,10 +60,10 @@ export function goalKeys(focus: string[]): GoalKey[] {
 /** Goal → the instruments that most directly serve it (in priority order). */
 const GOAL_MAP: Record<GoalKey, string[]> = {
   self: ["jung-16-types", "enneagram-9", "via-24"],
-  grow: ["grit-resilience", "self-efficacy-gse", "self-control-bscs", "mindset-dweck"],
+  grow: ["grit-resilience", "self-efficacy-gse", "self-control-bscs", "procrastination-pps", "mindset-dweck"],
   relationships: ["attachment-styles", "love-languages", "conflict-style"],
   career: ["riasec-careers", "disc-4", "career-anchors"],
-  wellbeing: ["emotional-intelligence", "emotion-regulation-erq", "perma-flourishing", "brief-resilience"],
+  wellbeing: ["emotional-intelligence", "emotion-regulation-erq", "gratitude-gq6", "perma-flourishing", "brief-resilience"],
   curious: ["jung-16-types", "via-24", "vark-learning"],
 };
 

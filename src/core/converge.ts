@@ -86,6 +86,8 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "self-control-bscs", scale: "RESTRAINT", dir: 1, w: 0.8 },
       { inst: "self-control-bscs", scale: "DISCIPLINE", dir: 1, w: 0.8 },
       { inst: "tci-cloninger", scale: "PS", dir: 1, w: 0.5 },
+      { inst: "procrastination-pps", scale: "PROC", dir: -1, w: 0.6 },
+      { inst: "perfectionism-2f", scale: "STAND", dir: 1, w: 0.4 },
     ],
   },
   {
@@ -120,6 +122,7 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "optimism-lotr", scale: "PES", dir: -1, w: 0.4 },
       { inst: "tci-cloninger", scale: "HA", dir: -1, w: 0.6 },
       { inst: "zkpq-alt5", scale: "NANX", dir: -1, w: 0.7 },
+      { inst: "perfectionism-2f", scale: "CONC", dir: -1, w: 0.6 },
     ],
   },
   {

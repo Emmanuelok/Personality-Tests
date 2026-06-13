@@ -853,6 +853,25 @@ describe("new focused instruments", () => {
   });
 });
 
+describe("procrastination / perfectionism / gratitude", () => {
+  const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
+  it("score and expose the expected scales", () => {
+    expect(Object.keys(scoreAssessment(get("procrastination-pps"), allHigh(get("procrastination-pps"))).scales)).toEqual(["PROC"]);
+    expect(Object.keys(scoreAssessment(get("perfectionism-2f"), allHigh(get("perfectionism-2f"))).scales).sort()).toEqual(["CONC", "STAND"]);
+    expect(Object.keys(scoreAssessment(get("gratitude-gq6"), allHigh(get("gratitude-gq6"))).scales)).toEqual(["GRAT"]);
+  });
+
+  it("procrastination cross-checks Conscientiousness (inverse) with the Big Five", () => {
+    const bf = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, (it) => (it.scale === "C" ? (it.keyed === 1 ? 5 : 1) : 3))) };
+    const proc = get("procrastination-pps");
+    // High procrastination → low conscientiousness; pair with high-C Big Five → divergence.
+    const pr = { instrument: proc, result: scoreAssessment(proc, answerAll(proc, (it) => (it.keyed === 1 ? 5 : 1))) };
+    const ext = analyzeConvergence([bf, pr], {}).readings.find((r) => r.id === "conscientiousness")!;
+    expect(ext).toBeTruthy();
+    expect(ext.sources.length).toBe(2);
+  });
+});
+
 describe("cross-test convergence", () => {
   const driveScale = (inst: Instrument, scale: string, high: boolean) =>
     ({ instrument: inst, result: scoreAssessment(inst, answerAll(inst, (it) => (it.scale === scale ? (it.keyed === 1 ? (high ? inst.responseFormat.max : inst.responseFormat.min) : (high ? inst.responseFormat.min : inst.responseFormat.max)) : Math.round((inst.responseFormat.min + inst.responseFormat.max) / 2)))) });

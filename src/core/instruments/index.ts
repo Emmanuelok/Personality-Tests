@@ -58,6 +58,9 @@ import { curiosity } from "./curiosity";
 import { selfControl } from "./selfcontrol";
 import { selfEfficacy } from "./selfefficacy";
 import { emotionRegulation } from "./emotionregulation";
+import { procrastination } from "./procrastination";
+import { perfectionism } from "./perfectionism";
+import { gratitude } from "./gratitude";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -120,6 +123,9 @@ export const INSTRUMENTS: Instrument[] = [
   selfControl,
   selfEfficacy,
   emotionRegulation,
+  procrastination,
+  perfectionism,
+  gratitude,
 ];
 
 const BY_ID = new Map(INSTRUMENTS.map((i) => [i.id, i]));
@@ -193,4 +199,7 @@ export {
   selfControl,
   selfEfficacy,
   emotionRegulation,
+  procrastination,
+  perfectionism,
+  gratitude,
 };
