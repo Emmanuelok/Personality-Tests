@@ -8,6 +8,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { buildIntegratedProfile, type IntegratedProfile as IP, type SynthEntry } from "@core/synthesis";
 import { adaptivePack } from "@core/starter";
 import { Home } from "./ui/Home";
+import { Onboarding } from "./ui/Onboarding";
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
@@ -65,6 +66,7 @@ const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
 export default function App() {
   const { t, locale } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
+  const [skipOnb, setSkipOnb] = useState(false);
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -365,6 +367,14 @@ export default function App() {
     if (instrument) beginInstrument(instrument);
   };
 
+  const completeOnboarding = (nm: string, focus: string[]) => {
+    const p = createProfile(nm.trim(), focus);
+    saveProfile(p);
+    setProfile(p);
+    setView("home");
+    top();
+  };
+
   const startPack = (ids: string[]) => {
     const first = ids[0] && getInstrument(ids[0]);
     if (!first) return;
@@ -435,6 +445,11 @@ export default function App() {
 
   const hasHistory = entries.length > 0 || (profile?.cognitiveHistory?.length ?? 0) > 0;
   const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi" && view !== "speed" && view !== "adaptive" && view !== "iat" && view !== "creativity";
+
+  // First-run: a goal-based onboarding wizard that previews the personalized roadmap.
+  if (!profile && !skipOnb && view === "home") {
+    return <Onboarding onDone={completeOnboarding} onSkip={() => setSkipOnb(true)} />;
+  }
 
   return (
     <>
