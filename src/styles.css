@@ -1051,3 +1051,10 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .ms-bar { height: 7px; border-radius: 999px; background: var(--surface-3); overflow: hidden; margin: 7px 0 6px; }
 .ms-bar > i { display: block; height: 100%; background: var(--grad); transition: width 0.4s ease; }
 .ms-next-blurb { color: var(--text-dim); font-size: 13px; }
+
+/* Dashboard goal editor */
+.rm-tune { align-self: flex-start; background: transparent; border: 1px solid var(--border); color: var(--text-dim); font: inherit; font-size: 13px; cursor: pointer; padding: 6px 12px; border-radius: 999px; white-space: nowrap; transition: 0.15s; }
+.rm-tune:hover { color: var(--text); border-color: var(--text-faint); background: var(--surface-2); }
+.rm-goals { margin-top: 16px; padding: 16px; border: 1px dashed var(--border); border-radius: 12px; background: var(--bg-2); }
+.rm-goals-label { margin: 0 0 12px; color: var(--text-dim); font-size: 14px; }
+.rm-head { position: relative; }

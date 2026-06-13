@@ -389,6 +389,15 @@ export default function App() {
     top();
   };
 
+  const updateGoals = (focus: string[]) => {
+    setProfile((p) => {
+      const base = p ?? createProfile("", []);
+      const next = { ...base, focus };
+      saveProfile(next);
+      return next;
+    });
+  };
+
   const startPack = (ids: string[]) => {
     const first = ids[0] && getInstrument(ids[0]);
     if (!first) return;
@@ -493,6 +502,7 @@ export default function App() {
           focus={profile?.focus ?? []}
           streakDays={profile?.streak.days ?? 0}
           cognitiveCount={profile?.cognitiveHistory?.length ?? 0}
+          onUpdateGoals={updateGoals}
           onStart={start}
           onCompatibility={goCompat}
           onIntegrated={entries.length ? goIntegrated : undefined}

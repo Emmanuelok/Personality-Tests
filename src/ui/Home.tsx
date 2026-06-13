@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory, getInstrument } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
@@ -15,6 +15,7 @@ import { dailyNudge } from "@core/daily";
 import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
 import type { SynthEntry } from "@core/synthesis";
+import { GOALS, labelsFor, keysFromFocus, toLoc } from "./goals";
 import { HeroArt, HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { Gauge } from "./charts";
 import { useI18n } from "../i18n";
@@ -25,6 +26,7 @@ export function Home({
   focus = [],
   streakDays = 0,
   cognitiveCount = 0,
+  onUpdateGoals,
   onStart,
   onCompatibility,
   onIntegrated,
@@ -43,6 +45,7 @@ export function Home({
   focus?: string[];
   streakDays?: number;
   cognitiveCount?: number;
+  onUpdateGoals?: (focus: string[]) => void;
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onIntegrated?: () => void;
@@ -62,6 +65,11 @@ export function Home({
   const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
   const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
   const milestones = useMemo(() => computeMilestones(entries, { streakDays, cognitiveCount, locale }), [entries, streakDays, cognitiveCount, locale]);
+  const [editGoals, setEditGoals] = useState(false);
+  const [goalSel, setGoalSel] = useState<string[]>([]);
+  const openGoals = () => { setGoalSel(keysFromFocus(focus)); setEditGoals(true); };
+  const toggleGoal = (k: string) => setGoalSel((s) => (s.includes(k) ? s.filter((x) => x !== k) : [...s, k]));
+  const saveGoals = () => { onUpdateGoals?.(labelsFor(goalSel, locale)); setEditGoals(false); };
   const greeting = useMemo(() => {
     const h = new Date().getHours();
     const key = h < 12 ? "home.greetMorning" : h < 18 ? "home.greetAfternoon" : "home.greetEvening";
@@ -120,7 +128,26 @@ export function Home({
                   <p>{t("home.roadmapProgress").replace("{d}", String(roadmap.doneCount)).replace("{t}", String(roadmap.total))}</p>
                   {streakDays > 1 && <span className="streak">🔥 <b>{streakDays}</b> {t("home.streak")}</span>}
                 </div>
+                {onUpdateGoals && !editGoals && (
+                  <button className="rm-tune" onClick={openGoals}>✎ {t("home.tuneGoals")}</button>
+                )}
               </div>
+              {editGoals && (
+                <div className="rm-goals">
+                  <p className="rm-goals-label">{t("home.tuneGoalsHint")}</p>
+                  <div className="chips">
+                    {GOALS.map((g) => (
+                      <button key={g.key} className={`chip-toggle ${goalSel.includes(g.key) ? "on" : ""}`} onClick={() => toggleGoal(g.key)}>
+                        <span aria-hidden="true" style={{ marginRight: 6 }}>{g.icon}</span>{g.label[toLoc(locale)]}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="row-actions" style={{ marginTop: 12 }}>
+                    <button className="btn ghost sm" onClick={() => setEditGoals(false)}>{t("home.cancel")}</button>
+                    <button className="btn primary sm" onClick={saveGoals}>{t("home.saveGoals")}</button>
+                  </div>
+                </div>
+              )}
               <ol className="roadmap">
                 {roadmap.steps.map((st, i) => {
                   const inst = getInstrument(st.instrumentId);

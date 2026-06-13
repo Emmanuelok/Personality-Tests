@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { buildRoadmap } from "@core/roadmap";
+import { GOALS, toLoc, type Loc } from "./goals";
 import { useI18n } from "../i18n";
 
 /**
@@ -10,17 +11,7 @@ import { useI18n } from "../i18n";
  * feels built around them. Localized in place (en/es/fr).
  */
 
-type Loc = "en" | "es" | "fr";
-const lc = (l: string): Loc => (l === "es" || l === "fr" ? l : "en");
-
-const GOALS: { key: string; label: Record<Loc, string>; icon: string }[] = [
-  { key: "self", icon: "🧭", label: { en: "Understand myself", es: "Comprenderme", fr: "Me comprendre" } },
-  { key: "grow", icon: "🌱", label: { en: "Grow & improve", es: "Crecer y mejorar", fr: "Grandir et progresser" } },
-  { key: "relationships", icon: "💞", label: { en: "Better relationships", es: "Mejores relaciones", fr: "Meilleures relations" } },
-  { key: "career", icon: "💼", label: { en: "Career & work", es: "Carrera y trabajo", fr: "Carrière et travail" } },
-  { key: "wellbeing", icon: "🫀", label: { en: "Emotional wellbeing", es: "Bienestar emocional", fr: "Bien-être émotionnel" } },
-  { key: "curious", icon: "✨", label: { en: "Just curious", es: "Solo curiosidad", fr: "Juste curieux" } },
-];
+const lc = toLoc;
 
 const S: Record<Loc, Record<string, string>> = {
   en: {
