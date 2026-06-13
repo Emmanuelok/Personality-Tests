@@ -56,6 +56,7 @@ export type StringKey =
   | "jr.eyebrow" | "jr.title" | "jr.sub" | "jr.howChanged" | "jr.takes" | "jr.trackTitle" | "jr.trackBody" | "jr.retakeCta"
   | "jr.cognitive" | "jr.viewBattery" | "jr.timeline" | "jr.timelineEmpty" | "jr.backupTitle" | "jr.backupBody"
   | "jr.genCode" | "jr.copy" | "jr.copied" | "jr.pastePh" | "jr.restore" | "jr.restored" | "jr.invalidCode" | "jr.calib" | "jr.takeRetake"
+  | "nav.settings" | "set.title" | "set.name" | "set.save" | "set.appearance" | "set.language" | "set.danger" | "set.reset" | "set.resetConfirm" | "set.privacy"
   | "intro.forYou" | "report.nextLede" | "intro.assessment" | "report.community" | "report.communityLede"
   // Home marketing & catalog chrome
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
@@ -176,6 +177,10 @@ const en: Dict = {
   "jr.restored": "Restored! Your data has been loaded.", "jr.invalidCode": "That code didn't look valid — check you copied all of it.",
   "jr.calib": "Help calibrate percentiles. When on, completing a test anonymously contributes a coarse score band (no answers, no identity) so everyone's percentiles get more accurate. Off by default.",
   "jr.takeRetake": "＋ Take or retake an assessment",
+  "nav.settings": "Settings", "set.title": "Your space", "set.name": "Your name", "set.save": "Save",
+  "set.appearance": "Appearance", "set.language": "Language", "set.danger": "Reset everything",
+  "set.reset": "Erase my data…", "set.resetConfirm": "Yes, erase everything",
+  "set.privacy": "🔒 Everything lives on this device. Resetting permanently erases your results, goals, and journey from this browser.",
   "intro.forYou": "Why this is for you",
   "report.nextLede": "Chosen for you, based on what this result just revealed.",
   "intro.assessment": "Assessment",
@@ -328,6 +333,10 @@ const es: Dict = {
   "jr.restored": "¡Restaurado! Tus datos se han cargado.", "jr.invalidCode": "Ese código no parece válido: comprueba que lo copiaste completo.",
   "jr.calib": "Ayuda a calibrar los percentiles. Si está activo, completar una prueba contribuye de forma anónima con una banda aproximada (sin respuestas ni identidad) para que los percentiles de todos sean más precisos. Desactivado por defecto.",
   "jr.takeRetake": "＋ Hacer o repetir una evaluación",
+  "nav.settings": "Ajustes", "set.title": "Tu espacio", "set.name": "Tu nombre", "set.save": "Guardar",
+  "set.appearance": "Apariencia", "set.language": "Idioma", "set.danger": "Restablecer todo",
+  "set.reset": "Borrar mis datos…", "set.resetConfirm": "Sí, borrar todo",
+  "set.privacy": "🔒 Todo vive en este dispositivo. Restablecer borra de forma permanente tus resultados, metas y camino de este navegador.",
   "intro.forYou": "Por qué es para ti",
   "report.nextLede": "Elegidas para ti, según lo que este resultado acaba de revelar.",
   "intro.assessment": "Evaluación",
@@ -480,6 +489,10 @@ const fr: Dict = {
   "jr.restored": "Restauré ! Vos données ont été chargées.", "jr.invalidCode": "Ce code ne semble pas valide — vérifiez que vous l'avez copié en entier.",
   "jr.calib": "Aidez à calibrer les centiles. Activé, terminer un test contribue anonymement une tranche de score approximative (sans réponses ni identité) pour que les centiles de tous gagnent en précision. Désactivé par défaut.",
   "jr.takeRetake": "＋ Faire ou repasser une évaluation",
+  "nav.settings": "Réglages", "set.title": "Votre espace", "set.name": "Votre nom", "set.save": "Enregistrer",
+  "set.appearance": "Apparence", "set.language": "Langue", "set.danger": "Tout réinitialiser",
+  "set.reset": "Effacer mes données…", "set.resetConfirm": "Oui, tout effacer",
+  "set.privacy": "🔒 Tout vit sur cet appareil. Réinitialiser efface définitivement vos résultats, objectifs et parcours de ce navigateur.",
   "intro.forYou": "Pourquoi c'est pour vous",
   "report.nextLede": "Choisis pour vous, d'après ce que ce résultat vient de révéler.",
   "intro.assessment": "Évaluation",

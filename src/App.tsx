@@ -10,6 +10,7 @@ import { adaptivePack } from "@core/starter";
 import { Home } from "./ui/Home";
 import { Onboarding } from "./ui/Onboarding";
 import { CoachDock } from "./ui/CoachDock";
+import { Settings } from "./ui/Settings";
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
@@ -56,6 +57,7 @@ import {
   loadProfile,
   recordCognitive,
   recordResult,
+  resetProfile,
   saveProfile,
   touchStreak,
   type Profile,
@@ -70,6 +72,7 @@ export default function App() {
   const { t, locale } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
   const [skipOnb, setSkipOnb] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -398,6 +401,24 @@ export default function App() {
     });
   };
 
+  const saveName = (nm: string) => {
+    setProfile((p) => {
+      if (!p) return p;
+      const next = { ...p, name: nm.slice(0, 40) || "Friend" };
+      saveProfile(next);
+      return next;
+    });
+  };
+
+  const resetAll = () => {
+    resetProfile();
+    setProfile(null);
+    setSettingsOpen(false);
+    setSkipOnb(false);
+    setView("home");
+    top();
+  };
+
   const startPack = (ids: string[]) => {
     const first = ids[0] && getInstrument(ids[0]);
     if (!first) return;
@@ -490,6 +511,7 @@ export default function App() {
               <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>{t("nav.compatibility")}</button>
               <LanguageSwitcher />
               <ThemeToggle locale={locale} />
+              {profile && <button className="theme-toggle" onClick={() => setSettingsOpen(true)} title={t("nav.settings")} aria-label={t("nav.settings")}>⚙</button>}
             </nav>
           </div>
         </header>
@@ -610,6 +632,10 @@ export default function App() {
 
       {["home", "integrated", "growth", "compatibility", "battery"].includes(view) && (
         <CoachDock entries={entries} name={name} />
+      )}
+
+      {settingsOpen && profile && (
+        <Settings profile={profile} onSaveName={saveName} onReset={resetAll} onClose={() => setSettingsOpen(false)} />
       )}
     </>
   );
