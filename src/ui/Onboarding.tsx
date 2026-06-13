@@ -58,12 +58,13 @@ export function Onboarding({ onDone, onSkip }: { onDone: (name: string, focus: s
   const finish = () => onDone(name.trim() || "", labels);
 
   return (
-    <div className="container">
+    <div className="onb-screen">
+      <div className="onb-aura" aria-hidden="true" />
       <div className="onb view-enter">
+        <div className="onb-mark" aria-hidden="true">🧭</div>
         <div className="onb-progress" aria-hidden="true">
           {[0, 1, 2].map((i) => <span key={i} className={i <= step ? "on" : ""} />)}
         </div>
-        <div className="onb-step-label">{s.step.replace("{i}", String(step + 1))}</div>
 
         {step === 0 && (
           <>

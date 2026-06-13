@@ -414,12 +414,18 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 @keyframes radarIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* Onboarding */
-.onb { max-width: 640px; margin: 6vh auto 0; text-align: center; }
+.onb-screen { min-height: 100svh; display: grid; place-items: center; padding: 44px 20px; position: relative; overflow: hidden; }
+.onb-aura { position: absolute; inset: -30% 0 auto 0; height: 60vh; pointer-events: none; z-index: 0;
+  background: radial-gradient(60% 80% at 50% 0%, rgba(199,154,62,0.18), transparent 70%), radial-gradient(50% 70% at 80% 10%, rgba(39,119,111,0.10), transparent 70%); filter: blur(6px); }
+.onb-mark { font-size: 34px; line-height: 1; margin-bottom: 8px; filter: saturate(1.15); }
+.onb { position: relative; z-index: 1; width: 100%; max-width: 580px; margin: 0; text-align: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+  padding: clamp(30px, 5vw, 50px) clamp(22px, 5vw, 48px); box-shadow: 0 30px 70px -36px rgba(43,36,24,0.55); }
 .onb h1 { font-size: clamp(30px, 6vw, 46px); letter-spacing: -1px; margin: 14px 0 10px; }
 .onb h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .onb p.sub { color: var(--text-dim); font-size: 17px; margin-bottom: 26px; }
 .name-input { width: 100%; font-size: 22px; text-align: center; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); transition: 0.18s; }
-.name-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139,123,255,0.15); }
+.name-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(154,123,46,0.18); }
 .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 16px 0 26px; }
 .chip-toggle { cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-dim); padding: 10px 16px; border-radius: 999px; font: inherit; font-size: 14px; transition: 0.15s; }
 .chip-toggle:hover { border-color: var(--accent); }
