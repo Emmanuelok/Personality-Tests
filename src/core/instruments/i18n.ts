@@ -2080,6 +2080,40 @@ const CHRONO_FR: InstrumentTranslation = {
     M5: "J'atteins mon rythme le soir et la nuit.", M6: "Je préférerais de loin veiller tard plutôt que devoir me lever tôt.", M7: "Les matins sont durs pour moi — il me faut des heures pour me sentir pleinement humain(e).", M8: "Mon énergie et ma créativité culminent après la tombée de la nuit.",
   },
 };
+const FOURTEMP_ES: InstrumentTranslation = {
+  name: "Los Cuatro Temperamentos", shortName: "Temperamentos",
+  tagline: "El mapa clásico: sanguíneo, colérico, melancólico, flemático.",
+  description: "Uno de los modelos más antiguos de la personalidad, los cuatro temperamentos —sanguíneo (vivaz), colérico (decidido), melancólico (profundo) y flemático (tranquilo)— siguen siendo una forma vívida e intuitiva de entenderte. Este perfilador encuentra tu temperamento principal y el secundario que lo matiza.",
+  scales: {
+    SANG: { name: "Sanguíneo", description: "Sociable, entusiasta, vivaz, espontáneo.", poles: { low: "Reservado", high: "Vivaz" }, highDescriptor: "extrovertido/a, entusiasta y amante de la diversión", lowDescriptor: "más reservado/a que sociable" },
+    CHOL: { name: "Colérico", description: "Decidido, resolutivo, ambicioso, fogoso.", poles: { low: "Apacible", high: "Decidido" }, highDescriptor: "ambicioso/a, resolutivo/a y audaz", lowDescriptor: "menos inclinado/a a liderar y empujar" },
+    MEL: { name: "Melancólico", description: "Analítico, profundo, sensible, perfeccionista.", poles: { low: "Ligero", high: "Profundo" }, highDescriptor: "reflexivo/a, de sentir profundo y preciso/a", lowDescriptor: "menos inclinado/a al análisis profundo y la intensidad" },
+    PHLEG: { name: "Flemático", description: "Tranquilo, apacible, leal, pacífico.", poles: { low: "Inquieto", high: "Tranquilo" }, highDescriptor: "tranquilo/a, paciente y estable", lowDescriptor: "menos plácido/a, más inquieto/a" },
+  },
+  items: {
+    SA1: "Soy extrovertido/a, hablador/a y me encanta estar rodeado/a de gente.", SA2: "Soy entusiasta y aporto energía y diversión allá donde voy.", SA3: "Actúo por impulso y persigo lo que me emociona en el momento.", SA4: "Hago amigos con facilidad y rara vez me topo con un extraño.",
+    CH1: "Soy decidido/a, resolutivo/a y me gusta estar al mando.", CH2: "Me fijo grandes metas y me esfuerzo mucho por lograrlas.", CH3: "Soy directo/a y no temo la confrontación.", CH4: "Me impaciento cuando las cosas o las personas van demasiado lento.",
+    ME1: "Soy analítico/a y pienso a fondo antes de actuar.", ME2: "Mantengo estándares altos y noto cada fallo y detalle.", ME3: "Siento las cosas con intensidad y puedo emocionarme con fuerza.", ME4: "Prefiero la planificación cuidadosa y el orden a la espontaneidad.",
+    PH1: "Soy tranquilo/a, estable y difícil de alterar.", PH2: "Soy de trato fácil y me amoldo para mantener la paz.", PH3: "Soy paciente, leal y de fiar.", PH4: "Prefiero una vida tranquila y predecible al drama y el cambio.",
+  },
+};
+const FOURTEMP_FR: InstrumentTranslation = {
+  name: "Les Quatre Tempéraments", shortName: "Tempéraments",
+  tagline: "La carte classique : sanguin, colérique, mélancolique, flegmatique.",
+  description: "L'un des plus anciens modèles de la personnalité, les quatre tempéraments — sanguin (vif), colérique (déterminé), mélancolique (profond) et flegmatique (calme) — restent une façon vivante et intuitive de se comprendre. Ce profileur trouve votre tempérament dominant et le secondaire qui le nuance.",
+  scales: {
+    SANG: { name: "Sanguin", description: "Sociable, enthousiaste, vif, spontané.", poles: { low: "Réservé", high: "Vif" }, highDescriptor: "sociable, enthousiaste et amateur(trice) de plaisir", lowDescriptor: "plus réservé(e) que sociable" },
+    CHOL: { name: "Colérique", description: "Déterminé, décidé, ambitieux, fougueux.", poles: { low: "Accommodant", high: "Déterminé" }, highDescriptor: "ambitieux(se), décidé(e) et audacieux(se)", lowDescriptor: "moins porté(e) à diriger et à pousser" },
+    MEL: { name: "Mélancolique", description: "Analytique, profond, sensible, perfectionniste.", poles: { low: "Léger", high: "Profond" }, highDescriptor: "réfléchi(e), au ressenti profond et précis(e)", lowDescriptor: "moins porté(e) à l'analyse profonde et à l'intensité" },
+    PHLEG: { name: "Flegmatique", description: "Calme, accommodant, loyal, paisible.", poles: { low: "Agité", high: "Calme" }, highDescriptor: "calme, patient(e) et stable", lowDescriptor: "moins placide, plus agité(e)" },
+  },
+  items: {
+    SA1: "Je suis sociable, bavard(e) et j'adore être entouré(e).", SA2: "Je suis enthousiaste et j'apporte énergie et plaisir partout où je vais.", SA3: "J'agis sur un coup de tête et je poursuis ce qui m'excite sur le moment.", SA4: "Je me fais des amis facilement et je ne rencontre presque jamais d'inconnu.",
+    CH1: "Je suis déterminé(e), décidé(e) et j'aime être aux commandes.", CH2: "Je me fixe de grands objectifs et je travaille dur pour les atteindre.", CH3: "Je suis direct(e) et je ne crains pas la confrontation.", CH4: "Je m'impatiente quand les choses ou les gens vont trop lentement.",
+    ME1: "Je suis analytique et je réfléchis à fond avant d'agir.", ME2: "Je tiens des standards élevés et je remarque chaque défaut et détail.", ME3: "Je ressens les choses profondément et je peux être saisi(e) d'une forte émotion.", ME4: "Je préfère la planification soignée et l'ordre à la spontanéité.",
+    PH1: "Je suis calme, stable et difficile à ébranler.", PH2: "Je suis accommodant(e) et je m'adapte pour préserver la paix.", PH3: "Je suis patient(e), loyal(e) et fiable.", PH4: "Je préfère une vie tranquille et prévisible au drame et au changement.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2096,7 +2130,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
-    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES,
+    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2112,7 +2146,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
-    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR,
+    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR,
   },
 };
 
@@ -2507,6 +2541,39 @@ const CHRONO_TYPE_FR: ChronotypeTypeBundle = {
 };
 export function chronotypeTypeStrings(locale?: string): ChronotypeTypeBundle | undefined {
   return locale === "es" ? CHRONO_TYPE_ES : locale === "fr" ? CHRONO_TYPE_FR : undefined;
+}
+
+/* ── Four Temperaments (typological; type card localized separately) ── */
+export interface FourTempTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { primary: string; secondary: string; blend: string; order: string };
+  strong: (name: string) => string;
+  blendSummary: (summary: string, a: string, b: string) => string;
+}
+const FOURTEMP_TYPE_ES: FourTempTypeBundle = {
+  meta: {
+    SANG: { name: "Sanguíneo", title: "La Chispa", desc: "sociable, vivaz, optimista", summary: "Cálido/a, entusiasta y amante de la gente: aportas energía y diversión, y vives el momento." },
+    CHOL: { name: "Colérico", title: "El Impulsor", desc: "ambicioso, decidido, audaz", summary: "Decidido/a, resolutivo/a y líder por naturaleza: te fijas grandes metas y vas a por ellas." },
+    MEL: { name: "Melancólico", title: "El Pensador Profundo", desc: "analítico, sensible, preciso", summary: "Reflexivo/a, profundo/a y atento/a al detalle: sientes con intensidad y mantienes estándares altos." },
+    PHLEG: { name: "Flemático", title: "El Estable", desc: "tranquilo, leal, pacífico", summary: "Tranquilo/a, paciente y fiable: mantienes la paz y aportas una estabilidad serena." },
+  },
+  labels: { primary: "Temperamento principal", secondary: "Temperamento secundario", blend: "Mezcla", order: "Orden completo" },
+  strong: (name) => `${name} marcado`,
+  blendSummary: (summary, a, b) => `${summary} Eres una clara mezcla ${a}–${b}.`,
+};
+const FOURTEMP_TYPE_FR: FourTempTypeBundle = {
+  meta: {
+    SANG: { name: "Sanguin", title: "L'Étincelle", desc: "sociable, vif, optimiste", summary: "Chaleureux(se), enthousiaste et tourné(e) vers les autres : vous apportez énergie et plaisir, et vivez l'instant." },
+    CHOL: { name: "Colérique", title: "Le Meneur", desc: "ambitieux, décidé, audacieux", summary: "Déterminé(e), décidé(e) et meneur(se) né(e) : vous visez grand et foncez." },
+    MEL: { name: "Mélancolique", title: "Le Penseur Profond", desc: "analytique, sensible, précis", summary: "Réfléchi(e), profond(e) et attentif(ve) au détail : vous ressentez intensément et tenez des standards élevés." },
+    PHLEG: { name: "Flegmatique", title: "Le Stable", desc: "calme, loyal, paisible", summary: "Calme, patient(e) et fiable : vous préservez la paix et offrez une stabilité tranquille." },
+  },
+  labels: { primary: "Tempérament principal", secondary: "Tempérament secondaire", blend: "Mélange", order: "Ordre complet" },
+  strong: (name) => `${name} marqué`,
+  blendSummary: (summary, a, b) => `${summary} Vous êtes un mélange ${a}–${b} net.`,
+};
+export function fourTempTypeStrings(locale?: string): FourTempTypeBundle | undefined {
+  return locale === "es" ? FOURTEMP_TYPE_ES : locale === "fr" ? FOURTEMP_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

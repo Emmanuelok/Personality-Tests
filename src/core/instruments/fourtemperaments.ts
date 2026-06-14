@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { fourTempTypeStrings, type FourTempTypeBundle } from "./i18n";
 
 /**
  * The Four Temperaments — the classical model (Hippocrates / Galen) of Sanguine,
@@ -33,33 +34,44 @@ const items: Item[] = [
   it("PH4", "I prefer a quiet, predictable life to drama and change.", "PHLEG"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  SANG: { name: "Sanguine", title: "The Spark", desc: "sociable, lively, optimistic", summary: "Warm, enthusiastic, and people-loving — you bring energy and fun, and live in the moment." },
-  CHOL: { name: "Choleric", title: "The Driver", desc: "ambitious, decisive, bold", summary: "Driven, decisive, and natural at leading — you set big goals and charge after them." },
-  MEL: { name: "Melancholic", title: "The Deep Thinker", desc: "analytical, sensitive, precise", summary: "Thoughtful, deep, and detail-oriented — you feel intensely and hold high standards." },
-  PHLEG: { name: "Phlegmatic", title: "The Steady", desc: "calm, loyal, peaceful", summary: "Calm, patient, and dependable — you keep the peace and provide quiet stability." },
+/** Canonical, language-agnostic temperament codes (the English names). */
+const CODE_EN: Record<string, string> = { SANG: "Sanguine", CHOL: "Choleric", MEL: "Melancholic", PHLEG: "Phlegmatic" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (fourTempTypeStrings). */
+const FOURTEMP_TYPE_EN: FourTempTypeBundle = {
+  meta: {
+    SANG: { name: "Sanguine", title: "The Spark", desc: "sociable, lively, optimistic", summary: "Warm, enthusiastic, and people-loving — you bring energy and fun, and live in the moment." },
+    CHOL: { name: "Choleric", title: "The Driver", desc: "ambitious, decisive, bold", summary: "Driven, decisive, and natural at leading — you set big goals and charge after them." },
+    MEL: { name: "Melancholic", title: "The Deep Thinker", desc: "analytical, sensitive, precise", summary: "Thoughtful, deep, and detail-oriented — you feel intensely and hold high standards." },
+    PHLEG: { name: "Phlegmatic", title: "The Steady", desc: "calm, loyal, peaceful", summary: "Calm, patient, and dependable — you keep the peace and provide quiet stability." },
+  },
+  labels: { primary: "Primary temperament", secondary: "Secondary temperament", blend: "Blend", order: "Full order" },
+  strong: (name) => `Strong ${name}`,
+  blendSummary: (summary, a, b) => `${summary} You're a clear ${a}–${b} blend.`,
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = fourTempTypeStrings(locale) ?? FOURTEMP_TYPE_EN;
   const ids = ["SANG", "CHOL", "MEL", "PHLEG"];
   const sorted = ids.map((id) => ({ id, mean: s[id].mean })).sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const second = sorted[1];
   const sep = top.mean - second.mean;
   const blended = sep < 0.4;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
+  const sName = T.meta[second.id].name;
   return {
-    code: blended ? `${meta.name}-${META[second.id].name}` : meta.name,
+    code: blended ? `${CODE_EN[top.id]}-${CODE_EN[second.id]}` : CODE_EN[top.id],
     title: meta.title,
-    summary: blended ? `${meta.summary} You're a clear ${meta.name}–${META[second.id].name} blend.` : meta.summary,
+    summary: blended ? T.blendSummary(meta.summary, meta.name, sName) : meta.summary,
     components: [
-      { label: "Primary temperament", value: meta.name, detail: meta.desc },
-      { label: "Secondary temperament", value: META[second.id].name, detail: META[second.id].desc },
-      { label: "Blend", value: blended ? `${meta.name}-${META[second.id].name}` : `Strong ${meta.name}` },
-      { label: "Full order", value: sorted.map((x) => META[x.id].name).join(" › ") },
+      { label: T.labels.primary, value: meta.name, detail: meta.desc },
+      { label: T.labels.secondary, value: sName, detail: T.meta[second.id].desc },
+      { label: T.labels.blend, value: blended ? `${meta.name}-${sName}` : T.strong(meta.name) },
+      { label: T.labels.order, value: sorted.map((x) => T.meta[x.id].name).join(" › ") },
     ],
     confidence: Math.max(0.2, Math.min(0.98, 0.5 + sep)),
-    secondary: META[second.id].name,
+    secondary: sName,
   };
 }
 
