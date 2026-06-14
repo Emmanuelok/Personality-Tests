@@ -11,6 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage } from "./collab";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -949,6 +950,47 @@ describe("response-style analysis", () => {
     expect(en.flags).toHaveLength(0);
     expect(en.summary).toBeTruthy();
     expect(fr.summary).not.toBe(en.summary);
+  });
+});
+
+describe("Study Together collaboration", () => {
+  const room = () => createRoom({ title: "Big Five study group", plan: ["big-five-ipip50", "hexaco-24", "jung-16-types"], host: "Ada" });
+
+  it("round-trips a room through an invite link", () => {
+    const r = room();
+    const link = roomLink(r, "https://psyche.example/app");
+    expect(link).toContain("?study=");
+    const back = decodeRoom(link);
+    expect(back).toBeTruthy();
+    expect(back!.title).toBe(r.title);
+    expect(back!.plan).toEqual(r.plan);
+    expect(back!.host).toBe("Ada");
+  });
+
+  it("round-trips a raw encoded room and rejects junk", () => {
+    expect(decodeRoom(encodeRoom(room()))?.plan).toHaveLength(3);
+    expect(decodeRoom("not-a-real-code")).toBeNull();
+  });
+
+  it("round-trips member progress codes", () => {
+    const back = decodeProgress(encodeProgress({ name: "Béa", done: ["big-five-ipip50"], at: "2026-06-14" }));
+    expect(back?.name).toBe("Béa");
+    expect(back?.done).toEqual(["big-five-ipip50"]);
+  });
+
+  it("computes standings and per-step coverage", () => {
+    const r = room();
+    const members = [
+      { name: "Ada", done: ["big-five-ipip50", "hexaco-24"], at: "x" },
+      { name: "Bo", done: ["big-five-ipip50"], at: "y" },
+    ];
+    const st = roomStandings(r, members);
+    expect(st[0].name).toBe("Ada");
+    expect(st[0].pct).toBe(67);
+    expect(st[1].pct).toBe(33);
+    const cov = planCoverage(r, members);
+    expect(cov.find((c) => c.instrumentId === "big-five-ipip50")!.doneBy.sort()).toEqual(["Ada", "Bo"]);
+    expect(cov.find((c) => c.instrumentId === "jung-16-types")!.doneBy).toEqual([]);
   });
 });
 
