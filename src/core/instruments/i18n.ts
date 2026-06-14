@@ -1474,6 +1474,64 @@ const MORAL_FR: InstrumentTranslation = {
     SANCT1: "Certaines choses sont sacrées et ne devraient jamais être violées.", SANCT2: "Je me soucie de savoir si les actions sont décentes et pures plutôt que dégradantes.", SANCT3: "Les gens devraient maintenir certaines normes de décence et d'autodiscipline.",
   },
 };
+const BFAS_ES: InstrumentTranslation = {
+  name: "Aspectos de los Cinco Grandes", shortName: "BFAS",
+  tagline: "Diez aspectos: la capa de detalle entre los Cinco Grandes y sus facetas.",
+  description: "Cada dominio de los Cinco Grandes contiene en realidad dos 'aspectos' distintos; por ejemplo, la responsabilidad se divide en laboriosidad y orden, y el neuroticismo en volatilidad y retraimiento. Este perfilador mide los diez, dándote una lectura más nítida y accionable que los cinco dominios amplios por sí solos, y mostrando dónde dos caras del mismo rasgo tiran en direcciones distintas.",
+  scales: {
+    INT: { name: "Intelecto", description: "Implicación con las ideas y el razonamiento (aspecto de la apertura).", poles: { low: "Concreto", high: "Intelectual" }, highDescriptor: "movido/a por las ideas y ágil con lo abstracto", lowDescriptor: "práctico/a y poco interesado/a en la abstracción" },
+    AES: { name: "Apertura", description: "Sensibilidad estética e imaginación (aspecto de la apertura).", poles: { low: "Convencional", high: "Imaginativo" }, highDescriptor: "imaginativo/a y conmovido/a por la belleza", lowDescriptor: "con los pies en la tierra y literal" },
+    IND: { name: "Laboriosidad", description: "Impulso por trabajar y lograr (aspecto de la responsabilidad).", poles: { low: "Despreocupado", high: "Tenaz" }, highDescriptor: "trabajador/a y persistente", lowDescriptor: "relajado/a y fácil de distraer" },
+    ORD: { name: "Orden", description: "Necesidad de orden y rutina (aspecto de la responsabilidad).", poles: { low: "Flexible", high: "Ordenado" }, highDescriptor: "ordenado/a, planificado/a y estructurado/a", lowDescriptor: "suelto/a, espontáneo/a y desordenado/a" },
+    ENT: { name: "Entusiasmo", description: "Sociabilidad y emoción positiva (aspecto de la extraversión).", poles: { low: "Reservado", high: "Entusiasta" }, highDescriptor: "cálido/a, extrovertido/a y alegre", lowDescriptor: "callado/a y emocionalmente contenido/a" },
+    ASR: { name: "Asertividad", description: "Impulso por liderar e influir (aspecto de la extraversión).", poles: { low: "Deferente", high: "Asertivo" }, highDescriptor: "enérgico/a, con iniciativa y visible", lowDescriptor: "modesto/a y entre bastidores" },
+    COM: { name: "Compasión", description: "Preocupación emocional por los demás (aspecto de la amabilidad).", poles: { low: "Distante", high: "Compasivo" }, highDescriptor: "empático/a y afectuoso/a", lowDescriptor: "frío/a y emocionalmente al margen" },
+    POL: { name: "Cortesía", description: "Respeto por los demás y contención (aspecto de la amabilidad).", poles: { low: "Confrontador", high: "Cortés" }, highDescriptor: "deferente y poco confrontador/a", lowDescriptor: "directo/a, retador/a e insistente" },
+    VOL: { name: "Volatilidad", description: "Irritabilidad y vaivenes emocionales (aspecto del neuroticismo).", poles: { low: "Sereno", high: "Volátil" }, highDescriptor: "fácil de alterar y rápido/a para enfadarse", lowDescriptor: "tranquilo/a y lento/a para enfadarse" },
+    WTH: { name: "Retraimiento", description: "Ansiedad y ánimo bajo (aspecto del neuroticismo).", poles: { low: "Resiliente", high: "Retraído" }, highDescriptor: "propenso/a a la preocupación y al ánimo bajo", lowDescriptor: "estable, esperanzado/a y difícil de desanimar" },
+  },
+  items: {
+    INT1: "Capto rápidamente ideas abstractas o complejas.", INT2: "Evito las discusiones difíciles o filosóficas.",
+    AES1: "Me conmueven profundamente el arte, la música o la belleza natural.", AES2: "Rara vez me pierdo en la imaginación o la fantasía.",
+    IND1: "Me exijo para sacar las cosas adelante y terminar lo que empiezo.", IND2: "A menudo aplazo tareas y me cuesta llevarlas a cabo.",
+    ORD1: "Me gusta mantener las cosas ordenadas, planificadas y organizadas.", ORD2: "Tiendo a dejar mis cosas hechas un desastre.",
+    ENT1: "Soy alegre y hago amigos con facilidad.", ENT2: "Rara vez me siento efusivo/a o emocionado/a.",
+    ASR1: "Tomo la iniciativa y alzo la voz en los grupos.", ASR2: "Me contengo a la hora de liderar o hacerme valer.",
+    COM1: "Siento las emociones de los demás y me importa su bienestar.", COM2: "Los problemas de los demás no me afectan demasiado.",
+    POL1: "Evito pasar por encima de los demás y respeto sus deseos.", POL2: "Puedo ser confrontador/a o insistente.",
+    VOL1: "Me irrito o me altero con facilidad.", VOL2: "Mantengo la calma incluso cuando me provocan.",
+    WTH1: "A menudo me siento ansioso/a, decaído/a o desanimado/a.", WTH2: "Rara vez me siento triste o desbordado/a.",
+  },
+};
+const BFAS_FR: InstrumentTranslation = {
+  name: "Aspects des Big Five", shortName: "BFAS",
+  tagline: "Dix aspects — le niveau de détail entre les Big Five et leurs facettes.",
+  description: "Chaque domaine des Big Five contient en réalité deux « aspects » distincts — par exemple, la conscience se divise en assiduité et ordre, et le névrosisme en volatilité et retrait. Ce profileur mesure les dix, offrant une lecture plus nette et plus actionnable que les cinq grands domaines seuls — et montrant où les deux faces d'un même trait tirent dans des directions opposées.",
+  scales: {
+    INT: { name: "Intellect", description: "Rapport aux idées et au raisonnement (aspect de l'ouverture).", poles: { low: "Concret", high: "Intellectuel" }, highDescriptor: "porté(e) par les idées et vif(ve) avec l'abstrait", lowDescriptor: "pratique et peu intéressé(e) par l'abstraction" },
+    AES: { name: "Ouverture", description: "Sensibilité esthétique et imagination (aspect de l'ouverture).", poles: { low: "Conventionnel", high: "Imaginatif" }, highDescriptor: "imaginatif(ve) et touché(e) par la beauté", lowDescriptor: "terre-à-terre et littéral(e)" },
+    IND: { name: "Assiduité", description: "Élan au travail et à la réussite (aspect de la conscience).", poles: { low: "Décontracté", high: "Acharné" }, highDescriptor: "travailleur(se) et persévérant(e)", lowDescriptor: "détendu(e) et facilement distrait(e)" },
+    ORD: { name: "Ordre", description: "Besoin d'ordre et de routine (aspect de la conscience).", poles: { low: "Flexible", high: "Ordonné" }, highDescriptor: "ordonné(e), planifié(e) et structuré(e)", lowDescriptor: "relâché(e), spontané(e) et désordonné(e)" },
+    ENT: { name: "Enthousiasme", description: "Sociabilité et émotion positive (aspect de l'extraversion).", poles: { low: "Réservé", high: "Enthousiaste" }, highDescriptor: "chaleureux(se), sociable et enjoué(e)", lowDescriptor: "discret(ète) et émotionnellement contenu(e)" },
+    ASR: { name: "Assertivité", description: "Élan à diriger et à influencer (aspect de l'extraversion).", poles: { low: "Effacé", high: "Affirmé" }, highDescriptor: "énergique, prenant les devants et visible", lowDescriptor: "modeste et en coulisses" },
+    COM: { name: "Compassion", description: "Souci émotionnel d'autrui (aspect de l'agréabilité).", poles: { low: "Détaché", high: "Compatissant" }, highDescriptor: "empathique et attentionné(e)", lowDescriptor: "froid(e) et émotionnellement à l'écart" },
+    POL: { name: "Politesse", description: "Respect d'autrui et retenue (aspect de l'agréabilité).", poles: { low: "Frondeur", high: "Poli" }, highDescriptor: "déférent(e) et peu conflictuel(le)", lowDescriptor: "direct(e), provocateur(trice) et insistant(e)" },
+    VOL: { name: "Volatilité", description: "Irritabilité et sautes d'humeur (aspect du névrosisme).", poles: { low: "Posé", high: "Volatil" }, highDescriptor: "facilement contrarié(e) et prompt(e) à la colère", lowDescriptor: "calme et lent(e) à la colère" },
+    WTH: { name: "Retrait", description: "Anxiété et humeur basse (aspect du névrosisme).", poles: { low: "Résilient", high: "En retrait" }, highDescriptor: "enclin(e) à l'inquiétude et à l'humeur basse", lowDescriptor: "stable, optimiste et difficile à décourager" },
+  },
+  items: {
+    INT1: "Je saisis rapidement les idées abstraites ou complexes.", INT2: "J'évite les discussions difficiles ou philosophiques.",
+    AES1: "Je suis profondément ému(e) par l'art, la musique ou la beauté de la nature.", AES2: "Je me perds rarement dans l'imagination ou la fantaisie.",
+    IND1: "Je me pousse à avancer et à terminer ce que je commence.", IND2: "Je remets souvent les tâches à plus tard et j'ai du mal à les mener à bien.",
+    ORD1: "J'aime garder les choses rangées, planifiées et organisées.", ORD2: "J'ai tendance à laisser mes affaires en désordre.",
+    ENT1: "Je suis enjoué(e) et je me fais des amis facilement.", ENT2: "Je me sens rarement pétillant(e) ou excité(e).",
+    ASR1: "Je prends les choses en main et je m'exprime dans les groupes.", ASR2: "Je me retiens de diriger ou de m'imposer.",
+    COM1: "Je ressens les émotions des autres et je me soucie de leur bien-être.", COM2: "Les problèmes des autres ne m'affectent pas beaucoup.",
+    POL1: "J'évite de marcher sur les autres et je respecte leurs souhaits.", POL2: "Je peux être conflictuel(le) ou insistant(e).",
+    VOL1: "Je m'irrite ou me contrarie facilement.", VOL2: "Je garde mon calme même quand on me provoque.",
+    WTH1: "Je me sens souvent anxieux(se), abattu(e) ou découragé(e).", WTH2: "Je me sens rarement triste ou débordé(e).",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1488,6 +1546,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES, "sensation-seeking": SENSATION_ES,
     "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
+    "big-five-aspects": BFAS_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1501,6 +1560,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR, "sensation-seeking": SENSATION_FR,
     "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
+    "big-five-aspects": BFAS_FR,
   },
 };
 
