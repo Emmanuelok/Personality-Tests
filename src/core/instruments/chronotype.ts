@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { chronotypeTypeStrings, type ChronotypeTypeBundle } from "./i18n";
 
 /**
  * Chronotype (Morningness–Eveningness) — your body's natural timing for energy,
@@ -21,37 +22,31 @@ const items: Item[] = [
   it("M8", "My energy and creativity peak after dark.", "MORN", -1),
 ];
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+/** English default; es/fr live in core/instruments/i18n.ts (chronotypeTypeStrings). */
+const CHRONO_TYPE_EN: ChronotypeTypeBundle = {
+  meta: {
+    Lark: { title: "The Early Bird (Lark)", summary: "You're wired for the morning — alert early, sharpest before noon, and ready to wind down at night.", peak: "morning (roughly 8am–noon)", best: "Protect your mornings for your hardest, most important work." },
+    Owl: { title: "The Night Owl", summary: "You're wired for the evening — slow to start, but focused and creative once the day winds down.", peak: "late afternoon to night", best: "Defend your late-day focus; avoid scheduling demanding work at 9am if you can." },
+    Hummingbird: { title: "The Hummingbird (Intermediate)", summary: "You're flexible — neither strongly morning nor evening, able to adapt your peak to your schedule.", peak: "midday, and adaptable", best: "Notice your daily energy curve and slot deep work into your real peak." },
+  },
+  labels: { chronotype: "Chronotype", peak: "Your peak hours", best: "Best move", watch: "Watch" },
+  watch: "Fighting your chronotype with stimulants and willpower works for a while, then taxes sleep, mood, and health.",
+};
+
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = chronotypeTypeStrings(locale) ?? CHRONO_TYPE_EN;
   const n = s.MORN.normalized;
-  let code: string;
-  let title: string;
-  let summary: string;
-  let peak: string;
-  if (n >= 60) {
-    code = "Lark";
-    title = "The Early Bird (Lark)";
-    summary = "You're wired for the morning — alert early, sharpest before noon, and ready to wind down at night.";
-    peak = "morning (roughly 8am–noon)";
-  } else if (n <= 40) {
-    code = "Owl";
-    title = "The Night Owl";
-    summary = "You're wired for the evening — slow to start, but focused and creative once the day winds down.";
-    peak = "late afternoon to night";
-  } else {
-    code = "Hummingbird";
-    title = "The Hummingbird (Intermediate)";
-    summary = "You're flexible — neither strongly morning nor evening, able to adapt your peak to your schedule.";
-    peak = "midday, and adaptable";
-  }
+  const code = n >= 60 ? "Lark" : n <= 40 ? "Owl" : "Hummingbird";
+  const m = T.meta[code];
   return {
     code,
-    title,
-    summary,
+    title: m.title,
+    summary: m.summary,
     components: [
-      { label: "Chronotype", value: title },
-      { label: "Your peak hours", value: peak },
-      { label: "Best move", value: code === "Lark" ? "Protect your mornings for your hardest, most important work." : code === "Owl" ? "Defend your late-day focus; avoid scheduling demanding work at 9am if you can." : "Notice your daily energy curve and slot deep work into your real peak." },
-      { label: "Watch", value: "Fighting your chronotype with stimulants and willpower works for a while, then taxes sleep, mood, and health." },
+      { label: T.labels.chronotype, value: m.title },
+      { label: T.labels.peak, value: m.peak },
+      { label: T.labels.best, value: m.best },
+      { label: T.labels.watch, value: T.watch },
     ],
     confidence: Math.max(0.3, Math.min(0.97, Math.abs(n - 50) / 50 + 0.45)),
   };

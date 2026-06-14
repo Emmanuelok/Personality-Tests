@@ -2056,6 +2056,30 @@ const VARK_FR: InstrumentTranslation = {
     Q12: ["concevant de bonnes diapositives visuelles", "la répétant à voix haute", "rédigeant un script complet", "vous entraînant debout avec des accessoires"],
   },
 };
+const CHRONO_ES: InstrumentTranslation = {
+  name: "Cronotipo (alondra o búho)", shortName: "Cronotipo",
+  tagline: "El reloj natural de tu cuerpo: cuándo estás de verdad en tu mejor momento.",
+  description: "Tu cronotipo es tu tendencia biológica hacia la matutinidad o la vespertinidad: marca cuándo estás alerta, cuándo te concentras mejor y cuándo deberías dormir. La mayoría lo combate; alinearte con él es una forma sencilla y respaldada por la investigación de sentirte más agudo/a y descansar mejor.",
+  scales: {
+    MORN: { name: "Matutinidad–Vespertinidad", description: "Dónde caen tu energía y tus horarios de sueño naturales.", poles: { low: "Búho nocturno", high: "Madrugador" }, highDescriptor: "madrugador/a, alerta y concentrado/a por la mañana", lowDescriptor: "persona vespertina, en tu mejor momento al caer la noche" },
+  },
+  items: {
+    M1: "Me despierto temprano de forma natural y me siento despejado/a poco después.", M2: "Mi pensamiento más agudo lo tengo en la primera mitad del día.", M3: "Empiezo a decaer y me entra sueño bastante pronto por la noche.", M4: "Si pudiera elegir libremente, me acostaría temprano y me levantaría temprano.",
+    M5: "Alcanzo mi mejor momento por la tarde y por la noche.", M6: "Preferiría con mucho quedarme despierto/a hasta tarde que tener que madrugar.", M7: "Las mañanas se me hacen difíciles: necesito horas para sentirme plenamente persona.", M8: "Mi energía y mi creatividad alcanzan su punto máximo al anochecer.",
+  },
+};
+const CHRONO_FR: InstrumentTranslation = {
+  name: "Chronotype (alouette ou hibou)", shortName: "Chronotype",
+  tagline: "L'horloge naturelle de votre corps — quand vous êtes vraiment au meilleur de vous-même.",
+  description: "Votre chronotype est votre tendance biologique vers le matin ou le soir : il détermine quand vous êtes alerte, quand vous vous concentrez le mieux et quand vous devriez dormir. La plupart des gens le combattent ; s'aligner sur lui est un moyen simple et étayé par la recherche de se sentir plus vif et de mieux récupérer.",
+  scales: {
+    MORN: { name: "Matinalité–Vespéralité", description: "Où se situent votre énergie et vos horaires de sommeil naturels.", poles: { low: "Couche-tard", high: "Lève-tôt" }, highDescriptor: "lève-tôt, alerte et concentré(e) le matin", lowDescriptor: "personne du soir, au meilleur de vous-même après la tombée de la nuit" },
+  },
+  items: {
+    M1: "Je me réveille tôt naturellement et je me sens alerte peu après.", M2: "Je réfléchis le plus finement dans la première moitié de la journée.", M3: "Je commence à fatiguer et à avoir sommeil assez tôt le soir.", M4: "Si je pouvais choisir librement, je me coucherais tôt et me lèverais tôt.",
+    M5: "J'atteins mon rythme le soir et la nuit.", M6: "Je préférerais de loin veiller tard plutôt que devoir me lever tôt.", M7: "Les matins sont durs pour moi — il me faut des heures pour me sentir pleinement humain(e).", M8: "Mon énergie et ma créativité culminent après la tombée de la nuit.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2072,7 +2096,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
-    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES,
+    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2088,7 +2112,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
-    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR,
+    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR,
   },
 };
 
@@ -2455,6 +2479,34 @@ const VARK_TYPE_FR: VarkTypeBundle = {
 };
 export function varkTypeStrings(locale?: string): VarkTypeBundle | undefined {
   return locale === "es" ? VARK_TYPE_ES : locale === "fr" ? VARK_TYPE_FR : undefined;
+}
+
+/* ── Chronotype (typological; type card localized separately) ── */
+export interface ChronotypeTypeBundle {
+  meta: Record<string, { title: string; summary: string; peak: string; best: string }>;
+  labels: { chronotype: string; peak: string; best: string; watch: string };
+  watch: string;
+}
+const CHRONO_TYPE_ES: ChronotypeTypeBundle = {
+  meta: {
+    Lark: { title: "El Madrugador (Alondra)", summary: "Estás hecho/a para la mañana: despierto/a temprano, más agudo/a antes del mediodía y listo/a para desconectar por la noche.", peak: "la mañana (aprox. 8–12 h)", best: "Protege tus mañanas para tu trabajo más difícil e importante." },
+    Owl: { title: "El Búho Nocturno", summary: "Estás hecho/a para la noche: arrancas despacio, pero te concentras y te vuelves creativo/a cuando el día decae.", peak: "de la tarde a la noche", best: "Defiende tu concentración de última hora; evita programar trabajo exigente a las 9 de la mañana si puedes." },
+    Hummingbird: { title: "El Colibrí (Intermedio)", summary: "Eres flexible: ni marcadamente matutino/a ni nocturno/a, capaz de adaptar tu pico a tu horario.", peak: "el mediodía, y adaptable", best: "Observa tu curva de energía diaria y coloca el trabajo profundo en tu pico real." },
+  },
+  labels: { chronotype: "Cronotipo", peak: "Tus horas pico", best: "Mejor jugada", watch: "Ojo" },
+  watch: "Pelear contra tu cronotipo a base de estimulantes y fuerza de voluntad funciona un tiempo, y luego pasa factura al sueño, el ánimo y la salud.",
+};
+const CHRONO_TYPE_FR: ChronotypeTypeBundle = {
+  meta: {
+    Lark: { title: "Le Lève-tôt (Alouette)", summary: "Vous êtes câblé(e) pour le matin : alerte tôt, le plus vif(ve) avant midi, et prêt(e) à lever le pied le soir.", peak: "le matin (environ 8 h–midi)", best: "Protégez vos matinées pour votre travail le plus difficile et le plus important." },
+    Owl: { title: "Le Couche-tard", summary: "Vous êtes câblé(e) pour le soir : lent(e) à démarrer, mais concentré(e) et créatif(ve) une fois la journée déclinante.", peak: "de la fin d'après-midi à la nuit", best: "Défendez votre concentration de fin de journée ; évitez de planifier un travail exigeant à 9 h si possible." },
+    Hummingbird: { title: "Le Colibri (Intermédiaire)", summary: "Vous êtes flexible : ni franchement du matin ni du soir, capable d'adapter votre pic à votre emploi du temps.", peak: "le milieu de journée, et adaptable", best: "Observez votre courbe d'énergie quotidienne et placez le travail de fond à votre vrai pic." },
+  },
+  labels: { chronotype: "Chronotype", peak: "Vos heures de pointe", best: "Meilleur choix", watch: "Attention" },
+  watch: "Lutter contre son chronotype à coups de stimulants et de volonté marche un temps, puis pèse sur le sommeil, l'humeur et la santé.",
+};
+export function chronotypeTypeStrings(locale?: string): ChronotypeTypeBundle | undefined {
+  return locale === "es" ? CHRONO_TYPE_ES : locale === "fr" ? CHRONO_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */
