@@ -156,6 +156,22 @@ describe("strengths, values, EQ, love languages, grit", () => {
     expect(scoreAssessment(loveLanguages, responses).type?.code).toBe("Physical Touch");
   });
 
+  it("localizes Love Languages content, choice options, and the result card (es/fr)", () => {
+    const responses = Object.fromEntries(loveLanguages.items.map((i) => [i.id, 4])); // Physical Touch
+    const es = localizeInstrument(loveLanguages, "es");
+    // The choice options themselves are translated (not just the scenario prompt)…
+    expect(es.items[0].text).not.toBe(loveLanguages.items[0].text);
+    expect(es.items[0].options![0].text).not.toBe(loveLanguages.items[0].options![0].text);
+    // …while option→scale mapping (what scoring keys off) is preserved.
+    expect(es.items[0].options!.map((o) => o.scale)).toEqual(loveLanguages.items[0].options!.map((o) => o.scale));
+    const esType = scoreAssessment(es, responses).type!;
+    expect(esType.code).toBe("Physical Touch"); // canonical, language-agnostic
+    expect(esType.title).toContain("Contacto físico");
+    expect(esType.components.some((c) => c.label === "Lenguaje principal")).toBe(true);
+    const frType = scoreAssessment(localizeInstrument(loveLanguages, "fr"), responses).type!;
+    expect(frType.title).toContain("Contact physique");
+  });
+
   it("Grit bands from high to emerging", () => {
     expect(scoreAssessment(grit, allHigh(grit)).type?.code).toBe("High Grit");
     expect(scoreAssessment(grit, allLow(grit)).type?.code).toBe("Emerging Grit");
@@ -874,7 +890,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");

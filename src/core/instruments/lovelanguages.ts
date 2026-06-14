@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { loveLangTypeStrings, type LoveLangTypeBundle } from "./i18n";
 
 /**
  * Love Languages (five ways of giving and receiving love).
@@ -36,33 +37,43 @@ const items: Item[] = [
   mc("LL10", "TOUCH", "The phrase that resonates most with you is…", ["“Tell me you love me.”", "“Spend time with me.”", "“Let me help you.”", "“I got you something.”", "“Hold me.”"]),
 ];
 
-const META: Record<string, { name: string; summary: string }> = {
-  WORDS: { name: "Words of Affirmation", summary: "You feel most loved through spoken and written appreciation — compliments, encouragement, and 'I love you.'" },
-  TIME: { name: "Quality Time", summary: "You feel most loved through focused, undivided attention and shared presence." },
-  SERVICE: { name: "Acts of Service", summary: "You feel most loved when people do helpful things for you — actions over words." },
-  GIFTS: { name: "Receiving Gifts", summary: "You feel most loved through thoughtful, meaningful gifts that say 'I was thinking of you.'" },
-  TOUCH: { name: "Physical Touch", summary: "You feel most loved through affectionate physical closeness — hugs, hand-holding, and warmth." },
+/** Canonical, language-agnostic codes (the English language names) for stable scoring. */
+const CODE_EN: Record<string, string> = { WORDS: "Words of Affirmation", TIME: "Quality Time", SERVICE: "Acts of Service", GIFTS: "Receiving Gifts", TOUCH: "Physical Touch" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (loveLangTypeStrings). */
+const LOVE_TYPE_EN: LoveLangTypeBundle = {
+  meta: {
+    WORDS: { name: "Words of Affirmation", summary: "You feel most loved through spoken and written appreciation — compliments, encouragement, and 'I love you.'" },
+    TIME: { name: "Quality Time", summary: "You feel most loved through focused, undivided attention and shared presence." },
+    SERVICE: { name: "Acts of Service", summary: "You feel most loved when people do helpful things for you — actions over words." },
+    GIFTS: { name: "Receiving Gifts", summary: "You feel most loved through thoughtful, meaningful gifts that say 'I was thinking of you.'" },
+    TOUCH: { name: "Physical Touch", summary: "You feel most loved through affectionate physical closeness — hugs, hand-holding, and warmth." },
+  },
+  primary: "Primary language", secondary: "Secondary language", ranking: "Full ranking", tipLabel: "Tip",
+  primaryPrefix: "Primary: ",
+  tip: (name) => `Ask loved ones for more ${name}, and learn to 'speak' theirs too.`,
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = loveLangTypeStrings(locale) ?? LOVE_TYPE_EN;
   const arr = SCALES5.map((id) => ({ id, n: s[id].normalized }));
   const sorted = [...arr].sort((a, b) => b.n - a.n);
   const top = sorted[0];
   const second = sorted[1];
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
   const confidence = Math.max(0.2, Math.min(0.98, 0.5 + (top.n - second.n) / 100));
   return {
-    code: meta.name,
-    title: `Primary: ${meta.name}`,
+    code: CODE_EN[top.id],
+    title: `${T.primaryPrefix}${meta.name}`,
     summary: meta.summary,
     components: [
-      { label: "Primary language", value: meta.name },
-      { label: "Secondary language", value: META[second.id].name },
-      { label: "Full ranking", value: sorted.map((x) => META[x.id].name.split(" ")[0]).join(" › ") },
-      { label: "Tip", value: `Ask loved ones for more ${meta.name.toLowerCase()}, and learn to 'speak' theirs too.` },
+      { label: T.primary, value: meta.name },
+      { label: T.secondary, value: T.meta[second.id].name },
+      { label: T.ranking, value: sorted.map((x) => T.meta[x.id].name.split(" ")[0]).join(" › ") },
+      { label: T.tipLabel, value: T.tip(meta.name.toLowerCase()) },
     ],
     confidence,
-    secondary: META[second.id].name,
+    secondary: T.meta[second.id].name,
   };
 }
 

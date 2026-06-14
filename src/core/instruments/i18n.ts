@@ -17,6 +17,8 @@ export interface InstrumentTranslation {
   description?: string;
   scales?: Record<string, { name?: string; description?: string; poles?: { low: string; high: string }; highDescriptor?: string; lowDescriptor?: string }>;
   items?: Record<string, string>;
+  /** For choice-format items: translated option texts per item id, parallel to the item's options. */
+  options?: Record<string, string[]>;
 }
 
 const BIG_FIVE_ES: InstrumentTranslation = {
@@ -1820,6 +1822,78 @@ const ATTACH_FR: InstrumentTranslation = {
     AV5: "Je préfère garder mes sentiments pour moi plutôt que de les partager.", AV6: "Quand quelqu'un devient trop proche, j'ai tendance à m'éloigner.", AV7: "Il m'est facile d'avoir une intimité émotionnelle avec les personnes que j'aime.", AV8: "Je valorise mon indépendance plus que la proximité.",
   },
 };
+const LOVELANG_ES: InstrumentTranslation = {
+  name: "Lenguajes del amor", shortName: "Lenguajes del amor",
+  tagline: "Cómo das y recibes amor con más profundidad.",
+  description: "Los cinco lenguajes del amor describen las distintas formas en que las personas se sienten amadas: mediante palabras, tiempo, servicio, regalos o contacto. Conocer tu lenguaje principal (y el de tu pareja) es una forma sencilla y poderosa de hacer que el amor cale. Este perfilador clasifica los cinco y resalta tus dos principales.",
+  scales: {
+    WORDS: { name: "Palabras de afirmación", description: "Sentirse amado/a a través del aprecio y el ánimo.", highDescriptor: "que se llena de energía con palabras amables y afirmativas", lowDescriptor: "menos dependiente de la afirmación verbal" },
+    TIME: { name: "Tiempo de calidad", description: "Sentirse amado/a a través de la unión enfocada.", highDescriptor: "que se llena con la atención plena y la presencia", lowDescriptor: "menos dependiente del tiempo dedicado juntos" },
+    SERVICE: { name: "Actos de servicio", description: "Sentirse amado/a cuando los demás ayudan y hacen.", highDescriptor: "conmovido/a por las acciones útiles y la carga compartida", lowDescriptor: "menos centrado/a en la ayuda práctica como amor" },
+    GIFTS: { name: "Recibir regalos", description: "Sentirse amado/a a través de detalles pensados.", highDescriptor: "conmovido/a por regalos y gestos significativos", lowDescriptor: "menos orientado/a a los regalos como señal de amor" },
+    TOUCH: { name: "Contacto físico", description: "Sentirse amado/a a través de la cercanía afectuosa.", highDescriptor: "conectado/a mediante abrazos, contacto y cercanía", lowDescriptor: "menos dependiente del contacto físico" },
+  },
+  items: {
+    LL1: "Tras una semana dura, ¿qué de un ser querido significaría más para ti?",
+    LL2: "Te sientes más amado/a en una relación cuando tu pareja…",
+    LL3: "Un amigo quiere demostrar que le importas. Te conmovería más que…",
+    LL4: "¿Qué te dolería más no recibir de alguien cercano?",
+    LL5: "En tu cumpleaños, el gesto que más cala es…",
+    LL6: "Instintivamente, muestras amor a los demás…",
+    LL7: "¿Qué cumplido sobre tu relación te agradaría más?",
+    LL8: "Tras una discusión, ¿qué te ayuda a sentirte reconectado/a más rápido?",
+    LL9: "Cuando echas de menos a alguien, lo que más desearías es poder…",
+    LL10: "La frase que más resuena contigo es…",
+  },
+  options: {
+    LL1: ["oír 'estoy orgulloso/a de ti, tú puedes'", "una velada con su atención plena y sin distracciones", "que se ocupe en silencio de una tarea que te daba pavor", "una pequeña sorpresa que diga que pensaba en ti", "un abrazo largo y sentarse muy juntos"],
+    LL2: ["te dice a menudo lo que aprecia de ti", "reserva tiempo real y enfocado solo para los dos", "echa una mano y te aligera la carga sin que se lo pidas", "te trae pequeños detalles que muestran que recordó", "es cálidamente cariñosa: abrazos, tomarse de la mano, cercanía"],
+    LL3: ["te escribiera un mensaje sentido", "despejara su día para pasarlo contigo", "se presentara a ayudarte a mudarte o a arreglar algo", "te trajera un pequeño regalo que te encajara a la perfección", "te recibiera con un abrazo grande y cálido"],
+    LL4: ["cualquier palabra de aprecio o ánimo", "tiempo de verdad, sin distracciones, juntos", "cualquier ayuda o apoyo práctico", "cualquier señal de que piensa en ti cuando estáis lejos", "cercanía física afectuosa"],
+    LL5: ["una nota sincera sobre lo que significas para ellos", "un día sin prisas dedicado por entero a ti", "que te quiten todo de encima ese día", "un regalo significativo y bien elegido", "mucho calor y afecto físico"],
+    LL6: ["diciéndoles lo que admiras de ellos", "dándoles tu presencia plena", "haciendo cosas útiles por ellos", "eligiendo regalos pensados", "abrazándolos y siendo físicamente cariñoso/a"],
+    LL7: ["'Siempre me hace sentir valorado/a.'", "'De verdad nos hacemos tiempo el uno para el otro.'", "'Siempre está ahí para ayudarme.'", "'Hace los regalos más pensados.'", "'Se nota lo cariñoso/a que es.'"],
+    LL8: ["una charla sincera y tranquilizadora", "volver a pasar un rato tranquilo juntos", "que haga algo amable para compensarlo", "una pequeña ofrenda de paz que muestre que le importa", "un abrazo y cercanía física"],
+    LL9: ["oírle decir algo cálido", "simplemente estar presentes juntos", "que te ayude con lo que tienes encima", "encontrar un pequeño algo que te recuerde a él/ella", "abrazarle, o que te abracen"],
+    LL10: ["'Dime que me quieres.'", "'Pasa tiempo conmigo.'", "'Déjame ayudarte.'", "'Te traje algo.'", "'Abrázame.'"],
+  },
+};
+const LOVELANG_FR: InstrumentTranslation = {
+  name: "Langages de l'amour", shortName: "Langages de l'amour",
+  tagline: "Comment vous donnez et recevez l'amour le plus profondément.",
+  description: "Les cinq langages de l'amour décrivent les différentes façons dont les gens se sentent aimés — par les mots, le temps, les services, les cadeaux ou le contact. Connaître votre langage principal (et celui de votre partenaire) est un moyen simple et puissant de faire que l'amour touche juste. Ce profileur classe les cinq et met en avant vos deux principaux.",
+  scales: {
+    WORDS: { name: "Paroles valorisantes", description: "Se sentir aimé(e) par l'appréciation et l'encouragement.", highDescriptor: "stimulé(e) par des paroles gentilles et valorisantes", lowDescriptor: "moins tributaire de l'affirmation verbale" },
+    TIME: { name: "Moments de qualité", description: "Se sentir aimé(e) par une présence partagée et attentive.", highDescriptor: "comblé(e) par l'attention pleine et la présence", lowDescriptor: "moins dépendant(e) du temps dédié ensemble" },
+    SERVICE: { name: "Services rendus", description: "Se sentir aimé(e) quand les autres aident et agissent.", highDescriptor: "touché(e) par les actions utiles et la charge partagée", lowDescriptor: "moins porté(e) sur l'aide pratique comme amour" },
+    GIFTS: { name: "Cadeaux reçus", description: "Se sentir aimé(e) par des attentions réfléchies.", highDescriptor: "touché(e) par des cadeaux et gestes significatifs", lowDescriptor: "moins orienté(e) vers les cadeaux comme signe d'amour" },
+    TOUCH: { name: "Contact physique", description: "Se sentir aimé(e) par une proximité affectueuse.", highDescriptor: "connecté(e) par les câlins, le contact et la proximité", lowDescriptor: "moins tributaire du contact physique" },
+  },
+  items: {
+    LL1: "Après une semaine difficile, qu'est-ce qui, venant d'un être cher, compterait le plus ?",
+    LL2: "Vous vous sentez le plus aimé(e) dans une relation quand votre partenaire…",
+    LL3: "Un ami veut montrer qu'il tient à vous. Vous seriez le plus touché(e) s'il…",
+    LL4: "Qu'est-ce qui vous manquerait le plus, venant d'un proche ?",
+    LL5: "Pour votre anniversaire, le geste qui touche le plus est…",
+    LL6: "Vous montrez instinctivement de l'amour aux autres…",
+    LL7: "Quel compliment sur votre relation vous ferait le plus plaisir ?",
+    LL8: "Après un désaccord, qu'est-ce qui vous aide à vous reconnecter le plus vite ?",
+    LL9: "Quand quelqu'un vous manque, vous souhaiteriez surtout pouvoir…",
+    LL10: "La phrase qui résonne le plus en vous est…",
+  },
+  options: {
+    LL1: ["entendre « je suis fier(ère) de toi — tu vas y arriver »", "une soirée avec son attention pleine et entière", "qu'il/elle s'occupe discrètement d'une corvée que vous redoutiez", "une petite surprise qui dit qu'il/elle pensait à vous", "un long câlin et rester blottis l'un contre l'autre"],
+    LL2: ["vous dit souvent ce qu'il/elle apprécie chez vous", "réserve un vrai temps rien que pour vous deux", "donne un coup de main et allège votre charge sans qu'on le demande", "vous apporte de petites attentions qui montrent qu'il/elle s'est souvenu(e)", "est chaleureusement affectueux(se) — câlins, main dans la main, proximité"],
+    LL3: ["vous écrivait un message touchant", "libérait sa journée pour la passer avec vous", "venait vous aider à déménager ou à réparer quelque chose", "vous apportait un petit cadeau qui vous correspondait parfaitement", "vous accueillait avec un grand câlin chaleureux"],
+    LL4: ["la moindre parole d'appréciation ou d'encouragement", "un vrai temps ensemble, sans distraction", "la moindre aide ou soutien pratique", "le moindre signe qu'il/elle pense à vous quand vous êtes loin", "une proximité physique affectueuse"],
+    LL5: ["un mot sincère sur ce que vous représentez pour eux", "une journée sans hâte passée entièrement avec vous", "qu'on vous décharge de tout ce jour-là", "un cadeau significatif et bien choisi", "beaucoup de chaleur et d'affection physique"],
+    LL6: ["en leur disant ce que vous admirez chez eux", "en leur offrant votre présence pleine", "en faisant des choses utiles pour eux", "en choisissant des cadeaux réfléchis", "en les câlinant et en étant physiquement affectueux(se)"],
+    LL7: ["« Il/Elle me fait toujours me sentir apprécié(e). »", "« On se réserve vraiment du temps l'un pour l'autre. »", "« Il/Elle est toujours là pour m'aider. »", "« Il/Elle fait les cadeaux les plus réfléchis. »", "« On voit comme il/elle est affectueux(se). »"],
+    LL8: ["une discussion sincère et rassurante", "repasser un moment calme ensemble", "qu'il/elle fasse quelque chose de gentil pour se faire pardonner", "un petit gage de paix qui montre qu'il/elle tient à vous", "un câlin et une proximité physique"],
+    LL9: ["l'entendre dire quelque chose de chaleureux", "simplement être présents ensemble", "qu'il/elle vous aide avec ce que vous avez à gérer", "trouver un petit quelque chose qui vous rappelle lui/elle", "le/la serrer, ou être serré(e)"],
+    LL10: ["« Dis-moi que tu m'aimes. »", "« Passe du temps avec moi. »", "« Laisse-moi t'aider. »", "« Je t'ai pris quelque chose. »", "« Serre-moi dans tes bras. »"],
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1835,7 +1909,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
-    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES,
+    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1850,7 +1924,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
-    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR,
+    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR,
   },
 };
 
@@ -2059,6 +2133,44 @@ export function attachmentTypeStrings(locale?: string): AttachmentTypeBundle | u
   return locale === "es" ? ATTACH_TYPE_ES : locale === "fr" ? ATTACH_TYPE_FR : undefined;
 }
 
+/* ── Love Languages (typological; type card localized separately) ── */
+export interface LoveLangTypeBundle {
+  meta: Record<string, { name: string; summary: string }>;
+  primary: string;
+  secondary: string;
+  ranking: string;
+  tipLabel: string;
+  primaryPrefix: string;
+  tip: (name: string) => string;
+}
+const LOVE_TYPE_ES: LoveLangTypeBundle = {
+  meta: {
+    WORDS: { name: "Palabras de afirmación", summary: "Te sientes más amado/a a través del aprecio hablado y escrito: cumplidos, ánimo y 'te quiero'." },
+    TIME: { name: "Tiempo de calidad", summary: "Te sientes más amado/a a través de la atención plena y sin distracciones y la presencia compartida." },
+    SERVICE: { name: "Actos de servicio", summary: "Te sientes más amado/a cuando los demás hacen cosas útiles por ti: hechos más que palabras." },
+    GIFTS: { name: "Recibir regalos", summary: "Te sientes más amado/a a través de regalos pensados y significativos que dicen 'pensaba en ti'." },
+    TOUCH: { name: "Contacto físico", summary: "Te sientes más amado/a a través de la cercanía física afectuosa: abrazos, tomarse de la mano y calidez." },
+  },
+  primary: "Lenguaje principal", secondary: "Lenguaje secundario", ranking: "Clasificación completa", tipLabel: "Consejo",
+  primaryPrefix: "Principal: ",
+  tip: (name) => `Pide a tus seres queridos más ${name}, y aprende a 'hablar' el suyo también.`,
+};
+const LOVE_TYPE_FR: LoveLangTypeBundle = {
+  meta: {
+    WORDS: { name: "Paroles valorisantes", summary: "Vous vous sentez le plus aimé(e) par l'appréciation dite et écrite — compliments, encouragements et « je t'aime »." },
+    TIME: { name: "Moments de qualité", summary: "Vous vous sentez le plus aimé(e) par une attention pleine et entière et une présence partagée." },
+    SERVICE: { name: "Services rendus", summary: "Vous vous sentez le plus aimé(e) quand les autres font des choses utiles pour vous — les actes plutôt que les mots." },
+    GIFTS: { name: "Cadeaux reçus", summary: "Vous vous sentez le plus aimé(e) par des cadeaux réfléchis et significatifs qui disent « je pensais à toi »." },
+    TOUCH: { name: "Contact physique", summary: "Vous vous sentez le plus aimé(e) par une proximité physique affectueuse — câlins, main dans la main et chaleur." },
+  },
+  primary: "Langage principal", secondary: "Langage secondaire", ranking: "Classement complet", tipLabel: "Conseil",
+  primaryPrefix: "Principal : ",
+  tip: (name) => `Demandez à vos proches davantage de ${name}, et apprenez à « parler » le leur aussi.`,
+};
+export function loveLangTypeStrings(locale?: string): LoveLangTypeBundle | undefined {
+  return locale === "es" ? LOVE_TYPE_ES : locale === "fr" ? LOVE_TYPE_FR : undefined;
+}
+
 /** Return a locale-translated clone of the instrument (English fallback per field). */
 export function localizeInstrument(inst: Instrument, locale: string): Instrument {
   const tr = TRANSLATIONS[locale]?.[inst.id];
@@ -2082,7 +2194,12 @@ export function localizeInstrument(inst: Instrument, locale: string): Instrument
           }
         : s;
     }),
-    items: tr.items ? inst.items.map((i) => (tr.items![i.id] ? { ...i, text: tr.items![i.id] } : i)) : inst.items,
+    items: tr.items || tr.options ? inst.items.map((i) => {
+      const text = tr.items?.[i.id] ?? i.text;
+      const optTexts = tr.options?.[i.id];
+      const options = optTexts && i.options ? i.options.map((o, idx) => ({ ...o, text: optTexts[idx] ?? o.text })) : i.options;
+      return text !== i.text || options !== i.options ? { ...i, text, options } : i;
+    }) : inst.items,
     // Bind the locale into resolveType so the resolved type card (title/summary/components)
     // is localized too. Instruments that don't translate their type ignore the locale.
     resolveType: inst.resolveType ? (scales) => inst.resolveType!(scales, locale) : undefined,
