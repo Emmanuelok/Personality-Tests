@@ -49,6 +49,25 @@ export function downloadICS(filename: string, events: CalEvent[]): void {
   downloadText(filename, buildICS(events), "text/calendar;charset=utf-8");
 }
 
+/** A Google Calendar "add event" link — opens a pre-filled event in the browser,
+ *  no file download. A real, account-free integration for one-tap scheduling. */
+export function googleCalUrl(e: CalEvent): string {
+  const end = new Date(e.start.getTime() + (e.durationMin ?? 45) * 60000);
+  const p = new URLSearchParams({ action: "TEMPLATE", text: e.title, dates: `${fmt(e.start)}/${fmt(end)}` });
+  const details = [e.description, e.url].filter(Boolean).join("\n\n");
+  if (details) p.set("details", details);
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+}
+
+/** An Outlook / Office 365 "compose event" link — same idea, for Outlook users. */
+export function outlookCalUrl(e: CalEvent): string {
+  const end = new Date(e.start.getTime() + (e.durationMin ?? 45) * 60000);
+  const p = new URLSearchParams({ path: "/calendar/action/compose", rru: "addevent", subject: e.title, startdt: e.start.toISOString(), enddt: end.toISOString() });
+  const body = [e.description, e.url].filter(Boolean).join("\n\n");
+  if (body) p.set("body", body);
+  return `https://outlook.office.com/calendar/0/deeplink/compose?${p.toString()}`;
+}
+
 /** A sensible default session: the next occurrence of 18:00 local, tomorrow. */
 export function nextEveningSlot(): Date {
   const d = new Date();

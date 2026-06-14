@@ -11,6 +11,24 @@ export default defineConfig({
       "@core": fileURLToPath(new URL("./src/core", import.meta.url)),
     },
   },
+  build: {
+    // Split rarely-changing vendor and the large static instrument catalog into
+    // their own long-cacheable chunks, so app-code deploys don't re-bust them and
+    // first paint can fetch them in parallel. The PDF and report engines stay in
+    // their existing dynamic chunks (loaded only when a report is opened).
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react-dom") || id.includes("/react/") || id.includes("/scheduler/")) return "react-vendor";
+            return undefined;
+          }
+          if (id.includes("/src/core/instruments/")) return "catalog";
+          return undefined;
+        },
+      },
+    },
+  },
   test: {
     environment: "node",
     include: ["src/**/*.{test,spec}.ts"],
