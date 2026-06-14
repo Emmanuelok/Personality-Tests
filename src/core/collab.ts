@@ -379,3 +379,33 @@ export function pairingNotes(resonance: GroupResonance, opts: { locale?: string 
   if (resonance.mostComplementary) out.push(s.complement(resonance.mostComplementary.a, resonance.mostComplementary.b));
   return out;
 }
+
+export interface GroupNextStep {
+  instrumentId: string;
+  instrumentName: string;
+  /** Members who haven't completed this step yet. */
+  pending: string[];
+  /** True when at least one member has already done it (a "catch up", not a fresh start). */
+  started: boolean;
+}
+
+/** The group's collective next move: the earliest plan step the whole group hasn't
+ *  yet converged on, plus who still has it to take. Null when everyone has finished
+ *  the entire plan. Drives a "rally here next" nudge for students learning together. */
+export function groupNextStep(plan: string[], members: MemberProgress[], opts: { locale?: string } = {}): GroupNextStep | null {
+  if (!members.length) return null;
+  for (const id of plan) {
+    const inst = getInstrument(id);
+    if (!inst) continue;
+    const doneCount = members.filter((m) => m.done.includes(id)).length;
+    if (doneCount < members.length) {
+      return {
+        instrumentId: id,
+        instrumentName: localizeInstrument(inst, opts.locale ?? "en").name,
+        pending: members.filter((m) => !m.done.includes(id)).map((m) => m.name),
+        started: doneCount > 0,
+      };
+    }
+  }
+  return null;
+}

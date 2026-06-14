@@ -5,7 +5,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { buildRoadmap } from "@core/roadmap";
 import {
   createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights,
-  groupRoles, groupResonance, roleLine, pairingNotes,
+  groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep,
   type StudyRoom, type MemberProgress,
 } from "@core/collab";
 import type { SynthEntry } from "@core/synthesis";
@@ -24,6 +24,7 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
     invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", plan: "Shared plan", autopilot: "✨ Run this plan on Autopilot", begin: "Begin", retake: "Done ✓",
+    groupNext: "Up next for the group", stillToGo: "Still to go", gnStart: "No one's started this yet — a great one to take on together.", gnRally: "Some teammates are already here — catch up and compare notes.", allDone: "🎉 Your group has finished the whole plan together.",
     group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared",
     dynamics: "Who brings what", dynamicsSub: "Each teammate\u2019s signature strength, and the pairs who click \u2014 or stretch each other.", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
@@ -35,6 +36,7 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
     invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", plan: "Plan compartido", autopilot: "✨ Ejecutar este plan en piloto automático", begin: "Empezar", retake: "Hecho ✓",
+    groupNext: "A continuación para el grupo", stillToGo: "Aún les falta", gnStart: "Nadie lo ha empezado aún: ideal para hacerlo juntos.", gnRally: "Algunos compañeros ya van por aquí: ponte al día y comparen notas.", allDone: "🎉 Tu grupo ha terminado todo el plan en conjunto.",
     group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos",
     dynamics: "Quién aporta qué", dynamicsSub: "La fortaleza distintiva de cada compañero, y las parejas que encajan… o que se complementan.", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
@@ -46,6 +48,7 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
     invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", plan: "Plan partagé", autopilot: "✨ Lancer ce plan en pilote automatique", begin: "Commencer", retake: "Fait ✓",
+    groupNext: "La suite pour le groupe", stillToGo: "Encore à faire", gnStart: "Personne ne l'a encore commencé — parfait à faire ensemble.", gnRally: "Des coéquipiers sont déjà là — rattrapez et comparez vos notes.", allDone: "🎉 Votre groupe a terminé tout le plan ensemble.",
     group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés",
     dynamics: "Qui apporte quoi", dynamicsSub: "La force distinctive de chaque coéquipier, et les binômes qui s'accordent — ou se complètent.", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
@@ -233,6 +236,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
   const gInsights = groupInsights(portrait, { locale: L });
   const roles = groupRoles(room.plan, allMembers, { locale: L });
   const pairing = pairingNotes(groupResonance(room.plan, allMembers), { locale: L });
+  const groupNext = groupNextStep(room.plan, allMembers, { locale: L });
   const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
   const link = roomLink(room, origin);
   const nextId = room.plan.find((id) => !done.has(id));
@@ -278,6 +282,16 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
 
         <section className="panel">
           <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.plan}</h3>
+          {groupNext ? (
+            <div className="gp-next">
+              <span className="gp-next-eye">🎯 {s.groupNext}</span>
+              <b className="gp-next-name">{groupNext.instrumentName}</b>
+              <p className="gp-next-why">{groupNext.started ? s.gnRally : s.gnStart}</p>
+              {groupNext.pending.length > 0 && <span className="gp-next-pending">{s.stillToGo}: {groupNext.pending.join(", ")}</span>}
+            </div>
+          ) : (
+            <p className="note" style={{ marginTop: 0 }}>{s.allDone}</p>
+          )}
           <ol className="roadmap">
             {room.plan.map((id, i) => {
               const inst = getInstrument(id);

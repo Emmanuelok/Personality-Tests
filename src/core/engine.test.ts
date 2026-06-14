@@ -11,7 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
-import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, type MemberProgress } from "./collab";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
@@ -1122,6 +1122,30 @@ describe("Study Together collaboration", () => {
     // A single sharer yields no roles and no comparable pairs.
     expect(groupRoles(["big-five-ipip50"], [members[0]], {})).toHaveLength(0);
     expect(groupResonance(["big-five-ipip50"], [members[0]]).pairs).toHaveLength(0);
+  });
+
+  it("nudges the group toward the earliest step it hasn't all converged on", () => {
+    const plan = ["big-five-ipip50", "hexaco-24", "jung-16-types"];
+    const members: MemberProgress[] = [
+      { name: "Ada", done: ["big-five-ipip50", "hexaco-24"], at: "x" },
+      { name: "Bo", done: ["big-five-ipip50"], at: "y" },
+    ];
+    const next = groupNextStep(plan, members, { locale: "es" })!;
+    expect(next.instrumentId).toBe("hexaco-24"); // earliest step not everyone finished
+    expect(next.started).toBe(true); // Ada already did it
+    expect(next.pending).toEqual(["Bo"]);
+    expect(next.instrumentName).toBe(localizeInstrument(hexaco, "es").name); // localized to es
+
+    // A fresh step nobody has started.
+    const fresh = groupNextStep(["jung-16-types"], members, {})!;
+    expect(fresh.instrumentId).toBe("jung-16-types");
+    expect(fresh.started).toBe(false);
+    expect(fresh.pending.sort()).toEqual(["Ada", "Bo"]);
+
+    // Everyone finished everything → nothing to nudge.
+    const allDone: MemberProgress[] = [{ name: "Ada", done: plan, at: "x" }, { name: "Bo", done: plan, at: "y" }];
+    expect(groupNextStep(plan, allDone, {})).toBeNull();
+    expect(groupNextStep(plan, [], {})).toBeNull();
   });
 });
 
