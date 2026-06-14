@@ -1023,6 +1023,84 @@ const EQ_FR: InstrumentTranslation = {
   },
 };
 
+const RIASEC_ES: InstrumentTranslation = {
+  name: "Intereses profesionales (RIASEC)", shortName: "RIASEC",
+  tagline: "Tu código Holland, y las carreras que encajan con él.",
+  description: "El modelo RIASEC de Holland es la columna vertebral de la orientación profesional moderna. Mapea seis temas de interés —Realista, Investigador, Artístico, Social, Emprendedor y Convencional— y tus tres principales forman tu «código Holland». Este perfilador encuentra el tuyo y lo traduce en campos profesionales concretos que vale la pena explorar.",
+  scales: {
+    R: { name: "Realista", description: "Trabajo práctico, manual, físico y técnico.", highDescriptor: "práctico, manos a la obra y con inclinación técnica", lowDescriptor: "menos atraído/a por el trabajo técnico y manual" },
+    I: { name: "Investigador", description: "Trabajo analítico, científico y guiado por ideas.", highDescriptor: "analítico/a, curioso/a y con mente investigadora", lowDescriptor: "menos atraído/a por el análisis y la investigación" },
+    A: { name: "Artístico", description: "Trabajo creativo, expresivo y poco estructurado.", highDescriptor: "creativo/a, expresivo/a y original", lowDescriptor: "menos atraído/a por el trabajo artístico y abierto" },
+    S: { name: "Social", description: "Ayudar, enseñar y cuidar a las personas.", highDescriptor: "centrado/a en las personas, servicial y afectuoso/a", lowDescriptor: "menos atraído/a por roles de ayuda a las personas" },
+    E: { name: "Emprendedor", description: "Liderar, persuadir y trabajo orientado a los negocios.", highDescriptor: "ambicioso/a, persuasivo/a y orientado/a al liderazgo", lowDescriptor: "menos atraído/a por liderar y vender" },
+    C: { name: "Convencional", description: "Trabajo organizado, detallado y estructurado.", highDescriptor: "organizado/a, detallista y sistemático/a", lowDescriptor: "menos atraído/a por el trabajo estructurado y de procedimientos" },
+  },
+  items: {
+    R1: "Trabajar con las manos, herramientas, máquinas o al aire libre.", R2: "Construir, reparar o manejar cosas con resultados tangibles.", R3: "Tareas prácticas, manuales y físicas antes que el trabajo de escritorio.",
+    I1: "Analizar problemas, datos y cómo funcionan las cosas.", I2: "Investigación, ciencia y resolver cosas desde sus principios.", I3: "Sumergirme en ideas, teorías y una comprensión profunda.",
+    A1: "Expresarme a través del arte, la escritura, la música o el diseño.", A2: "Trabajo creativo y original, con margen para improvisar.", A3: "Proyectos estéticos, imaginativos y sin estructura.",
+    S1: "Ayudar, enseñar, orientar o cuidar a las personas.", S2: "Trabajar de cerca con otros y apoyarlos.", S3: "Trabajo que mejora visiblemente la vida de las personas.",
+    E1: "Liderar, persuadir, presentar y vender ideas.", E2: "Negocios, ambición, acuerdos e influencia.", E3: "Tomar el mando e impulsar metas y crecimiento.",
+    C1: "Trabajo organizado y detallado con procedimientos claros.", C2: "Gestionar datos, registros, horarios y sistemas.", C3: "Reglas claras y procesos ordenados antes que la ambigüedad.",
+  },
+};
+const RIASEC_FR: InstrumentTranslation = {
+  name: "Intérêts professionnels (RIASEC)", shortName: "RIASEC",
+  tagline: "Votre code Holland — et les métiers qui lui correspondent.",
+  description: "Le modèle RIASEC de Holland est la colonne vertébrale de l'orientation professionnelle moderne. Il cartographie six thèmes d'intérêt — Réaliste, Investigateur, Artistique, Social, Entreprenant et Conventionnel — et vos trois principaux forment votre « code Holland ». Ce profileur trouve le vôtre et le traduit en domaines de carrière concrets à explorer.",
+  scales: {
+    R: { name: "Réaliste", description: "Travail concret, pratique, physique et technique.", highDescriptor: "pratique, concret(ète) et porté(e) vers la technique", lowDescriptor: "moins attiré(e) par le travail technique et manuel" },
+    I: { name: "Investigateur", description: "Travail analytique, scientifique et porté par les idées.", highDescriptor: "analytique, curieux(se) et porté(e) sur la recherche", lowDescriptor: "moins attiré(e) par l'analyse et la recherche" },
+    A: { name: "Artistique", description: "Travail créatif, expressif et peu structuré.", highDescriptor: "créatif(ve), expressif(ve) et original(e)", lowDescriptor: "moins attiré(e) par le travail artistique et ouvert" },
+    S: { name: "Social", description: "Aider, enseigner et prendre soin des gens.", highDescriptor: "tourné(e) vers les autres, serviable et bienveillant(e)", lowDescriptor: "moins attiré(e) par les rôles d'aide aux autres" },
+    E: { name: "Entreprenant", description: "Diriger, persuader et travail orienté affaires.", highDescriptor: "ambitieux(se), persuasif(ve) et porté(e) sur le leadership", lowDescriptor: "moins attiré(e) par diriger et vendre" },
+    C: { name: "Conventionnel", description: "Travail organisé, minutieux et structuré.", highDescriptor: "organisé(e), minutieux(se) et méthodique", lowDescriptor: "moins attiré(e) par le travail structuré et procédural" },
+  },
+  items: {
+    R1: "Travailler de mes mains, avec des outils, des machines ou en plein air.", R2: "Construire, réparer ou faire fonctionner des choses aux résultats tangibles.", R3: "Des tâches pratiques, manuelles et physiques plutôt qu'un travail de bureau.",
+    I1: "Analyser des problèmes, des données et le fonctionnement des choses.", I2: "La recherche, la science et comprendre à partir des principes.", I3: "Plonger dans les idées, les théories et la compréhension profonde.",
+    A1: "M'exprimer par l'art, l'écriture, la musique ou le design.", A2: "Un travail créatif et original, avec de la place pour improviser.", A3: "Des projets esthétiques, imaginatifs et sans structure.",
+    S1: "Aider, enseigner, accompagner ou prendre soin des gens.", S2: "Travailler étroitement avec les autres et les soutenir.", S3: "Un travail qui améliore visiblement la vie des gens.",
+    E1: "Diriger, persuader, présenter et vendre des idées.", E2: "Les affaires, l'ambition, les accords et l'influence.", E3: "Prendre les rênes et viser objectifs et croissance.",
+    C1: "Un travail organisé et minutieux avec des procédures claires.", C2: "Gérer données, dossiers, plannings et systèmes.", C3: "Des règles claires et des processus ordonnés plutôt que l'ambiguïté.",
+  },
+};
+
+const EMPATHY_ES: InstrumentTranslation = {
+  name: "Empatía (IRI)", shortName: "Empatía",
+  tagline: "Cuatro caras de la empatía: pensar, sentir, imaginar y abrumarse.",
+  description: "La empatía es en realidad varias capacidades. El Índice de Reactividad Interpersonal de Davis mapea cuatro: Toma de perspectiva (ver el punto de vista del otro), Preocupación empática (afecto cálido por los demás), Fantasía (absorberse en personajes e historias) y Malestar personal (tu propia ansiedad ante el sufrimiento ajeno). Juntas dibujan cómo —y con qué facilidad— sientes con los demás.",
+  scales: {
+    PT: { name: "Toma de perspectiva", description: "Adoptar cognitivamente el punto de vista de otro.", poles: { low: "Anclado en sí", high: "Toma perspectiva" }, highDescriptor: "rápido/a para ver los puntos de vista de los demás", lowDescriptor: "más anclado/a en tu propia perspectiva" },
+    EC: { name: "Preocupación empática", description: "Sentimientos cálidos de compasión hacia los demás.", poles: { low: "Distante", high: "Compasivo/a" }, highDescriptor: "cálido/a, cariñoso/a y compasivo/a", lowDescriptor: "más frío/a y distante ante los sentimientos ajenos" },
+    FS: { name: "Fantasía", description: "Entrar imaginativamente en las experiencias de personajes ficticios.", poles: { low: "Literal", high: "Imaginativo/a" }, highDescriptor: "absorbido/a imaginativamente en historias y personajes", lowDescriptor: "anclado/a en lo literal y lo real" },
+    PD: { name: "Malestar personal", description: "Ansiedad centrada en uno mismo ante el sufrimiento ajeno.", poles: { low: "Sereno/a", high: "Se abruma" }, highDescriptor: "fácilmente abrumado/a por el malestar de los demás", lowDescriptor: "capaz de mantener la calma ante el malestar ajeno" },
+  },
+  items: {
+    PT1: "Intento ver las cosas desde el punto de vista del otro antes de juzgar.", PT2: "Cuando me enfado con alguien, intento imaginar cómo se ven las cosas desde su lado.", PT3: "Creo que la mayoría de los asuntos tienen dos caras e intento ver ambas.",
+    EC1: "A menudo siento una preocupación cálida y tierna por quienes tienen menos suerte que yo.", EC2: "Las desgracias de los demás me conmueven de verdad.", EC3: "Me describiría como una persona bastante tierna de corazón.",
+    FS1: "Me absorben profundamente los sentimientos de los personajes de historias o películas.", FS2: "Imagino de verdad lo que viven los personajes de una novela.", FS3: "Sueño despierto/a con viveza y me imagino en situaciones inventadas.",
+    PD1: "En las emergencias me siento ansioso/a, tenso/a y un poco desbordado/a.", PD2: "Estar en una situación emocionalmente cargada me asusta.", PD3: "Cuando veo a alguien gravemente herido, tiendo a descomponerme un poco.",
+  },
+};
+const EMPATHY_FR: InstrumentTranslation = {
+  name: "Empathie (IRI)", shortName: "Empathie",
+  tagline: "Quatre facettes de l'empathie : penser, ressentir, imaginer et être submergé.",
+  description: "L'empathie est en réalité plusieurs capacités. L'Indice de Réactivité Interpersonnelle de Davis en cartographie quatre : la Prise de perspective (voir le point de vue de l'autre), la Préoccupation empathique (un souci chaleureux des autres), la Fantaisie (l'absorption dans les personnages et les histoires) et la Détresse personnelle (votre propre anxiété face à la souffrance d'autrui). Ensemble, elles dessinent comment — et avec quelle facilité — vous ressentez avec les autres.",
+  scales: {
+    PT: { name: "Prise de perspective", description: "Adopter cognitivement le point de vue d'autrui.", poles: { low: "Ancré(e) sur soi", high: "Prend du recul" }, highDescriptor: "prompt(e) à voir le point de vue des autres", lowDescriptor: "plus ancré(e) dans votre propre perspective" },
+    EC: { name: "Préoccupation empathique", description: "Des sentiments chaleureux de compassion tournés vers les autres.", poles: { low: "Distant(e)", high: "Compatissant(e)" }, highDescriptor: "chaleureux(se), attentionné(e) et compatissant(e)", lowDescriptor: "plus froid(e) et détaché(e) face aux sentiments d'autrui" },
+    FS: { name: "Fantaisie", description: "Entrer par l'imagination dans le vécu de personnages fictifs.", poles: { low: "Littéral(e)", high: "Imaginatif(ve)" }, highDescriptor: "absorbé(e) par l'imagination dans les histoires et les personnages", lowDescriptor: "ancré(e) dans le littéral et le réel" },
+    PD: { name: "Détresse personnelle", description: "Anxiété centrée sur soi face à la souffrance d'autrui.", poles: { low: "Posé(e)", high: "Submergé(e)" }, highDescriptor: "facilement submergé(e) par la détresse des autres", lowDescriptor: "capable de rester calme face à la détresse d'autrui" },
+  },
+  items: {
+    PT1: "J'essaie de voir les choses du point de vue de l'autre avant de juger.", PT2: "Quand je suis fâché(e) contre quelqu'un, j'essaie d'imaginer comment les choses lui apparaissent.", PT3: "Je pense que la plupart des questions ont deux faces et j'essaie de voir les deux.",
+    EC1: "Je ressens souvent une tendresse chaleureuse pour les personnes moins chanceuses que moi.", EC2: "Les malheurs des autres me touchent vraiment.", EC3: "Je me décrirais comme une personne plutôt au cœur tendre.",
+    FS1: "Je me laisse profondément absorber par les sentiments des personnages des histoires ou des films.", FS2: "J'imagine vraiment ce que vivent les personnages d'un roman.", FS3: "Je rêve éveillé(e) de façon vive et m'imagine dans des situations inventées.",
+    PD1: "En cas d'urgence, je me sens anxieux(se), tendu(e) et un peu débordé(e).", PD2: "Être dans une situation émotionnellement chargée me fait peur.", PD3: "Quand je vois quelqu'un gravement blessé, j'ai tendance à un peu m'effondrer.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
@@ -1031,7 +1109,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
     "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
     "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
-    "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES,
+    "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES, "riasec-careers": RIASEC_ES, "empathy-iri": EMPATHY_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1040,7 +1118,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
     "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
     "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
-    "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR,
+    "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR, "riasec-careers": RIASEC_FR, "empathy-iri": EMPATHY_FR,
   },
 };
 
