@@ -1180,6 +1180,90 @@ const WORRY_FR: InstrumentTranslation = {
     S1: "Je me suis senti(e) détendu(e) plutôt que crispé(e).", S2: "J'ai été agité(e) ou j'ai eu du mal à rester en place.", S3: "Je me suis senti(e) facilement contrarié(e) ou irritable.", S4: "J'ai eu peur qu'il puisse arriver quelque chose d'affreux.",
   },
 };
+const ZKPQ_ES: InstrumentTranslation = {
+  name: "Los Cinco Alternativos (ZKPQ)", shortName: "Alt-Cinco",
+  tagline: "El rival de base biológica de los Cinco Grandes, de Zuckerman.",
+  description: "Marvin Zuckerman sostenía que los Cinco Grandes no recortaban del todo la naturaleza por sus articulaciones, y propuso unos 'Cinco Alternativos' arraigados en rasgos con bases biológicas y evolutivas más claras: búsqueda impulsiva de sensaciones, neuroticismo-ansiedad, agresión-hostilidad, actividad y sociabilidad. Una fascinante segunda opinión sobre la estructura de la personalidad.",
+  scales: {
+    IMPSS: { name: "Búsqueda impulsiva de sensaciones", description: "Impulsividad junto al ansia de emoción y novedad.", poles: { low: "Deliberado", high: "Impulsivo" }, highDescriptor: "impulsivo/a y ávido/a de emociones nuevas", lowDescriptor: "previsor/a y reacio/a al riesgo" },
+    NANX: { name: "Neuroticismo-Ansiedad", description: "Tensión, preocupación y malestar emocional.", poles: { low: "Tranquilo", high: "Ansioso" }, highDescriptor: "tenso/a, preocupado/a y fácilmente alterado/a", lowDescriptor: "tranquilo/a y emocionalmente estable" },
+    AGGH: { name: "Agresión-Hostilidad", description: "Disposición a la ira, la discusión y la hostilidad.", poles: { low: "Apacible", high: "Hostil" }, highDescriptor: "irascible, directo/a y combativo/a", lowDescriptor: "paciente, suave y lento/a para enfadarse" },
+    ACT: { name: "Actividad", description: "Energía, ajetreo y necesidad de acción.", poles: { low: "Relajado", high: "Activo" }, highDescriptor: "enérgico/a, inquieto/a y siempre en marcha", lowDescriptor: "relajado/a y a gusto con un ritmo pausado" },
+    SY: { name: "Sociabilidad", description: "Disfrute de la gente, las fiestas y la actividad social.", poles: { low: "Solitario", high: "Sociable" }, highDescriptor: "extrovertido/a y con energía entre la gente", lowDescriptor: "más a gusto en soledad o en grupos pequeños" },
+  },
+  items: {
+    IS1: "Actúo por impulso y ansío experiencias nuevas y emocionantes.", IS2: "Me gusta hacer cosas solo por la emoción que producen.", IS3: "Planifico con cuidado y me mantengo alejado/a de los riesgos.",
+    NA1: "A menudo me siento tenso/a, preocupado/a o alterado/a.", NA2: "Las pequeñas cosas me desaniman o me ponen ansioso/a con facilidad.", NA3: "Soy una persona tranquila y rara vez me altero.",
+    AH1: "Puedo tener la lengua afilada o enfadarme rápido cuando me provocan.", AH2: "Discuto sin problema y defiendo mi postura, incluso de forma brusca.", AH3: "Soy paciente y tardo en enfadarme.",
+    AC1: "Siempre estoy en movimiento y me gusta mantenerme ocupado/a.", AC2: "Prefiero una vida activa y de ritmo rápido a una relajada.", AC3: "Estoy más a gusto a un ritmo lento y tranquilo.",
+    SY1: "Me encanta estar rodeado/a de mucha gente y actividad social.", SY2: "Prefiero estar en una fiesta animada que en casa a solas.", SY3: "Prefiero la soledad o los grupos pequeños a las grandes multitudes.",
+  },
+};
+const ZKPQ_FR: InstrumentTranslation = {
+  name: "Les Cinq Alternatifs (ZKPQ)", shortName: "Alt-Cinq",
+  tagline: "Le rival d'origine biologique des Big Five, selon Zuckerman.",
+  description: "Marvin Zuckerman estimait que les Big Five ne découpaient pas la nature selon ses véritables articulations, et proposa des « Cinq Alternatifs » ancrés dans des traits aux bases biologiques et évolutives plus nettes : recherche impulsive de sensations, névrosisme-anxiété, agression-hostilité, activité et sociabilité. Un second avis fascinant sur la structure de la personnalité.",
+  scales: {
+    IMPSS: { name: "Recherche impulsive de sensations", description: "Impulsivité doublée d'une soif de sensations fortes et de nouveauté.", poles: { low: "Réfléchi", high: "Impulsif" }, highDescriptor: "impulsif(ve) et avide de sensations nouvelles", lowDescriptor: "prévoyant(e) et réfractaire au risque" },
+    NANX: { name: "Névrosisme-Anxiété", description: "Tension, inquiétude et trouble émotionnel.", poles: { low: "Calme", high: "Anxieux" }, highDescriptor: "tendu(e), inquiet(ète) et facilement perturbé(e)", lowDescriptor: "calme et émotionnellement stable" },
+    AGGH: { name: "Agression-Hostilité", description: "Propension à la colère, à la dispute et à l'hostilité.", poles: { low: "Accommodant", high: "Hostile" }, highDescriptor: "soupe au lait, direct(e) et combatif(ve)", lowDescriptor: "patient(e), doux(ce) et lent(e) à la colère" },
+    ACT: { name: "Activité", description: "Énergie, agitation et besoin d'action.", poles: { low: "Détendu", high: "Actif" }, highDescriptor: "énergique, agité(e) et toujours en mouvement", lowDescriptor: "détendu(e) et à l'aise dans un rythme posé" },
+    SY: { name: "Sociabilité", description: "Goût des gens, des fêtes et de l'activité sociale.", poles: { low: "Solitaire", high: "Sociable" }, highDescriptor: "sociable et stimulé(e) par la foule", lowDescriptor: "plus à l'aise dans la solitude ou les petits groupes" },
+  },
+  items: {
+    IS1: "J'agis sur un coup de tête et je recherche des expériences nouvelles et excitantes.", IS2: "J'aime faire des choses juste pour le frisson.", IS3: "Je planifie soigneusement et j'évite les risques.",
+    NA1: "Je me sens souvent tendu(e), inquiet(ète) ou contrarié(e).", NA2: "Un rien me déprime ou me rend anxieux(se).", NA3: "Je suis calme et rarement ébranlé(e).",
+    AH1: "Je peux avoir la langue acérée ou m'emporter vite quand on me provoque.", AH2: "Je discute volontiers et je tiens ma position, même brutalement.", AH3: "Je suis patient(e) et lent(e) à me mettre en colère.",
+    AC1: "Je suis toujours en mouvement et j'aime rester occupé(e).", AC2: "Je préfère une vie active et trépidante à une vie tranquille.", AC3: "Je suis plus heureux(se) à un rythme lent et tranquille.",
+    SY1: "J'adore être entouré(e) de beaucoup de monde et d'activité sociale.", SY2: "Je préfère une fête animée à rester seul(e) à la maison.", SY3: "Je préfère la solitude ou les petits groupes aux grandes foules.",
+  },
+};
+const TCI_ES: InstrumentTranslation = {
+  name: "Temperamento y Carácter", shortName: "TCI",
+  tagline: "El modelo de Cloninger: lo que heredaste y lo que has cultivado.",
+  description: "El modelo psicobiológico de Cloninger establece una distinción llamativa: cuatro dimensiones de TEMPERAMENTO, en gran parte heredadas y automáticas (búsqueda de novedad, evitación del daño, dependencia de la recompensa, persistencia), y tres dimensiones de CARÁCTER que maduran a lo largo de la vida (autodirección, cooperación, autotrascendencia). Juntas separan la naturaleza con la que empiezas del yo que has construido.",
+  scales: {
+    NS: { name: "Búsqueda de novedad", description: "Temperamento: entusiasmo exploratorio e impulsividad.", poles: { low: "Constante", high: "Busca novedad" }, highDescriptor: "explorador/a, impulsivo/a y excitable", lowDescriptor: "reservado/a, deliberado/a y ordenado/a" },
+    HA: { name: "Evitación del daño", description: "Temperamento: preocupación, cautela y miedo al daño.", poles: { low: "Audaz", high: "Cauto" }, highDescriptor: "cauteloso/a, propenso/a a la preocupación y fácil de fatigar", lowDescriptor: "seguro/a, relajado/a y tolerante al riesgo" },
+    RD: { name: "Dependencia de la recompensa", description: "Temperamento: calidez y sensibilidad a la aprobación social.", poles: { low: "Distante", high: "Cálido" }, highDescriptor: "cálido/a, sentimental y sensible a la aprobación", lowDescriptor: "distante, práctico/a e independiente de la aprobación" },
+    PS: { name: "Persistencia", description: "Temperamento: perseverancia pese a la frustración.", poles: { low: "Cede", high: "Persevera" }, highDescriptor: "trabajador/a, decidido/a y perseverante", lowDescriptor: "fácil de desanimar cuando la recompensa se desvanece" },
+    SD: { name: "Autodirección", description: "Carácter: responsabilidad, propósito e ingenio.", poles: { low: "A la deriva", high: "Autodirigido" }, highDescriptor: "con propósito, responsable y autónomo/a", lowDescriptor: "inseguro/a de su rumbo y propenso/a a culpar a otros" },
+    CO: { name: "Cooperación", description: "Carácter: tolerancia, empatía y disposición a ayudar.", poles: { low: "Centrado en sí", high: "Cooperativo" }, highDescriptor: "tolerante, empático/a y cooperador/a", lowDescriptor: "centrado/a en sí mismo/a e intolerante con lo distinto" },
+    ST: { name: "Autotrascendencia", description: "Carácter: espiritualidad y conexión con un todo mayor.", poles: { low: "Material", high: "Trascendente" }, highDescriptor: "idealista y en sintonía con algo más grande", lowDescriptor: "concreto/a, material y autosuficiente" },
+  },
+  items: {
+    NS1: "Siempre busco experiencias nuevas y emocionantes.", NS2: "Prefiero las rutinas familiares a la novedad y la sorpresa.",
+    HA1: "Me preocupo por lo que podría salir mal, aunque otros no lo hagan.", HA2: "Me mantengo relajado/a y seguro/a en situaciones desconocidas o arriesgadas.",
+    RD1: "Soy cálido/a y sentimental, y me importa la aprobación de los demás.", RD2: "Me mantengo emocionalmente distante e indiferente a los elogios o las críticas.",
+    PS1: "Sigo esforzándome por una meta incluso cuando otros abandonarían.", PS2: "Pierdo la motivación en cuanto una tarea deja de ser gratificante.",
+    SD1: "Asumo la responsabilidad de mi vida y actúo según mis propios propósitos.", SD2: "Me cuesta fijarme metas y seguir mi propia dirección.",
+    CO1: "Soy tolerante y servicial, e intento entender otros puntos de vista.", CO2: "Tengo poca paciencia con las personas que son diferentes a mí.",
+    ST1: "A veces siento una conexión profunda con algo más grande que yo.", ST2: "Me centro en lo concreto y material, no en lo espiritual o trascendente.",
+  },
+};
+const TCI_FR: InstrumentTranslation = {
+  name: "Tempérament et Caractère", shortName: "TCI",
+  tagline: "Le modèle de Cloninger — ce dont vous avez hérité, et ce que vous avez cultivé.",
+  description: "Le modèle psychobiologique de Cloninger établit une distinction frappante : quatre dimensions de TEMPÉRAMENT, en grande partie héritées et automatiques (recherche de nouveauté, évitement du danger, dépendance à la récompense, persistance), et trois dimensions de CARACTÈRE qui mûrissent au fil de la vie (autodétermination, coopération, autotranscendance). Ensemble, elles séparent la nature de départ du soi que vous avez construit.",
+  scales: {
+    NS: { name: "Recherche de nouveauté", description: "Tempérament : enthousiasme exploratoire et impulsivité.", poles: { low: "Constant", high: "Cherche la nouveauté" }, highDescriptor: "exploratoire, impulsif(ve) et excitable", lowDescriptor: "réservé(e), réfléchi(e) et ordonné(e)" },
+    HA: { name: "Évitement du danger", description: "Tempérament : inquiétude, prudence et crainte du danger.", poles: { low: "Audacieux", high: "Prudent" }, highDescriptor: "prudent(e), enclin(e) à l'inquiétude et vite fatigué(e)", lowDescriptor: "confiant(e), détendu(e) et tolérant(e) au risque" },
+    RD: { name: "Dépendance à la récompense", description: "Tempérament : chaleur et sensibilité à l'approbation sociale.", poles: { low: "Détaché", high: "Chaleureux" }, highDescriptor: "chaleureux(se), sentimental(e) et sensible à l'approbation", lowDescriptor: "détaché(e), pragmatique et indépendant(e) de l'approbation" },
+    PS: { name: "Persistance", description: "Tempérament : persévérance malgré la frustration.", poles: { low: "Cède", high: "Persévère" }, highDescriptor: "travailleur(se), déterminé(e) et persévérant(e)", lowDescriptor: "vite découragé(e) quand la récompense s'estompe" },
+    SD: { name: "Autodétermination", description: "Caractère : responsabilité, sens et débrouillardise.", poles: { low: "À la dérive", high: "Autodéterminé" }, highDescriptor: "déterminé(e), responsable et maître de soi", lowDescriptor: "incertain(e) de sa direction et prompt(e) à rejeter la faute" },
+    CO: { name: "Coopération", description: "Caractère : tolérance, empathie et serviabilité.", poles: { low: "Centré sur soi", high: "Coopératif" }, highDescriptor: "tolérant(e), empathique et coopératif(ve)", lowDescriptor: "centré(e) sur soi et intolérant(e) à la différence" },
+    ST: { name: "Autotranscendance", description: "Caractère : spiritualité et lien avec un tout plus vaste.", poles: { low: "Matériel", high: "Transcendant" }, highDescriptor: "idéaliste et à l'écoute de quelque chose de plus grand", lowDescriptor: "concret(ète), matériel(le) et autosuffisant(e)" },
+  },
+  items: {
+    NS1: "Je suis toujours à la recherche d'expériences nouvelles et excitantes.", NS2: "Je préfère les routines familières à la nouveauté et à la surprise.",
+    HA1: "Je m'inquiète de ce qui pourrait mal tourner, même quand les autres ne le font pas.", HA2: "Je reste détendu(e) et confiant(e) dans les situations inconnues ou risquées.",
+    RD1: "Je suis chaleureux(se) et sentimental(e), et l'approbation des autres compte pour moi.", RD2: "Je reste détaché(e) émotionnellement et indifférent(e) aux éloges comme aux critiques.",
+    PS1: "Je continue de viser un objectif même quand d'autres abandonneraient.", PS2: "Je perds ma motivation dès qu'une tâche cesse d'être gratifiante.",
+    SD1: "Je prends la responsabilité de ma vie et j'agis selon mes propres buts.", SD2: "J'ai du mal à me fixer des objectifs et à suivre ma propre direction.",
+    CO1: "Je suis tolérant(e) et serviable, et j'essaie de comprendre d'autres points de vue.", CO2: "J'ai peu de patience avec les gens qui sont différents de moi.",
+    ST1: "Je ressens parfois un lien profond avec quelque chose de plus grand que moi.", ST2: "Je me concentre sur le concret et le matériel, pas sur le spirituel ou le transcendant.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1191,6 +1275,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
     "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES, "riasec-careers": RIASEC_ES, "empathy-iri": EMPATHY_ES,
     "eysenck-pen": EYSENCK_ES, "perceived-stress": PSS_ES, "worry-checkin": WORRY_ES,
+    "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1201,6 +1286,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
     "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR, "riasec-careers": RIASEC_FR, "empathy-iri": EMPATHY_FR,
     "eysenck-pen": EYSENCK_FR, "perceived-stress": PSS_FR, "worry-checkin": WORRY_FR,
+    "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR,
   },
 };
 
