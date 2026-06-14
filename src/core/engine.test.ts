@@ -11,7 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
-import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage } from "./collab";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
@@ -1021,6 +1021,22 @@ describe("Study Together collaboration", () => {
     const back = decodeProgress(encodeProgress({ name: "Béa", done: ["big-five-ipip50"], at: "2026-06-14" }));
     expect(back?.name).toBe("Béa");
     expect(back?.done).toEqual(["big-five-ipip50"]);
+  });
+
+  it("round-trips shared scores and builds a group portrait", () => {
+    const back = decodeProgress(encodeProgress({ name: "A", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 75 } } }));
+    expect(back?.scores?.["big-five-ipip50"].O).toBe(75);
+
+    const members = [
+      { name: "Ada", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 80, C: 50, E: 70, A: 60, N: 30 } } },
+      { name: "Bo", done: ["big-five-ipip50"], at: "y", scores: { "big-five-ipip50": { O: 60, C: 90, E: 20, A: 60, N: 40 } } },
+    ];
+    const gp = groupPortrait(["big-five-ipip50"], members, {});
+    expect(gp).toHaveLength(1);
+    expect(gp[0].n).toBe(2);
+    expect(gp[0].scales.find((s) => s.id === "O")!.mean).toBe(70);
+    expect(gp[0].widestScaleId).toBe("E"); // 70 vs 20 is the widest gap
+    expect(groupPortrait(["big-five-ipip50"], [members[0]], {})).toHaveLength(0); // needs 2+
   });
 
   it("computes standings and per-step coverage", () => {

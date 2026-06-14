@@ -678,7 +678,7 @@ export default function App() {
       {view === "study" && (
         <Study
           name={name}
-          completedIds={profile ? completedInstrumentIds(profile) : []}
+          entries={entries}
           onStart={start}
           onBack={goHome}
           joinRoom={joinRoom}

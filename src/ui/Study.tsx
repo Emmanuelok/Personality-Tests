@@ -4,9 +4,11 @@ import { getInstrument } from "@core/instruments";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { buildRoadmap } from "@core/roadmap";
 import {
-  createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage,
+  createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait,
   type StudyRoom, type MemberProgress,
 } from "@core/collab";
+import type { SynthEntry } from "@core/synthesis";
+import { ScaleBar } from "./charts";
 import { loadRooms, saveRoom, getRoom, removeRoom, loadMembers, saveMember } from "../collabStore";
 import { GOALS, labelsFor, toLoc, type Loc } from "./goals";
 import { CategoryEmblem } from "./art";
@@ -21,7 +23,7 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
     invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 Add session", plan: "Shared plan", begin: "Begin", retake: "Done ✓",
-    standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
+    group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
   },
   es: {
@@ -31,7 +33,7 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
     invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 Añadir sesión", plan: "Plan compartido", begin: "Empezar", retake: "Hecho ✓",
-    standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
+    group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
   },
   fr: {
@@ -41,16 +43,16 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
     invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 Ajouter séance", plan: "Plan partagé", begin: "Commencer", retake: "Fait ✓",
-    standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
+    group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
   },
 };
 
 export function Study({
-  name, completedIds, onStart, onBack, joinRoom,
+  name, entries, onStart, onBack, joinRoom,
 }: {
   name?: string;
-  completedIds: string[];
+  entries: SynthEntry[];
   onStart: (inst: Instrument) => void;
   onBack: () => void;
   joinRoom?: StudyRoom | null;
@@ -58,7 +60,17 @@ export function Study({
   const { locale } = useI18n();
   const L = toLoc(locale);
   const s = S[L];
-  const done = useMemo(() => new Set(completedIds), [completedIds]);
+  const done = useMemo(() => new Set(entries.map((e) => e.instrument.id)), [entries]);
+  const scores = useMemo(() => {
+    const m: Record<string, Record<string, number>> = {};
+    for (const e of entries) {
+      const o: Record<string, number> = {};
+      for (const sc of Object.values(e.result.scales)) o[sc.scaleId] = Math.round(sc.normalized);
+      m[e.instrument.id] = o;
+    }
+    return m;
+  }, [entries]);
+  const planScores = (plan: string[]) => Object.fromEntries(plan.filter((id) => scores[id]).map((id) => [id, scores[id]]));
 
   const [rooms, setRooms] = useState<StudyRoom[]>(() => loadRooms());
   const [selectedId, setSelectedId] = useState<string | null>(joinRoom ? joinRoom.id : (loadRooms()[0]?.id ?? null));
@@ -72,7 +84,7 @@ export function Study({
   if (pendingJoin) {
     return <JoinPrompt s={s} room={pendingJoin} initialName={name} onJoin={(nm) => {
       saveRoom(pendingJoin);
-      if (nm) saveMember(pendingJoin.id, { name: nm, done: pendingJoin.plan.filter((id) => done.has(id)), at: new Date().toISOString() });
+      if (nm) saveMember(pendingJoin.id, { name: nm, done: pendingJoin.plan.filter((id) => done.has(id)), at: new Date().toISOString(), scores: planScores(pendingJoin.plan) });
       refresh(); setSelectedId(pendingJoin.id); setPendingJoin(null);
     }} onSkip={() => setPendingJoin(null)} />;
   }
@@ -86,7 +98,7 @@ export function Study({
 
   /* ── room detail ───────────────────────────────────────────────────── */
   if (selected) {
-    return <RoomDetail s={s} L={L} room={selected} name={name} done={done} onStart={onStart}
+    return <RoomDetail s={s} L={L} room={selected} name={name} done={done} myScores={planScores(selected.plan)} onStart={onStart}
       onLeave={() => { removeRoom(selected.id); refresh(); setSelectedId(loadRooms()[0]?.id ?? null); }}
       onBack={() => setSelectedId(null)} />;
   }
@@ -199,7 +211,7 @@ function CreateRoom({ s, L, locale, host, onCancel, onCreate }: { s: Record<stri
   );
 }
 
-function RoomDetail({ s, L, room, name, done, onStart, onLeave, onBack }: { s: Record<string, string>; L: Loc; room: StudyRoom; name?: string; done: Set<string>; onStart: (inst: Instrument) => void; onLeave: () => void; onBack: () => void }) {
+function RoomDetail({ s, L, room, name, done, myScores, onStart, onLeave, onBack }: { s: Record<string, string>; L: Loc; room: StudyRoom; name?: string; done: Set<string>; myScores: Record<string, Record<string, number>>; onStart: (inst: Instrument) => void; onLeave: () => void; onBack: () => void }) {
   const [tick, setTick] = useState(0);
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("");
@@ -208,9 +220,11 @@ function RoomDetail({ s, L, room, name, done, onStart, onLeave, onBack }: { s: R
   const meName = name || s.joinedYou;
   const myDone = room.plan.filter((id) => done.has(id));
   const imported = useMemo(() => loadMembers(room.id).filter((m) => m.name.toLowerCase() !== meName.toLowerCase()), [room.id, tick, meName]);
-  const me: MemberProgress = { name: meName, done: myDone, at: new Date().toISOString() };
-  const standings = roomStandings(room, [me, ...imported]);
-  const coverage = planCoverage(room, [me, ...imported]);
+  const me: MemberProgress = { name: meName, done: myDone, at: new Date().toISOString(), scores: myScores };
+  const allMembers = [me, ...imported];
+  const standings = roomStandings(room, allMembers);
+  const coverage = planCoverage(room, allMembers);
+  const portrait = groupPortrait(room.plan, allMembers, { locale: L });
   const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
   const link = roomLink(room, origin);
   const nextId = room.plan.find((id) => !done.has(id));
@@ -304,6 +318,27 @@ function RoomDetail({ s, L, room, name, done, onStart, onLeave, onBack }: { s: R
           </div>
           {status && <p className="note" style={{ marginTop: 12 }}>{status}</p>}
         </section>
+
+        {portrait.length > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.group}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.groupSub}</p>
+            {portrait.map((gi) => (
+              <div className="gp-inst" key={gi.instrumentId}>
+                <div className="gp-inst-head"><b>{gi.instrumentName}</b><span>{s.groupShared.replace("{n}", String(gi.n))}</span></div>
+                {gi.scales.map((sc) => (
+                  <div className={`gp-scale${sc.id === gi.widestScaleId ? " wide" : ""}`} key={sc.id}>
+                    <div className="gp-scale-top">
+                      <span className="gp-scale-name">{sc.name}{sc.id === gi.widestScaleId ? " ⚡" : ""}</span>
+                      <span className="gp-range">{sc.lo.name} {sc.lo.val} → {sc.hi.name} {sc.hi.val}</span>
+                    </div>
+                    <ScaleBar value={sc.mean} leftLabel={sc.low} rightLabel={sc.high} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </section>
+        )}
 
         <div className="row-actions">
           <button className="btn ghost" onClick={onBack}>{s.back}</button>

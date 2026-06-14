@@ -1287,3 +1287,15 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 /* Roadmap action row (autopilot + schedule) */
 .rm-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
 .rm-actions .autopilot-cta { flex: 1; min-width: 220px; margin-top: 0; }
+
+/* Study Together — group portrait */
+.gp-inst { padding: 14px 0; border-top: 1px solid var(--border-soft); }
+.gp-inst:first-of-type { border-top: none; }
+.gp-inst-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.gp-inst-head b { font-family: var(--serif); font-size: 17px; }
+.gp-inst-head span { color: var(--text-faint); font-size: 12.5px; }
+.gp-scale { margin: 9px 0; }
+.gp-scale.wide .gp-scale-name { color: var(--accent-warm); font-weight: 600; }
+.gp-scale-top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; margin-bottom: 3px; }
+.gp-scale-name { color: var(--text-dim); }
+.gp-range { color: var(--text-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }

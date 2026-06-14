@@ -1,4 +1,6 @@
 import { nonce } from "./prng";
+import { getInstrument } from "./instruments";
+import { localizeInstrument } from "./instruments/i18n";
 
 /**
  * Study Together — link-shared, privacy-first collaboration.
@@ -28,6 +30,8 @@ export interface MemberProgress {
   /** Instrument ids the member has completed. */
   done: string[];
   at: string;
+  /** Optional scale snapshots (instrumentId → scaleId → 0..100) for the group portrait. */
+  scores?: Record<string, Record<string, number>>;
 }
 
 const VER = 1;
@@ -85,7 +89,7 @@ export function roomLink(r: StudyRoom, origin: string): string {
 }
 
 export function encodeProgress(p: MemberProgress): string {
-  return b64urlEncode(JSON.stringify({ n: p.name, d: p.done, a: p.at }));
+  return b64urlEncode(JSON.stringify({ n: p.name, d: p.done, a: p.at, s: p.scores }));
 }
 
 export function decodeProgress(code: string): MemberProgress | null {
@@ -96,6 +100,7 @@ export function decodeProgress(code: string): MemberProgress | null {
       name: String(o.n || "A friend").slice(0, 40),
       done: o.d.filter((x: unknown) => typeof x === "string"),
       at: String(o.a || new Date().toISOString()),
+      scores: o.s && typeof o.s === "object" ? (o.s as Record<string, Record<string, number>>) : undefined,
     };
   } catch {
     return null;
@@ -126,4 +131,60 @@ export function roomStandings(room: StudyRoom, members: MemberProgress[]): RoomS
 /** Per-step completion across all members — "who's done what" on the shared plan. */
 export function planCoverage(room: StudyRoom, members: MemberProgress[]): { instrumentId: string; doneBy: string[] }[] {
   return room.plan.map((id) => ({ instrumentId: id, doneBy: members.filter((m) => m.done.includes(id)).map((m) => m.name) }));
+}
+
+/* ── group portrait — the collective profile when teammates share results ── */
+
+export interface GroupScaleStat {
+  id: string;
+  name: string;
+  /** Pole labels, when the instrument is bipolar. */
+  low?: string;
+  high?: string;
+  /** Group mean of normalized scores, 0..100. */
+  mean: number;
+  lo: { name: string; val: number };
+  hi: { name: string; val: number };
+  spread: number;
+}
+export interface GroupInstrumentStat {
+  instrumentId: string;
+  instrumentName: string;
+  /** How many members contributed scores. */
+  n: number;
+  scales: GroupScaleStat[];
+  /** Scale with the highest group mean (the group's collective lean). */
+  topScaleId: string;
+  /** Scale with the widest member-to-member spread (where the group differs most). */
+  widestScaleId: string;
+}
+
+/** Aggregate members' shared scale snapshots into a per-instrument group portrait.
+ *  Only instruments ≥2 members have shared are included. */
+export function groupPortrait(plan: string[], members: MemberProgress[], opts: { locale?: string } = {}): GroupInstrumentStat[] {
+  const out: GroupInstrumentStat[] = [];
+  for (const instId of plan) {
+    const inst = getInstrument(instId);
+    if (!inst) continue;
+    const have = members.filter((m) => m.scores?.[instId]);
+    if (have.length < 2) continue;
+    const li = localizeInstrument(inst, opts.locale ?? "en");
+    const scales: GroupScaleStat[] = [];
+    for (const sc of li.scales) {
+      const vals = have
+        .map((m) => ({ name: m.name, val: m.scores![instId][sc.id] }))
+        .filter((v) => typeof v.val === "number");
+      if (vals.length < 2) continue;
+      const mean = Math.round(vals.reduce((a, v) => a + v.val, 0) / vals.length);
+      const sorted = [...vals].sort((a, b) => a.val - b.val);
+      const lo = sorted[0];
+      const hi = sorted[sorted.length - 1];
+      scales.push({ id: sc.id, name: sc.name, low: sc.poles?.low, high: sc.poles?.high, mean, lo, hi, spread: hi.val - lo.val });
+    }
+    if (!scales.length) continue;
+    const topScaleId = [...scales].sort((a, b) => b.mean - a.mean)[0].id;
+    const widestScaleId = [...scales].sort((a, b) => b.spread - a.spread)[0].id;
+    out.push({ instrumentId: instId, instrumentName: li.name, n: have.length, scales, topScaleId, widestScaleId });
+  }
+  return out;
 }
