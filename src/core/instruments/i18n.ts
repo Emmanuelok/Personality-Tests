@@ -1290,6 +1290,104 @@ const SENSATION_FR: InstrumentTranslation = {
     D1: "J'aime les expériences débridées, spontanées et désinhibées.", D2: "Je suis attiré(e) par ce qui est nouveau, intense ou non conventionnel.", D3: "Je deviens agité(e) et je m'ennuie quand la vie devient trop familière.", D4: "J'essaie quelque chose juste pour voir ce que ça fait, même si c'est un peu risqué.",
   },
 };
+const PANAS_ES: InstrumentTranslation = {
+  name: "Afecto positivo y negativo", shortName: "PANAS",
+  tagline: "Dos estados de ánimo independientes: cuánto afecto positivo y negativo llevas.",
+  description: "El estado de ánimo no es un único dial de malo a bueno. El PANAS trata el afecto positivo (entusiasmo, viveza, energía) y el afecto negativo (malestar, irritabilidad, miedo) como dos dimensiones en gran medida independientes: puedes estar alto o bajo en cada una. Valora cuánto te has sentido de cada modo últimamente para ver el equilibrio que llevas.",
+  scales: {
+    PA: { name: "Afecto positivo", description: "Energía, entusiasmo y placer comprometido.", poles: { low: "Poca energía", high: "Mucha energía" }, highDescriptor: "con energía, entusiasta y comprometido/a", lowDescriptor: "apático/a, con poca energía y desconectado/a" },
+    NA: { name: "Afecto negativo", description: "Malestar, irritabilidad y activación desagradable.", poles: { low: "Sereno", high: "Angustiado" }, highDescriptor: "tenso/a, angustiado/a y fácilmente alterado/a", lowDescriptor: "tranquilo/a y prácticamente sin malestar" },
+  },
+  items: {
+    P1: "Interesado/a", P2: "Entusiasmado/a", P3: "Orgulloso/a", P4: "Alerta", P5: "Inspirado/a", P6: "Decidido/a", P7: "Atento/a", P8: "Activo/a",
+    N1: "Angustiado/a", N2: "Disgustado/a", N3: "Culpable", N4: "Asustado/a", N5: "Hostil", N6: "Irritable", N7: "Nervioso/a", N8: "Temeroso/a",
+  },
+};
+const PANAS_FR: InstrumentTranslation = {
+  name: "Affect positif et négatif", shortName: "PANAS",
+  tagline: "Deux humeurs indépendantes : la dose d'affect positif et négatif que vous portez.",
+  description: "L'humeur n'est pas un simple curseur du mauvais au bon. Le PANAS traite l'affect positif (enthousiasme, vivacité, énergie) et l'affect négatif (détresse, irritabilité, peur) comme deux dimensions largement indépendantes — vous pouvez être élevé(e) ou faible sur chacune. Évaluez combien vous vous êtes senti(e) ainsi récemment pour voir l'équilibre que vous portez.",
+  scales: {
+    PA: { name: "Affect positif", description: "Énergie, enthousiasme et plaisir engagé.", poles: { low: "Peu d'énergie", high: "Beaucoup d'énergie" }, highDescriptor: "plein(e) d'énergie, enthousiaste et engagé(e)", lowDescriptor: "éteint(e), peu énergique et désengagé(e)" },
+    NA: { name: "Affect négatif", description: "Détresse, irritabilité et activation désagréable.", poles: { low: "Serein", high: "En détresse" }, highDescriptor: "tendu(e), en détresse et facilement contrarié(e)", lowDescriptor: "calme et largement exempt(e) de détresse" },
+  },
+  items: {
+    P1: "Intéressé(e)", P2: "Enthousiaste", P3: "Fier(ère)", P4: "En alerte", P5: "Inspiré(e)", P6: "Déterminé(e)", P7: "Attentif(ve)", P8: "Actif(ve)",
+    N1: "En détresse", N2: "Contrarié(e)", N3: "Coupable", N4: "Effrayé(e)", N5: "Hostile", N6: "Irritable", N7: "Nerveux(se)", N8: "Apeuré(e)",
+  },
+};
+const RYFF_ES: InstrumentTranslation = {
+  name: "Bienestar psicológico", shortName: "Bienestar",
+  tagline: "Seis pilares de una vida bien vivida, más allá de sentirse bien.",
+  description: "Carol Ryff sostenía que el bienestar es más que sentimientos agradables: es florecer. Su modelo mapea seis dimensiones: autonomía, dominio del entorno, crecimiento personal, relaciones positivas, propósito en la vida y autoaceptación. Juntas trazan una imagen más rica y eudaimónica de cuán plenamente vives, y qué pilar más valdría la pena atender.",
+  scales: {
+    AUT: { name: "Autonomía", description: "Autodirección e independencia de la presión social.", poles: { low: "Dirigido por otros", high: "Autodirigido" }, highDescriptor: "autónomo/a y fiel a tus propios criterios", lowDescriptor: "muy guiado/a por las expectativas ajenas" },
+    MAS: { name: "Dominio del entorno", description: "Manejar la vida y dar forma a tu entorno.", poles: { low: "Desbordado", high: "Con el control" }, highDescriptor: "al frente de las exigencias de la vida y dueño/a de tu contexto", lowDescriptor: "a menudo desbordado/a por las exigencias cotidianas" },
+    GRO: { name: "Crecimiento personal", description: "Desarrollo continuo y apertura al desafío.", poles: { low: "Estancado", high: "En crecimiento" }, highDescriptor: "creciendo, aprendiendo y expandiéndote", lowDescriptor: "con sensación de estancamiento" },
+    REL: { name: "Relaciones positivas", description: "Relaciones cálidas, de confianza y generosas.", poles: { low: "Reservado", high: "Conectado" }, highDescriptor: "cálida y profundamente conectado/a con los demás", lowDescriptor: "más aislado/a o reservado/a en las relaciones" },
+    PUR: { name: "Propósito en la vida", description: "Dirección, sentido y metas.", poles: { low: "A la deriva", high: "Con propósito" }, highDescriptor: "anclado/a en un propósito y un sentido claros", lowDescriptor: "en busca de dirección" },
+    ACC: { name: "Autoaceptación", description: "Una mirada positiva y serena hacia ti y tu pasado.", poles: { low: "Autocrítico", high: "Se acepta" }, highDescriptor: "aceptándote y en paz con quien eres", lowDescriptor: "autocrítico/a o inquieto/a con tu vida" },
+  },
+  items: {
+    AU1: "No me da miedo expresar mis opiniones, aunque difieran de las de la mayoría.", AU2: "Me juzgo por mis propios criterios, no por lo que piensen los demás.", AU3: "Me dejo influir fácilmente por las opiniones de quienes me rodean.",
+    MA1: "Manejo bien las exigencias de la vida diaria.", MA2: "He construido una vida y un entorno que me convienen.", MA3: "Las exigencias de la vida cotidiana a menudo me superan.",
+    GR1: "Me veo creciendo y desarrollándome como persona.", GR2: "Busco experiencias nuevas que desafíen cómo me veo a mí mismo/a.", GR3: "Siento que he dejado de crecer o de mejorar.",
+    RE1: "Tengo relaciones cálidas y de confianza con las que puedo contar.", RE2: "La gente me describiría como una persona generosa.", RE3: "Me cuesta abrirme de verdad con los demás.",
+    PU1: "Tengo un sentido claro de dirección y propósito en la vida.", PU2: "Mis metas dan sentido a mi vida.", PU3: "A veces siento que mi vida carece de un propósito real.",
+    AC1: "Me gustan la mayoría de los aspectos de quien soy.", AC2: "Estoy en gran medida en paz con cómo ha resultado mi vida.", AC3: "Estoy decepcionado/a por muchas cosas de mi vida.",
+  },
+};
+const RYFF_FR: InstrumentTranslation = {
+  name: "Bien-être psychologique", shortName: "Bien-être",
+  tagline: "Six piliers d'une vie bien vécue, au-delà du simple bien-être ressenti.",
+  description: "Carol Ryff soutenait que le bien-être est plus que des sentiments agréables : c'est l'épanouissement. Son modèle cartographie six dimensions : autonomie, maîtrise de l'environnement, croissance personnelle, relations positives, sens de la vie et acceptation de soi. Ensemble, elles esquissent une image plus riche et eudémonique de la plénitude avec laquelle vous vivez — et du pilier qui mériterait le plus d'attention.",
+  scales: {
+    AUT: { name: "Autonomie", description: "Autodétermination et indépendance face à la pression sociale.", poles: { low: "Dirigé par autrui", high: "Autodéterminé" }, highDescriptor: "maître de vous et fidèle à vos propres critères", lowDescriptor: "fortement guidé(e) par les attentes des autres" },
+    MAS: { name: "Maîtrise de l'environnement", description: "Gérer sa vie et façonner son entourage.", poles: { low: "Débordé", high: "Aux commandes" }, highDescriptor: "à la hauteur des exigences de la vie et maître de votre contexte", lowDescriptor: "souvent débordé(e) par les exigences du quotidien" },
+    GRO: { name: "Croissance personnelle", description: "Développement continu et ouverture au défi.", poles: { low: "Statique", high: "En croissance" }, highDescriptor: "en train de grandir, d'apprendre et de vous étendre", lowDescriptor: "avec un sentiment de stagnation" },
+    REL: { name: "Relations positives", description: "Des relations chaleureuses, de confiance et généreuses.", poles: { low: "Sur la réserve", high: "Connecté" }, highDescriptor: "chaleureusement et profondément lié(e) aux autres", lowDescriptor: "plus isolé(e) ou sur la réserve dans les relations" },
+    PUR: { name: "Sens de la vie", description: "Direction, sens et objectifs.", poles: { low: "À la dérive", high: "Habité par un but" }, highDescriptor: "ancré(e) dans un but et un sens clairs", lowDescriptor: "en quête de direction" },
+    ACC: { name: "Acceptation de soi", description: "Un regard positif et apaisé sur vous-même et votre passé.", poles: { low: "Critique envers soi", high: "S'accepte" }, highDescriptor: "vous acceptant et en paix avec qui vous êtes", lowDescriptor: "critique envers vous-même ou troublé(e) par votre vie" },
+  },
+  items: {
+    AU1: "Je n'ai pas peur d'exprimer mes opinions, même quand elles diffèrent de celles de la foule.", AU2: "Je me juge selon mes propres critères, pas selon ce que pensent les autres.", AU3: "Je me laisse facilement influencer par les opinions de mon entourage.",
+    MA1: "Je gère bien les exigences de la vie quotidienne.", MA2: "J'ai bâti une vie et un environnement qui me conviennent.", MA3: "Les exigences du quotidien me submergent souvent.",
+    GR1: "Je me vois grandir et me développer en tant que personne.", GR2: "Je recherche des expériences nouvelles qui remettent en question l'image que j'ai de moi.", GR3: "J'ai l'impression d'avoir cessé de grandir ou de m'améliorer.",
+    RE1: "J'ai des relations chaleureuses et de confiance sur lesquelles je peux compter.", RE2: "On me décrirait comme une personne généreuse.", RE3: "J'ai du mal à m'ouvrir vraiment aux autres.",
+    PU1: "J'ai un sens clair de direction et de but dans la vie.", PU2: "Mes objectifs donnent un sens à ma vie.", PU3: "Il m'arrive de sentir que ma vie manque de but réel.",
+    AC1: "J'aime la plupart des aspects de qui je suis.", AC2: "Je suis largement en paix avec la façon dont ma vie a tourné.", AC3: "Je suis déçu(e) par beaucoup de choses dans ma vie.",
+  },
+};
+const BURNOUT_ES: InstrumentTranslation = {
+  name: "Chequeo de burnout", shortName: "Burnout",
+  tagline: "Agotamiento, cinismo y eficacia: las tres caras del burnout.",
+  description: "El burnout, tal como lo mapeó Christina Maslach, no es solo cansancio: es un síndrome con tres partes: agotamiento emocional, cinismo/distanciamiento y una sensación de logro que mengua. Este chequeo refleja las tres para que veas no solo cuán agotado/a te sientes, sino dónde se está produciendo la erosión, y dónde tu sensación de eficacia aún se mantiene.",
+  scales: {
+    EE: { name: "Agotamiento emocional", description: "Sentirse vaciado/a y exhausto/a por las exigencias.", poles: { low: "Con recursos", high: "Agotado" }, highDescriptor: "funcionando en vacío y emocionalmente exhausto/a", lowDescriptor: "con energía y recursos emocionales" },
+    CY: { name: "Cinismo", description: "Distanciamiento y desencanto con el trabajo.", poles: { low: "Implicado", high: "Cínico" }, highDescriptor: "distante, cínico/a y desconectado/a", lowDescriptor: "implicado/a y conectado/a con tu trabajo" },
+    PA: { name: "Eficacia profesional", description: "Sensación de logro y competencia.", poles: { low: "Mermada", high: "Eficaz" }, highDescriptor: "eficaz y logrando cosas que valen la pena", lowDescriptor: "dudando de tu impacto y tu competencia" },
+  },
+  items: {
+    EE1: "Me siento emocionalmente agotado/a por mi trabajo y las exigencias diarias.", EE2: "Me siento exprimido/a al final del día.", EE3: "Solo llegar al final del día me supone un esfuerzo.", EE4: "Me siento quemado/a por mis responsabilidades.",
+    CY1: "Me he vuelto más cínico/a sobre si mi trabajo importa de verdad.", CY2: "Me he distanciado más de las personas con las que o para las que trabajo.", CY3: "Solo quiero hacer mis tareas y que me dejen en paz.", CY4: "Cada vez dudo más del valor de lo que hago.",
+    PA1: "Siento que estoy logrando cosas que valen la pena.", PA2: "Afronto los problemas con eficacia.", PA3: "Me siento con energía cuando hago bien mi trabajo.", PA4: "Tengo un impacto positivo en los demás a través de lo que hago.",
+  },
+};
+const BURNOUT_FR: InstrumentTranslation = {
+  name: "Bilan d'épuisement", shortName: "Épuisement",
+  tagline: "Épuisement, cynisme et efficacité — les trois visages du burnout.",
+  description: "Le burnout, tel que Christina Maslach l'a cartographié, n'est pas qu'une fatigue : c'est un syndrome à trois composantes — l'épuisement émotionnel, le cynisme/détachement, et un sentiment d'accomplissement qui s'amenuise. Ce bilan reflète les trois afin que vous voyiez non seulement à quel point vous vous sentez vidé(e), mais où l'érosion se produit — et où votre sentiment d'efficacité tient encore.",
+  scales: {
+    EE: { name: "Épuisement émotionnel", description: "Se sentir vidé(e) et épuisé(e) par les exigences.", poles: { low: "Ressourcé", high: "Épuisé" }, highDescriptor: "à court de tout et émotionnellement vidé(e)", lowDescriptor: "plein(e) d'énergie et de ressources émotionnelles" },
+    CY: { name: "Cynisme", description: "Détachement et désillusion vis-à-vis du travail.", poles: { low: "Engagé", high: "Cynique" }, highDescriptor: "détaché(e), cynique et désengagé(e)", lowDescriptor: "engagé(e) et connecté(e) à votre travail" },
+    PA: { name: "Efficacité professionnelle", description: "Sentiment d'accomplissement et de compétence.", poles: { low: "Diminuée", high: "Efficace" }, highDescriptor: "efficace et accomplissant des choses qui en valent la peine", lowDescriptor: "doutant de votre impact et de votre compétence" },
+  },
+  items: {
+    EE1: "Je me sens émotionnellement vidé(e) par mon travail et les exigences quotidiennes.", EE2: "Je me sens épuisé(e) à la fin de la journée.", EE3: "Rien que traverser la journée me demande un effort.", EE4: "Je me sens épuisé(e) par mes responsabilités.",
+    CY1: "Je suis devenu(e) plus cynique quant à savoir si mon travail compte vraiment.", CY2: "Je me suis détaché(e) des personnes avec qui ou pour qui je travaille.", CY3: "Je veux juste faire mes tâches et qu'on me laisse tranquille.", CY4: "Je doute de plus en plus de la valeur de ce que je fais.",
+    PA1: "J'ai le sentiment d'accomplir des choses qui en valent la peine.", PA2: "Je gère les problèmes efficacement.", PA3: "Je me sens plein(e) d'énergie quand je fais bien mon travail.", PA4: "J'ai un impact positif sur les autres par ce que je fais.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1302,6 +1400,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES, "riasec-careers": RIASEC_ES, "empathy-iri": EMPATHY_ES,
     "eysenck-pen": EYSENCK_ES, "perceived-stress": PSS_ES, "worry-checkin": WORRY_ES,
     "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES, "sensation-seeking": SENSATION_ES,
+    "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1313,6 +1412,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR, "riasec-careers": RIASEC_FR, "empathy-iri": EMPATHY_FR,
     "eysenck-pen": EYSENCK_FR, "perceived-stress": PSS_FR, "worry-checkin": WORRY_FR,
     "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR, "sensation-seeking": SENSATION_FR,
+    "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
   },
 };
 
