@@ -858,6 +858,18 @@ describe("new focused instruments", () => {
 
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
+  it("are fully localized into es/fr (names, scales, and items)", () => {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6"]) {
+      const inst = get(id);
+      const es = localizeInstrument(inst, "es");
+      const fr = localizeInstrument(inst, "fr");
+      expect(es.name).not.toBe(inst.name);
+      expect(fr.name).not.toBe(inst.name);
+      expect(es.items[0].text).not.toBe(inst.items[0].text); // items translated
+      expect(es.scales[0].name).not.toBe(inst.scales[0].name);
+    }
+  });
+
   it("score and expose the expected scales", () => {
     expect(Object.keys(scoreAssessment(get("procrastination-pps"), allHigh(get("procrastination-pps"))).scales)).toEqual(["PROC"]);
     expect(Object.keys(scoreAssessment(get("perfectionism-2f"), allHigh(get("perfectionism-2f"))).scales).sort()).toEqual(["CONC", "STAND"]);

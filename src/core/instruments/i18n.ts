@@ -667,18 +667,137 @@ const CURIOSITY_FR: InstrumentTranslation = {
   },
 };
 
+const PROCRAST_ES: InstrumentTranslation = {
+  name: "Procrastinación", shortName: "Procrastinación",
+  tagline: "Cuánto aplazas lo que importa, y lo que te cuesta.",
+  description: "La procrastinación no es pereza; es una ruptura entre la intención y la acción, casi siempre guiada por cómo nos hace sentir una tarea ahora mismo. Es uno de los predictores más fiables de metas incumplidas y estrés añadido y, por suerte, de los más modificables con las tácticas adecuadas. Esto te da una lectura honesta de tu tendencia a aplazar como punto de partida.",
+  scales: { PROC: { name: "Procrastinación", description: "Tendencia a aplazar de forma voluntaria la acción prevista aunque se espere salir perjudicado.", poles: { low: "Puntual", high: "Postergador/a" }, highDescriptor: "propenso/a a aplazar tareas y decisiones, a menudo con un coste", lowDescriptor: "rápido/a y fiable para empezar y terminar" } },
+  items: {
+    P1: "Aplazo las tareas hasta justo antes de la fecha límite.",
+    P2: "«Lo haré mañana» es una frase que uso mucho.",
+    P3: "Pospongo empezar las cosas aunque sé que no debería.",
+    P4: "Pierdo el tiempo en cosas triviales cuando tengo algo importante que hacer.",
+    P5: "A menudo acabo apurado porque dejé las cosas para demasiado tarde.",
+    P6: "Cuando planeo empezar, suelo empezar a tiempo.",
+    P7: "Termino las tareas bastante antes de su fecha.",
+    P8: "Incluso las tareas desagradables las abordo sin mucha demora.",
+    P9: "Me digo que empezaré pronto, y luego sigo sin empezar.",
+    P10: "Mis demoras acaban costándome tiempo, dinero o estrés.",
+    P11: "Se me da bien cumplir lo que programo.",
+    P12: "Sigo posponiendo decisiones que podría tomar ahora.",
+  },
+};
+const PROCRAST_FR: InstrumentTranslation = {
+  name: "Procrastination", shortName: "Procrastination",
+  tagline: "À quel point vous remettez ce qui compte — et ce que cela coûte.",
+  description: "La procrastination n'est pas de la paresse ; c'est une rupture entre l'intention et l'action, le plus souvent dictée par ce qu'une tâche nous fait ressentir sur le moment. C'est l'un des prédicteurs les plus fiables d'objectifs manqués et de stress supplémentaire — et, heureusement, l'un des plus modifiables avec les bonnes tactiques. Voici une lecture honnête de votre tendance à remettre, comme point de départ.",
+  scales: { PROC: { name: "Procrastination", description: "Tendance à différer volontairement l'action prévue alors qu'on s'attend à y perdre.", poles: { low: "Ponctuel(le)", high: "Procrastinateur(trice)" }, highDescriptor: "enclin(e) à remettre tâches et décisions, souvent à un coût", lowDescriptor: "prompt(e) et fiable pour commencer et finir" } },
+  items: {
+    P1: "Je remets les tâches à juste avant l'échéance.",
+    P2: "« Je le ferai demain » est une phrase que j'emploie souvent.",
+    P3: "Je repousse le démarrage même quand je sais que je ne devrais pas.",
+    P4: "Je perds du temps sur des broutilles quand j'ai quelque chose d'important à faire.",
+    P5: "Je me retrouve souvent à courir parce que je m'y suis pris trop tard.",
+    P6: "Quand je prévois de commencer, je commence généralement à l'heure.",
+    P7: "Je termine mes tâches bien avant l'échéance.",
+    P8: "Même les tâches désagréables, je les attaque sans trop tarder.",
+    P9: "Je me dis que je vais bientôt commencer, puis je continue à ne pas le faire.",
+    P10: "Mes retards finissent par me coûter du temps, de l'argent ou du stress.",
+    P11: "Je suis doué(e) pour mener à bien ce que je planifie.",
+    P12: "Je continue de reporter des décisions que je pourrais prendre maintenant.",
+  },
+};
+
+const PERFECT_ES: InstrumentTranslation = {
+  name: "Perfeccionismo", shortName: "Perfeccionismo",
+  tagline: "Estándares altos que te impulsan, o miedo a fallar que te pesa.",
+  description: "El perfeccionismo son dos cosas con un mismo nombre. Buscar estándares personales altos puede alimentar la maestría y el orgullo; pero la preocupación corrosiva por los errores —autocrítica dura, miedo a no dar la talla— predice ansiedad, agotamiento y procrastinación. Este perfilador mide ambas para que conserves el motor y aflojes el freno.",
+  scales: {
+    STAND: { name: "Altos estándares", description: "Esfuerzo por alcanzar estándares personales exigentes y la excelencia.", poles: { low: "Relajado/a", high: "Exigente" }, highDescriptor: "movido/a por estándares exigentes y una atracción por la excelencia", lowDescriptor: "relajado/a con los estándares, conforme con lo «suficientemente bueno»" },
+    CONC: { name: "Preocupación por los errores", description: "Inquietud autocrítica por los errores y el juicio ajeno.", poles: { low: "Autocompasivo/a", high: "Autocrítico/a" }, highDescriptor: "autocrítico/a, reacio/a al error y abrumado/a por el miedo a no dar la talla", lowDescriptor: "indulgente con tus errores y despreocupado/a por la imperfección" },
+  },
+  items: {
+    S1: "Me fijo estándares muy altos a mí mismo/a.",
+    S2: "No quedo satisfecho/a con un trabajo a menos que sea excelente.",
+    S3: "Aspiro a lo mejor en casi todo lo que hago.",
+    S4: "Tengo un fuerte impulso por seguir mejorando.",
+    S5: "Hacer algo bien me importa muchísimo.",
+    C1: "Mis errores me persiguen mucho después de cometerlos.",
+    C2: "Si no llego a la perfección, me siento un/a fracasado/a.",
+    C3: "Me preocupa mucho que los demás juzguen mis defectos.",
+    C4: "Los pequeños errores me hacen dudar de todo mi esfuerzo.",
+    C5: "Rara vez quedo satisfecho/a, por bien que lo haya hecho.",
+    C6: "El miedo a no ser suficiente me frena.",
+  },
+};
+const PERFECT_FR: InstrumentTranslation = {
+  name: "Perfectionnisme", shortName: "Perfectionnisme",
+  tagline: "Des exigences élevées qui vous portent — ou la peur d'échouer qui vous pèse.",
+  description: "Le perfectionnisme, c'est deux choses sous un même nom. Viser des exigences personnelles élevées peut nourrir la maîtrise et la fierté ; mais l'inquiétude corrosive face aux erreurs — autocritique sévère, peur de ne pas être à la hauteur — prédit l'anxiété, l'épuisement et la procrastination. Ce profileur mesure les deux pour que vous gardiez le moteur et relâchiez le frein.",
+  scales: {
+    STAND: { name: "Exigences élevées", description: "Tendre vers des standards personnels exigeants et l'excellence.", poles: { low: "Décontracté(e)", high: "Exigeant(e)" }, highDescriptor: "porté(e) par des standards exigeants et un attrait pour l'excellence", lowDescriptor: "détendu(e) sur les standards, à l'aise avec « assez bien »" },
+    CONC: { name: "Peur de l'erreur", description: "Inquiétude autocritique face aux erreurs et au jugement d'autrui.", poles: { low: "Bienveillant(e) envers soi", high: "Autocritique" }, highDescriptor: "autocritique, allergique à l'erreur et accablé(e) par la peur de ne pas être à la hauteur", lowDescriptor: "indulgent(e) envers vos erreurs et serein(e) face à l'imperfection" },
+  },
+  items: {
+    S1: "Je me fixe des exigences très élevées.",
+    S2: "Je ne suis pas satisfait(e) d'un travail s'il n'est pas excellent.",
+    S3: "Je vise le meilleur dans presque tout ce que je fais.",
+    S4: "J'ai une forte envie de continuer à m'améliorer.",
+    S5: "Bien faire les choses compte énormément pour moi.",
+    C1: "Mes erreurs me hantent longtemps après coup.",
+    C2: "Si je n'atteins pas la perfection, je me sens en échec.",
+    C3: "Je m'inquiète beaucoup du jugement des autres sur mes défauts.",
+    C4: "De petites erreurs me font douter de tout mon effort.",
+    C5: "Je suis rarement satisfait(e), même quand j'ai bien fait.",
+    C6: "La peur de ne pas être à la hauteur me retient.",
+  },
+};
+
+const GRATITUDE_ES: InstrumentTranslation = {
+  name: "Gratitud", shortName: "Gratitud",
+  tagline: "Con qué facilidad notas y agradeces lo bueno.",
+  description: "La gratitud es el hábito de notar lo bueno y sentirse agradecido por ello, y es uno de los ingredientes más fiables y entrenables de una vida feliz. Quien tiene más gratitud reporta más emoción positiva, vínculos más fuertes y mayor resiliencia. Esta es una mirada cálida a tu disposición agradecida y una base desde la que crecer.",
+  scales: { GRAT: { name: "Gratitud", description: "Disposición a notar, apreciar y agradecer lo bueno de la vida.", poles: { low: "Reservado/a", high: "Agradecido/a" }, highDescriptor: "rápido/a en notar lo bueno y sentir gratitud genuina", lowDescriptor: "menos inclinado/a a detenerte en lo que agradeces" } },
+  items: {
+    G1: "Tengo mucho que agradecer en la vida.",
+    G2: "Si enumerara todo lo que agradezco, sería una lista muy larga.",
+    G3: "Estoy agradecido/a a una gran variedad de personas.",
+    G4: "A medida que crezco, aprecio más a las personas y las cosas de mi vida.",
+    G5: "A menudo noto y saboreo los pequeños buenos momentos.",
+    G6: "Pasan largas temporadas sin que sienta gratitud por nada.",
+    G7: "Me cuesta sentirme agradecido/a por lo que tengo.",
+  },
+};
+const GRATITUDE_FR: InstrumentTranslation = {
+  name: "Gratitude", shortName: "Gratitude",
+  tagline: "Avec quelle facilité vous remarquez et appréciez le bon.",
+  description: "La gratitude est l'habitude de remarquer ce qui est bon et de s'en sentir reconnaissant — et c'est l'un des ingrédients les plus fiables et les plus exerçables d'une vie heureuse. Les personnes plus reconnaissantes rapportent plus d'émotions positives, des liens plus forts et une plus grande résilience. Voici un aperçu chaleureux de votre disposition à la gratitude, et une base à faire grandir.",
+  scales: { GRAT: { name: "Gratitude", description: "Disposition à remarquer, apprécier et être reconnaissant du bon dans la vie.", poles: { low: "Réservé(e)", high: "Reconnaissant(e)" }, highDescriptor: "prompt(e) à remarquer le bon et à ressentir une vraie reconnaissance", lowDescriptor: "moins enclin(e) à vous attarder sur ce dont vous êtes reconnaissant(e)" } },
+  items: {
+    G1: "J'ai tellement de raisons d'être reconnaissant(e) dans la vie.",
+    G2: "Si je listais tout ce dont je suis reconnaissant(e), ce serait une longue liste.",
+    G3: "Je suis reconnaissant(e) envers une grande diversité de personnes.",
+    G4: "En vieillissant, j'apprécie davantage les personnes et les choses de ma vie.",
+    G5: "Je remarque et savoure souvent les petits bons moments.",
+    G6: "De longues périodes passent sans que je ressente de gratitude pour quoi que ce soit.",
+    G7: "J'ai du mal à me sentir reconnaissant(e) pour ce que j'ai.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
     "perma-flourishing": PERMA_ES, "life-satisfaction-swls": SWLS_ES, "brief-resilience": RESILIENCE_ES,
     "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES, "hexaco-24": HEXACO_ES, "dark-triad-18": DARKTRIAD_ES,
     "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
+    "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
     "perma-flourishing": PERMA_FR, "life-satisfaction-swls": SWLS_FR, "brief-resilience": RESILIENCE_FR,
     "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR, "hexaco-24": HEXACO_FR, "dark-triad-18": DARKTRIAD_FR,
     "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
+    "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
   },
 };
 
