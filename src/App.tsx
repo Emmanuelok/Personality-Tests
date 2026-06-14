@@ -79,7 +79,7 @@ export default function App() {
   const [skipOnb, setSkipOnb] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
-  const [autopilot, setAutopilot] = useState<{ active: boolean; total: number; done: number }>({ active: false, total: 0, done: 0 });
+  const [autopilot, setAutopilot] = useState<{ active: boolean; total: number; done: number; plan?: string[] }>({ active: false, total: 0, done: 0 });
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -487,16 +487,19 @@ export default function App() {
   };
 
   /* ── Atlas Autopilot — autonomous, narrated journey ─────────────────── */
-  const startAutopilot = () => {
-    if (!autopilotNext(entries, profile?.focus ?? [], { locale })) return;
+  const startAutopilot = (plan?: string[]) => {
+    if (!autopilotNext(entries, profile?.focus ?? [], { locale, plan })) return;
     setPack([]);
     setPackTotal(0);
-    setAutopilot({ active: true, total: autopilotLength(entries), done: 0 });
+    const total = plan && plan.length
+      ? plan.filter((id) => !entries.some((e) => e.instrument.id === id)).length
+      : autopilotLength(entries);
+    setAutopilot({ active: true, total: Math.max(1, total), done: 0, plan });
     setView("agent");
     top();
   };
   const agentContinue = () => {
-    const next = autopilotNext(entries, profile?.focus ?? [], { locale });
+    const next = autopilotNext(entries, profile?.focus ?? [], { locale, plan: autopilot.plan });
     const inst = next && getInstrument(next.instrumentId);
     if (inst) beginInstrument(inst);
     else finishAutopilot();
@@ -680,13 +683,14 @@ export default function App() {
           name={name}
           entries={entries}
           onStart={start}
+          onAutopilot={startAutopilot}
           onBack={goHome}
           joinRoom={joinRoom}
         />
       )}
 
       {view === "agent" && (() => {
-        const next = autopilot.done < autopilot.total ? autopilotNext(entries, profile?.focus ?? [], { locale }) : null;
+        const next = autopilot.done < autopilot.total ? autopilotNext(entries, profile?.focus ?? [], { locale, plan: autopilot.plan }) : null;
         if (!next) {
           return (
             <div className="container view-enter">

@@ -22,7 +22,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Your rooms", none: "No rooms yet. Create one and invite a friend with the link.", members: "members", open: "Open",
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
-    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 Add session", plan: "Shared plan", begin: "Begin", retake: "Done ✓",
+    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 Add session", plan: "Shared plan", autopilot: "✨ Run this plan on Autopilot", begin: "Begin", retake: "Done ✓",
     group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
   },
@@ -32,7 +32,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Tus salas", none: "Aún no hay salas. Crea una e invita a alguien con el enlace.", members: "miembros", open: "Abrir",
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
-    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 Añadir sesión", plan: "Plan compartido", begin: "Empezar", retake: "Hecho ✓",
+    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 Añadir sesión", plan: "Plan compartido", autopilot: "✨ Ejecutar este plan en piloto automático", begin: "Empezar", retake: "Hecho ✓",
     group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
   },
@@ -42,18 +42,19 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Vos salles", none: "Aucune salle. Créez-en une et invitez un ami avec le lien.", members: "membres", open: "Ouvrir",
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
-    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 Ajouter séance", plan: "Plan partagé", begin: "Commencer", retake: "Fait ✓",
+    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 Ajouter séance", plan: "Plan partagé", autopilot: "✨ Lancer ce plan en pilote automatique", begin: "Commencer", retake: "Fait ✓",
     group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
   },
 };
 
 export function Study({
-  name, entries, onStart, onBack, joinRoom,
+  name, entries, onStart, onAutopilot, onBack, joinRoom,
 }: {
   name?: string;
   entries: SynthEntry[];
   onStart: (inst: Instrument) => void;
+  onAutopilot?: (plan: string[]) => void;
   onBack: () => void;
   joinRoom?: StudyRoom | null;
 }) {
@@ -98,7 +99,7 @@ export function Study({
 
   /* ── room detail ───────────────────────────────────────────────────── */
   if (selected) {
-    return <RoomDetail s={s} L={L} room={selected} name={name} done={done} myScores={planScores(selected.plan)} onStart={onStart}
+    return <RoomDetail s={s} L={L} room={selected} name={name} done={done} myScores={planScores(selected.plan)} onStart={onStart} onAutopilot={onAutopilot}
       onLeave={() => { removeRoom(selected.id); refresh(); setSelectedId(loadRooms()[0]?.id ?? null); }}
       onBack={() => setSelectedId(null)} />;
   }
@@ -211,7 +212,7 @@ function CreateRoom({ s, L, locale, host, onCancel, onCreate }: { s: Record<stri
   );
 }
 
-function RoomDetail({ s, L, room, name, done, myScores, onStart, onLeave, onBack }: { s: Record<string, string>; L: Loc; room: StudyRoom; name?: string; done: Set<string>; myScores: Record<string, Record<string, number>>; onStart: (inst: Instrument) => void; onLeave: () => void; onBack: () => void }) {
+function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, onLeave, onBack }: { s: Record<string, string>; L: Loc; room: StudyRoom; name?: string; done: Set<string>; myScores: Record<string, Record<string, number>>; onStart: (inst: Instrument) => void; onAutopilot?: (plan: string[]) => void; onLeave: () => void; onBack: () => void }) {
   const [tick, setTick] = useState(0);
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("");
@@ -292,6 +293,9 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onLeave, onBack
               );
             })}
           </ol>
+          {onAutopilot && room.plan.some((id) => !done.has(id)) && (
+            <button className="btn autopilot-cta" style={{ marginTop: 14 }} onClick={() => onAutopilot(room.plan)}>{s.autopilot}</button>
+          )}
         </section>
 
         <section className="panel">

@@ -24,11 +24,22 @@ export interface AutopilotPick {
   reason: string;
 }
 
-/** The agent's next move: a goal-driven roadmap step if available, else the top
+const PLAN_REASON: Record<Loc, string> = {
+  en: "Next in your shared study plan.",
+  es: "Siguiente en tu plan de estudio compartido.",
+  fr: "La prochaine de votre plan d'étude partagé.",
+};
+
+/** The agent's next move. With an explicit `plan` (e.g. a study room's curriculum)
+ *  it follows that; otherwise a goal-driven roadmap step, else the top
  *  recommendation; null when the journey is complete. */
-export function autopilotNext(entries: SynthEntry[], focus: string[], opts: { locale?: string } = {}): AutopilotPick | null {
+export function autopilotNext(entries: SynthEntry[], focus: string[], opts: { locale?: string; plan?: string[] } = {}): AutopilotPick | null {
   const locale = opts.locale;
   const done = new Set(entries.map((e) => e.instrument.id));
+  if (opts.plan && opts.plan.length) {
+    const nextId = opts.plan.find((id) => !done.has(id) && getInstrument(id));
+    return nextId ? { instrumentId: nextId, reason: PLAN_REASON[aLoc(locale)] } : null;
+  }
   const rm = buildRoadmap(entries, focus, { locale });
   if (rm.nextStep && !done.has(rm.nextStep.instrumentId)) {
     return { instrumentId: rm.nextStep.instrumentId, reason: rm.nextStep.reason };
