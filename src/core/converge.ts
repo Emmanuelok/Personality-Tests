@@ -287,6 +287,61 @@ export function constructGaps(
   return gaps;
 }
 
+/** The single best construct to cross-validate next, and the not-yet-taken
+ *  instrument that would do it. Powers the autopilot's "triangulating" agency:
+ *  resolve a contradiction first (tests disagree), else confirm a strong reading
+ *  that currently rests on a single test. Null when nothing needs shoring up. */
+export interface TriangulationTarget {
+  constructId: string;
+  constructName: string;
+  /** Not-yet-taken instrument that adds a fresh angle on the construct. */
+  instrumentId: string;
+  kind: "divergent" | "single";
+}
+export function triangulationTarget(
+  entries: { instrument: Instrument; result: AssessmentResult }[],
+  opts: { locale?: string } = {},
+): TriangulationTarget | null {
+  if (!entries.length) return null;
+  const loc = cLoc(opts.locale);
+  const done = new Set(entries.map((e) => e.instrument.id));
+  const byId = new Map(entries.map((e) => [e.instrument.id, e.result] as const));
+  const divSet = new Set(analyzeConvergence(entries, { locale: loc }).readings.filter((r) => r.divergent).map((r) => r.id));
+
+  interface Info { def: ConstructDef; takenCount: number; pos: number | null; candidates: string[] }
+  const infos: Info[] = [];
+  for (const c of CONSTRUCTS) {
+    const perInst = new Map<string, { num: number; den: number }>();
+    const candidates: string[] = [];
+    const seen = new Set<string>();
+    for (const s of c.sources) {
+      if (done.has(s.inst)) {
+        const sc = byId.get(s.inst)?.scales[s.scale];
+        if (!sc) continue;
+        const p = s.dir === 1 ? sc.normalized : 100 - sc.normalized;
+        const cur = perInst.get(s.inst) ?? { num: 0, den: 0 };
+        cur.num += p * s.w; cur.den += s.w; perInst.set(s.inst, cur);
+      } else if (!seen.has(s.inst) && getInstrument(s.inst)) { seen.add(s.inst); candidates.push(s.inst); }
+    }
+    const takenCount = perInst.size;
+    let pos: number | null = null;
+    if (takenCount === 1) { const agg = [...perInst.values()][0]; pos = agg.num / agg.den; }
+    infos.push({ def: c, takenCount, pos, candidates });
+  }
+
+  // Priority 1 — resolve a contradiction: a divergent construct with a fresh candidate.
+  const div = infos.find((i) => divSet.has(i.def.id) && i.candidates.length);
+  if (div) return { constructId: div.def.id, constructName: div.def.name[loc], instrumentId: div.candidates[0], kind: "divergent" };
+
+  // Priority 2 — confirm a strong single-source read (|pos−50| ≥ 18) from a new lens.
+  const single = infos
+    .filter((i) => i.takenCount === 1 && i.candidates.length && i.pos !== null && Math.abs(i.pos - 50) >= 18)
+    .sort((a, b) => Math.abs((b.pos as number) - 50) - Math.abs((a.pos as number) - 50))[0];
+  if (single) return { constructId: single.def.id, constructName: single.def.name[loc], instrumentId: single.candidates[0], kind: "single" };
+
+  return null;
+}
+
 function finalizeReadings(readings: ConstructReading[]): ConvergenceResult {
   // Most striking first: agreement × distinctiveness.
   readings.sort((a, b) => (b.agreement * Math.abs(b.position - 50)) - (a.agreement * Math.abs(a.position - 50)));

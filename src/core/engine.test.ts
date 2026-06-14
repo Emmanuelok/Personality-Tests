@@ -9,7 +9,7 @@ import { recommendNext, profileSpotlight, relevanceNote, standoutTraits } from "
 import { dailyNudge } from "./daily";
 import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
-import { analyzeConvergence } from "./converge";
+import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
@@ -924,6 +924,28 @@ describe("cross-test convergence", () => {
     const fr = analyzeConvergence(entries, { locale: "fr" }).readings.find((x) => x.id === "extraversion")!;
     expect(en.name).toBe("Extraversion");
     expect(fr.insight).not.toBe(en.insight);
+  });
+
+  it("picks a cross-validating target — a contradiction first, then a strong single-source read", () => {
+    // Divergence: E high vs X low → Extraversion is contested; agent reaches for a fresh lens.
+    const contested = [driveScale(bigFive, "E", true), driveScale(hexaco, "X", false)];
+    const t1 = triangulationTarget(contested, {})!;
+    expect(t1).toBeTruthy();
+    expect(t1.constructId).toBe("extraversion");
+    expect(t1.kind).toBe("divergent");
+    expect(t1.instrumentId).toBe("eysenck-pen"); // first not-yet-taken Extraversion source
+    // Localized construct name follows the locale.
+    expect(triangulationTarget(contested, { locale: "fr" })!.constructName).toBe("Extraversion");
+
+    // Only Extraversion is extreme and it rests on one test → confirm it from a new angle.
+    const single = [driveScale(bigFive, "E", true)];
+    const t2 = triangulationTarget(single, {})!;
+    expect(t2.constructId).toBe("extraversion");
+    expect(t2.kind).toBe("single");
+    expect(t2.instrumentId).toBe("hexaco-24");
+
+    // Nothing to shore up with no history.
+    expect(triangulationTarget([], {})).toBeNull();
   });
 });
 

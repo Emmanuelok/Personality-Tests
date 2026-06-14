@@ -1,7 +1,7 @@
 import type { SynthEntry } from "./synthesis";
 import { recommendNext, profileSpotlight } from "./recommend";
 import { buildRoadmap } from "./roadmap";
-import { analyzeConvergence } from "./converge";
+import { analyzeConvergence, triangulationTarget } from "./converge";
 import { getInstrument } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 
@@ -30,6 +30,22 @@ const PLAN_REASON: Record<Loc, string> = {
   fr: "La prochaine de votre plan d'étude partagé.",
 };
 
+/** "Why" lines when the agent picks a cross-validating test on its own initiative. */
+const TRI_REASON: Record<Loc, { divergent: (c: string) => string; single: (c: string) => string }> = {
+  en: {
+    divergent: (c) => `Your tests disagree on ${c} — this one breaks the tie from a fresh angle.`,
+    single: (c) => `Your ${c} read rests on a single test — this confirms it from a new lens.`,
+  },
+  es: {
+    divergent: (c) => `Tus pruebas no coinciden en ${c}: esta desempata desde otro ángulo.`,
+    single: (c) => `Tu lectura de ${c} se apoya en una sola prueba: esta la confirma desde otra mirada.`,
+  },
+  fr: {
+    divergent: (c) => `Vos tests divergent sur ${c} — celui-ci tranche sous un angle neuf.`,
+    single: (c) => `Votre lecture de ${c} repose sur un seul test — celui-ci la confirme sous un autre angle.`,
+  },
+};
+
 /** The agent's next move. With an explicit `plan` (e.g. a study room's curriculum)
  *  it follows that; otherwise a goal-driven roadmap step, else the top
  *  recommendation; null when the journey is complete. */
@@ -43,6 +59,12 @@ export function autopilotNext(entries: SynthEntry[], focus: string[], opts: { lo
   const rm = buildRoadmap(entries, focus, { locale });
   if (rm.nextStep && !done.has(rm.nextStep.instrumentId)) {
     return { instrumentId: rm.nextStep.instrumentId, reason: rm.nextStep.reason };
+  }
+  // Goal steps done — the agent now thinks for itself: shore up weak evidence by
+  // cross-validating a contradicted or single-source trait before anything generic.
+  const tri = triangulationTarget(entries, { locale });
+  if (tri && !done.has(tri.instrumentId)) {
+    return { instrumentId: tri.instrumentId, reason: TRI_REASON[aLoc(locale)][tri.kind](tri.constructName) };
   }
   const rec = recommendNext(entries, { locale, limit: 5 }).find((r) => !done.has(r.instrument.id));
   if (rec) return { instrumentId: rec.instrument.id, reason: rec.reason };
