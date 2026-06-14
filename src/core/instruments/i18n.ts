@@ -915,6 +915,75 @@ const SELFCTRL_FR: InstrumentTranslation = {
   },
 };
 
+const GRIT_ES: InstrumentTranslation = {
+  name: "Determinación (Grit)", shortName: "Determinación",
+  tagline: "Pasión y perseverancia por metas a largo plazo, y cómo cultivarla.",
+  description: "La determinación es la combinación de perseverancia y pasión sostenida que predice quién alcanza metas a largo plazo, a menudo más que el talento puro. Este perfilador mide sus dos facetas —Perseverancia del esfuerzo y Consistencia del interés— y, como la determinación es maleable, te señala la faceta donde el crecimiento llega más rápido.",
+  scales: {
+    PERS: { name: "Perseverancia del esfuerzo", description: "Trabajar duro y recuperarse de los reveses.", poles: { low: "Se frena fácil", high: "Perseverante" }, highDescriptor: "trabajador/a, resiliente y capaz de empujar a través de la dificultad", lowDescriptor: "más fácilmente frenado/a por los obstáculos y el cansancio" },
+    CONS: { name: "Consistencia del interés", description: "Mantener las mismas metas con el tiempo.", poles: { low: "Cambiante", high: "Constante" }, highDescriptor: "estable y centrado/a en metas a largo plazo", lowDescriptor: "atraído/a por nuevos intereses, con un foco que cambia con el tiempo" },
+  },
+  items: {
+    PE1: "Termino todo lo que empiezo.", PE2: "Los reveses no me desaniman por mucho tiempo; me recupero y sigo.", PE3: "Soy muy trabajador/a.", PE4: "Sigo trabajando con diligencia aunque el avance sea lento.",
+    CI1: "Me mantengo enfocado/a en las mismas metas durante años.", CI2: "Mis intereses se mantienen bastante estables de un año a otro.", CI3: "Rara vez abandono un proyecto una vez que me he comprometido de verdad.", CI4: "Las ideas y proyectos nuevos no me apartan fácilmente de los actuales.",
+  },
+};
+const GRIT_FR: InstrumentTranslation = {
+  name: "Cran (Grit)", shortName: "Cran",
+  tagline: "Passion et persévérance pour des objectifs de long terme — et comment le cultiver.",
+  description: "Le cran, c'est la combinaison de persévérance et de passion durable qui prédit qui atteint ses objectifs de long terme, souvent plus que le talent brut. Ce profileur en mesure les deux facettes — Persévérance de l'effort et Constance de l'intérêt — et, comme le cran est malléable, vous indique la facette où la progression vient le plus vite.",
+  scales: {
+    PERS: { name: "Persévérance de l'effort", description: "Travailler dur et rebondir après les revers.", poles: { low: "Vite ralenti(e)", high: "Persévérant(e)" }, highDescriptor: "travailleur(se), résilient(e) et capable de pousser à travers la difficulté", lowDescriptor: "plus facilement ralenti(e) par les obstacles et la fatigue" },
+    CONS: { name: "Constance de l'intérêt", description: "Tenir les mêmes objectifs dans le temps.", poles: { low: "Changeant(e)", high: "Constant(e)" }, highDescriptor: "stable et concentré(e) sur des objectifs de long terme", lowDescriptor: "attiré(e) par de nouveaux intérêts, avec un focus qui change avec le temps" },
+  },
+  items: {
+    PE1: "Je termine tout ce que je commence.", PE2: "Les revers ne me découragent pas longtemps ; je rebondis et je continue.", PE3: "Je suis travailleur(se).", PE4: "Je continue à travailler avec application même quand les progrès sont lents.",
+    CI1: "Je reste concentré(e) sur les mêmes objectifs pendant des années.", CI2: "Mes centres d'intérêt restent assez stables d'une année à l'autre.", CI3: "J'abandonne rarement un projet une fois vraiment engagé(e).", CI4: "Les idées et projets nouveaux ne me détournent pas facilement des miens.",
+  },
+};
+
+const NFC_ES: InstrumentTranslation = {
+  name: "Necesidad de cognición", shortName: "Nec. de cognición",
+  tagline: "Cuánto disfrutas el trabajo de pensar.",
+  description: "La necesidad de cognición es el grado en que buscas y disfrutas el pensamiento que exige esfuerzo. Quien la tiene alta saborea los problemas complejos y sopesa los argumentos con cuidado; quien la tiene baja prefiere atajos cognitivos y tareas concretas. No es inteligencia, es apetito, pero moldea cómo aprendes, decides y resistes (o caes en) la persuasión.",
+  scales: { NFC: { name: "Necesidad de cognición", description: "Tendencia a disfrutar y dedicarse al pensamiento esforzado.", poles: { low: "Piensa lo justo", high: "Le encanta pensar" }, highDescriptor: "saboreas la complejidad y el pensamiento profundo", lowDescriptor: "prefieres lo simple, lo concreto y lo eficiente" } },
+  items: {
+    N1: "Disfruto de verdad abordando problemas complejos y pensándolos a fondo.", N2: "Encuentro verdadera satisfacción en un esfuerzo mental largo y difícil.", N3: "Aprender nuevas formas de pensar me entusiasma.", N4: "Prefiero que mi vida esté llena de enigmas que tenga que resolver.",
+    N5: "Pensar mucho no es mi idea de diversión.", N6: "Solo pienso lo justo y necesario.", N7: "Prefiero hacer algo que requiera poco pensamiento que algo desafiante.", N8: "Intento evitar situaciones en las que tenga que pensar en profundidad.",
+  },
+};
+const NFC_FR: InstrumentTranslation = {
+  name: "Besoin de cognition", shortName: "Besoin de cognition",
+  tagline: "À quel point vous aimez le travail de penser.",
+  description: "Le besoin de cognition, c'est le degré auquel vous recherchez et appréciez la pensée qui demande de l'effort. Ceux qui l'ont élevé savourent les problèmes complexes et pèsent soigneusement les arguments ; ceux qui l'ont plus bas préfèrent les raccourcis cognitifs et les tâches concrètes. Ce n'est pas l'intelligence, c'est l'appétit — mais cela façonne votre façon d'apprendre, de décider et de résister (ou non) à la persuasion.",
+  scales: { NFC: { name: "Besoin de cognition", description: "Tendance à apprécier et à s'engager dans la pensée exigeante.", poles: { low: "Réfléchit au besoin", high: "Aime réfléchir" }, highDescriptor: "vous savourez la complexité et la pensée profonde", lowDescriptor: "vous préférez le simple, le concret et l'efficace" } },
+  items: {
+    N1: "J'aime sincèrement m'attaquer aux problèmes complexes et les penser à fond.", N2: "Je trouve une vraie satisfaction dans un effort mental long et exigeant.", N3: "Apprendre de nouvelles façons de penser m'enthousiasme.", N4: "Je préfère que ma vie soit pleine d'énigmes à résoudre.",
+    N5: "Réfléchir intensément n'est pas mon idée du plaisir.", N6: "Je ne réfléchis qu'autant qu'il le faut.", N7: "Je préfère faire quelque chose qui demande peu de réflexion plutôt qu'un défi.", N8: "J'essaie d'éviter les situations où je dois réfléchir en profondeur.",
+  },
+};
+
+const MINDSET_ES: InstrumentTranslation = {
+  name: "Mentalidad (Dweck)", shortName: "Mentalidad",
+  tagline: "¿Crees que tus capacidades están talladas en piedra, o que crecen?",
+  description: "La investigación de Carol Dweck sobre la «mentalidad» plantea una pregunta engañosamente simple: ¿crees que cualidades centrales como la inteligencia y el talento son fijas, o que pueden crecer con esfuerzo, estrategia y ayuda? Una mentalidad de crecimiento se asocia con la resiliencia tras el fracaso y el gusto por el reto. Esta foto muestra hacia dónde te inclinas, y la mentalidad misma es una de las cosas más cambiables de ti.",
+  scales: { MIND: { name: "Mentalidad de crecimiento", description: "Creencia de que las capacidades y cualidades pueden desarrollarse.", poles: { low: "Fija", high: "De crecimiento" }, highDescriptor: "ves la capacidad como algo que crece con el esfuerzo y el aprendizaje", lowDescriptor: "ves la capacidad como algo en gran parte fijo e innato" } },
+  items: {
+    M1: "Las personas pueden cambiar de forma sustancial cuán inteligentes son.", M2: "Seas quien seas, puedes mejorar mucho tus capacidades.", M3: "El talento es solo un punto de partida; el esfuerzo y el aprendizaje lo hacen crecer.", M4: "Puedo cambiar incluso cosas básicas del tipo de persona que soy.",
+    M5: "Tu inteligencia es algo muy básico que no puedes cambiar mucho.", M6: "Las personas tienen cierta cantidad de talento y poco pueden hacer para cambiarlo.", M7: "O se te da bien algo o no.", M8: "Las personas no pueden cambiar realmente su carácter esencial.",
+  },
+};
+const MINDSET_FR: InstrumentTranslation = {
+  name: "État d'esprit (Dweck)", shortName: "État d'esprit",
+  tagline: "Croyez-vous vos capacités gravées dans le marbre — ou cultivables ?",
+  description: "Les travaux de Carol Dweck sur l'« état d'esprit » posent une question trompeusement simple : croyez-vous que des qualités centrales comme l'intelligence et le talent sont figées, ou qu'elles peuvent grandir avec l'effort, la stratégie et l'aide ? Un état d'esprit de développement est lié à la résilience après l'échec et au goût du défi. Cet aperçu montre votre penchant — et l'état d'esprit lui-même est l'une des choses les plus modifiables chez vous.",
+  scales: { MIND: { name: "État d'esprit de développement", description: "Croyance que les capacités et qualités peuvent se développer.", poles: { low: "Figé", high: "De développement" }, highDescriptor: "vous voyez la capacité comme se cultivant par l'effort et l'apprentissage", lowDescriptor: "vous voyez la capacité comme largement figée et innée" } },
+  items: {
+    M1: "On peut changer sensiblement son niveau d'intelligence.", M2: "Qui que vous soyez, vous pouvez nettement améliorer vos capacités.", M3: "Le talent n'est qu'un point de départ ; l'effort et l'apprentissage le font grandir.", M4: "Je peux changer même des choses fondamentales de la personne que je suis.",
+    M5: "Votre intelligence est quelque chose de très fondamental que l'on ne peut guère changer.", M6: "On a une certaine dose de talent et on ne peut pas y faire grand-chose.", M7: "Soit on est doué pour quelque chose, soit on ne l'est pas.", M8: "On ne peut pas vraiment changer son caractère profond.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
@@ -923,6 +992,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
     "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
     "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
+    "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -931,6 +1001,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
     "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
     "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
+    "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR,
   },
 };
 
