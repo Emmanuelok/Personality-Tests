@@ -20,6 +20,7 @@ import type { SynthEntry } from "@core/synthesis";
 import { GOALS, labelsFor, keysFromFocus, toLoc } from "./goals";
 import { HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { Gauge } from "./charts";
+import { Reveal } from "./Reveal";
 import { useI18n } from "../i18n";
 
 export function Home({
@@ -272,7 +273,7 @@ export function Home({
         if (!list.length) return null;
         const lc = localizeCategory(cat, locale);
         return (
-          <div className="cat-block" key={cat.id}>
+          <Reveal as="div" className="cat-block" key={cat.id}>
             <div className="cat-head">
               <span className={`cat-emblem cat-${cat.id}`}>
                 <CategoryEmblem id={cat.id} />
@@ -309,11 +310,11 @@ export function Home({
                 );
               })}
             </div>
-          </div>
+          </Reveal>
         );
       })}
 
-      <div className="cat-block">
+      <Reveal as="div" className="cat-block">
         <div className="cat-head">
           <span className="cat-emblem cat-cognition">
             <CategoryEmblem id="cognition" />
@@ -442,7 +443,7 @@ export function Home({
             <button className="btn primary" onClick={onStartCreativity}>{t("home.begin")} {CREATIVITY_TEST.shortName} →</button>
           </article>
         </div>
-      </div>
+      </Reveal>
 
       <Flourish />
 
