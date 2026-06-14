@@ -859,7 +859,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");

@@ -784,6 +784,137 @@ const GRATITUDE_FR: InstrumentTranslation = {
   },
 };
 
+const SELFEFF_ES: InstrumentTranslation = {
+  name: "Autoeficacia", shortName: "Autoeficacia",
+  tagline: "Tu creencia central de que puedes con lo que venga.",
+  description: "La autoeficacia es la confianza en que podrás movilizar el esfuerzo y las estrategias para afrontar un reto, y décadas de investigación la convierten en uno de los predictores más potentes de la persistencia, la resiliencia y lo que la gente realmente logra. Es una lectura clara de tu sentido general de agencia y, como la eficacia se construye con experiencias de logro, también sirve de base para crecer.",
+  scales: { GSE: { name: "Autoeficacia general", description: "Creencia en tu capacidad de afrontar retos y alcanzar metas.", poles: { low: "Insegura", high: "Segura" }, highDescriptor: "seguro/a, con sentido de agencia y sin amilanarte ante nuevos retos", lowDescriptor: "propenso/a a dudar de tu capacidad para afrontar lo que viene" } },
+  items: {
+    E1: "Suelo resolver problemas difíciles si me esfuerzo lo suficiente.",
+    E2: "Cuando topo con un obstáculo, encuentro la manera de conseguir lo que necesito.",
+    E3: "Me resulta fácil mantener mis propósitos y cumplir mis metas.",
+    E4: "Confío en que sabría manejar con eficacia los imprevistos.",
+    E5: "Gracias a mi ingenio, sé manejar situaciones inesperadas.",
+    E6: "Puedo resolver la mayoría de los problemas si invierto el esfuerzo necesario.",
+    E7: "Puedo mantener la calma ante las dificultades porque confío en mi capacidad de afrontarlas.",
+    E8: "Cuando surge un problema, suelo encontrar varias formas de abordarlo.",
+    E9: "Si estoy en apuros, normalmente se me ocurre una salida.",
+    E10: "Venga lo que venga, suelo ser capaz de manejarlo.",
+  },
+};
+const SELFEFF_FR: InstrumentTranslation = {
+  name: "Sentiment d'efficacité", shortName: "Efficacité",
+  tagline: "Votre conviction profonde de pouvoir gérer ce qui vient.",
+  description: "Le sentiment d'efficacité personnelle, c'est la confiance de pouvoir mobiliser l'effort et les stratégies pour relever un défi — et des décennies de recherche en font l'un des plus forts prédicteurs de la persévérance, de la résilience et de ce que les gens accomplissent vraiment. Voici une lecture nette de votre sens de l'action ; et comme l'efficacité se bâtit par les expériences de maîtrise, c'est aussi une base à faire grandir.",
+  scales: { GSE: { name: "Efficacité personnelle générale", description: "Croyance en votre capacité à relever les défis et atteindre vos objectifs.", poles: { low: "Hésitant(e)", high: "Assuré(e)" }, highDescriptor: "confiant(e), acteur(trice) de votre vie et non décontenancé(e) par les nouveaux défis", lowDescriptor: "enclin(e) à douter de votre capacité à gérer ce qui vient" } },
+  items: {
+    E1: "J'arrive en général à résoudre les problèmes difficiles si je m'y emploie.",
+    E2: "Quand je heurte un obstacle, je trouve le moyen d'obtenir ce qu'il me faut.",
+    E3: "Il m'est facile de tenir mes intentions et de mener mes objectifs à terme.",
+    E4: "Je suis confiant(e) de pouvoir gérer efficacement les imprévus.",
+    E5: "Grâce à ma débrouillardise, je sais gérer les situations imprévues.",
+    E6: "Je peux résoudre la plupart des problèmes si j'investis l'effort nécessaire.",
+    E7: "Je peux rester calme face aux difficultés car je me fie à ma capacité d'y faire face.",
+    E8: "Quand un problème surgit, je trouve souvent plusieurs façons de l'aborder.",
+    E9: "Si je suis en difficulté, je trouve généralement une issue.",
+    E10: "Quoi qu'il arrive, je suis généralement capable de le gérer.",
+  },
+};
+
+const EMOREG_ES: InstrumentTranslation = {
+  name: "Regulación emocional", shortName: "Reg. emocional",
+  tagline: "Cómo manejas las emociones: reencuadrándolas o conteniéndolas.",
+  description: "Dos personas pueden sentir la misma emoción y vivirla de forma muy distinta según cómo la manejen. Este perfilador mapea dos estrategias del influyente modelo de James Gross: la reevaluación cognitiva (cambiar cómo piensas una situación para cambiar cómo se siente) y la supresión expresiva (ocultar las señales externas). La reevaluación suele favorecer el bienestar; la supresión tiene costes ocultos, pero ambas son habilidades que puedes reequilibrar con práctica.",
+  scales: {
+    REAP: { name: "Reevaluación cognitiva", description: "Reencuadrar una situación para cambiar su impacto emocional.", poles: { low: "Rara vez reencuadra", high: "Reencuadra con facilidad" }, highDescriptor: "hábil para reencuadrar situaciones y guiar tus propias emociones", lowDescriptor: "menos inclinado/a a reencuadrar para atravesar las emociones" },
+    SUPP: { name: "Supresión expresiva", description: "Inhibir la expresión externa de la emoción.", poles: { low: "Expresivo/a", high: "Se lo guarda" }, highDescriptor: "inclinado/a a guardarte lo que sientes en vez de mostrarlo", lowDescriptor: "expresivo/a y abierto/a con lo que sientes" },
+  },
+  items: {
+    R1: "Cuando quiero sentirme menos alterado/a, replanteo cómo estoy viendo la situación.",
+    R2: "Controlo mis emociones cambiando mi forma de pensar lo que ocurre.",
+    R3: "Cuando quiero sentirme más positivo/a, reencuadro la situación a propósito.",
+    R4: "Cuando estoy estresado/a, intento pensarlo de un modo que me mantenga en calma.",
+    R5: "Encuentro nuevos ángulos en una situación difícil para cambiar cómo me hace sentir.",
+    R6: "Cuando quiero sentirme menos negativo/a, cambio lo que el suceso significa para mí.",
+    S1: "Me guardo mis emociones en vez de mostrarlas.",
+    S2: "Cuando siento algo con fuerza, procuro que no se note.",
+    S3: "Controlo mis emociones no expresándolas.",
+    S4: "Aun molesto/a, mantengo una cara neutra para que nadie lo note.",
+  },
+};
+const EMOREG_FR: InstrumentTranslation = {
+  name: "Régulation émotionnelle", shortName: "Régul. émo.",
+  tagline: "Comment vous pilotez vos émotions : en les recadrant, ou en les contenant.",
+  description: "Deux personnes peuvent ressentir la même émotion et la vivre très différemment selon la façon dont elles la gèrent. Ce profileur cartographie deux stratégies du modèle influent de James Gross : la réévaluation cognitive (changer sa façon de penser une situation pour en changer le ressenti) et la suppression expressive (cacher les signes extérieurs). La réévaluation favorise plutôt le bien-être ; la suppression a des coûts cachés — mais les deux sont des compétences que l'on peut rééquilibrer.",
+  scales: {
+    REAP: { name: "Réévaluation cognitive", description: "Recadrer une situation pour changer son impact émotionnel.", poles: { low: "Recadre rarement", high: "Recadre aisément" }, highDescriptor: "habile à recadrer les situations pour orienter vos propres émotions", lowDescriptor: "moins enclin(e) à recadrer pour traverser vos émotions" },
+    SUPP: { name: "Suppression expressive", description: "Inhiber l'expression extérieure de l'émotion.", poles: { low: "Expressif(ve)", high: "Garde pour soi" }, highDescriptor: "enclin(e) à garder vos émotions plutôt qu'à les montrer", lowDescriptor: "expressif(ve) et ouvert(e) sur ce que vous ressentez" },
+  },
+  items: {
+    R1: "Quand je veux être moins contrarié(e), je repense ma façon de voir la situation.",
+    R2: "Je contrôle mes émotions en changeant ma façon de penser ce qui arrive.",
+    R3: "Quand je veux me sentir plus positif(ve), je recadre la situation exprès.",
+    R4: "Quand je suis stressé(e), j'essaie d'y penser d'une manière qui me garde calme.",
+    R5: "Je trouve de nouveaux angles à une situation difficile pour changer ce qu'elle me fait ressentir.",
+    R6: "Quand je veux être moins négatif(ve), je change ce que l'événement signifie pour moi.",
+    S1: "Je garde mes émotions pour moi plutôt que de les montrer.",
+    S2: "Quand je ressens quelque chose fortement, je veille à ne pas le laisser paraître.",
+    S3: "Je contrôle mes émotions en ne les exprimant pas.",
+    S4: "Même contrarié(e), je garde un visage neutre pour que personne ne le devine.",
+  },
+};
+
+const SELFCTRL_ES: InstrumentTranslation = {
+  name: "Autocontrol", shortName: "Autocontrol",
+  tagline: "Resistir el tirón del momento y cumplir con lo que importa.",
+  description: "El autocontrol —la capacidad de anular un impulso y dirigir tu conducta hacia lo que de verdad importa— predice las notas, la salud, el ahorro y la calidad de las relaciones mejor que casi cualquier otro rasgo. Esta escala breve y muy validada lo mide en dos caras: frenar los impulsos y mantener el rumbo. Y es entrenable: en gran parte es estructura y hábitos, no pura fuerza de voluntad.",
+  scales: {
+    RESTRAINT: { name: "Control de impulsos", description: "Capacidad de resistir la tentación y frenar el impulso.", poles: { low: "Impulsivo/a", high: "Contenido/a" }, highDescriptor: "capaz de resistir la tentación y pensar antes de actuar", lowDescriptor: "espontáneo/a y propenso/a a actuar por impulso" },
+    DISCIPLINE: { name: "Autodisciplina", description: "Constancia, seguimiento y rumbo hacia las metas.", poles: { low: "Laxo/a", high: "Disciplinado/a" }, highDescriptor: "constante, fiable y capaz de terminar lo que empieza", lowDescriptor: "le cuesta seguir rutinas y llevar las tareas hasta el final" },
+  },
+  items: {
+    R1: "Se me da bien resistir la tentación.",
+    R2: "Cuando me tienta algo que no debería, suelo poder decir que no.",
+    R3: "Mantengo mis impulsos bien controlados.",
+    R4: "A menudo actúo por impulso sin pensarlo bien.",
+    R5: "Me cuesta romper los malos hábitos.",
+    R6: "Hago cosas de las que luego me arrepiento porque no pude contenerme.",
+    R7: "El placer y la diversión a veces me impiden sacar el trabajo adelante.",
+    D1: "Me quedo con las tareas hasta terminarlas.",
+    D2: "Sigo trabajando hacia mis metas incluso cuando es tedioso.",
+    D3: "Soy fiable con mis rutinas y compromisos.",
+    D4: "Puedo obligarme a hacer cosas que no me apetecen.",
+    D5: "A menudo empiezo cosas pero no las termino.",
+    D6: "Aplazo las tareas que me resultan aburridas o difíciles.",
+    D7: "Ojalá tuviera más autodisciplina.",
+  },
+};
+const SELFCTRL_FR: InstrumentTranslation = {
+  name: "Maîtrise de soi", shortName: "Maîtrise de soi",
+  tagline: "Résister à l'attrait de l'instant — et tenir bon sur ce qui compte.",
+  description: "La maîtrise de soi — la capacité d'inhiber une impulsion et d'orienter sa conduite vers ce qui compte vraiment — prédit les résultats scolaires, la santé, l'épargne et la qualité des relations mieux que presque tout autre trait. Cette échelle brève et solidement validée la mesure sur deux faces : freiner l'impulsion et garder le cap. Et elle se travaille : c'est en grande partie de la structure et des habitudes, pas de la seule volonté.",
+  scales: {
+    RESTRAINT: { name: "Contrôle des impulsions", description: "Capacité de résister à la tentation et de freiner l'impulsion.", poles: { low: "Impulsif(ve)", high: "Maîtrisé(e)" }, highDescriptor: "capable de résister à la tentation et de réfléchir avant d'agir", lowDescriptor: "spontané(e) et enclin(e) à agir sur l'impulsion" },
+    DISCIPLINE: { name: "Autodiscipline", description: "Constance, suivi et cap maintenu vers les objectifs.", poles: { low: "Souple", high: "Discipliné(e)" }, highDescriptor: "constant(e), fiable et capable de finir ce que vous commencez", lowDescriptor: "en peine de tenir des routines et de mener les tâches à terme" },
+  },
+  items: {
+    R1: "Je suis doué(e) pour résister à la tentation.",
+    R2: "Quand quelque chose que je ne devrais pas me tente, j'arrive en général à dire non.",
+    R3: "Je tiens mes impulsions bien en main.",
+    R4: "J'agis souvent sur l'impulsion sans bien y réfléchir.",
+    R5: "J'ai du mal à rompre les mauvaises habitudes.",
+    R6: "Je fais des choses que je regrette ensuite parce que je n'ai pas pu m'en empêcher.",
+    R7: "Le plaisir et l'amusement m'empêchent parfois d'avancer dans mon travail.",
+    D1: "Je reste sur mes tâches jusqu'à ce qu'elles soient finies.",
+    D2: "Je continue vers mes objectifs même quand c'est fastidieux.",
+    D3: "Je suis fiable dans mes routines et mes engagements.",
+    D4: "Je peux me forcer à faire des choses dont je n'ai pas envie.",
+    D5: "Je commence souvent des choses sans les finir.",
+    D6: "Je remets les tâches que je trouve ennuyeuses ou difficiles.",
+    D7: "J'aimerais avoir plus d'autodiscipline.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
@@ -791,6 +922,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES, "hexaco-24": HEXACO_ES, "dark-triad-18": DARKTRIAD_ES,
     "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
     "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
+    "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -798,6 +930,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR, "hexaco-24": HEXACO_FR, "dark-triad-18": DARKTRIAD_FR,
     "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
     "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
+    "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
   },
 };
 
