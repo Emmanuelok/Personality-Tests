@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { getInstrument } from "@core/instruments";
 import { scoreAssessment } from "@core/scoring";
-import { compareTakes, type RetakeComparison } from "@core/growth";
+import { compareTakes, changeNarrative, type RetakeComparison } from "@core/growth";
 import { computeMilestones } from "@core/milestones";
 import type { SynthEntry } from "@core/synthesis";
 import { InstrumentGlyph } from "./art";
@@ -103,6 +103,7 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
                 {t("jr.takes").replace("{n}", String(c.takes))} · {new Date(c.firstAt).toLocaleDateString(locale)} → {new Date(c.latestAt).toLocaleDateString(locale)}
                 {c.typeFirst && c.typeLatest && c.typeFirst !== c.typeLatest ? ` · ${c.typeFirst} → ${c.typeLatest}` : ""}
               </p>
+              <p className="lead-para" style={{ fontSize: 15 }}>{changeNarrative(c, locale)}</p>
               {[...c.deltas].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0, 6).map((d) => (
                 <div className="delta-row" key={d.scaleId}>
                   <span className="dl-name">{d.name}</span>

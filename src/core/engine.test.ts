@@ -13,6 +13,7 @@ import { analyzeConvergence } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
+import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -951,6 +952,24 @@ describe("response-style analysis", () => {
     expect(en.flags).toHaveLength(0);
     expect(en.summary).toBeTruthy();
     expect(fr.summary).not.toBe(en.summary);
+  });
+});
+
+describe("longitudinal change narrative", () => {
+  const cmp = () => compareTakes(bigFive, "2026-01-01", scoreAssessment(bigFive, allLow(bigFive)), "2026-06-01", scoreAssessment(bigFive, allHigh(bigFive)), 2);
+
+  it("narrates the biggest movers and localizes", () => {
+    const en = changeNarrative(cmp(), "en");
+    const es = changeNarrative(cmp(), "es");
+    expect(en.length).toBeGreaterThan(30);
+    expect(en).toMatch(/rose|eased/);
+    expect(es).not.toBe(en);
+  });
+
+  it("reports a steady profile when nothing moved much", () => {
+    const same = scoreAssessment(bigFive, answerAll(bigFive, () => 3));
+    const c = compareTakes(bigFive, "2026-01-01", same, "2026-06-01", same, 2);
+    expect(changeNarrative(c, "en").toLowerCase()).toContain("steady");
   });
 });
 
