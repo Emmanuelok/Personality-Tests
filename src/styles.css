@@ -1233,3 +1233,11 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .xc-teaser-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); font-weight: 700; }
 .xc-teaser p { color: var(--text); font-size: 15px; line-height: 1.55; margin: 7px 0 10px; }
 .xc-teaser-cta { color: var(--accent-ink); font-weight: 600; font-size: 14px; }
+
+/* Study Together standings */
+.standing { display: flex; align-items: center; gap: 13px; padding: 10px 0; }
+.st-rank { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--surface-3); color: var(--text-dim); }
+.standing:first-child .st-rank { background: var(--grad); color: #fff; }
+.st-body { flex: 1; min-width: 0; }
+.st-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 5px; }
+.st-top span { color: var(--text-faint); font-size: 13px; white-space: nowrap; }

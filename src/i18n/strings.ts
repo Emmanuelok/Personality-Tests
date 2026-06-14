@@ -14,7 +14,7 @@ export const LOCALES: { id: Locale; label: string }[] = [
 
 export type StringKey =
   | "brand.tagline"
-  | "nav.assessments" | "nav.integrated" | "nav.journey" | "nav.compatibility"
+  | "nav.assessments" | "nav.integrated" | "nav.journey" | "nav.compatibility" | "nav.study"
   | "common.back" | "common.allAssessments" | "lang.label"
   | "intro.begin" | "intro.before" | "intro.namePlaceholder" | "intro.honest" | "intro.meta"
   | "calc.1" | "calc.2" | "calc.3"
@@ -81,7 +81,7 @@ type Dict = Record<StringKey, string>;
 
 const en: Dict = {
   "brand.tagline": "Know yourself with scientific depth.",
-  "nav.assessments": "Assessments", "nav.integrated": "Integrated", "nav.journey": "Journey", "nav.compatibility": "Compatibility",
+  "nav.assessments": "Assessments", "nav.integrated": "Integrated", "nav.journey": "Journey", "nav.compatibility": "Compatibility", "nav.study": "Study",
   "common.back": "Back", "common.allAssessments": "All assessments", "lang.label": "Language",
   "intro.begin": "Begin the assessment →", "intro.before": "Before you start",
   "intro.namePlaceholder": "Your name (optional)",
@@ -249,7 +249,7 @@ const en: Dict = {
 
 const es: Dict = {
   "brand.tagline": "Conócete con profundidad científica.",
-  "nav.assessments": "Evaluaciones", "nav.integrated": "Yo integrado", "nav.journey": "Trayecto", "nav.compatibility": "Compatibilidad",
+  "nav.assessments": "Evaluaciones", "nav.integrated": "Yo integrado", "nav.journey": "Trayecto", "nav.compatibility": "Compatibilidad", "nav.study": "Estudiar",
   "common.back": "Atrás", "common.allAssessments": "Todas las evaluaciones", "lang.label": "Idioma",
   "intro.begin": "Comenzar la evaluación →", "intro.before": "Antes de empezar",
   "intro.namePlaceholder": "Tu nombre (opcional)",
@@ -417,7 +417,7 @@ const es: Dict = {
 
 const fr: Dict = {
   "brand.tagline": "Connais-toi avec une profondeur scientifique.",
-  "nav.assessments": "Évaluations", "nav.integrated": "Moi intégré", "nav.journey": "Parcours", "nav.compatibility": "Compatibilité",
+  "nav.assessments": "Évaluations", "nav.integrated": "Moi intégré", "nav.journey": "Parcours", "nav.compatibility": "Compatibilité", "nav.study": "Étudier",
   "common.back": "Retour", "common.allAssessments": "Toutes les évaluations", "lang.label": "Langue",
   "intro.begin": "Commencer l'évaluation →", "intro.before": "Avant de commencer",
   "intro.namePlaceholder": "Votre nom (facultatif)",

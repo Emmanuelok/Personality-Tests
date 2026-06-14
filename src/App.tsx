@@ -11,6 +11,7 @@ import { Home } from "./ui/Home";
 import { Onboarding } from "./ui/Onboarding";
 import { CoachDock } from "./ui/CoachDock";
 import { Settings } from "./ui/Settings";
+import { decodeRoom, type StudyRoom } from "@core/collab";
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
@@ -31,6 +32,7 @@ const IatFlow = lazy(() => import("./ui/ability/IatFlow").then((m) => ({ default
 const CreativityFlow = lazy(() => import("./ui/ability/CreativityFlow").then((m) => ({ default: m.CreativityFlow })));
 const BatteryView = lazy(() => import("./ui/ability/BatteryView").then((m) => ({ default: m.BatteryView })));
 const AdminNorms = lazy(() => import("./ui/AdminNorms").then((m) => ({ default: m.AdminNorms })));
+const Study = lazy(() => import("./ui/Study").then((m) => ({ default: m.Study })));
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import { buildBattery } from "@core/ability/chc";
 import {
@@ -64,7 +66,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "iat" | "creativity" | "battery" | "admin";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "iat" | "creativity" | "battery" | "admin" | "study";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -74,6 +76,7 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
   const [skipOnb, setSkipOnb] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -162,6 +165,15 @@ export default function App() {
     if (new URLSearchParams(window.location.search).get("admin") !== null) setView("admin");
   }, []);
 
+  // Study Together invite link (?study=...): open the join flow.
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("study");
+    if (!code) return;
+    const room = decodeRoom(code);
+    if (room) { setJoinRoom(room); setSkipOnb(true); setView("study"); }
+    window.history.replaceState({}, "", window.location.pathname);
+  }, []);
+
   // Keep the daily-visit streak current whenever a returning user opens the app.
   useEffect(() => {
     setProfile((p) => {
@@ -193,6 +205,10 @@ export default function App() {
   const goHome = () => {
     setView("home");
     setError(null);
+    top();
+  };
+  const goStudy = () => {
+    setView("study");
     top();
   };
   const goCompat = () => {
@@ -510,6 +526,7 @@ export default function App() {
               {hasHistory && <button className={view === "integrated" ? "active" : ""} onClick={goIntegrated}>{t("nav.integrated")}</button>}
               {hasHistory && <button className={view === "growth" ? "active" : ""} onClick={goGrowth}>{t("nav.journey")}</button>}
               <button className={view === "compatibility" ? "active" : ""} onClick={goCompat}>{t("nav.compatibility")}</button>
+              <button className={view === "study" ? "active" : ""} onClick={goStudy}>{t("nav.study")}</button>
               <LanguageSwitcher />
               <ThemeToggle locale={locale} />
               {profile && <button className="theme-toggle" onClick={() => setSettingsOpen(true)} title={t("nav.settings")} aria-label={t("nav.settings")}>⚙</button>}
@@ -617,6 +634,16 @@ export default function App() {
 
       {view === "compatibility" && (
         <Compatibility instrument={instrument} result={result} onStart={start} onBack={goHome} />
+      )}
+
+      {view === "study" && (
+        <Study
+          name={name}
+          completedIds={profile ? completedInstrumentIds(profile) : []}
+          onStart={start}
+          onBack={goHome}
+          joinRoom={joinRoom}
+        />
       )}
 
       {view === "growth" && profile && (

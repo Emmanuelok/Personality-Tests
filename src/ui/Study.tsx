@@ -1,0 +1,306 @@
+import { useMemo, useState } from "react";
+import type { Instrument } from "@core/types";
+import { getInstrument } from "@core/instruments";
+import { localizeInstrument } from "@core/instruments/i18n";
+import { buildRoadmap } from "@core/roadmap";
+import {
+  createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage,
+  type StudyRoom, type MemberProgress,
+} from "@core/collab";
+import { loadRooms, saveRoom, getRoom, removeRoom, loadMembers, saveMember } from "../collabStore";
+import { GOALS, labelsFor, toLoc, type Loc } from "./goals";
+import { CategoryEmblem } from "./art";
+import { useI18n } from "../i18n";
+
+const S: Record<Loc, Record<string, string>> = {
+  en: {
+    title: "Study Together", sub: "Learn a topic with friends, classmates, or teammates anywhere — privately, no account. Create a room, share the link, and track your progress side by side.",
+    create: "＋ Create a study room", newRoom: "New study room", focus: "What will you study together?", roomName: "Room name", roomNamePh: "e.g., Psych 101 — Big Five week", make: "Create room & get link", cancel: "Cancel",
+    myRooms: "Your rooms", none: "No rooms yet. Create one and invite a friend with the link.", members: "members", open: "Open",
+    joinedYou: "you", host: "Host",
+    invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
+    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", plan: "Shared plan", begin: "Begin", retake: "Done ✓",
+    standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
+    leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
+  },
+  es: {
+    title: "Estudiar juntos", sub: "Aprende un tema con amigos, compañeros o tu equipo en cualquier lugar, en privado y sin cuenta. Crea una sala, comparte el enlace y sigan su progreso a la par.",
+    create: "＋ Crear una sala de estudio", newRoom: "Nueva sala de estudio", focus: "¿Qué van a estudiar juntos?", roomName: "Nombre de la sala", roomNamePh: "p. ej., Psico 101 — semana de los Cinco Grandes", make: "Crear sala y obtener enlace", cancel: "Cancelar",
+    myRooms: "Tus salas", none: "Aún no hay salas. Crea una e invita a alguien con el enlace.", members: "miembros", open: "Abrir",
+    joinedYou: "tú", host: "Anfitrión",
+    invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
+    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", plan: "Plan compartido", begin: "Empezar", retake: "Hecho ✓",
+    standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
+    leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
+  },
+  fr: {
+    title: "Étudier ensemble", sub: "Apprenez un sujet avec des amis, des camarades ou une équipe, où qu'ils soient — en privé, sans compte. Créez une salle, partagez le lien et suivez votre progression côte à côte.",
+    create: "＋ Créer une salle d'étude", newRoom: "Nouvelle salle d'étude", focus: "Qu'allez-vous étudier ensemble ?", roomName: "Nom de la salle", roomNamePh: "ex. : Psycho 101 — semaine Big Five", make: "Créer la salle et obtenir le lien", cancel: "Annuler",
+    myRooms: "Vos salles", none: "Aucune salle. Créez-en une et invitez un ami avec le lien.", members: "membres", open: "Ouvrir",
+    joinedYou: "vous", host: "Hôte",
+    invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
+    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", plan: "Plan partagé", begin: "Commencer", retake: "Fait ✓",
+    standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
+    leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
+  },
+};
+
+export function Study({
+  name, completedIds, onStart, onBack, joinRoom,
+}: {
+  name?: string;
+  completedIds: string[];
+  onStart: (inst: Instrument) => void;
+  onBack: () => void;
+  joinRoom?: StudyRoom | null;
+}) {
+  const { locale } = useI18n();
+  const L = toLoc(locale);
+  const s = S[L];
+  const done = useMemo(() => new Set(completedIds), [completedIds]);
+
+  const [rooms, setRooms] = useState<StudyRoom[]>(() => loadRooms());
+  const [selectedId, setSelectedId] = useState<string | null>(joinRoom ? joinRoom.id : (loadRooms()[0]?.id ?? null));
+  const [creating, setCreating] = useState(false);
+  const [pendingJoin, setPendingJoin] = useState<StudyRoom | null>(joinRoom && !getRoom(joinRoom.id) ? joinRoom : null);
+
+  const refresh = () => setRooms(loadRooms());
+  const selected = selectedId ? rooms.find((r) => r.id === selectedId) ?? getRoom(selectedId) : null;
+
+  /* ── join prompt (arrived via invite link) ─────────────────────────── */
+  if (pendingJoin) {
+    return <JoinPrompt s={s} room={pendingJoin} initialName={name} onJoin={(nm) => {
+      saveRoom(pendingJoin);
+      if (nm) saveMember(pendingJoin.id, { name: nm, done: pendingJoin.plan.filter((id) => done.has(id)), at: new Date().toISOString() });
+      refresh(); setSelectedId(pendingJoin.id); setPendingJoin(null);
+    }} onSkip={() => setPendingJoin(null)} />;
+  }
+
+  /* ── create form ───────────────────────────────────────────────────── */
+  if (creating) {
+    return <CreateRoom s={s} L={L} locale={locale} host={name} onCancel={() => setCreating(false)} onCreate={(room) => {
+      saveRoom(room); refresh(); setSelectedId(room.id); setCreating(false);
+    }} />;
+  }
+
+  /* ── room detail ───────────────────────────────────────────────────── */
+  if (selected) {
+    return <RoomDetail s={s} L={L} room={selected} name={name} done={done} onStart={onStart}
+      onLeave={() => { removeRoom(selected.id); refresh(); setSelectedId(loadRooms()[0]?.id ?? null); }}
+      onBack={() => setSelectedId(null)} />;
+  }
+
+  /* ── list ──────────────────────────────────────────────────────────── */
+  return (
+    <div className="container view-enter">
+      <div className="iep-hero">
+        <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{s.title}</div>
+        <h1>{s.title}</h1>
+        <div className="subtitle" style={{ color: "var(--text-dim)", maxWidth: 640, margin: "8px auto 0" }}>{s.sub}</div>
+      </div>
+      <div className="row-actions" style={{ justifyContent: "center", margin: "8px 0 22px" }}>
+        <button className="btn primary" onClick={() => setCreating(true)}>{s.create}</button>
+      </div>
+      <h2 className="section-title">{s.myRooms}</h2>
+      {rooms.length === 0 ? (
+        <p className="note">{s.none}</p>
+      ) : (
+        <div className="grid">
+          {rooms.map((r) => {
+            const members = loadMembers(r.id);
+            return (
+              <article className="card" key={r.id}>
+                <span className="kind">{s.host}: {r.host}</span>
+                <h3>{r.title}</h3>
+                <div className="facts">
+                  <span>📚 {r.plan.length} {s.done}</span>
+                  <span>👥 {Math.max(1, members.length)} {s.members}</span>
+                </div>
+                <button className="btn primary" onClick={() => setSelectedId(r.id)}>{s.open} →</button>
+              </article>
+            );
+          })}
+        </div>
+      )}
+      <div className="row-actions" style={{ marginTop: 26 }}>
+        <button className="btn ghost" onClick={onBack}>{s.back}</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── sub-components ───────────────────────────────────────────────────── */
+
+function JoinPrompt({ s, room, initialName, onJoin, onSkip }: { s: Record<string, string>; room: StudyRoom; initialName?: string; onJoin: (name: string) => void; onSkip: () => void }) {
+  const [nm, setNm] = useState(initialName ?? "");
+  return (
+    <div className="container view-enter">
+      <div className="onb-screen">
+        <div className="onb-aura" aria-hidden="true" />
+        <div className="onb view-enter">
+          <div className="onb-mark" aria-hidden="true">👥</div>
+          <h1><span className="grad">{room.host}</span> {s.invited}</h1>
+          <p className="sub">{room.title} · {room.plan.length} {s.done}</p>
+          <label className="onb-step-label" style={{ display: "block" }}>{s.joinAs}</label>
+          <input className="name-input" autoFocus placeholder={s.yourName} value={nm} maxLength={40} onChange={(e) => setNm(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") onJoin(nm.trim()); }} />
+          <div className="row-actions" style={{ justifyContent: "center" }}>
+            <button className="btn ghost" onClick={onSkip}>{s.cancel}</button>
+            <button className="btn primary" onClick={() => onJoin(nm.trim())}>{s.join} →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreateRoom({ s, L, locale, host, onCancel, onCreate }: { s: Record<string, string>; L: Loc; locale: string; host?: string; onCancel: () => void; onCreate: (r: StudyRoom) => void }) {
+  const [goal, setGoal] = useState<string>("self");
+  const [title, setTitle] = useState("");
+  const plan = useMemo(() => buildRoadmap([], labelsFor([goal], locale), { locale, length: 5 }).steps.map((st) => st.instrumentId), [goal, locale]);
+  const suggested = GOALS.find((g) => g.key === goal)?.label[L] ?? "";
+  const make = () => onCreate(createRoom({ title: (title.trim() || suggested), plan, host: host ?? "", topic: goal }));
+  return (
+    <div className="container view-enter">
+      <div className="panel" style={{ maxWidth: 620, margin: "30px auto" }}>
+        <h2 style={{ fontFamily: "var(--serif)", marginTop: 0 }}>{s.newRoom}</h2>
+        <label className="onb-step-label" style={{ display: "block", marginBottom: 10 }}>{s.focus}</label>
+        <div className="chips">
+          {GOALS.map((g) => (
+            <button key={g.key} className={`chip-toggle ${goal === g.key ? "on" : ""}`} onClick={() => setGoal(g.key)}>
+              <span aria-hidden="true" style={{ marginRight: 6 }}>{g.icon}</span>{g.label[L]}
+            </button>
+          ))}
+        </div>
+        <div className="rm-goals" style={{ marginTop: 14 }}>
+          <ol className="roadmap">
+            {plan.map((id, i) => {
+              const inst = getInstrument(id);
+              if (!inst) return null;
+              const li = localizeInstrument(inst, locale);
+              return (
+                <li className="rm-step" key={id}>
+                  <span className="rm-node">{i + 1}</span>
+                  <div className="rm-body"><div className="rm-name">{li.name}</div></div>
+                  <span className="rm-min">{inst.estMinutes} min</span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+        <label className="onb-step-label" style={{ display: "block", margin: "16px 0 8px" }}>{s.roomName}</label>
+        <input className="name-input" style={{ fontSize: 17, textAlign: "left" }} placeholder={s.roomNamePh} value={title} maxLength={70} onChange={(e) => setTitle(e.target.value)} />
+        <div className="row-actions" style={{ marginTop: 18 }}>
+          <button className="btn ghost" onClick={onCancel}>{s.cancel}</button>
+          <button className="btn primary" onClick={make}>{s.make}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RoomDetail({ s, L, room, name, done, onStart, onLeave, onBack }: { s: Record<string, string>; L: Loc; room: StudyRoom; name?: string; done: Set<string>; onStart: (inst: Instrument) => void; onLeave: () => void; onBack: () => void }) {
+  const [tick, setTick] = useState(0);
+  const [code, setCode] = useState("");
+  const [status, setStatus] = useState("");
+  const [myCode, setMyCode] = useState("");
+
+  const meName = name || s.joinedYou;
+  const myDone = room.plan.filter((id) => done.has(id));
+  const imported = useMemo(() => loadMembers(room.id).filter((m) => m.name.toLowerCase() !== meName.toLowerCase()), [room.id, tick, meName]);
+  const me: MemberProgress = { name: meName, done: myDone, at: new Date().toISOString() };
+  const standings = roomStandings(room, [me, ...imported]);
+  const coverage = planCoverage(room, [me, ...imported]);
+  const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
+  const link = roomLink(room, origin);
+  const nextId = room.plan.find((id) => !done.has(id));
+
+  const copy = (text: string, msg: string) => { try { navigator.clipboard?.writeText(text); setStatus(msg); setTimeout(() => setStatus(""), 1600); } catch { /* ignore */ } };
+  const share = async () => {
+    const data = { title: room.title, text: `${room.host}: ${room.title}`, url: link };
+    try { if (navigator.share) await navigator.share(data); else copy(link, s.copied); } catch { /* cancelled */ }
+  };
+  const addMate = () => {
+    const p = decodeProgress(code);
+    if (!p) { setStatus(s.bad); return; }
+    saveMember(room.id, p); setCode(""); setStatus(s.added); setTick((t) => t + 1); setTimeout(() => setStatus(""), 1600);
+  };
+
+  return (
+    <div className="container view-enter">
+      <div className="iep-hero">
+        <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{s.title} · {s.host}: {room.host}</div>
+        <h1>{room.title}</h1>
+      </div>
+
+      <div className="report-grid stagger">
+        <section className="panel compat-cta">
+          <span className="compat-emblem cat-relationships" aria-hidden="true"><CategoryEmblem id="relationships" /></span>
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: 18 }}>{s.invite}</h3>
+            <input className="code-input" readOnly value={link} onFocus={(e) => e.currentTarget.select()} style={{ fontSize: 12.5 }} />
+          </div>
+          <div className="row-actions" style={{ justifyContent: "flex-start" }}>
+            <button className="btn sm" onClick={() => copy(link, s.copied)}>{s.copy}</button>
+            <button className="btn sm ghost" onClick={share}>{s.share}</button>
+          </div>
+        </section>
+
+        <section className="panel">
+          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.plan}</h3>
+          <ol className="roadmap">
+            {room.plan.map((id, i) => {
+              const inst = getInstrument(id);
+              if (!inst) return null;
+              const li = localizeInstrument(inst, L);
+              const isDone = done.has(id);
+              const doneBy = coverage.find((c) => c.instrumentId === id)?.doneBy ?? [];
+              const isNext = id === nextId;
+              return (
+                <li className={`rm-step${isNext ? " current" : ""}${isDone ? " done" : ""}`} key={id}>
+                  <span className="rm-node">{isDone ? "✓" : i + 1}</span>
+                  <div className="rm-body">
+                    <div className="rm-name">{li.name}</div>
+                    {doneBy.length > 0 && <div className="rm-reason">✓ {doneBy.join(", ")}</div>}
+                  </div>
+                  {isNext
+                    ? <button className="btn primary rm-go" onClick={() => onStart(inst)}>{s.begin} →</button>
+                    : <span className="rm-min">{isDone ? s.retake : `${inst.estMinutes} min`}</span>}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+
+        <section className="panel">
+          <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.standings}</h3>
+          {standings.map((st, i) => (
+            <div className="standing" key={st.name + i}>
+              <span className="st-rank">{i + 1}</span>
+              <div className="st-body">
+                <div className="st-top"><b>{st.name}{i === 0 ? " 👑" : ""}</b><span>{s.of.replace("{d}", String(st.done)).replace("{t}", String(st.total))}</span></div>
+                <div className="ms-bar"><i style={{ width: `${st.pct}%` }} /></div>
+              </div>
+            </div>
+          ))}
+          <div style={{ marginTop: 16 }}>
+            <button className="btn sm" onClick={() => { setMyCode(encodeProgress(me)); copy(encodeProgress(me), s.copied); }}>{s.shareMine}</button>
+            {myCode && <><p className="rm-reason" style={{ margin: "10px 0 4px" }}>{s.yourCode}</p><input className="code-input" readOnly value={myCode} onFocus={(e) => e.currentTarget.select()} /></>}
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <label className="onb-step-label" style={{ display: "block", marginBottom: 8 }}>{s.addMate}</label>
+            <div className="cmp-input">
+              <input value={code} placeholder={s.paste} onChange={(e) => setCode(e.target.value)} />
+              <button className="btn primary" disabled={!code.trim()} onClick={addMate}>{s.add}</button>
+            </div>
+          </div>
+          {status && <p className="note" style={{ marginTop: 12 }}>{status}</p>}
+        </section>
+
+        <div className="row-actions">
+          <button className="btn ghost" onClick={onBack}>{s.back}</button>
+          <button className="btn ghost" onClick={() => { if (confirm(s.leaveQ)) onLeave(); }} style={{ color: "var(--danger)" }}>{s.leave}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
