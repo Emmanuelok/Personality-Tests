@@ -11,7 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
-import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait } from "./collab";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
@@ -1051,6 +1051,9 @@ describe("Study Together collaboration", () => {
     expect(gp[0].scales.find((s) => s.id === "O")!.mean).toBe(70);
     expect(gp[0].widestScaleId).toBe("E"); // 70 vs 20 is the widest gap
     expect(groupPortrait(["big-five-ipip50"], [members[0]], {})).toHaveLength(0); // needs 2+
+    const ins = groupInsights(gp, { locale: "fr" });
+    expect(ins.length).toBeGreaterThan(0);
+    expect(ins[0].length).toBeGreaterThan(15);
   });
 
   it("computes standings and per-step coverage", () => {

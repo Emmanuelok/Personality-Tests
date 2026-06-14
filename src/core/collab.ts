@@ -188,3 +188,45 @@ export function groupPortrait(plan: string[], members: MemberProgress[], opts: {
   }
   return out;
 }
+
+/* ── group narrative — warm, localized observations about the whole group ── */
+
+type GLoc = "en" | "es" | "fr";
+const gpLoc = (l?: string): GLoc => (l === "es" || l === "fr" ? l : "en");
+
+const GP_STR: Record<GLoc, {
+  align: (inst: string, pole: string, scale: string, mean: number) => string;
+  differ: (scale: string, loN: string, loV: number, hiN: string, hiV: number) => string;
+}> = {
+  en: {
+    align: (inst, pole, scale, mean) => `On ${inst}, your group leans collectively toward ${pole} (${scale}, group avg ${mean}) — a shared trait to build on together.`,
+    differ: (scale, loN, loV, hiN, hiV) => `You differ most on ${scale} — from ${loN} (${loV}) to ${hiN} (${hiV}). That range is diverse perspective to learn from each other.`,
+  },
+  es: {
+    align: (inst, pole, scale, mean) => `En ${inst}, el grupo se inclina de forma colectiva hacia ${pole} (${scale}, media ${mean}): un rasgo compartido para construir juntos.`,
+    differ: (scale, loN, loV, hiN, hiV) => `Donde más difieren es en ${scale}: de ${loN} (${loV}) a ${hiN} (${hiV}). Ese rango es perspectiva diversa para aprender unos de otros.`,
+  },
+  fr: {
+    align: (inst, pole, scale, mean) => `Sur ${inst}, votre groupe penche collectivement vers ${pole} (${scale}, moyenne ${mean}) — un trait partagé sur lequel bâtir ensemble.`,
+    differ: (scale, loN, loV, hiN, hiV) => `C'est sur ${scale} que vous différez le plus — de ${loN} (${loV}) à ${hiN} (${hiV}). Cet écart est une diversité de perspectives pour apprendre les uns des autres.`,
+  },
+};
+
+/** One or two warm, localized observations about the group, from its portrait. */
+export function groupInsights(portrait: GroupInstrumentStat[], opts: { locale?: string } = {}): string[] {
+  if (!portrait.length) return [];
+  const loc = gpLoc(opts.locale);
+  const s = GP_STR[loc];
+  const gi = [...portrait].sort((a, b) => b.n - a.n || b.scales.length - a.scales.length)[0];
+  const top = gi.scales.find((x) => x.id === gi.topScaleId);
+  const wide = gi.scales.find((x) => x.id === gi.widestScaleId);
+  const out: string[] = [];
+  if (top) {
+    const pole = top.mean >= 50 ? (top.high ?? top.name) : (top.low ?? top.name);
+    out.push(s.align(gi.instrumentName, pole, top.name, top.mean));
+  }
+  if (wide && wide.id !== gi.topScaleId && wide.spread >= 18) {
+    out.push(s.differ(wide.name, wide.lo.name, wide.lo.val, wide.hi.name, wide.hi.val));
+  }
+  return out;
+}

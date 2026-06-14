@@ -4,7 +4,7 @@ import { getInstrument } from "@core/instruments";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { buildRoadmap } from "@core/roadmap";
 import {
-  createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait,
+  createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights,
   type StudyRoom, type MemberProgress,
 } from "@core/collab";
 import type { SynthEntry } from "@core/synthesis";
@@ -226,6 +226,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
   const standings = roomStandings(room, allMembers);
   const coverage = planCoverage(room, allMembers);
   const portrait = groupPortrait(room.plan, allMembers, { locale: L });
+  const gInsights = groupInsights(portrait, { locale: L });
   const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
   const link = roomLink(room, origin);
   const nextId = room.plan.find((id) => !done.has(id));
@@ -327,6 +328,9 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
           <section className="panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.group}</h3>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.groupSub}</p>
+            {gInsights.map((gi, i) => (
+              <div className="gp-insight" key={i}><span aria-hidden="true">✦</span><p>{gi}</p></div>
+            ))}
             {portrait.map((gi) => (
               <div className="gp-inst" key={gi.instrumentId}>
                 <div className="gp-inst-head"><b>{gi.instrumentName}</b><span>{s.groupShared.replace("{n}", String(gi.n))}</span></div>
