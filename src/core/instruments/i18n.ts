@@ -1532,6 +1532,124 @@ const BFAS_FR: InstrumentTranslation = {
     WTH1: "Je me sens souvent anxieux(se), abattu(e) ou découragé(e).", WTH2: "Je me sens rarement triste ou débordé(e).",
   },
 };
+const DERAIL_ES: InstrumentTranslation = {
+  name: "Descarriladores profesionales", shortName: "Descarriladores",
+  tagline: "Las fortalezas que te sabotean en silencio bajo presión.",
+  description: "La mayoría de los reveses profesionales no se deben a la falta de habilidades, sino a fortalezas sobreutilizadas. La tradición de los 'descarriladores' (iniciada por el Hogan Development Survey) mapea las tendencias que te sirven casi todos los días pero te perjudican bajo estrés: volatilidad, suspicacia, cautela, exceso de confianza, transgresión de normas, perfeccionismo y excesiva deferencia. Conocer los tuyos es cómo evitas que tomen el mando en los peores momentos.",
+  scales: {
+    VOL: { name: "Volátil", description: "Cambios de humor y arrebatos bajo presión (pasión sobreutilizada).", poles: { low: "Sereno", high: "Volátil" }, highDescriptor: "intenso/a y fácil de detonar cuando hay estrés", lowDescriptor: "estable y difícil de alterar" },
+    SKE: { name: "Escéptico", description: "Desconfianza y cinismo (perspicacia sobreutilizada).", poles: { low: "Confiado", high: "Escéptico" }, highDescriptor: "vigilante, desconfiado/a y rápido/a para sospechar", lowDescriptor: "confiado/a y abierto/a" },
+    CAU: { name: "Cauto", description: "Aversión al riesgo e indecisión (prudencia sobreutilizada).", poles: { low: "Decidido", high: "Cauto" }, highDescriptor: "dubitativo/a y con miedo a equivocarse", lowDescriptor: "decidido/a y dispuesto/a a actuar" },
+    BOL: { name: "Audaz", description: "Exceso de confianza y sensación de merecimiento (autoconfianza sobreutilizada).", poles: { low: "Modesto", high: "Audaz" }, highDescriptor: "tan seguro/a de ti que te sobreestimas", lowDescriptor: "modesto/a y autocrítico/a" },
+    MIS: { name: "Travieso", description: "Asunción de riesgos y transgresión de normas (encanto sobreutilizado).", poles: { low: "Prudente", high: "Travieso" }, highDescriptor: "que tantea los límites y dobla las reglas", lowDescriptor: "cuidadoso/a y respetuoso/a de las normas" },
+    PER: { name: "Perfeccionista", description: "Exceso de control y microgestión (diligencia sobreutilizada).", poles: { low: "Flexible", high: "Perfeccionista" }, highDescriptor: "exigente, controlador/a y reacio/a a delegar", lowDescriptor: "flexible y que confía en los demás" },
+    DUT: { name: "Cumplidor", description: "Excesiva deferencia y complacencia (lealtad sobreutilizada).", poles: { low: "Independiente", high: "Cumplidor" }, highDescriptor: "que evita el conflicto y ansía complacer a la autoridad", lowDescriptor: "independiente y dispuesto/a a cuestionar" },
+  },
+  items: {
+    VOL1: "Bajo estrés puedo estallar, saltar o perder los nervios.", VOL2: "Mantengo el temple incluso cuando las cosas van mal.",
+    SKE1: "Sospecho rápido de las intenciones de los demás.", SKE2: "Concedo con facilidad a la gente el beneficio de la duda.",
+    CAU1: "El miedo a equivocarme me hace dudar antes de actuar o decidir.", CAU2: "Tomo decisiones con facilidad, sin darle demasiadas vueltas.",
+    BOL1: "Tengo mucha confianza en mis capacidades, quizá más de la que debería.", BOL2: "Admito sin problema cuando me equivoco o algo me supera.",
+    MIS1: "Disfruto poniendo a prueba los límites y asumiendo riesgos que otros evitarían.", MIS2: "Voy a lo seguro y me ciño a las reglas.",
+    PER1: "Mis estándares son tan altos que me cuesta delegar o soltar las cosas.", PER2: "Me conformo con lo 'suficientemente bueno' y confío en que otros cumplan.",
+    DUT1: "Evito hacer ruido y cedo ante quienes están por encima de mí.", DUT2: "Planto cara a la autoridad cuando de verdad no estoy de acuerdo.",
+  },
+};
+const DERAIL_FR: InstrumentTranslation = {
+  name: "Dérailleurs de carrière", shortName: "Dérailleurs",
+  tagline: "Les forces qui vous sabotent en silence sous la pression.",
+  description: "La plupart des revers de carrière ne viennent pas d'un manque de compétences, mais de forces surutilisées. La tradition des « dérailleurs » (initiée par le Hogan Development Survey) cartographie les tendances qui vous servent presque tous les jours mais vous desservent sous la pression : volatilité, méfiance, prudence, excès de confiance, transgression des règles, perfectionnisme et déférence excessive. Connaître les vôtres, c'est les empêcher de prendre le volant aux pires moments.",
+  scales: {
+    VOL: { name: "Volatil", description: "Sautes d'humeur et emportements sous pression (passion surutilisée).", poles: { low: "Posé", high: "Volatil" }, highDescriptor: "intense et vite déclenché(e) sous le stress", lowDescriptor: "stable et difficile à ébranler" },
+    SKE: { name: "Sceptique", description: "Méfiance et cynisme (perspicacité surutilisée).", poles: { low: "Confiant", high: "Sceptique" }, highDescriptor: "sur ses gardes, méfiant(e) et prompt(e) à soupçonner", lowDescriptor: "confiant(e) et ouvert(e)" },
+    CAU: { name: "Prudent", description: "Aversion au risque et indécision (prudence surutilisée).", poles: { low: "Décidé", high: "Prudent" }, highDescriptor: "hésitant(e) et craignant l'erreur", lowDescriptor: "décidé(e) et prêt(e) à agir" },
+    BOL: { name: "Audacieux", description: "Excès de confiance et sentiment de dû (confiance en soi surutilisée).", poles: { low: "Modeste", high: "Audacieux" }, highDescriptor: "sûr(e) de vous au point de vous surestimer", lowDescriptor: "modeste et porté(e) à vous remettre en question" },
+    MIS: { name: "Espiègle", description: "Prise de risque et transgression des règles (charme surutilisé).", poles: { low: "Prudent", high: "Espiègle" }, highDescriptor: "qui teste les limites et contourne les règles", lowDescriptor: "prudent(e) et respectueux(se) des règles" },
+    PER: { name: "Perfectionniste", description: "Excès de contrôle et microgestion (diligence surutilisée).", poles: { low: "Flexible", high: "Perfectionniste" }, highDescriptor: "exigeant(e), contrôlant(e) et réticent(e) à déléguer", lowDescriptor: "flexible et confiant(e) envers les autres" },
+    DUT: { name: "Dévoué", description: "Déférence excessive et désir de plaire (loyauté surutilisée).", poles: { low: "Indépendant", high: "Dévoué" }, highDescriptor: "évitant le conflit et soucieux(se) de plaire à l'autorité", lowDescriptor: "indépendant(e) et prêt(e) à contester" },
+  },
+  items: {
+    VOL1: "Sous le stress, je peux exploser, m'emporter ou perdre mon calme.", VOL2: "Je garde mon sang-froid même quand les choses tournent mal.",
+    SKE1: "Je suis prompt(e) à soupçonner les motivations des autres.", SKE2: "J'accorde volontiers aux gens le bénéfice du doute.",
+    CAU1: "La peur de me tromper me fait hésiter à agir ou à décider.", CAU2: "Je prends des décisions facilement, sans trop m'inquiéter.",
+    BOL1: "J'ai une grande confiance en mes capacités — peut-être plus que je ne le devrais.", BOL2: "J'admets volontiers quand j'ai tort ou que je suis dépassé(e).",
+    MIS1: "J'aime tester les limites et prendre des risques que d'autres éviteraient.", MIS2: "Je joue la sécurité et je m'en tiens aux règles.",
+    PER1: "Mes exigences sont si élevées que j'ai du mal à déléguer ou à lâcher prise.", PER2: "Je me contente du « assez bien » et je fais confiance aux autres pour livrer.",
+    DUT1: "J'évite de faire des vagues et je m'incline devant mes supérieurs.", DUT2: "Je tiens tête à l'autorité quand je suis vraiment en désaccord.",
+  },
+};
+const PID5_ES: InstrumentTranslation = {
+  name: "Dominios de rasgos desadaptativos", shortName: "Dominios",
+  tagline: "Los cinco dominios de rasgos del DSM-5: el reflejo 'difícil' de los Cinco Grandes.",
+  description: "La psiquiatría moderna describe la dificultad de la personalidad no como casillas, sino como dimensiones: cinco amplios dominios de rasgos que son esencialmente el extremo desadaptativo de los Cinco Grandes: afectividad negativa, desapego, antagonismo, desinhibición y psicoticismo. Este cribado educativo mapea dónde te sitúas en cada uno, como estímulo para el autoconocimiento, nunca como diagnóstico.",
+  scales: {
+    NEGA: { name: "Afectividad negativa", description: "Emoción negativa frecuente e intensa (el polo desadaptativo del neuroticismo alto).", poles: { low: "Estable", high: "Volátil" }, highDescriptor: "emocionalmente intenso/a, ansioso/a y fácil de desbordar", lowDescriptor: "emocionalmente estable y lento/a para angustiarse" },
+    DETA: { name: "Desapego", description: "Retraimiento y menor placer (el polo desadaptativo de la extraversión baja).", poles: { low: "Implicado", high: "Desapegado" }, highDescriptor: "retraído/a, apagado/a y evitando la intimidad", lowDescriptor: "implicado/a, cálido/a y emocionalmente presente" },
+    ANTA: { name: "Antagonismo", description: "Manipulación y grandiosidad (el polo desadaptativo de la amabilidad baja).", poles: { low: "Amable", high: "Antagonista" }, highDescriptor: "interesado/a, manipulador/a y con sensación de merecimiento", lowDescriptor: "honesto/a, considerado/a y cooperador/a" },
+    DISI: { name: "Desinhibición", description: "Impulsividad e irresponsabilidad (el polo desadaptativo de la responsabilidad baja).", poles: { low: "Controlado", high: "Desinhibido" }, highDescriptor: "impulsivo/a, distraíble y poco fiable", lowDescriptor: "controlado/a, fiable y previsor/a" },
+    PSYO: { name: "Psicoticismo", description: "Experiencias inusuales y pensamiento excéntrico (el polo desadaptativo de la apertura alta).", poles: { low: "Convencional", high: "Excéntrico" }, highDescriptor: "poco convencional, con percepciones inusuales y pensamiento disperso", lowDescriptor: "convencional y de pensamiento claro" },
+  },
+  items: {
+    NA1: "Mis emociones oscilan con intensidad y pueden cambiar rápido.", NA2: "Me preocupo por muchísimas cosas distintas.", NA3: "Me pongo muy ansioso/a cuando personas importantes para mí podrían alejarse.", NA4: "Pequeños estreses pueden dejarme con sensación de desbordamiento.",
+    DE1: "Mantengo las distancias con la gente, incluso con quienes están cerca de mí.", DE2: "Rara vez obtengo mucho placer o entusiasmo de la vida.", DE3: "Por lo general prefiero estar solo/a a estar con otros.", DE4: "No muestro mucha emoción a los demás.",
+    AN1: "Uso el encanto o la adulación para conseguir lo que quiero.", AN2: "Siento que merezco un trato especial.", AN3: "Distorsiono la verdad cuando me conviene.", AN4: "No me importa anteponer mis intereses a los de los demás.",
+    DI1: "Actúo por impulso sin pensar en las consecuencias.", DI2: "A menudo no cumplo con mis obligaciones.", DI3: "Me distraigo con facilidad y dejo cosas sin terminar.", DI4: "Asumo riesgos que podrían causarme verdaderos problemas.",
+    PS1: "Tengo experiencias que a otros les costaría creer.", PS2: "Mis pensamientos a menudo se sienten dispersos o difíciles de seguir.", PS3: "La gente me dice que mis ideas o mi comportamiento son inusuales o excéntricos.", PS4: "A veces tengo percepciones o corazonadas que cuesta explicar.",
+  },
+};
+const PID5_FR: InstrumentTranslation = {
+  name: "Domaines de traits inadaptés", shortName: "Domaines",
+  tagline: "Les cinq domaines de traits du DSM-5 — le miroir « difficile » des Big Five.",
+  description: "La psychiatrie moderne décrit la difficulté de la personnalité non par des cases, mais par des dimensions : cinq grands domaines de traits qui sont essentiellement l'extrémité inadaptée des Big Five — affectivité négative, détachement, antagonisme, désinhibition et psychoticisme. Ce dépistage éducatif situe où vous vous trouvez sur chacun, comme invitation à mieux se comprendre — jamais un diagnostic.",
+  scales: {
+    NEGA: { name: "Affectivité négative", description: "Émotion négative fréquente et intense (le pôle inadapté du névrosisme élevé).", poles: { low: "Stable", high: "Volatil" }, highDescriptor: "émotionnellement intense, anxieux(se) et facilement débordé(e)", lowDescriptor: "émotionnellement stable et lent(e) à la détresse" },
+    DETA: { name: "Détachement", description: "Retrait et moindre plaisir (le pôle inadapté de l'extraversion basse).", poles: { low: "Engagé", high: "Détaché" }, highDescriptor: "en retrait, éteint(e) et évitant l'intimité", lowDescriptor: "engagé(e), chaleureux(se) et présent(e) émotionnellement" },
+    ANTA: { name: "Antagonisme", description: "Manipulation et grandiosité (le pôle inadapté de l'agréabilité basse).", poles: { low: "Agréable", high: "Antagoniste" }, highDescriptor: "intéressé(e), trompeur(se) et avec un sentiment de dû", lowDescriptor: "honnête, prévenant(e) et coopératif(ve)" },
+    DISI: { name: "Désinhibition", description: "Impulsivité et irresponsabilité (le pôle inadapté de la conscience basse).", poles: { low: "Contrôlé", high: "Désinhibé" }, highDescriptor: "impulsif(ve), distrait(e) et peu fiable", lowDescriptor: "contrôlé(e), fiable et prévoyant(e)" },
+    PSYO: { name: "Psychoticisme", description: "Expériences inhabituelles et pensée excentrique (le pôle inadapté de l'ouverture élevée).", poles: { low: "Conventionnel", high: "Excentrique" }, highDescriptor: "peu conventionnel(le), avec des perceptions inhabituelles et une pensée éparse", lowDescriptor: "conventionnel(le) et à la pensée claire" },
+  },
+  items: {
+    NA1: "Mes émotions oscillent intensément et peuvent changer vite.", NA2: "Je m'inquiète d'un très grand nombre de choses.", NA3: "Je deviens très anxieux(se) quand des personnes importantes pour moi pourraient s'éloigner.", NA4: "De petits stress peuvent me laisser un sentiment de débordement.",
+    DE1: "Je garde mes distances avec les gens, même les proches.", DE2: "Je tire rarement beaucoup de plaisir ou d'enthousiasme de la vie.", DE3: "Je préfère généralement être seul(e) qu'avec les autres.", DE4: "Je ne montre pas beaucoup d'émotion aux autres.",
+    AN1: "J'use de charme ou de flatterie pour obtenir ce que je veux.", AN2: "J'ai le sentiment de mériter un traitement spécial.", AN3: "Je déforme la vérité quand cela m'arrange.", AN4: "Cela ne me dérange pas de faire passer mes intérêts bien avant ceux des autres.",
+    DI1: "J'agis sur un coup de tête sans penser aux conséquences.", DI2: "Je ne tiens souvent pas mes obligations.", DI3: "Je me laisse facilement distraire et je laisse des choses inachevées.", DI4: "Je prends des risques qui pourraient me causer de vrais problèmes.",
+    PS1: "J'ai des expériences que d'autres auraient du mal à croire.", PS2: "Mes pensées semblent souvent éparses ou difficiles à suivre.", PS3: "On me dit que mes idées ou mon comportement sont inhabituels ou excentriques.", PS4: "J'ai parfois des perceptions ou des intuitions difficiles à expliquer.",
+  },
+};
+const ROKEACH_ES: InstrumentTranslation = {
+  name: "Valores de Rokeach", shortName: "Rokeach",
+  tagline: "Metas finales frente a formas de actuar: el mapa clásico de cuatro vías de lo que valoras.",
+  description: "Milton Rokeach dividió los valores humanos de dos maneras: valores terminales (los estados finales por los que vivimos) frente a valores instrumentales (las formas de comportarse que apreciamos), y fines personales frente a sociales. El cruce da cuatro orientaciones, un complemento esclarecedor al círculo de Schwartz, que muestra si tu brújula apunta a fines personales o compartidos, y a una conducta moral o basada en la competencia.",
+  scales: {
+    TERMP: { name: "Terminal · personal", description: "Estados finales deseados para ti (una buena vida, paz interior, logro).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "centrado/a en la realización personal y una buena vida", lowDescriptor: "menos orientado/a a metas finales personales" },
+    TERMS: { name: "Terminal · social", description: "Estados finales deseados para el mundo (paz, igualdad, libertad).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "movido/a por la justicia y el bien común", lowDescriptor: "menos orientado/a a metas finales sociales" },
+    INSTM: { name: "Instrumental · moral", description: "Formas de actuar valoradas hacia los demás (honesto, servicial, indulgente).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "guiado/a por la honestidad, la amabilidad y la integridad", lowDescriptor: "menos guiado/a por valores de conducta moral" },
+    INSTC: { name: "Instrumental · competencia", description: "Formas de actuar valoradas respecto a la capacidad (capaz, ambicioso, lógico).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "guiado/a por la competencia, la ambición y la eficacia", lowDescriptor: "menos guiado/a por valores de competencia" },
+  },
+  items: {
+    TP1: "Una vida cómoda y placentera para mí es una prioridad absoluta.", TP2: "La armonía interior, la felicidad y el respeto por mí mismo/a guían mis decisiones.", TP3: "Una sensación de logro personal me importa profundamente.",
+    TS1: "Un mundo de paz, justicia e igualdad me importa profundamente.", TS2: "Me preocupan la libertad y el bienestar de todas las personas, no solo los míos.", TS3: "Renunciaría a mi comodidad personal por el bien social mayor.",
+    IM1: "Ser honesto/a y ético/a me importa más que ganar.", IM2: "Valoro ser servicial, indulgente y amable en mi forma de actuar.", IM3: "Prefiero hacer lo correcto antes que lo ventajoso.",
+    IC1: "Valoro ser capaz, lógico/a y eficaz por encima de todo.", IC2: "La ambición y el logro son centrales para quien quiero ser.", IC3: "Admiro la competencia y la inteligencia tanto como la calidez.",
+  },
+};
+const ROKEACH_FR: InstrumentTranslation = {
+  name: "Valeurs de Rokeach", shortName: "Rokeach",
+  tagline: "Buts finaux ou manières d'agir — la carte classique en quatre volets de ce que vous prisez.",
+  description: "Milton Rokeach a divisé les valeurs humaines de deux façons : les valeurs terminales (les états finaux pour lesquels nous vivons) face aux valeurs instrumentales (les manières d'agir que nous prisons), et les buts personnels face aux buts sociaux. Le croisement donne quatre orientations — un complément éclairant au cercle de Schwartz, montrant si votre boussole pointe vers des fins personnelles ou partagées, et vers une conduite morale ou fondée sur la compétence.",
+  scales: {
+    TERMP: { name: "Terminale · personnelle", description: "États finaux désirés pour vous (une bonne vie, la paix intérieure, l'accomplissement).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "centré(e) sur l'épanouissement personnel et une bonne vie", lowDescriptor: "moins orienté(e) vers des buts finaux personnels" },
+    TERMS: { name: "Terminale · sociale", description: "États finaux désirés pour le monde (paix, égalité, liberté).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "animé(e) par la justice et le bien commun", lowDescriptor: "moins orienté(e) vers des buts finaux sociaux" },
+    INSTM: { name: "Instrumentale · morale", description: "Manières d'agir prisées envers autrui (honnête, serviable, indulgent).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "guidé(e) par l'honnêteté, la gentillesse et l'intégrité", lowDescriptor: "moins guidé(e) par des valeurs de conduite morale" },
+    INSTC: { name: "Instrumentale · compétence", description: "Manières d'agir prisées quant à la capacité (capable, ambitieux, logique).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "guidé(e) par la compétence, l'ambition et l'efficacité", lowDescriptor: "moins guidé(e) par des valeurs de compétence" },
+  },
+  items: {
+    TP1: "Une vie confortable et agréable pour moi est une priorité absolue.", TP2: "L'harmonie intérieure, le bonheur et le respect de moi-même guident mes choix.", TP3: "Un sentiment d'accomplissement personnel compte profondément pour moi.",
+    TS1: "Un monde de paix, de justice et d'égalité compte profondément pour moi.", TS2: "Je me soucie de la liberté et du bien-être de tous, pas seulement des miens.", TS3: "Je renoncerais à mon confort personnel pour le bien social plus grand.",
+    IM1: "Être honnête et éthique compte plus pour moi que gagner.", IM2: "Je valorise le fait d'être serviable, indulgent(e) et bienveillant(e) dans mes actes.", IM3: "Je préfère faire ce qui est juste plutôt que ce qui est avantageux.",
+    IC1: "Je valorise par-dessus tout le fait d'être capable, logique et efficace.", IC2: "L'ambition et la réussite sont centrales pour la personne que je veux être.", IC3: "J'admire la compétence et l'intelligence autant que la chaleur humaine.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1546,7 +1664,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES, "sensation-seeking": SENSATION_ES,
     "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
-    "big-five-aspects": BFAS_ES,
+    "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1560,7 +1678,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR, "sensation-seeking": SENSATION_FR,
     "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
-    "big-five-aspects": BFAS_FR,
+    "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
   },
 };
 
