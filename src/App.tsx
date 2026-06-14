@@ -17,8 +17,6 @@ import { autopilotNext, autopilotLength, agentBrief, autopilotNextUp } from "@co
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
-import { Report } from "./ui/Report";
-import { BriefResult } from "./ui/BriefResult";
 import { PackStep } from "./ui/PackStep";
 // Heavy, non-first-paint views are code-split so the initial load stays lean.
 const Compatibility = lazy(() => import("./ui/Compatibility").then((m) => ({ default: m.Compatibility })));
@@ -35,6 +33,8 @@ const CreativityFlow = lazy(() => import("./ui/ability/CreativityFlow").then((m)
 const BatteryView = lazy(() => import("./ui/ability/BatteryView").then((m) => ({ default: m.BatteryView })));
 const AdminNorms = lazy(() => import("./ui/AdminNorms").then((m) => ({ default: m.AdminNorms })));
 const Study = lazy(() => import("./ui/Study").then((m) => ({ default: m.Study })));
+const Report = lazy(() => import("./ui/Report").then((m) => ({ default: m.Report })));
+const BriefResult = lazy(() => import("./ui/BriefResult").then((m) => ({ default: m.BriefResult })));
 import { getAbilityTest, scoreAbility as scoreAbilityTest, type AbilityTest, type AbilityResult as ARes } from "@core/ability";
 import { buildBattery } from "@core/ability/chc";
 import {
