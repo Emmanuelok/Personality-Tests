@@ -573,7 +573,7 @@ export default function App() {
         </header>
       )}
 
-      <Suspense fallback={<div className="container" style={{ padding: "80px 22px", textAlign: "center", color: "var(--text-faint)" }}>…</div>}>
+      <Suspense fallback={<div className="app-loader" aria-label="Loading"><span className="app-loader-ring" /></div>}>
 
       {view === "home" && (
         <Home

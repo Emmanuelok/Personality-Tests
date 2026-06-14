@@ -17,6 +17,12 @@ export function loadTheme(): Theme {
   } catch {
     /* ignore */
   }
+  // First-time visitors inherit their OS preference for a modern default.
+  try {
+    if (typeof matchMedia !== "undefined" && matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+  } catch {
+    /* ignore */
+  }
   return "light";
 }
 

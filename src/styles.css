@@ -1277,3 +1277,9 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .agent-go { margin: 6px auto 0; }
 .agent-pause { display: block; margin: 16px auto 0; color: rgba(255,255,255,0.55); }
 .agent-pause:hover { color: rgba(255,255,255,0.85); }
+
+/* Branded lazy-load loader */
+.app-loader { display: grid; place-items: center; min-height: 50vh; }
+.app-loader-ring { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--surface-3); border-top-color: var(--accent); animation: appspin 0.85s linear infinite; }
+@keyframes appspin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .app-loader-ring { animation-duration: 2.4s; } }
