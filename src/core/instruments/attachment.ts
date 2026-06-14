@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { attachmentTypeStrings, type AttachmentTypeBundle } from "./i18n";
 
 /**
  * Attachment Style (Anxiety × Avoidance → four styles).
@@ -33,38 +34,45 @@ const items: Item[] = [
   it("AV8", "I value my independence more than closeness.", "AV", 1),
 ];
 
-const META: Record<string, { code: string; title: string; summary: string }> = {
-  secure: { code: "Secure", title: "Secure Attachment", summary: "You're comfortable with both intimacy and independence — generally trusting, and not easily thrown by closeness or distance." },
-  anxious: { code: "Anxious", title: "Anxious–Preoccupied", summary: "You value closeness deeply and can worry about a partner's love and availability, craving reassurance." },
-  avoidant: { code: "Avoidant", title: "Dismissive–Avoidant", summary: "You prize independence and self-reliance, and tend to keep some emotional distance even when close." },
-  fearful: { code: "Fearful", title: "Fearful–Avoidant", summary: "You long for closeness yet also fear it — pulled between wanting connection and protecting yourself." },
+/** Canonical, language-agnostic style codes (kept stable across locales). */
+const CODE: Record<string, string> = { secure: "Secure", anxious: "Anxious", avoidant: "Avoidant", fearful: "Fearful" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (attachmentTypeStrings). */
+const ATTACH_TYPE_EN: AttachmentTypeBundle = {
+  meta: {
+    secure: { title: "Secure Attachment", summary: "You're comfortable with both intimacy and independence — generally trusting, and not easily thrown by closeness or distance." },
+    anxious: { title: "Anxious–Preoccupied", summary: "You value closeness deeply and can worry about a partner's love and availability, craving reassurance." },
+    avoidant: { title: "Dismissive–Avoidant", summary: "You prize independence and self-reliance, and tend to keep some emotional distance even when close." },
+    fearful: { title: "Fearful–Avoidant", summary: "You long for closeness yet also fear it — pulled between wanting connection and protecting yourself." },
+  },
+  labels: { anxiety: "Attachment anxiety", avoidance: "Attachment avoidance", style: "Style", security: "Toward security" },
+  higher: "Higher", lower: "Lower",
+  band: { high: "high", moderate: "moderate", low: "low" },
+  securityValue: "lower anxiety + lower avoidance", securityHint: "where growth tends to head",
 };
 
 const MID = 50;
 
-function band(n: number): string {
-  const d = Math.abs(n - MID);
-  return d >= 25 ? "high" : d >= 10 ? "moderate" : "low";
-}
-
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = attachmentTypeStrings(locale) ?? ATTACH_TYPE_EN;
   const anx = s.ANX.normalized;
   const av = s.AV.normalized;
   const aHigh = anx >= MID;
   const vHigh = av >= MID;
   const key = !aHigh && !vHigh ? "secure" : aHigh && !vHigh ? "anxious" : !aHigh && vHigh ? "avoidant" : "fearful";
-  const meta = META[key];
+  const meta = T.meta[key];
+  const bandWord = (n: number) => { const d = Math.abs(n - MID); return d >= 25 ? T.band.high : d >= 10 ? T.band.moderate : T.band.low; };
   const confidence = Math.max(0.2, Math.min(0.98, (Math.abs(anx - MID) + Math.abs(av - MID)) / 100 + 0.45));
 
   return {
-    code: meta.code,
+    code: CODE[key],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Attachment anxiety", value: aHigh ? "Higher" : "Lower", detail: `${band(anx)} (${Math.round(anx)}/100)` },
-      { label: "Attachment avoidance", value: vHigh ? "Higher" : "Lower", detail: `${band(av)} (${Math.round(av)}/100)` },
-      { label: "Style", value: meta.title },
-      { label: "Toward security", value: "lower anxiety + lower avoidance", detail: "where growth tends to head" },
+      { label: T.labels.anxiety, value: aHigh ? T.higher : T.lower, detail: `${bandWord(anx)} (${Math.round(anx)}/100)` },
+      { label: T.labels.avoidance, value: vHigh ? T.higher : T.lower, detail: `${bandWord(av)} (${Math.round(av)}/100)` },
+      { label: T.labels.style, value: meta.title },
+      { label: T.labels.security, value: T.securityValue, detail: T.securityHint },
     ],
     confidence,
   };

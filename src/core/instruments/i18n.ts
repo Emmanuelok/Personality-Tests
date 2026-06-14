@@ -1790,6 +1790,36 @@ const SIXTEENPF_FR: InstrumentTranslation = {
     Q41: "Je me sens souvent tendu(e), agité(e) ou crispé(e).", Q42: "Je me sens détendu(e) et tranquille la plupart du temps.",
   },
 };
+const ATTACH_ES: InstrumentTranslation = {
+  name: "Estilo de apego en las relaciones", shortName: "Estilo de apego",
+  tagline: "Cómo te vinculas: dos dimensiones, cuatro estilos de relación.",
+  description: "El apego adulto moldea cómo buscamos la cercanía y manejamos la distancia en las relaciones. Este perfilador estima tu ansiedad y tu evitación del apego y te sitúa entre cuatro estilos —seguro, ansioso-preocupado, evitativo-rechazante y temeroso-evitativo—, con el crecimiento planteado como un movimiento hacia la seguridad.",
+  scales: {
+    ANX: { name: "Ansiedad del apego", description: "Miedo al abandono y necesidad de reafirmación en las relaciones cercanas.", poles: { low: "Seguro", high: "Ansioso" }, highDescriptor: "que ansía la cercanía, sensible a la disponibilidad de la pareja y rápido/a para temer el rechazo", lowDescriptor: "seguro/a de ser amado/a y sin preocuparte por el abandono" },
+    AV: { name: "Evitación del apego", description: "Incomodidad con la cercanía y preferencia por la autosuficiencia.", poles: { low: "Conectado", high: "Evitativo" }, highDescriptor: "que valora la independencia, reservado/a con los sentimientos e incómodo/a con demasiada cercanía", lowDescriptor: "a gusto con la intimidad, con depender de otros y con abrirte" },
+  },
+  items: {
+    ANX1: "Me preocupa que las personas a las que quiero no me quieran tanto como yo a ellas.", ANX2: "Necesito mucha reafirmación de que se me quiere.", ANX3: "A menudo temo que las personas cercanas me abandonen.", ANX4: "Me disgusta cuando alguien cercano no está disponible cuando lo necesito.",
+    ANX5: "Rara vez me preocupa que me dejen o me rechacen.", ANX6: "Cuando estoy cerca de alguien, a menudo temo que la relación se rompa.", ANX7: "Ansío la cercanía, a veces más de lo que la otra persona parece querer.", ANX8: "Me siento seguro/a de que las personas a las que quiero no me dejarán.",
+    AV1: "Prefiero no depender de los demás, ni que dependan de mí.", AV2: "Me cuesta abrirme del todo a las personas cercanas.", AV3: "Me incomoda cuando alguien quiere una cercanía emocional muy estrecha.", AV4: "Me siento a gusto apoyándome en personas cercanas cuando necesito apoyo.",
+    AV5: "Prefiero guardarme mis sentimientos antes que compartirlos.", AV6: "Cuando alguien se acerca demasiado, tiendo a apartarme.", AV7: "Me resulta fácil tener intimidad emocional con las personas a las que quiero.", AV8: "Valoro mi independencia más que la cercanía.",
+  },
+};
+const ATTACH_FR: InstrumentTranslation = {
+  name: "Style d'attachement dans les relations", shortName: "Style d'attachement",
+  tagline: "Comment vous créez des liens : deux dimensions, quatre styles relationnels.",
+  description: "L'attachement adulte façonne notre manière de chercher la proximité et de gérer la distance dans les relations. Ce profileur estime votre anxiété et votre évitement d'attachement et vous situe parmi quatre styles — sécure, anxieux-préoccupé, détaché-évitant et craintif-évitant — la croissance étant pensée comme un mouvement vers la sécurité.",
+  scales: {
+    ANX: { name: "Anxiété d'attachement", description: "Peur de l'abandon et besoin de réassurance dans les relations proches.", poles: { low: "Sécure", high: "Anxieux" }, highDescriptor: "avide de proximité, sensible à la disponibilité du partenaire et prompt(e) à craindre le rejet", lowDescriptor: "assuré(e) d'être aimé(e) et sans préoccupation d'abandon" },
+    AV: { name: "Évitement d'attachement", description: "Inconfort avec la proximité et préférence pour l'autonomie.", poles: { low: "Connecté", high: "Évitant" }, highDescriptor: "valorisant l'indépendance, sur la réserve avec ses sentiments et mal à l'aise avec trop de proximité", lowDescriptor: "à l'aise avec l'intimité, le fait de dépendre des autres et de s'ouvrir" },
+  },
+  items: {
+    ANX1: "Je crains que les personnes que j'aime ne tiennent pas autant à moi que moi à elles.", ANX2: "J'ai besoin de beaucoup de réassurance sur le fait d'être aimé(e).", ANX3: "J'ai souvent peur d'être abandonné(e) par mes proches.", ANX4: "Je suis contrarié(e) quand un proche n'est pas disponible quand j'ai besoin de lui.",
+    ANX5: "Je m'inquiète rarement d'être quitté(e) ou rejeté(e).", ANX6: "Quand je suis proche de quelqu'un, je crains souvent que la relation s'effondre.", ANX7: "J'aspire à la proximité, parfois plus que l'autre ne semble le vouloir.", ANX8: "Je me sens sûr(e) que les personnes que j'aime ne me quitteront pas.",
+    AV1: "Je préfère ne pas dépendre des autres, ni qu'ils dépendent de moi.", AV2: "J'ai du mal à m'ouvrir entièrement à mes proches.", AV3: "Je suis mal à l'aise quand quelqu'un veut une grande proximité émotionnelle.", AV4: "Je suis à l'aise de m'appuyer sur mes proches pour du soutien.",
+    AV5: "Je préfère garder mes sentiments pour moi plutôt que de les partager.", AV6: "Quand quelqu'un devient trop proche, j'ai tendance à m'éloigner.", AV7: "Il m'est facile d'avoir une intimité émotionnelle avec les personnes que j'aime.", AV8: "Je valorise mon indépendance plus que la proximité.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1805,7 +1835,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
-    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES,
+    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1820,7 +1850,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
-    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR,
+    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR,
   },
 };
 
@@ -1989,6 +2019,44 @@ const JUNG_TYPE_FR: JungTypeBundle = {
 
 export function jungTypeStrings(locale?: string): JungTypeBundle | undefined {
   return locale === "es" ? JUNG_TYPE_ES : locale === "fr" ? JUNG_TYPE_FR : undefined;
+}
+
+/* ── Attachment styles (typological; type card localized separately) ── */
+export interface AttachmentTypeBundle {
+  meta: Record<string, { title: string; summary: string }>;
+  labels: { anxiety: string; avoidance: string; style: string; security: string };
+  higher: string;
+  lower: string;
+  band: { high: string; moderate: string; low: string };
+  securityValue: string;
+  securityHint: string;
+}
+const ATTACH_TYPE_ES: AttachmentTypeBundle = {
+  meta: {
+    secure: { title: "Apego seguro", summary: "Te sientes a gusto tanto con la intimidad como con la independencia: en general confiado/a y poco alterado/a por la cercanía o la distancia." },
+    anxious: { title: "Ansioso-preocupado", summary: "Valoras profundamente la cercanía y puedes preocuparte por el amor y la disponibilidad de tu pareja, ansiando reafirmación." },
+    avoidant: { title: "Evitativo-rechazante", summary: "Valoras la independencia y la autosuficiencia, y tiendes a mantener cierta distancia emocional incluso en la cercanía." },
+    fearful: { title: "Temeroso-evitativo", summary: "Anhelas la cercanía pero también la temes: dividido/a entre querer conexión y protegerte." },
+  },
+  labels: { anxiety: "Ansiedad del apego", avoidance: "Evitación del apego", style: "Estilo", security: "Hacia la seguridad" },
+  higher: "Más alta", lower: "Más baja",
+  band: { high: "alta", moderate: "moderada", low: "baja" },
+  securityValue: "menos ansiedad + menos evitación", securityHint: "hacia donde suele encaminarse el crecimiento",
+};
+const ATTACH_TYPE_FR: AttachmentTypeBundle = {
+  meta: {
+    secure: { title: "Attachement sécure", summary: "Vous êtes à l'aise avec l'intimité comme avec l'indépendance — globalement confiant(e), peu déstabilisé(e) par la proximité ou la distance." },
+    anxious: { title: "Anxieux-préoccupé", summary: "Vous valorisez profondément la proximité et pouvez vous inquiéter de l'amour et de la disponibilité de votre partenaire, en quête de réassurance." },
+    avoidant: { title: "Détaché-évitant", summary: "Vous prisez l'indépendance et l'autonomie, et tendez à garder une certaine distance émotionnelle même dans la proximité." },
+    fearful: { title: "Craintif-évitant", summary: "Vous aspirez à la proximité tout en la craignant — tiraillé(e) entre le désir de lien et la protection de soi." },
+  },
+  labels: { anxiety: "Anxiété d'attachement", avoidance: "Évitement d'attachement", style: "Style", security: "Vers la sécurité" },
+  higher: "Élevé(e)", lower: "Faible",
+  band: { high: "élevé(e)", moderate: "modéré(e)", low: "faible" },
+  securityValue: "moins d'anxiété + moins d'évitement", securityHint: "là où la croissance tend à se diriger",
+};
+export function attachmentTypeStrings(locale?: string): AttachmentTypeBundle | undefined {
+  return locale === "es" ? ATTACH_TYPE_ES : locale === "fr" ? ATTACH_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

@@ -108,6 +108,21 @@ describe("expanded instruments", () => {
     expect(anxious.type?.code).toBe("Anxious");
   });
 
+  it("localizes the attachment style card while keeping the canonical code stable", () => {
+    const secureAns = allLow(attachment); // low anxiety + low avoidance → Secure
+    const en = scoreAssessment(attachment, secureAns).type!;
+    expect(en.code).toBe("Secure");
+    expect(en.title).toBe("Secure Attachment");
+    const es = scoreAssessment(localizeInstrument(attachment, "es"), secureAns).type!;
+    expect(es.code).toBe("Secure"); // canonical, language-agnostic
+    expect(es.title).toBe("Apego seguro");
+    expect(es.components.some((c) => c.label === "Ansiedad del apego")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(attachment, "fr"), secureAns).type!;
+    expect(fr.code).toBe("Secure");
+    expect(fr.title).toBe("Attachement sécure");
+    expect(fr.components.some((c) => c.label === "Vers la sécurité")).toBe(true);
+  });
+
   it("scores the Dark Triad and composes a unique dimensional report", () => {
     const res = scoreAssessment(darkTriad, allHigh(darkTriad));
     for (const sc of Object.values(res.scales)) expect(sc.mean).toBeCloseTo(5, 5);
@@ -859,7 +874,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
