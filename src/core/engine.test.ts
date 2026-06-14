@@ -259,7 +259,7 @@ describe("integrated cross-test synthesis", () => {
     const e1 = { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) };
     const e2 = { instrument: enneagram, result: scoreAssessment(enneagram, answerAll(enneagram, (i) => (i.scale === "T1" ? 5 : 1))) };
     const ip = buildIntegratedProfile([e1, e2], { name: "Ada", seed: 5 });
-    expect(ip.operatingManual).toHaveLength(5);
+    expect(ip.operatingManual).toHaveLength(7); // +goals +regulate from Big Five
     expect(ip.headline.length).toBeGreaterThan(3);
     expect(ip.themes.length).toBeGreaterThan(0);
     expect(ip.overview.join(" ")).toContain("Ada");
@@ -274,7 +274,7 @@ describe("integrated cross-test synthesis", () => {
     const fr = buildIntegratedProfile([e1], { name: "Ada", seed: 9, locale: "fr" });
     // Structure identical, prose differs across languages.
     expect(es.themes.length).toBe(en.themes.length);
-    expect(es.operatingManual).toHaveLength(5);
+    expect(es.operatingManual).toHaveLength(7);
     expect(es.headline).not.toBe(en.headline);
     expect(fr.headline).not.toBe(en.headline);
     expect(es.operatingManual[0].label).not.toBe(en.operatingManual[0].label);

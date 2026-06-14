@@ -391,6 +391,9 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
     { label: lab.connect, text: omText(conn.key, loc) + (conn.avoid ? OM_CONNECT_AVOID[loc] : "") },
     { label: lab.stress, text: omText(omStress(g), loc) },
   ];
+  const has = (...ids: string[]) => entries.some((e) => ids.includes(e.instrument.id));
+  if (has("self-efficacy-gse", "procrastination-pps", "grit-resilience", "big-five-ipip50", "hexaco-24")) om.push({ label: lab.goals, text: omText(omGoals(g), loc) });
+  if (has("emotion-regulation-erq", "self-control-bscs", "big-five-ipip50")) om.push({ label: lab.regulate, text: omText(omRegulate(g), loc) });
 
   // 6. Overview (localized templates).
   const n = entries.length;
@@ -466,6 +469,28 @@ function omStress(g: G): string {
   if (sr != null && sr >= 55) return "stress.sr.hi";
   if (nrt != null && nrt < 45) return "stress.n.lo";
   return "stress.default";
+}
+function omGoals(g: G): string {
+  const eff = lean(g("self-efficacy-gse", "GSE"));
+  const proc = lean(g("procrastination-pps", "PROC"));
+  const c = lean(g("big-five-ipip50", "C")) ?? lean(g("hexaco-24", "C"));
+  const grit = lean(g("grit-resilience", "PERS"));
+  if (proc != null && proc >= 55) return "goals.delay";
+  if (eff != null && eff >= 55 && (c == null || c >= 50)) return "goals.driven";
+  if ((c != null && c >= 55) || (grit != null && grit >= 55)) return "goals.structured";
+  if (eff != null && eff >= 55) return "goals.agentic";
+  return "goals.default";
+}
+function omRegulate(g: G): string {
+  const reap = lean(g("emotion-regulation-erq", "REAP"));
+  const supp = lean(g("emotion-regulation-erq", "SUPP"));
+  const sc = lean(g("self-control-bscs", "RESTRAINT")) ?? lean(g("self-control-bscs", "DISCIPLINE"));
+  const nrt = lean(g("big-five-ipip50", "N"));
+  if (reap != null && reap >= 55) return "regulate.reappraise";
+  if (supp != null && supp >= 55) return "regulate.suppress";
+  if (nrt != null && nrt >= 55) return "regulate.reactive";
+  if (sc != null && sc >= 55) return "regulate.controlled";
+  return "regulate.default";
 }
 
 /* ── daily companion ────────────────────────────────────────────────────── */

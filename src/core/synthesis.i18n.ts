@@ -90,9 +90,9 @@ export function tensionStr(id: string, en: TensionStr, loc: Loc): TensionStr {
 
 /* ── operating manual ───────────────────────────────────────────────────── */
 export const OM_LABELS: Record<Loc, Record<string, string>> = {
-  en: { think: "How you take in the world", decide: "How you decide", work: "How you do your best work", connect: "How you connect & recharge", stress: "How you handle stress" },
-  es: { think: "Cómo percibes el mundo", decide: "Cómo decides", work: "Cómo rindes al máximo", connect: "Cómo conectas y recargas", stress: "Cómo manejas el estrés" },
-  fr: { think: "Comment vous percevez le monde", decide: "Comment vous décidez", work: "Comment vous donnez le meilleur", connect: "Comment vous vous reliez et rechargez", stress: "Comment vous gérez le stress" },
+  en: { think: "How you take in the world", decide: "How you decide", work: "How you do your best work", connect: "How you connect & recharge", stress: "How you handle stress", goals: "How you pursue goals", regulate: "How you regulate emotion" },
+  es: { think: "Cómo percibes el mundo", decide: "Cómo decides", work: "Cómo rindes al máximo", connect: "Cómo conectas y recargas", stress: "Cómo manejas el estrés", goals: "Cómo persigues tus metas", regulate: "Cómo regulas la emoción" },
+  fr: { think: "Comment vous percevez le monde", decide: "Comment vous décidez", work: "Comment vous donnez le meilleur", connect: "Comment vous vous reliez et rechargez", stress: "Comment vous gérez le stress", goals: "Comment vous poursuivez vos objectifs", regulate: "Comment vous régulez vos émotions" },
 };
 
 const OM: Record<string, Record<Loc, string>> = {
@@ -200,6 +200,56 @@ const OM: Record<string, Record<Loc, string>> = {
     en: "Under stress you're fairly resilient, with normal ups and downs; simple recovery rituals keep you steady.",
     es: "Bajo estrés eres bastante resiliente, con altibajos normales; rituales sencillos de recuperación te mantienen estable.",
     fr: "Sous stress, vous êtes assez résilient, avec des hauts et des bas normaux ; des rituels de récupération simples vous gardent stable.",
+  },
+  "goals.delay": {
+    en: "Between intention and action there's a gap you know well — you mean to start, then don't. Your leverage isn't more willpower; it's shrinking the first step until it's too small to avoid, and removing friction before motivation has to show up.",
+    es: "Entre la intención y la acción hay una brecha que conoces bien: piensas empezar y luego no. Tu palanca no es más fuerza de voluntad, sino reducir el primer paso hasta que sea demasiado pequeño para evitarlo, y quitar fricción antes de que la motivación tenga que aparecer.",
+    fr: "Entre l'intention et l'action, il y a un écart que vous connaissez bien — vous comptez commencer, puis non. Votre levier n'est pas plus de volonté ; c'est de réduire le premier pas jusqu'à ce qu'il soit trop petit pour être évité, et d'enlever la friction avant que la motivation ait à se montrer.",
+  },
+  "goals.driven": {
+    en: "You pair self-belief with follow-through: you expect to handle what you take on, and you do. Your risk isn't starting — it's over-committing, so guard your yes.",
+    es: "Combinas autoconfianza con constancia: esperas poder con lo que asumes, y lo haces. Tu riesgo no es empezar, sino comprometerte de más; cuida tus 'sí'.",
+    fr: "Vous alliez la confiance en vous à la concrétisation : vous comptez gérer ce que vous entreprenez, et vous le faites. Votre risque n'est pas de commencer — c'est de trop vous engager, alors protégez vos « oui ».",
+  },
+  "goals.structured": {
+    en: "You pursue goals with structure and persistence — plans, routines, and the grit to outlast the dip. Just make sure the goal is still the right one before you out-discipline everyone toward it.",
+    es: "Persigues tus metas con estructura y persistencia: planes, rutinas y la determinación para aguantar el bache. Solo asegúrate de que la meta siga siendo la correcta antes de superar a todos en disciplina hacia ella.",
+    fr: "Vous poursuivez vos objectifs avec structure et persévérance — des plans, des routines et le cran de tenir au-delà du creux. Assurez-vous seulement que l'objectif est toujours le bon avant d'y mettre plus de discipline que quiconque.",
+  },
+  "goals.agentic": {
+    en: "You carry a strong sense of agency — you believe you can move the needle, which is half the battle. Channel it into one concrete next action and momentum follows.",
+    es: "Llevas un fuerte sentido de agencia: crees que puedes mover la aguja, y eso es media batalla. Canalízalo en una próxima acción concreta y el impulso llega solo.",
+    fr: "Vous avez un fort sentiment d'efficacité — vous croyez pouvoir faire bouger les choses, et c'est déjà la moitié du chemin. Canalisez-le en une prochaine action concrète et l'élan suit.",
+  },
+  "goals.default": {
+    en: "You pursue goals in your own rhythm, balancing drive with flexibility. A single, visible next step is usually all the structure you need.",
+    es: "Persigues tus metas a tu propio ritmo, equilibrando el empuje con la flexibilidad. Un único próximo paso visible suele ser toda la estructura que necesitas.",
+    fr: "Vous poursuivez vos objectifs à votre rythme, alliant élan et souplesse. Un seul prochain pas visible suffit généralement comme structure.",
+  },
+  "regulate.reappraise": {
+    en: "You regulate feelings by reframing — changing how you read a situation to change how it lands. It's one of the healthiest tools there is; your only watch-out is reframing so fast you skip past a feeling that deserved to be felt.",
+    es: "Regulas las emociones reencuadrando: cambias cómo lees una situación para cambiar cómo te afecta. Es una de las herramientas más sanas que hay; tu único cuidado es reencuadrar tan rápido que te saltes una emoción que merecía sentirse.",
+    fr: "Vous régulez vos émotions en recadrant — en changeant votre lecture d'une situation pour changer son effet. C'est l'un des outils les plus sains qui soient ; votre seul écueil est de recadrer si vite que vous sautez une émotion qui méritait d'être ressentie.",
+  },
+  "regulate.suppress": {
+    en: "You tend to hold feelings in rather than show them. That composure is useful in the moment, but bottling has a cost over time — find a few safe places to let what you feel actually surface.",
+    es: "Tiendes a guardarte las emociones en vez de mostrarlas. Esa compostura sirve en el momento, pero reprimir tiene un costo con el tiempo: busca algunos lugares seguros para dejar que lo que sientes salga de verdad.",
+    fr: "Vous avez tendance à retenir vos émotions plutôt qu'à les montrer. Ce sang-froid est utile sur le moment, mais tout garder a un coût avec le temps — trouvez quelques endroits sûrs pour laisser remonter ce que vous ressentez.",
+  },
+  "regulate.reactive": {
+    en: "Your emotions run hot and fast, and that sensitivity is real information. Your steadiest tools are naming the feeling early, slowing your breath, and giving the wave time to pass before you act on it.",
+    es: "Tus emociones son intensas y rápidas, y esa sensibilidad es información real. Tus herramientas más firmes son nombrar la emoción pronto, frenar la respiración y dar tiempo a que pase la ola antes de actuar.",
+    fr: "Vos émotions sont vives et rapides, et cette sensibilité est une vraie information. Vos outils les plus stables : nommer l'émotion tôt, ralentir votre souffle et laisser la vague passer avant d'agir.",
+  },
+  "regulate.controlled": {
+    en: "You keep a firm hand on impulse and expression — you rarely get swept away. Watch only that control doesn't become avoidance of feelings that are worth sitting with.",
+    es: "Mantienes mano firme sobre el impulso y la expresión: rara vez te arrastra la corriente. Cuida solo que el control no se vuelva evitación de emociones que vale la pena habitar.",
+    fr: "Vous gardez une main ferme sur l'impulsion et l'expression — vous vous laissez rarement emporter. Veillez seulement à ce que le contrôle ne devienne pas l'évitement d'émotions qui méritent qu'on s'y arrête.",
+  },
+  "regulate.default": {
+    en: "You handle emotion with a fairly even hand, feeling things without being run by them. Simple practices — naming, breathing, a short pause — keep it that way.",
+    es: "Manejas las emociones con bastante equilibrio: sientes las cosas sin que te gobiernen. Prácticas sencillas —nombrar, respirar, una pausa breve— lo mantienen así.",
+    fr: "Vous gérez vos émotions avec assez d'équilibre, en ressentant les choses sans en être mené. Des pratiques simples — nommer, respirer, une courte pause — entretiennent cet équilibre.",
   },
 };
 export function omText(key: string, loc: Loc): string {
