@@ -10,6 +10,7 @@ import {
 import { loadRooms, saveRoom, getRoom, removeRoom, loadMembers, saveMember } from "../collabStore";
 import { GOALS, labelsFor, toLoc, type Loc } from "./goals";
 import { CategoryEmblem } from "./art";
+import { downloadICS, nextEveningSlot } from "./calendar";
 import { useI18n } from "../i18n";
 
 const S: Record<Loc, Record<string, string>> = {
@@ -19,7 +20,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Your rooms", none: "No rooms yet. Create one and invite a friend with the link.", members: "members", open: "Open",
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
-    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", plan: "Shared plan", begin: "Begin", retake: "Done ✓",
+    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 Add session", plan: "Shared plan", begin: "Begin", retake: "Done ✓",
     standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
   },
@@ -29,7 +30,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Tus salas", none: "Aún no hay salas. Crea una e invita a alguien con el enlace.", members: "miembros", open: "Abrir",
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
-    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", plan: "Plan compartido", begin: "Empezar", retake: "Hecho ✓",
+    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 Añadir sesión", plan: "Plan compartido", begin: "Empezar", retake: "Hecho ✓",
     standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
   },
@@ -39,7 +40,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Vos salles", none: "Aucune salle. Créez-en une et invitez un ami avec le lien.", members: "membres", open: "Ouvrir",
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
-    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", plan: "Plan partagé", begin: "Commencer", retake: "Fait ✓",
+    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 Ajouter séance", plan: "Plan partagé", begin: "Commencer", retake: "Fait ✓",
     standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
   },
@@ -242,6 +243,14 @@ function RoomDetail({ s, L, room, name, done, onStart, onLeave, onBack }: { s: R
           <div className="row-actions" style={{ justifyContent: "flex-start" }}>
             <button className="btn sm" onClick={() => copy(link, s.copied)}>{s.copy}</button>
             <button className="btn sm ghost" onClick={share}>{s.share}</button>
+            <button className="btn sm ghost" onClick={() => {
+              const names = room.plan.map((id) => localizeInstrument(getInstrument(id)!, L).name).filter(Boolean);
+              downloadICS(`study-${room.id}.ics`, [{
+                title: `${s.title}: ${room.title}`,
+                description: `${room.title}\n${names.join(" · ")}`,
+                start: nextEveningSlot(), durationMin: 45, url: link,
+              }]);
+            }}>{s.addCal}</button>
           </div>
         </section>
 
