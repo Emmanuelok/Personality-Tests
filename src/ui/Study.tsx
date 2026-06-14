@@ -13,7 +13,7 @@ import { ScaleBar } from "./charts";
 import { loadRooms, saveRoom, getRoom, removeRoom, loadMembers, saveMember, loadOrg, saveOrg } from "../collabStore";
 import { GOALS, labelsFor, toLoc, type Loc } from "./goals";
 import { CategoryEmblem } from "./art";
-import { downloadICS, googleCalUrl, outlookCalUrl, nextEveningSlot, type CalEvent } from "./calendar";
+import { downloadICS, googleCalUrl, outlookCalUrl, nextEveningSlot, eveningSeries, type CalEvent } from "./calendar";
 import { useI18n } from "../i18n";
 
 const S: Record<Loc, Record<string, string>> = {
@@ -23,7 +23,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Your rooms", none: "No rooms yet. Create one and invite a friend with the link.", members: "members", open: "Open",
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
-    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", plan: "Shared plan", autopilot: "✨ Run this plan on Autopilot", begin: "Begin", retake: "Done ✓",
+    invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", schedulePlan: "🗓️ Schedule plan", plan: "Shared plan", autopilot: "✨ Run this plan on Autopilot", begin: "Begin", retake: "Done ✓",
     groupNext: "Up next for the group", stillToGo: "Still to go", gnStart: "No one's started this yet — a great one to take on together.", gnRally: "Some teammates are already here — catch up and compare notes.", allDone: "🎉 Your group has finished the whole plan together.",
     teams: "By team", teamsSub: "Members from different teams or organizations, and how far each has carried the shared plan.", yourTeam: "Your team / organization", teamPh: "e.g., Lincoln High · Class 2B", independent: "Independent", teamCovered: "{c}/{t} covered",
     group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared",
@@ -36,7 +36,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Tus salas", none: "Aún no hay salas. Crea una e invita a alguien con el enlace.", members: "miembros", open: "Abrir",
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
-    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", plan: "Plan compartido", autopilot: "✨ Ejecutar este plan en piloto automático", begin: "Empezar", retake: "Hecho ✓",
+    invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", schedulePlan: "🗓️ Programar plan", plan: "Plan compartido", autopilot: "✨ Ejecutar este plan en piloto automático", begin: "Empezar", retake: "Hecho ✓",
     groupNext: "A continuación para el grupo", stillToGo: "Aún les falta", gnStart: "Nadie lo ha empezado aún: ideal para hacerlo juntos.", gnRally: "Algunos compañeros ya van por aquí: ponte al día y comparen notas.", allDone: "🎉 Tu grupo ha terminado todo el plan en conjunto.",
     teams: "Por equipo", teamsSub: "Miembros de distintos equipos u organizaciones, y cuánto ha avanzado cada uno en el plan compartido.", yourTeam: "Tu equipo u organización", teamPh: "p. ej., Instituto Lincoln · Clase 2B", independent: "Independiente", teamCovered: "{c}/{t} cubiertas",
     group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos",
@@ -49,7 +49,7 @@ const S: Record<Loc, Record<string, string>> = {
     myRooms: "Vos salles", none: "Aucune salle. Créez-en une et invitez un ami avec le lien.", members: "membres", open: "Ouvrir",
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
-    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", plan: "Plan partagé", autopilot: "✨ Lancer ce plan en pilote automatique", begin: "Commencer", retake: "Fait ✓",
+    invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", schedulePlan: "🗓️ Planifier le plan", plan: "Plan partagé", autopilot: "✨ Lancer ce plan en pilote automatique", begin: "Commencer", retake: "Fait ✓",
     groupNext: "La suite pour le groupe", stillToGo: "Encore à faire", gnStart: "Personne ne l'a encore commencé — parfait à faire ensemble.", gnRally: "Des coéquipiers sont déjà là — rattrapez et comparez vos notes.", allDone: "🎉 Votre groupe a terminé tout le plan ensemble.",
     teams: "Par équipe", teamsSub: "Des membres de différentes équipes ou organisations, et jusqu'où chacune a mené le plan partagé.", yourTeam: "Votre équipe / organisation", teamPh: "ex. : Lycée Lincoln · Classe 2B", independent: "Indépendant", teamCovered: "{c}/{t} couvertes",
     group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés",
@@ -251,6 +251,12 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
   const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
   const link = roomLink(room, origin);
   const nextId = room.plan.find((id) => !done.has(id));
+  // Agentic scheduling: spread the steps you haven't done yet across upcoming evenings.
+  const undonePlan = room.plan.map((id) => getInstrument(id)).filter((x): x is Instrument => !!x && !done.has(x.id));
+  const planEvents: CalEvent[] = eveningSeries(nextEveningSlot(), undonePlan.length).map((date, i) => ({
+    title: `${s.title}: ${localizeInstrument(undonePlan[i], L).name}`,
+    description: room.title, start: date, durationMin: Math.max(20, undonePlan[i].estMinutes + 8), url: link,
+  }));
   const calEvent: CalEvent = {
     title: `${s.title}: ${room.title}`,
     description: `${room.title}\n${room.plan.map((id) => getInstrument(id)).filter((x): x is Instrument => !!x).map((inst) => localizeInstrument(inst, L).name).join(" · ")}`,
@@ -288,6 +294,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
             <button className="btn sm ghost" onClick={() => downloadICS(`study-${room.id}.ics`, [calEvent])}>{s.addCal}</button>
             <a className="btn sm ghost" href={googleCalUrl(calEvent)} target="_blank" rel="noopener noreferrer">{s.gcal}</a>
             <a className="btn sm ghost" href={outlookCalUrl(calEvent)} target="_blank" rel="noopener noreferrer">{s.outlook}</a>
+            {planEvents.length > 1 && <button className="btn sm ghost" onClick={() => downloadICS(`study-${room.id}-plan.ics`, planEvents)}>{s.schedulePlan}</button>}
           </div>
         </section>
 

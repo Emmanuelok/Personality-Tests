@@ -68,6 +68,18 @@ export function outlookCalUrl(e: CalEvent): string {
   return `https://outlook.office.com/calendar/0/deeplink/compose?${p.toString()}`;
 }
 
+/** A paced series of `count` session dates from `start`, each at the same time of
+ *  day and spaced `everyDays` apart. Used to auto-schedule a whole study plan. */
+export function eveningSeries(start: Date, count: number, everyDays = 2): Date[] {
+  const out: Date[] = [];
+  for (let i = 0; i < Math.max(0, count); i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i * Math.max(1, everyDays));
+    out.push(d);
+  }
+  return out;
+}
+
 /** A sensible default session: the next occurrence of 18:00 local, tomorrow. */
 export function nextEveningSlot(): Date {
   const d = new Date();

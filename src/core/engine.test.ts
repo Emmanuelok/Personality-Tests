@@ -1186,6 +1186,19 @@ describe("Study Together collaboration", () => {
     expect(groupNextStep(plan, [], {})).toBeNull();
   });
 
+  it("paces a study plan into a spaced evening series", async () => {
+    const { eveningSeries } = await import("../ui/calendar");
+    const start = new Date("2026-06-15T18:00:00");
+    const series = eveningSeries(start, 3, 2);
+    expect(series).toHaveLength(3);
+    expect(series[0].getTime()).toBe(start.getTime());
+    // each subsequent session is everyDays later, same time of day
+    expect((series[1].getTime() - series[0].getTime()) / 86400000).toBe(2);
+    expect((series[2].getTime() - series[1].getTime()) / 86400000).toBe(2);
+    expect(series[2].getHours()).toBe(start.getHours());
+    expect(eveningSeries(start, 0)).toHaveLength(0);
+  });
+
   it("groups members by team/org and reports each team's plan coverage", () => {
     const r = createRoom({ title: "Cross-org study", plan: ["big-five-ipip50", "hexaco-24", "jung-16-types"], host: "Ada" });
     const members: MemberProgress[] = [
