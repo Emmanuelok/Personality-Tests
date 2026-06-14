@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { socionicsTypeStrings, type SocionicsTypeBundle } from "./i18n";
 
 /**
  * Socionics (the sixteen Types of Information Metabolism).
@@ -55,25 +56,44 @@ const KEY: Record<string, { code: string; nick: string; quadra: string }> = {
   ISTI: { code: "SLI", nick: "the Craftsman", quadra: "Delta" },
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+/** English default; es/fr live in core/instruments/i18n.ts (socionicsTypeStrings).
+ *  Codes (ILE…) and quadras (Alpha…) are canonical; nicknames and dichotomy words localize. */
+const SOCIONICS_TYPE_EN: SocionicsTypeBundle = {
+  nick: { ILE: "the Seeker", SEI: "the Mediator", ESE: "the Enthusiast", LII: "the Analyst", EIE: "the Mentor", LSI: "the Inspector", SLE: "the Conqueror", IEI: "the Lyricist", SEE: "the Ambassador", ILI: "the Critic", LIE: "the Pioneer", ESI: "the Guardian", LSE: "the Administrator", EII: "the Humanist", IEE: "the Psychologist", SLI: "the Craftsman" },
+  quadraLabel: (q) => `${q} quadra`,
+  labels: { type: "Type", attitude: "Attitude", perception: "Perception", judgment: "Judgment", organization: "Organization" },
+  att: { hi: { v: "Extratim (E)", d: "outward-directed energy", w: "extratim" }, lo: { v: "Introtim (I)", d: "inward-directed energy", w: "introtim" } },
+  per: { hi: { v: "Intuition (N)", d: "possibilities & patterns", w: "intuitive" }, lo: { v: "Sensing (S)", d: "concrete & tangible", w: "sensing" } },
+  jud: { hi: { v: "Logic (T)", d: "impersonal analysis", w: "logical" }, lo: { v: "Ethics (F)", d: "people & values", w: "ethical" } },
+  org: { hi: { v: "Rational", d: "planful, judging-led", w: "rational" }, lo: { v: "Irrational", d: "flexible, perceiving-led", w: "irrational" } },
+  summary: (code, nick, quadra, w) => `In Socionics you come out as ${code} (${nick}), a member of the ${quadra} quadra — ${w[0]}, ${w[1]}, ${w[2]}, and ${w[3]}.`,
+};
+
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = socionicsTypeStrings(locale) ?? SOCIONICS_TYPE_EN;
   const e = s.ATT.normalized >= 50;
   const n = s.PER.normalized >= 50;
   const t = s.JUD.normalized >= 50;
   const r = s.ORG.normalized >= 50;
   const key = `${e ? "E" : "I"}${n ? "N" : "S"}${t ? "T" : "F"}${r ? "R" : "I"}`;
   const ty = KEY[key];
+  const nick = T.nick[ty.code];
+  const att = e ? T.att.hi : T.att.lo;
+  const per = n ? T.per.hi : T.per.lo;
+  const jud = t ? T.jud.hi : T.jud.lo;
+  const org = r ? T.org.hi : T.org.lo;
   const gaps = [s.ATT, s.PER, s.JUD, s.ORG].map((x) => Math.abs(x.normalized - 50) / 50);
   const confidence = Math.max(0.2, Math.min(0.97, 0.4 + (gaps.reduce((a, b) => a + b, 0) / gaps.length)));
   return {
     code: ty.code,
-    title: `${ty.code} — ${ty.nick}`,
-    summary: `In Socionics you come out as ${ty.code} (${ty.nick}), a member of the ${ty.quadra} quadra — ${e ? "extratim" : "introtim"}, ${n ? "intuitive" : "sensing"}, ${t ? "logical" : "ethical"}, and ${r ? "rational" : "irrational"}.`,
+    title: `${ty.code} — ${nick}`,
+    summary: T.summary(ty.code, nick, ty.quadra, [att.w, per.w, jud.w, org.w]),
     components: [
-      { label: "Type", value: `${ty.code} — ${ty.nick}`, detail: `${ty.quadra} quadra` },
-      { label: "Attitude", value: e ? "Extratim (E)" : "Introtim (I)", detail: e ? "outward-directed energy" : "inward-directed energy" },
-      { label: "Perception", value: n ? "Intuition (N)" : "Sensing (S)", detail: n ? "possibilities & patterns" : "concrete & tangible" },
-      { label: "Judgment", value: t ? "Logic (T)" : "Ethics (F)", detail: t ? "impersonal analysis" : "people & values" },
-      { label: "Organization", value: r ? "Rational" : "Irrational", detail: r ? "planful, judging-led" : "flexible, perceiving-led" },
+      { label: T.labels.type, value: `${ty.code} — ${nick}`, detail: T.quadraLabel(ty.quadra) },
+      { label: T.labels.attitude, value: att.v, detail: att.d },
+      { label: T.labels.perception, value: per.v, detail: per.d },
+      { label: T.labels.judgment, value: jud.v, detail: jud.d },
+      { label: T.labels.organization, value: org.v, detail: org.d },
     ],
     confidence,
   };

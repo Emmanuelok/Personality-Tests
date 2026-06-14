@@ -2432,6 +2432,40 @@ const DARKTETRAD_FR: InstrumentTranslation = {
     S1: "J'admets qu'il peut y avoir un certain frisson à voir quelqu'un mal à l'aise.", S2: "Il m'arrive d'aimer me moquer des gens ou les rabaisser.", S3: "Je trouve satisfaisant de dominer quelqu'un qui m'a agacé(e).", S4: "Les divertissements intenses ou violents m'attirent.",
   },
 };
+const SOCIONICS_ES: InstrumentTranslation = {
+  name: "Tipo de Socionics", shortName: "Socionics",
+  tagline: "El primo de Europa del Este del MBTI: dieciséis tipos y cuatro cuadras.",
+  description: "Socionics es una tipología junguiana desarrollada en Europa del Este. Como el MBTI, da dieciséis tipos, pero con su propio modelo de 'funciones' mentales, códigos distintivos de tres letras (ILE, SEI, LIE…) y cuatro 'cuadras' de tipos afines. Este perfilador resuelve tu tipo a partir de cuatro dicotomías: una fascinante mirada alternativa para entusiastas de la tipología.",
+  scales: {
+    ATT: { name: "Actitud", description: "Energía extratim (hacia fuera) frente a introtim (hacia dentro).", poles: { low: "Introtim", high: "Extratim" }, highDescriptor: "extratim: con energía del mundo exterior", lowDescriptor: "introtim: con energía desde dentro" },
+    PER: { name: "Percepción", description: "Intuición frente a sensación.", poles: { low: "Sensación", high: "Intuición" }, highDescriptor: "intuitivo/a: patrones y posibilidad", lowDescriptor: "sensorial: lo concreto y tangible" },
+    JUD: { name: "Juicio", description: "Lógica frente a ética.", poles: { low: "Ética", high: "Lógica" }, highDescriptor: "lógico/a: análisis impersonal", lowDescriptor: "ético/a: personas y valores" },
+    ORG: { name: "Organización", description: "Racional (guiado por el juicio) frente a irracional (guiado por la percepción).", poles: { low: "Irracional", high: "Racional" }, highDescriptor: "racional: planificador/a y decidido/a", lowDescriptor: "irracional: flexible y emergente" },
+  },
+  items: {
+    AT1: "Mi energía fluye hacia fuera: hacia las personas, la acción y el mundo exterior.", AT2: "Pienso mejor en voz alta y con otros alrededor.", AT3: "Prefiero iniciar y participar antes que observar desde el margen.", AT4: "Necesito mucho tiempo tranquilo y a solas para sentirme yo mismo/a.",
+    PE1: "Me atraen los patrones, las posibilidades y lo que podría ser.", PE2: "A menudo vivo en las ideas y el futuro más que en el presente.", PE3: "Las conexiones abstractas me llegan con más facilidad que los detalles concretos.", PE4: "Estoy anclado/a en hechos concretos, sensaciones y el aquí y ahora.",
+    JU1: "Decido por lógica impersonal y coherencia.", JU2: "Valoro tener razón y ser racional por encima de ser agradable.", JU3: "Analizo sistemas con más naturalidad que leo emociones.", JU4: "Sintonizo primero con los sentimientos y las relaciones de la gente.",
+    OR1: "Me gustan las cosas planificadas, decididas y resueltas de antemano.", OR2: "Me siento más tranquilo/a una vez tomada una decisión y fijado el camino.", OR3: "Mantengo mi vida estructurada y según un horario.", OR4: "Prefiero mantenerme flexible y adaptarme a medida que las cosas se desarrollan.",
+  },
+};
+const SOCIONICS_FR: InstrumentTranslation = {
+  name: "Type Socionics", shortName: "Socionics",
+  tagline: "Le cousin d'Europe de l'Est du MBTI — seize types et quatre quadras.",
+  description: "La Socionics est une typologie jungienne développée en Europe de l'Est. Comme le MBTI, elle donne seize types, mais avec son propre modèle de « fonctions » mentales, des codes distinctifs à trois lettres (ILE, SEI, LIE…) et quatre « quadras » de types apparentés. Ce profileur résout votre type à partir de quatre dichotomies — un angle alternatif fascinant pour les passionnés de typologie.",
+  scales: {
+    ATT: { name: "Attitude", description: "Énergie extratim (vers l'extérieur) vs. introtim (vers l'intérieur).", poles: { low: "Introtim", high: "Extratim" }, highDescriptor: "extratim : énergisé(e) par le monde extérieur", lowDescriptor: "introtim : énergisé(e) de l'intérieur" },
+    PER: { name: "Perception", description: "Intuition vs. sensation.", poles: { low: "Sensation", high: "Intuition" }, highDescriptor: "intuitif(ve) : motifs et possibilités", lowDescriptor: "sensoriel(le) : concret et tangible" },
+    JUD: { name: "Jugement", description: "Logique vs. éthique.", poles: { low: "Éthique", high: "Logique" }, highDescriptor: "logique : analyse impersonnelle", lowDescriptor: "éthique : les gens et les valeurs" },
+    ORG: { name: "Organisation", description: "Rationnel (guidé par le jugement) vs. irrationnel (guidé par la perception).", poles: { low: "Irrationnel", high: "Rationnel" }, highDescriptor: "rationnel : planificateur et décidé", lowDescriptor: "irrationnel : flexible et émergent" },
+  },
+  items: {
+    AT1: "Mon énergie va vers l'extérieur : vers les gens, l'action et le monde extérieur.", AT2: "Je pense mieux à voix haute et entouré(e).", AT3: "Je préfère initier et m'engager plutôt qu'observer de côté.", AT4: "J'ai besoin de beaucoup de temps calme et solitaire pour me sentir moi-même.",
+    PE1: "Je suis attiré(e) par les motifs, les possibilités et ce qui pourrait être.", PE2: "Je vis souvent dans les idées et l'avenir plus que dans le présent.", PE3: "Les connexions abstraites me viennent plus facilement que les détails concrets.", PE4: "Je suis ancré(e) dans des faits concrets, des sensations et l'ici et maintenant.",
+    JU1: "Je décide par une logique impersonnelle et la cohérence.", JU2: "Je préfère avoir raison et être rationnel(le) plutôt qu'agréable.", JU3: "J'analyse les systèmes plus naturellement que je ne lis les émotions.", JU4: "Je me connecte d'abord aux sentiments et aux relations des gens.",
+    OR1: "J'aime que les choses soient planifiées, décidées et réglées à l'avance.", OR2: "Je me sens plus calme une fois la décision prise et la voie fixée.", OR3: "Je garde ma vie structurée et organisée.", OR4: "Je préfère rester flexible et m'adapter au fil des choses.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2450,7 +2484,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
     "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
-    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES,
+    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2468,7 +2502,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
     "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
-    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR,
+    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR,
   },
 };
 
@@ -3190,6 +3224,42 @@ const DARKTETRAD_TYPE_FR: DarkTetradTypeBundle = {
 };
 export function darkTetradTypeStrings(locale?: string): DarkTetradTypeBundle | undefined {
   return locale === "es" ? DARKTETRAD_TYPE_ES : locale === "fr" ? DARKTETRAD_TYPE_FR : undefined;
+}
+
+/* ── Socionics (typological; type card localized — codes & quadras stay canonical) ── */
+interface SocPole { v: string; d: string; w: string }
+export interface SocionicsTypeBundle {
+  nick: Record<string, string>;
+  quadraLabel: (q: string) => string;
+  labels: { type: string; attitude: string; perception: string; judgment: string; organization: string };
+  att: { hi: SocPole; lo: SocPole };
+  per: { hi: SocPole; lo: SocPole };
+  jud: { hi: SocPole; lo: SocPole };
+  org: { hi: SocPole; lo: SocPole };
+  summary: (code: string, nick: string, quadra: string, w: [string, string, string, string]) => string;
+}
+const SOCIONICS_TYPE_ES: SocionicsTypeBundle = {
+  nick: { ILE: "el Buscador", SEI: "el Mediador", ESE: "el Entusiasta", LII: "el Analista", EIE: "el Mentor", LSI: "el Inspector", SLE: "el Conquistador", IEI: "el Lírico", SEE: "el Embajador", ILI: "el Crítico", LIE: "el Pionero", ESI: "el Guardián", LSE: "el Administrador", EII: "el Humanista", IEE: "el Psicólogo", SLI: "el Artesano" },
+  quadraLabel: (q) => `cuadra ${q}`,
+  labels: { type: "Tipo", attitude: "Actitud", perception: "Percepción", judgment: "Juicio", organization: "Organización" },
+  att: { hi: { v: "Extratim (E)", d: "energía dirigida al exterior", w: "extratim" }, lo: { v: "Introtim (I)", d: "energía dirigida al interior", w: "introtim" } },
+  per: { hi: { v: "Intuición (N)", d: "posibilidades y patrones", w: "intuitivo" }, lo: { v: "Sensación (S)", d: "lo concreto y tangible", w: "sensorial" } },
+  jud: { hi: { v: "Lógica (T)", d: "análisis impersonal", w: "lógico" }, lo: { v: "Ética (F)", d: "personas y valores", w: "ético" } },
+  org: { hi: { v: "Racional", d: "planificador, guiado por el juicio", w: "racional" }, lo: { v: "Irracional", d: "flexible, guiado por la percepción", w: "irracional" } },
+  summary: (code, nick, quadra, w) => `En Socionics resultas ${code} (${nick}), miembro de la cuadra ${quadra}: ${w[0]}, ${w[1]}, ${w[2]} y ${w[3]}.`,
+};
+const SOCIONICS_TYPE_FR: SocionicsTypeBundle = {
+  nick: { ILE: "le Chercheur", SEI: "le Médiateur", ESE: "l'Enthousiaste", LII: "l'Analyste", EIE: "le Mentor", LSI: "l'Inspecteur", SLE: "le Conquérant", IEI: "le Lyrique", SEE: "l'Ambassadeur", ILI: "le Critique", LIE: "le Pionnier", ESI: "le Gardien", LSE: "l'Administrateur", EII: "l'Humaniste", IEE: "le Psychologue", SLI: "l'Artisan" },
+  quadraLabel: (q) => `quadra ${q}`,
+  labels: { type: "Type", attitude: "Attitude", perception: "Perception", judgment: "Jugement", organization: "Organisation" },
+  att: { hi: { v: "Extratim (E)", d: "énergie tournée vers l'extérieur", w: "extratim" }, lo: { v: "Introtim (I)", d: "énergie tournée vers l'intérieur", w: "introtim" } },
+  per: { hi: { v: "Intuition (N)", d: "possibilités et motifs", w: "intuitif" }, lo: { v: "Sensation (S)", d: "le concret et le tangible", w: "sensoriel" } },
+  jud: { hi: { v: "Logique (T)", d: "analyse impersonnelle", w: "logique" }, lo: { v: "Éthique (F)", d: "les gens et les valeurs", w: "éthique" } },
+  org: { hi: { v: "Rationnel", d: "planificateur, guidé par le jugement", w: "rationnel" }, lo: { v: "Irrationnel", d: "flexible, guidé par la perception", w: "irrationnel" } },
+  summary: (code, nick, quadra, w) => `En Socionics, vous ressortez ${code} (${nick}), membre de la quadra ${quadra} — ${w[0]}, ${w[1]}, ${w[2]} et ${w[3]}.`,
+};
+export function socionicsTypeStrings(locale?: string): SocionicsTypeBundle | undefined {
+  return locale === "es" ? SOCIONICS_TYPE_ES : locale === "fr" ? SOCIONICS_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */
