@@ -15,6 +15,7 @@ import { dailyNudge } from "@core/daily";
 import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
 import { analyzeConvergence } from "@core/converge";
+import { downloadICS } from "./calendar";
 import type { SynthEntry } from "@core/synthesis";
 import { GOALS, labelsFor, keysFromFocus, toLoc } from "./goals";
 import { HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
@@ -172,7 +173,17 @@ export function Home({
                 })}
               </ol>
               {onAutopilot && roadmap.pct < 100 && (
-                <button className="btn autopilot-cta" onClick={onAutopilot}>{t("home.autopilot")}</button>
+                <div className="rm-actions">
+                  <button className="btn autopilot-cta" onClick={onAutopilot}>{t("home.autopilot")}</button>
+                  <button className="btn ghost sm" onClick={() => {
+                    const todo = roadmap.steps.filter((st) => !st.done);
+                    if (!todo.length) return;
+                    downloadICS("psyche-atlas-journey.ics", todo.map((st, i) => {
+                      const start = new Date(); start.setDate(start.getDate() + (i + 1) * 2); start.setHours(18, 0, 0, 0);
+                      return { title: `Psyche Atlas — ${st.name}`, description: st.reason, start, durationMin: st.estMinutes };
+                    }));
+                  }}>📅 {t("home.schedule")}</button>
+                </div>
               )}
             </div>
           )}
