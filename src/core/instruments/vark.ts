@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { varkTypeStrings, type VarkTypeBundle } from "./i18n";
 
 /**
  * VARK Learning Preferences (Visual · Aural · Read/Write · Kinesthetic).
@@ -38,31 +39,44 @@ const items: Item[] = [
   mc("Q12", "KIN", "Preparing a presentation, you do best by…", ["designing strong visual slides", "rehearsing it aloud", "writing out a full script", "practicing on your feet with props"]),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  VIS: { name: "Visual", title: "The Visualizer", desc: "diagrams, charts, and seeing", summary: "You lean Visual — diagrams, maps, and seeing how things fit help you most. (A preference, not a limit.)" },
-  AUR: { name: "Aural", title: "The Listener", desc: "listening and discussion", summary: "You lean Aural — listening, talking, and discussion help you most. (A preference, not a limit.)" },
-  RDW: { name: "Read/Write", title: "The Wordsmith", desc: "reading and writing", summary: "You lean Read/Write — text, notes, and writing things out help you most. (A preference, not a limit.)" },
-  KIN: { name: "Kinesthetic", title: "The Doer", desc: "hands-on practice", summary: "You lean Kinesthetic — hands-on practice and real examples help you most. (A preference, not a limit.)" },
+/** Canonical, language-agnostic channel codes (the English channel names). */
+const CODE_EN: Record<string, string> = { VIS: "Visual", AUR: "Aural", RDW: "Read/Write", KIN: "Kinesthetic" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (varkTypeStrings). */
+const VARK_TYPE_EN: VarkTypeBundle = {
+  meta: {
+    VIS: { name: "Visual", title: "The Visualizer", desc: "diagrams, charts, and seeing", summary: "You lean Visual — diagrams, maps, and seeing how things fit help you most. (A preference, not a limit.)" },
+    AUR: { name: "Aural", title: "The Listener", desc: "listening and discussion", summary: "You lean Aural — listening, talking, and discussion help you most. (A preference, not a limit.)" },
+    RDW: { name: "Read/Write", title: "The Wordsmith", desc: "reading and writing", summary: "You lean Read/Write — text, notes, and writing things out help you most. (A preference, not a limit.)" },
+    KIN: { name: "Kinesthetic", title: "The Doer", desc: "hands-on practice", summary: "You lean Kinesthetic — hands-on practice and real examples help you most. (A preference, not a limit.)" },
+  },
+  multimodalTitle: "The Multimodal Learner",
+  multimodalSummary: "Your preferences are spread fairly evenly — you're multimodal, comfortable taking information in more than one way.",
+  labels: { lead: "Lead preference", support: "Support preference", order: "Order", pattern: "Pattern" },
+  orderHint: "your channels, strongest first",
+  multimodalBlend: "Multimodal blend",
+  clear: (name) => `Clear ${name}`,
+  multimodalDetail: "no single channel dominates",
+  clearDetail: "one channel leads",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = varkTypeStrings(locale) ?? VARK_TYPE_EN;
   const arr = SCALES4.map((id) => ({ id, n: s[id].normalized }));
   const sorted = [...arr].sort((a, b) => b.n - a.n);
   const top = sorted[0];
   const sep = top.n - sorted[1].n; // percentage-point gap between the top two channels
   const multimodal = sep < 15;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
   return {
-    code: multimodal ? "Multimodal" : meta.name,
-    title: multimodal ? "The Multimodal Learner" : meta.title,
-    summary: multimodal
-      ? "Your preferences are spread fairly evenly — you're multimodal, comfortable taking information in more than one way."
-      : meta.summary,
+    code: multimodal ? "Multimodal" : CODE_EN[top.id],
+    title: multimodal ? T.multimodalTitle : meta.title,
+    summary: multimodal ? T.multimodalSummary : meta.summary,
     components: [
-      { label: "Lead preference", value: meta.name, detail: meta.desc },
-      { label: "Support preference", value: META[sorted[1].id].name, detail: META[sorted[1].id].desc },
-      { label: "Order", value: sorted.map((x) => META[x.id].name).join(" › "), detail: "your channels, strongest first" },
-      { label: "Pattern", value: multimodal ? "Multimodal blend" : `Clear ${meta.name}`, detail: multimodal ? "no single channel dominates" : "one channel leads" },
+      { label: T.labels.lead, value: meta.name, detail: meta.desc },
+      { label: T.labels.support, value: T.meta[sorted[1].id].name, detail: T.meta[sorted[1].id].desc },
+      { label: T.labels.order, value: sorted.map((x) => T.meta[x.id].name).join(" › "), detail: T.orderHint },
+      { label: T.labels.pattern, value: multimodal ? T.multimodalBlend : T.clear(meta.name), detail: multimodal ? T.multimodalDetail : T.clearDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.9, 0.45 + sep / 100)),
   };

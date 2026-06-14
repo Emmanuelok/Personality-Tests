@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { kolbTypeStrings, type KolbTypeBundle } from "./i18n";
 
 /**
  * Kolb Learning Style (the experiential learning cycle).
@@ -35,20 +36,31 @@ const items: Item[] = [
 ];
 
 type Key = "Diverging" | "Assimilating" | "Converging" | "Accommodating";
-const META: Record<Key, { title: string; desc: string; summary: string }> = {
-  Diverging: { title: "The Diverger", desc: "feel + watch", summary: "You learn by feeling and reflecting — imaginative and people-aware, you see situations from many angles and shine at generating ideas." },
-  Assimilating: { title: "The Assimilator", desc: "think + watch", summary: "You learn by thinking and reflecting — logical and concise, you're at your best with concepts, models, and well-organized ideas." },
-  Converging: { title: "The Converger", desc: "think + do", summary: "You learn by thinking and doing — a practical problem-solver, you excel at applying ideas to real, technical challenges." },
-  Accommodating: { title: "The Accommodator", desc: "feel + do", summary: "You learn by feeling and doing — hands-on and intuitive, you thrive on new experiences and adapt quickly in the moment." },
+
+/** English default; es/fr live in core/instruments/i18n.ts (kolbTypeStrings). */
+const KOLB_TYPE_EN: KolbTypeBundle = {
+  meta: {
+    Diverging: { name: "Diverging", title: "The Diverger", desc: "feel + watch", summary: "You learn by feeling and reflecting — imaginative and people-aware, you see situations from many angles and shine at generating ideas." },
+    Assimilating: { name: "Assimilating", title: "The Assimilator", desc: "think + watch", summary: "You learn by thinking and reflecting — logical and concise, you're at your best with concepts, models, and well-organized ideas." },
+    Converging: { name: "Converging", title: "The Converger", desc: "think + do", summary: "You learn by thinking and doing — a practical problem-solver, you excel at applying ideas to real, technical challenges." },
+    Accommodating: { name: "Accommodating", title: "The Accommodator", desc: "feel + do", summary: "You learn by feeling and doing — hands-on and intuitive, you thrive on new experiences and adapt quickly in the moment." },
+  },
+  labels: { style: "Style", grasping: "Grasping", transforming: "Transforming", clarity: "Clarity" },
+  abstract: { value: "Abstract (thinking)", detail: "ideas and analysis" },
+  concrete: { value: "Concrete (feeling)", detail: "direct experience" },
+  active: { value: "Active (doing)", detail: "experiment and act" },
+  reflective: { value: "Reflective (watching)", detail: "observe and reflect" },
+  clarityDetail: "how decisively both axes leaned",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = kolbTypeStrings(locale) ?? KOLB_TYPE_EN;
   const abstract = s.GRASP.normalized >= 50;
   const active = s.TRANS.normalized >= 50;
   const key: Key = abstract
     ? active ? "Converging" : "Assimilating"
     : active ? "Accommodating" : "Diverging";
-  const meta = META[key];
+  const meta = T.meta[key];
   const g = Math.abs(s.GRASP.normalized - 50) / 50;
   const t = Math.abs(s.TRANS.normalized - 50) / 50;
   return {
@@ -56,10 +68,10 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Style", value: key, detail: meta.desc },
-      { label: "Grasping", value: abstract ? "Abstract (thinking)" : "Concrete (feeling)", detail: abstract ? "ideas and analysis" : "direct experience" },
-      { label: "Transforming", value: active ? "Active (doing)" : "Reflective (watching)", detail: active ? "experiment and act" : "observe and reflect" },
-      { label: "Clarity", value: `${Math.round((g + t) * 50)}/100`, detail: "how decisively both axes leaned" },
+      { label: T.labels.style, value: meta.name, detail: meta.desc },
+      { label: T.labels.grasping, value: abstract ? T.abstract.value : T.concrete.value, detail: abstract ? T.abstract.detail : T.concrete.detail },
+      { label: T.labels.transforming, value: active ? T.active.value : T.reflective.value, detail: active ? T.active.detail : T.reflective.detail },
+      { label: T.labels.clarity, value: `${Math.round((g + t) * 50)}/100`, detail: T.clarityDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.95, 0.45 + (g + t) / 2)),
   };

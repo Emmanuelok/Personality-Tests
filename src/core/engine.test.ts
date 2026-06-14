@@ -584,6 +584,14 @@ describe("multiple-choice (choice-format) scoring", () => {
     // Pick the Visual option (index 0) on every question.
     const allVisual: ResponseMap = Object.fromEntries(vark.items.map((i) => [i.id, 0]));
     const res = scoreAssessment(vark, allVisual);
+    // localized: options translate, canonical code stays English, type card localizes
+    const esV = localizeInstrument(vark, "es");
+    expect(esV.items[0].options![0].text).not.toBe(vark.items[0].options![0].text);
+    expect(esV.items[0].options!.map((o) => o.scale)).toEqual(vark.items[0].options!.map((o) => o.scale));
+    const esVType = scoreAssessment(esV, allVisual).type!;
+    expect(esVType.code).toBe("Visual");
+    expect(esVType.title).toBe("El Visualizador");
+    expect(scoreAssessment(localizeInstrument(vark, "fr"), allVisual).type!.title).toBe("Le Visualiseur");
     expect(res.scales.VIS.normalized).toBe(100);
     expect(res.scales.AUR.normalized).toBe(0);
     expect(res.type?.code).toBe("Visual");
@@ -605,8 +613,17 @@ describe("multiple-choice (choice-format) scoring", () => {
     expect(kLo.scales.COMM.normalized).toBe(0);
     expect(kLo.type?.code).toBe("SJ");
     // Kolb: all high → abstract + active → Converging; all low → concrete + reflective → Diverging
-    expect(scoreAssessment(kolb, Object.fromEntries(kolb.items.map((i) => [i.id, 0]))).type?.code).toBe("Converging");
+    const kolbHi = Object.fromEntries(kolb.items.map((i) => [i.id, 0]));
+    expect(scoreAssessment(kolb, kolbHi).type?.code).toBe("Converging");
     expect(scoreAssessment(kolb, Object.fromEntries(kolb.items.map((i) => [i.id, 1]))).type?.code).toBe("Diverging");
+    // localized: forced-choice options translate, code stays canonical, title localizes
+    const esK = localizeInstrument(kolb, "es");
+    expect(esK.items[0].options![0].text).not.toBe(kolb.items[0].options![0].text);
+    expect(esK.items[0].options!.map((o) => o.keyed)).toEqual(kolb.items[0].options!.map((o) => o.keyed));
+    const esKType = scoreAssessment(esK, kolbHi).type!;
+    expect(esKType.code).toBe("Converging");
+    expect(esKType.title).toBe("El Convergente");
+    expect(scoreAssessment(localizeInstrument(kolb, "fr"), kolbHi).type!.title).toBe("Le Convergent");
   });
 });
 
@@ -897,7 +914,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -906,7 +923,9 @@ describe("procrastination / perfectionism / gratitude", () => {
       expect(fr.tagline).not.toBe(inst.tagline);
       expect(es.items[0].text).not.toBe(inst.items[0].text);
       expect(fr.items[0].text).not.toBe(inst.items[0].text);
-      expect(es.scales[0].name).not.toBe(inst.scales[0].name);
+      // Scale name OR description must change — some scale names are true cognates
+      // (e.g. VARK "Visual"), so a translated description still proves localization.
+      expect(es.scales[0].name !== inst.scales[0].name || es.scales[0].description !== inst.scales[0].description).toBe(true);
     }
   });
 

@@ -1950,6 +1950,112 @@ const CONFLICT_FR: InstrumentTranslation = {
     CS10: ["gagner le point mais tendre la relation", "investir trop de temps dans de petites disputes", "vous contenter de moins que le possible", "laisser de vrais problèmes sans réponse", "enterrer vos propres besoins"],
   },
 };
+const KOLB_ES: InstrumentTranslation = {
+  name: "Estilo de aprendizaje de Kolb", shortName: "Kolb",
+  tagline: "Divergente, asimilador, convergente, acomodador: tu estilo de aprendizaje.",
+  description: "El modelo de aprendizaje experiencial de David Kolb mapea cómo aprendes en dos ejes: cómo recibes la experiencia (sintiendo de forma concreta o pensando de forma abstracta) y cómo actúas sobre ella (observando de forma reflexiva o haciendo de forma activa). El cruce da cuatro estilos —divergente, asimilador, convergente y acomodador—, cada uno con su propia forma de convertir la experiencia en comprensión.",
+  scales: {
+    GRASP: { name: "Captar", description: "Cómo recibes la experiencia.", poles: { low: "Concreto (sentir)", high: "Abstracto (pensar)" }, highDescriptor: "abstracto: mediante el análisis y los conceptos", lowDescriptor: "concreto: mediante el sentir y la experiencia directa" },
+    TRANS: { name: "Transformar", description: "Cómo actúas sobre la experiencia.", poles: { low: "Reflexivo (observar)", high: "Activo (hacer)" }, highDescriptor: "activo: experimentando y haciendo", lowDescriptor: "reflexivo: observando y meditando" },
+  },
+  items: {
+    KG1: "Le encuentras sentido a algo nuevo sobre todo…", KG2: "Confías más en…", KG3: "Preferirías aprender de…", KG4: "Tu instinto es…",
+    KT1: "Aprendes mejor…", KT2: "Ante algo nuevo, preferirías…", KT3: "Le encuentras sentido a las cosas…", KT4: "Por defecto sueles…",
+  },
+  options: {
+    KG1: ["analizando las ideas y razonándolo", "guiándote por la experiencia concreta y lo que sientes"],
+    KG2: ["las teorías, los conceptos y el análisis lógico", "la experiencia directa, práctica y personal"],
+    KG3: ["modelos y principios abstractos", "los detalles concretos del momento"],
+    KG4: ["dar un paso atrás hacia la idea de fondo", "quedarte con los detalles tangibles"],
+    KT1: ["haciendo y probando cosas", "observando y reflexionando primero"],
+    KT2: ["lanzarte y experimentar", "observar desde varios ángulos antes de actuar"],
+    KT3: ["actuando sobre ellas", "pensándolas con calma"],
+    KT4: ["ponerte manos a la obra enseguida", "formarte primero una opinión meditada"],
+  },
+};
+const KOLB_FR: InstrumentTranslation = {
+  name: "Style d'apprentissage de Kolb", shortName: "Kolb",
+  tagline: "Divergent, assimilateur, convergent, accommodateur — votre style d'apprentissage.",
+  description: "Le modèle d'apprentissage expérientiel de David Kolb cartographie votre façon d'apprendre sur deux axes : comment vous recevez l'expérience (par le ressenti concret ou la pensée abstraite) et comment vous agissez dessus (par l'observation réflexive ou l'action active). Le croisement donne quatre styles — divergent, assimilateur, convergent et accommodateur — chacun avec sa propre manière de transformer l'expérience en compréhension.",
+  scales: {
+    GRASP: { name: "Saisir", description: "Comment vous recevez l'expérience.", poles: { low: "Concret (ressentir)", high: "Abstrait (penser)" }, highDescriptor: "abstrait : par l'analyse et les concepts", lowDescriptor: "concret : par le ressenti et l'expérience directe" },
+    TRANS: { name: "Transformer", description: "Comment vous agissez sur l'expérience.", poles: { low: "Réflexif (observer)", high: "Actif (faire)" }, highDescriptor: "actif : en expérimentant et en faisant", lowDescriptor: "réflexif : en observant et en méditant" },
+  },
+  items: {
+    KG1: "Vous donnez du sens à quelque chose de nouveau surtout…", KG2: "Vous faites davantage confiance…", KG3: "Vous préféreriez apprendre…", KG4: "Votre instinct est de…",
+    KT1: "Vous apprenez le mieux…", KT2: "Face à du nouveau, vous préféreriez…", KT3: "Vous donnez du sens aux choses…", KT4: "Par défaut, vous avez tendance à…",
+  },
+  options: {
+    KG1: ["en analysant les idées et en y réfléchissant", "en vous laissant guider par l'expérience concrète et le ressenti"],
+    KG2: ["aux théories, aux concepts et à l'analyse logique", "à l'expérience directe, pratique et personnelle"],
+    KG3: ["des modèles et des principes abstraits", "des détails concrets de l'instant"],
+    KG4: ["prendre du recul vers l'idée sous-jacente", "rester avec les détails tangibles"],
+    KT1: ["en faisant et en essayant les choses", "en observant et en réfléchissant d'abord"],
+    KT2: ["vous lancer et expérimenter", "observer sous plusieurs angles avant d'agir"],
+    KT3: ["en agissant dessus", "en y réfléchissant tranquillement"],
+    KT4: ["mettre la main à la pâte tout de suite", "vous forger d'abord un avis réfléchi"],
+  },
+};
+const VARK_ES: InstrumentTranslation = {
+  name: "Preferencias de aprendizaje VARK", shortName: "VARK",
+  tagline: "Visual, auditivo, lectura/escritura, kinestésico: tus preferencias de estudio (con un matiz).",
+  description: "VARK describe cuatro canales sensoriales que la gente suele preferir al estudiar: visual, auditivo, lectura/escritura y kinestésico. Es uno de los modelos de aprendizaje más populares del mundo. Lo incluimos por eso, pero con honestidad: la idea de que adaptar las clases a tu 'estilo' mejora el aprendizaje se ha probado una y otra vez y no se ha sostenido. Toma tu resultado como una preferencia que conviene conocer, nunca como un techo de lo que puedes aprender.",
+  scales: {
+    VIS: { name: "Visual", description: "Aprender mediante imágenes, diagramas y disposición espacial.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por diagramas, gráficos y ver", lowDescriptor: "menos dependiente del material visual" },
+    AUR: { name: "Auditivo", description: "Aprender mediante escuchar y hablar.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por escuchar y conversar", lowDescriptor: "menos dependiente de la palabra hablada" },
+    RDW: { name: "Lectura/Escritura", description: "Aprender mediante el texto: leer y escribir.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por leer y escribir", lowDescriptor: "menos dependiente del texto" },
+    KIN: { name: "Kinestésico", description: "Aprender mediante el hacer y la experiencia física.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por la práctica manual", lowDescriptor: "menos dependiente de la práctica física" },
+  },
+  items: {
+    Q1: "Estás aprendiendo a usar una app nueva. Preferirías…", Q2: "Alguien te pregunta cómo llegar a tu casa. Tú…", Q3: "Para fijar el nombre de alguien nuevo, lo que más ayuda es…", Q4: "Al elegir cómo seguir una receta, prefieres una que…",
+    Q5: "Estudiando algo importante, lo más probable es que…", Q6: "Un aparato nuevo no funciona. Primero…", Q7: "Los profesores de los que mejor aprendes suelen…", Q8: "Para explicarle una idea nueva a un amigo, tú…",
+    Q9: "Con una tarde libre para aprender algo, tú…", Q10: "Al recordar un gran viaje, lo primero que vuelve es…", Q11: "Con un juego de mesa nuevo, preferirías…", Q12: "Preparando una presentación, lo haces mejor…",
+  },
+  options: {
+    Q1: ["explorar las pantallas y los iconos hasta que te cuadre", "que alguien te lo explique en voz alta", "leer primero la guía de ayuda", "toquetear y descubrirlo haciendo"],
+    Q2: ["le dibujas o le envías un pequeño mapa", "le dices los giros en voz alta", "le escribes las indicaciones", "te ofreces a llevarle hasta allí"],
+    Q3: ["imaginar su cara junto al nombre", "decirlo en voz alta unas cuantas veces", "verlo escrito o anotarlo", "ligarlo a un apretón de manos o un gesto"],
+    Q4: ["muestre una foto de cada paso", "puedas seguir con un vídeo narrado", "liste instrucciones escritas claras", "te deje probar y ajustar sobre la marcha"],
+    Q5: ["hagas diagramas, gráficos y notas con colores", "lo comentes en voz alta o repases grabaciones", "reescribas y releas tus notas", "uses tarjetas, modelos o problemas de práctica"],
+    Q6: ["miras los diagramas del manual", "llamas a soporte y lo hablas", "lees la sección de resolución de problemas", "lo manipulas hasta que funcione"],
+    Q7: ["usar diapositivas, diagramas y elementos visuales", "explicar y comentar las cosas en voz alta", "dar apuntes y lecturas", "hacer demostraciones y actividades prácticas"],
+    Q8: ["se la dibujas", "se la cuentas", "se la escribes o le mandas un mensaje", "se la muestras con un ejemplo real"],
+    Q9: ["verías un documental visual", "escucharías un pódcast o una charla", "leerías un libro o artículos", "harías un taller práctico"],
+    Q10: ["cómo se veían los lugares", "los sonidos y las conversaciones", "lo que leíste o escribiste sobre él", "lo que hiciste y cómo te sentiste"],
+    Q11: ["estudiar el tablero y las piezas para captarlo", "que alguien te explique las reglas", "leer el reglamento", "empezar una ronda de práctica y aprender sobre la marcha"],
+    Q12: ["diseñando buenas diapositivas visuales", "ensayándola en voz alta", "escribiendo un guion completo", "practicando de pie con accesorios"],
+  },
+};
+const VARK_FR: InstrumentTranslation = {
+  name: "Préférences d'apprentissage VARK", shortName: "VARK",
+  tagline: "Visuel, auditif, lecture/écriture, kinesthésique — vos préférences d'étude (avec une réserve).",
+  description: "VARK décrit quatre canaux sensoriels que les gens préfèrent souvent pour étudier — visuel, auditif, lecture/écriture et kinesthésique. C'est l'un des modèles d'apprentissage les plus populaires au monde. Nous l'incluons pour cette raison, mais en toute honnêteté : l'idée qu'adapter les cours à votre « style » améliore l'apprentissage a été testée à maintes reprises sans se confirmer. Prenez votre résultat comme une préférence utile à connaître, jamais comme un plafond de ce que vous pouvez apprendre.",
+  scales: {
+    VIS: { name: "Visuel", description: "Apprendre par les images, les schémas et la disposition spatiale.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par les schémas, les graphiques et le visuel", lowDescriptor: "moins tributaire du matériel visuel" },
+    AUR: { name: "Auditif", description: "Apprendre par l'écoute et la parole.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par l'écoute et la discussion", lowDescriptor: "moins tributaire de la parole" },
+    RDW: { name: "Lecture/Écriture", description: "Apprendre par le texte — lire et écrire.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par la lecture et l'écriture", lowDescriptor: "moins tributaire du texte" },
+    KIN: { name: "Kinesthésique", description: "Apprendre par l'action et l'expérience physique.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par la pratique manuelle", lowDescriptor: "moins tributaire de la pratique physique" },
+  },
+  items: {
+    Q1: "Vous apprenez à utiliser une nouvelle appli. Vous préféreriez…", Q2: "Quelqu'un demande comment venir chez vous. Vous…", Q3: "Pour retenir le nom d'une nouvelle personne, ce qui aide le plus, c'est…", Q4: "Pour suivre une recette, vous préférez une qui…",
+    Q5: "Pour réviser quelque chose d'important, vous allez surtout…", Q6: "Un appareil neuf ne marche pas. Vous allez d'abord…", Q7: "Les enseignants dont vous apprenez le mieux ont tendance à…", Q8: "Pour expliquer une nouvelle idée à un ami, vous…",
+    Q9: "Avec un après-midi libre pour apprendre quelque chose, vous…", Q10: "En vous remémorant un beau voyage, ce qui revient en premier, c'est…", Q11: "Avec un nouveau jeu de société, vous préféreriez…", Q12: "En préparant une présentation, vous êtes au mieux en…",
+  },
+  options: {
+    Q1: ["explorer les écrans et les icônes jusqu'à ce que ça fasse tilt", "qu'on vous guide à voix haute", "lire d'abord le guide d'aide", "tâtonner et comprendre en faisant"],
+    Q2: ["lui dessiner ou envoyer un petit plan", "lui dire les tournants à voix haute", "écrire les indications", "proposer de l'y conduire"],
+    Q3: ["imaginer son visage à côté du nom", "le dire à voix haute plusieurs fois", "le voir écrit ou le noter", "l'associer à une poignée de main ou un geste"],
+    Q4: ["montre une photo de chaque étape", "se suit avec une vidéo commentée", "liste des instructions écrites claires", "vous laisse goûter et ajuster au fur et à mesure"],
+    Q5: ["faire des schémas, des graphiques et des notes en couleurs", "en discuter à voix haute ou réécouter des enregistrements", "réécrire et relire vos notes", "utiliser des cartes, des modèles ou des exercices"],
+    Q6: ["regarder les schémas du manuel", "appeler le support et en parler", "lire la section dépannage", "le manipuler jusqu'à ce qu'il marche"],
+    Q7: ["utiliser diapositives, schémas et visuels", "expliquer et discuter les choses à voix haute", "donner des polycopiés et des lectures", "faire des démonstrations et des activités pratiques"],
+    Q8: ["la lui dessiner", "la lui expliquer", "la lui écrire ou lui envoyer un message", "la lui montrer avec un exemple concret"],
+    Q9: ["regarderiez un documentaire visuel", "écouteriez un podcast ou une conférence", "liriez un livre ou des articles", "feriez un atelier pratique"],
+    Q10: ["à quoi ressemblaient les lieux", "les sons et les conversations", "ce que vous avez lu ou écrit dessus", "ce que vous avez fait et ressenti"],
+    Q11: ["étudier le plateau et les pièces pour le saisir", "qu'on vous explique les règles", "lire le livret de règles", "lancer une manche d'essai et apprendre en jouant"],
+    Q12: ["concevant de bonnes diapositives visuelles", "la répétant à voix haute", "rédigeant un script complet", "vous entraînant debout avec des accessoires"],
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1966,6 +2072,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
+    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1981,6 +2088,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
+    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR,
   },
 };
 
@@ -2257,6 +2365,96 @@ const CONFLICT_TYPE_FR: ConflictTypeBundle = {
 };
 export function conflictTypeStrings(locale?: string): ConflictTypeBundle | undefined {
   return locale === "es" ? CONFLICT_TYPE_ES : locale === "fr" ? CONFLICT_TYPE_FR : undefined;
+}
+
+/* ── Kolb Learning Style (typological; type card localized separately) ── */
+export interface KolbTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { style: string; grasping: string; transforming: string; clarity: string };
+  abstract: { value: string; detail: string };
+  concrete: { value: string; detail: string };
+  active: { value: string; detail: string };
+  reflective: { value: string; detail: string };
+  clarityDetail: string;
+}
+const KOLB_TYPE_ES: KolbTypeBundle = {
+  meta: {
+    Diverging: { name: "Divergente", title: "El Divergente", desc: "sentir + observar", summary: "Aprendes sintiendo y reflexionando: imaginativo/a y atento/a a las personas, ves las situaciones desde muchos ángulos y brillas generando ideas." },
+    Assimilating: { name: "Asimilador", title: "El Asimilador", desc: "pensar + observar", summary: "Aprendes pensando y reflexionando: lógico/a y conciso/a, das lo mejor con conceptos, modelos e ideas bien organizadas." },
+    Converging: { name: "Convergente", title: "El Convergente", desc: "pensar + hacer", summary: "Aprendes pensando y haciendo: solucionador/a práctico/a, destacas aplicando ideas a retos reales y técnicos." },
+    Accommodating: { name: "Acomodador", title: "El Acomodador", desc: "sentir + hacer", summary: "Aprendes sintiendo y haciendo: práctico/a e intuitivo/a, te crece la energía con experiencias nuevas y te adaptas rápido sobre la marcha." },
+  },
+  labels: { style: "Estilo", grasping: "Captar", transforming: "Transformar", clarity: "Claridad" },
+  abstract: { value: "Abstracto (pensar)", detail: "ideas y análisis" },
+  concrete: { value: "Concreto (sentir)", detail: "experiencia directa" },
+  active: { value: "Activo (hacer)", detail: "experimentar y actuar" },
+  reflective: { value: "Reflexivo (observar)", detail: "observar y reflexionar" },
+  clarityDetail: "con qué decisión se inclinaron ambos ejes",
+};
+const KOLB_TYPE_FR: KolbTypeBundle = {
+  meta: {
+    Diverging: { name: "Divergent", title: "Le Divergent", desc: "ressentir + observer", summary: "Vous apprenez en ressentant et en réfléchissant : imaginatif(ve) et attentif(ve) aux autres, vous voyez les situations sous de multiples angles et excellez à générer des idées." },
+    Assimilating: { name: "Assimilateur", title: "L'Assimilateur", desc: "penser + observer", summary: "Vous apprenez en pensant et en réfléchissant : logique et concis(e), vous êtes au mieux avec les concepts, les modèles et les idées bien organisées." },
+    Converging: { name: "Convergent", title: "Le Convergent", desc: "penser + faire", summary: "Vous apprenez en pensant et en faisant : résolveur(se) pratique, vous excellez à appliquer les idées à des défis réels et techniques." },
+    Accommodating: { name: "Accommodateur", title: "L'Accommodateur", desc: "ressentir + faire", summary: "Vous apprenez en ressentant et en faisant : concret(ète) et intuitif(ve), vous vous épanouissez dans les expériences nouvelles et vous adaptez vite sur le moment." },
+  },
+  labels: { style: "Style", grasping: "Saisir", transforming: "Transformer", clarity: "Clarté" },
+  abstract: { value: "Abstrait (penser)", detail: "idées et analyse" },
+  concrete: { value: "Concret (ressentir)", detail: "expérience directe" },
+  active: { value: "Actif (faire)", detail: "expérimenter et agir" },
+  reflective: { value: "Réflexif (observer)", detail: "observer et réfléchir" },
+  clarityDetail: "avec quelle netteté les deux axes ont penché",
+};
+export function kolbTypeStrings(locale?: string): KolbTypeBundle | undefined {
+  return locale === "es" ? KOLB_TYPE_ES : locale === "fr" ? KOLB_TYPE_FR : undefined;
+}
+
+/* ── VARK Learning Preferences (typological; type card localized separately) ── */
+export interface VarkTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  multimodalTitle: string;
+  multimodalSummary: string;
+  labels: { lead: string; support: string; order: string; pattern: string };
+  orderHint: string;
+  multimodalBlend: string;
+  clear: (name: string) => string;
+  multimodalDetail: string;
+  clearDetail: string;
+}
+const VARK_TYPE_ES: VarkTypeBundle = {
+  meta: {
+    VIS: { name: "Visual", title: "El Visualizador", desc: "diagramas, gráficos y ver", summary: "Te inclinas a lo Visual: diagramas, mapas y ver cómo encajan las cosas te ayudan más. (Una preferencia, no un límite.)" },
+    AUR: { name: "Auditivo", title: "El Oyente", desc: "escuchar y conversar", summary: "Te inclinas a lo Auditivo: escuchar, hablar y conversar te ayudan más. (Una preferencia, no un límite.)" },
+    RDW: { name: "Lectura/Escritura", title: "El Escritor", desc: "leer y escribir", summary: "Te inclinas a Lectura/Escritura: el texto, las notas y escribir las cosas te ayudan más. (Una preferencia, no un límite.)" },
+    KIN: { name: "Kinestésico", title: "El Hacedor", desc: "práctica manual", summary: "Te inclinas a lo Kinestésico: la práctica directa y los ejemplos reales te ayudan más. (Una preferencia, no un límite.)" },
+  },
+  multimodalTitle: "El Aprendiz Multimodal",
+  multimodalSummary: "Tus preferencias están bastante repartidas: eres multimodal, cómodo/a recibiendo la información de más de una forma.",
+  labels: { lead: "Preferencia principal", support: "Preferencia de apoyo", order: "Orden", pattern: "Patrón" },
+  orderHint: "tus canales, del más fuerte al más débil",
+  multimodalBlend: "Mezcla multimodal",
+  clear: (name) => `${name} claro`,
+  multimodalDetail: "ningún canal domina",
+  clearDetail: "un canal destaca",
+};
+const VARK_TYPE_FR: VarkTypeBundle = {
+  meta: {
+    VIS: { name: "Visuel", title: "Le Visualiseur", desc: "schémas, graphiques et voir", summary: "Vous penchez vers le Visuel : schémas, cartes et voir comment les choses s'agencent vous aident le plus. (Une préférence, pas une limite.)" },
+    AUR: { name: "Auditif", title: "L'Auditeur", desc: "écouter et discuter", summary: "Vous penchez vers l'Auditif : écouter, parler et discuter vous aident le plus. (Une préférence, pas une limite.)" },
+    RDW: { name: "Lecture/Écriture", title: "Le Rédacteur", desc: "lire et écrire", summary: "Vous penchez vers Lecture/Écriture : le texte, les notes et écrire les choses vous aident le plus. (Une préférence, pas une limite.)" },
+    KIN: { name: "Kinesthésique", title: "Le Praticien", desc: "pratique manuelle", summary: "Vous penchez vers le Kinesthésique : la pratique directe et les exemples concrets vous aident le plus. (Une préférence, pas une limite.)" },
+  },
+  multimodalTitle: "L'Apprenant Multimodal",
+  multimodalSummary: "Vos préférences sont assez réparties : vous êtes multimodal(e), à l'aise pour recevoir l'information de plusieurs façons.",
+  labels: { lead: "Préférence principale", support: "Préférence d'appoint", order: "Ordre", pattern: "Profil" },
+  orderHint: "vos canaux, du plus fort au plus faible",
+  multimodalBlend: "Mélange multimodal",
+  clear: (name) => `${name} net`,
+  multimodalDetail: "aucun canal ne domine",
+  clearDetail: "un canal se détache",
+};
+export function varkTypeStrings(locale?: string): VarkTypeBundle | undefined {
+  return locale === "es" ? VARK_TYPE_ES : locale === "fr" ? VARK_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */
