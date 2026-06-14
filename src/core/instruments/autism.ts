@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { autismTypeStrings, type AutismTypeBundle } from "./i18n";
 
 /**
  * Autistic Traits — an EDUCATIONAL, neurodiversity-affirming self-screen for traits
@@ -29,27 +30,38 @@ const items: Item[] = [
   it("RT4", "Unexpected change is stressful and hard for me to handle.", "ROUTINE"),
 ];
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+/** Canonical, language-agnostic band codes. */
+const CODE: Record<string, string> = { many: "Many traits", some: "Some traits", few: "Few traits" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (autismTypeStrings). */
+const AUTISM_TYPE_EN: AutismTypeBundle = {
+  levels: { high: "many", mid: "some", low: "few" },
+  titles: { many: "Many autistic traits", some: "Some autistic traits", few: "Few autistic traits" },
+  summary: (lvl, high) =>
+    `This is an educational self-screen, not a diagnosis — and autistic traits are differences, not deficits. ` +
+    `You reported ${lvl} traits associated with autism. ` +
+    (high
+      ? "If this resonates and you'd like clarity or support, a clinician experienced in adult autism can offer a proper assessment."
+      : "Many people share some of these traits; they're simply part of the rich variation in how minds work."),
+  labels: { social: "Social communication", detail: "Focus & detail", routine: "Routine & sensory", important: "Important" },
+  importantNote: "Only a qualified professional can assess autism. This screen can't.",
+};
+
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = autismTypeStrings(locale) ?? AUTISM_TYPE_EN;
   const overall = Math.round((s.SOCIAL.normalized + s.DETAIL.normalized + s.ROUTINE.normalized) / 3);
-  const lvl = (n: number) => (n >= 66 ? "many" : n >= 40 ? "some" : "few");
-  let code: string;
-  if (overall >= 66) code = "Many traits";
-  else if (overall >= 40) code = "Some traits";
-  else code = "Few traits";
+  const band = (n: number): "high" | "mid" | "low" => (n >= 66 ? "high" : n >= 40 ? "mid" : "low");
+  const lvl = (n: number) => T.levels[band(n)];
+  const key = overall >= 66 ? "many" : overall >= 40 ? "some" : "few";
   return {
-    code,
-    title: `${code[0].toUpperCase()}${code.slice(1)} autistic traits`,
-    summary:
-      `This is an educational self-screen, not a diagnosis — and autistic traits are differences, not deficits. ` +
-      `You reported ${lvl(overall)} traits associated with autism. ` +
-      (overall >= 66
-        ? "If this resonates and you'd like clarity or support, a clinician experienced in adult autism can offer a proper assessment."
-        : "Many people share some of these traits; they're simply part of the rich variation in how minds work."),
+    code: CODE[key],
+    title: T.titles[key],
+    summary: T.summary(lvl(overall), overall >= 66),
     components: [
-      { label: "Social communication", value: lvl(s.SOCIAL.normalized), detail: `${Math.round(s.SOCIAL.normalized)}/100` },
-      { label: "Focus & detail", value: lvl(s.DETAIL.normalized), detail: `${Math.round(s.DETAIL.normalized)}/100` },
-      { label: "Routine & sensory", value: lvl(s.ROUTINE.normalized), detail: `${Math.round(s.ROUTINE.normalized)}/100` },
-      { label: "Important", value: "Only a qualified professional can assess autism. This screen can't." },
+      { label: T.labels.social, value: lvl(s.SOCIAL.normalized), detail: `${Math.round(s.SOCIAL.normalized)}/100` },
+      { label: T.labels.detail, value: lvl(s.DETAIL.normalized), detail: `${Math.round(s.DETAIL.normalized)}/100` },
+      { label: T.labels.routine, value: lvl(s.ROUTINE.normalized), detail: `${Math.round(s.ROUTINE.normalized)}/100` },
+      { label: T.labels.important, value: T.importantNote },
     ],
     confidence: 0.6,
   };

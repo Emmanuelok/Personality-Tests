@@ -2342,6 +2342,62 @@ const COPE_FR: InstrumentTranslation = {
     A1: "Je me distrais pour ne pas avoir à y penser.", A2: "Je me dis que ça n'arrive pas vraiment.", A3: "J'abandonne l'idée d'y faire face.", A4: "J'utilise la nourriture, la boisson ou d'autres échappatoires pour me sentir mieux.",
   },
 };
+const ADHD_ES: InstrumentTranslation = {
+  name: "Rasgos de TDAH (cribado educativo)", shortName: "Rasgos TDAH",
+  tagline: "Reflexiona sobre los rasgos de atención e hiperactividad: comprensión, no diagnóstico.",
+  description: "Un cribado educativo de autorreflexión sobre rasgos asociados al TDAH, en dos facetas: inatención e hiperactividad/impulsividad. Puede ayudarte a entender tus patrones y a decidir si buscar una evaluación adecuada. NO es una herramienta diagnóstica: solo un/a profesional cualificado/a puede diagnosticar el TDAH.",
+  scales: {
+    INATT: { name: "Inatención", description: "Dificultades con el foco, la organización, la memoria y el seguimiento.", poles: { low: "Concentrado", high: "Distraíble" }, highDescriptor: "con frecuencia distraído/a, desorganizado/a y propenso/a a perder el foco", lowDescriptor: "por lo general concentrado/a y organizado/a" },
+    HYP: { name: "Hiperactividad / Impulsividad", description: "Inquietud, impulsividad e impaciencia.", poles: { low: "Tranquilo", high: "Inquieto" }, highDescriptor: "inquieto/a, impulsivo/a y rápido/a para actuar", lowDescriptor: "por lo general tranquilo/a y reflexivo/a" },
+  },
+  items: {
+    IN1: "Me cuesta mantener la atención en tareas o en la lectura.", IN2: "Me distraigo con facilidad por lo que me rodea o por mis propios pensamientos.", IN3: "Pierdo cosas u olvido citas y detalles cotidianos.", IN4: "Aplazo y me cuesta empezar o terminar tareas que me aburren.", IN5: "Mi mente divaga, incluso en mitad de una conversación.", IN6: "Me resulta difícil organizar tareas y gestionar mi tiempo.",
+    HY1: "Me siento inquieto/a y me cuesta quedarme quieto/a mucho rato.", HY2: "Actúo o hablo por impulso antes de pensarlo bien.", HY3: "Interrumpo a la gente o termino sus frases.", HY4: "Me cuesta esperar mi turno o tener paciencia.", HY5: "A menudo estoy 'en marcha', como impulsado/a por un motor.", HY6: "Tomo decisiones rápidas de las que a veces me arrepiento.",
+  },
+};
+const ADHD_FR: InstrumentTranslation = {
+  name: "Traits du TDAH (dépistage éducatif)", shortName: "Traits TDAH",
+  tagline: "Réfléchissez aux traits d'attention et d'hyperactivité — comprendre, pas diagnostiquer.",
+  description: "Un dépistage éducatif d'auto-réflexion sur les traits associés au TDAH, selon deux facettes : inattention et hyperactivité/impulsivité. Il peut vous aider à comprendre vos schémas et à décider de chercher une évaluation appropriée. Ce n'est PAS un outil diagnostique : seul(e) un(e) professionnel(le) qualifié(e) peut diagnostiquer le TDAH.",
+  scales: {
+    INATT: { name: "Inattention", description: "Difficultés de concentration, d'organisation, de mémoire et de suivi.", poles: { low: "Concentré", high: "Distrait" }, highDescriptor: "souvent distrait(e), désorganisé(e) et enclin(e) à perdre le fil", lowDescriptor: "généralement concentré(e) et organisé(e)" },
+    HYP: { name: "Hyperactivité / Impulsivité", description: "Agitation, impulsivité et impatience.", poles: { low: "Calme", high: "Agité" }, highDescriptor: "agité(e), impulsif(ve) et prompt(e) à agir", lowDescriptor: "généralement calme et réfléchi(e)" },
+  },
+  items: {
+    IN1: "J'ai du mal à maintenir mon attention sur les tâches ou la lecture.", IN2: "Je suis facilement distrait(e) par mon environnement ou mes propres pensées.", IN3: "Je perds des objets ou j'oublie des rendez-vous et des détails du quotidien.", IN4: "Je remets à plus tard et j'ai du mal à commencer ou à finir les tâches qui m'ennuient.", IN5: "Mon esprit vagabonde, même au milieu d'une conversation.", IN6: "J'ai du mal à organiser les tâches et à gérer mon temps.",
+    HY1: "Je me sens agité(e) et j'ai du mal à rester en place longtemps.", HY2: "J'agis ou je parle sur un coup de tête avant d'avoir réfléchi.", HY3: "J'interromps les gens ou je termine leurs phrases.", HY4: "J'ai du mal à attendre mon tour ou à être patient(e).", HY5: "Je suis souvent « en mouvement », comme propulsé(e) par un moteur.", HY6: "Je prends des décisions rapides que je regrette parfois.",
+  },
+};
+const AUTISM_ES: InstrumentTranslation = {
+  name: "Rasgos autistas (cribado educativo)", shortName: "Rasgos autistas",
+  tagline: "Explora cómo está cableada tu mente: una reflexión que afirma la neurodiversidad.",
+  description: "Un cribado educativo y afirmativo de autorreflexión sobre rasgos asociados al autismo, en tres facetas: comunicación social, foco y detalle, y rutina y sensorialidad. Los rasgos autistas son diferencias en cómo funcionan las mentes, no carencias. NO es una herramienta diagnóstica: solo un/a profesional cualificado/a puede evaluar el autismo.",
+  scales: {
+    SOCIAL: { name: "Comunicación social", description: "Cómo se sienten para ti la interacción social y leer a los demás.", poles: { low: "Intuición social", high: "Esfuerzo social" }, highDescriptor: "que encuentra costosas las señales sociales y cómoda la soledad", lowDescriptor: "socialmente intuitivo/a y a gusto" },
+    DETAIL: { name: "Foco y detalle", description: "Atención al detalle, los patrones y los intereses profundos.", poles: { low: "Visión global", high: "Centrado en el detalle" }, highDescriptor: "centrado/a en el detalle, sistemático/a y absorto/a en sus intereses", lowDescriptor: "más de visión global que de detalle" },
+    ROUTINE: { name: "Rutina y sensorialidad", description: "Preferencia por la rutina y sensibilidad a los estímulos sensoriales.", poles: { low: "Flexible", high: "Busca rutina" }, highDescriptor: "amante de la rutina y sensorialmente sensible", lowDescriptor: "flexible ante el cambio y menos sensible a lo sensorial" },
+  },
+  items: {
+    SC1: "Las situaciones sociales y la charla trivial a menudo se sienten confusas o agotadoras.", SC2: "Leer entre líneas y captar las emociones de los demás no me sale de forma natural.", SC3: "Por lo general prefiero hacer las cosas solo/a antes que con otros.", SC4: "Me han dicho que soy directo/a o que se me escapan las señales sociales.",
+    DT1: "Noto detalles y patrones minúsculos que a otros se les escapan.", DT2: "Me concentro intensamente en los temas que me fascinan.", DT3: "Me encanta coleccionar, categorizar o sistematizar a fondo la información.", DT4: "Me atrae más cómo funcionan los sistemas que el lado social de las cosas.",
+    RT1: "Prefiero con fuerza las rutinas y me desazono cuando los planes cambian.", RT2: "Soy sensible a ciertos sonidos, texturas, luces o sensaciones.", RT3: "Me gusta hacer las mismas cosas de la misma manera y me disgusta la disrupción.", RT4: "El cambio inesperado me resulta estresante y difícil de manejar.",
+  },
+};
+const AUTISM_FR: InstrumentTranslation = {
+  name: "Traits autistiques (dépistage éducatif)", shortName: "Traits autistiques",
+  tagline: "Explorez comment votre esprit est câblé — une réflexion qui affirme la neurodiversité.",
+  description: "Un dépistage éducatif et affirmatif d'auto-réflexion sur les traits associés à l'autisme, selon trois facettes : communication sociale, focalisation et détail, routine et sensorialité. Les traits autistiques sont des différences dans le fonctionnement des esprits, pas des déficits. Ce n'est PAS un outil diagnostique : seul(e) un(e) professionnel(le) qualifié(e) peut évaluer l'autisme.",
+  scales: {
+    SOCIAL: { name: "Communication sociale", description: "Comment l'interaction sociale et la lecture des autres se vivent pour vous.", poles: { low: "Intuition sociale", high: "Effort social" }, highDescriptor: "trouvant les codes sociaux exigeants et la solitude confortable", lowDescriptor: "socialement intuitif(ve) et à l'aise" },
+    DETAIL: { name: "Focalisation et détail", description: "Attention au détail, aux motifs et aux intérêts profonds.", poles: { low: "Vue d'ensemble", high: "Axé sur le détail" }, highDescriptor: "axé(e) sur le détail, systématique et absorbé(e) par ses intérêts", lowDescriptor: "plus porté(e) sur la vue d'ensemble que sur le détail" },
+    ROUTINE: { name: "Routine et sensorialité", description: "Préférence pour la routine et sensibilité aux stimuli sensoriels.", poles: { low: "Flexible", high: "Cherche la routine" }, highDescriptor: "amateur(trice) de routine et sensoriellement sensible", lowDescriptor: "souple face au changement et moins sensible au sensoriel" },
+  },
+  items: {
+    SC1: "Les situations sociales et le bavardage me semblent souvent confus ou épuisants.", SC2: "Lire entre les lignes et percevoir les émotions des autres ne me vient pas naturellement.", SC3: "Je préfère généralement faire les choses seul(e) plutôt qu'avec d'autres.", SC4: "On m'a dit que je suis direct(e) ou que je rate les signaux sociaux.",
+    DT1: "Je remarque de minuscules détails et motifs qui échappent aux autres.", DT2: "Je me concentre intensément sur les sujets qui me fascinent.", DT3: "J'adore collectionner, catégoriser ou systématiser en profondeur l'information.", DT4: "Le fonctionnement des systèmes m'attire plus que le côté social des choses.",
+    RT1: "Je préfère fortement les routines et je suis déstabilisé(e) quand les plans changent.", RT2: "Je suis sensible à certains sons, textures, lumières ou sensations.", RT3: "J'aime faire les mêmes choses de la même manière et je n'aime pas la perturbation.", RT4: "Le changement inattendu est stressant et difficile à gérer pour moi.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2360,6 +2416,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
     "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
+    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2377,6 +2434,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
     "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
+    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR,
   },
 };
 
@@ -2995,6 +3053,73 @@ const COPE_TYPE_FR: RankedStyleBundle = {
 };
 export function copeTypeStrings(locale?: string): RankedStyleBundle | undefined {
   return locale === "es" ? COPE_TYPE_ES : locale === "fr" ? COPE_TYPE_FR : undefined;
+}
+
+/* ── ADHD / Autism educational screeners (typological; type card localized) ── */
+export interface AdhdTypeBundle {
+  levels: { high: string; mid: string; low: string };
+  titles: { many: string; some: string; few: string };
+  summary: (lvl: string, high: boolean) => string;
+  labels: { inatt: string; hyp: string; overall: string; important: string };
+  importantNote: string;
+}
+const ADHD_TYPE_ES: AdhdTypeBundle = {
+  levels: { high: "elevado", mid: "moderado", low: "bajo" },
+  titles: { many: "Muchos rasgos asociados al TDAH", some: "Algunos rasgos asociados al TDAH", few: "Pocos rasgos asociados al TDAH" },
+  summary: (lvl, high) =>
+    `Este es un cribado educativo, no un diagnóstico. Has reportado un nivel ${lvl} de rasgos asociados al TDAH. ` +
+    (high
+      ? "Si estos rasgos afectan de forma significativa a tu trabajo, tus relaciones o tu bienestar, plantéate hablar con un/a profesional cualificado/a para una evaluación adecuada."
+      : "Mucha gente tiene algunos de estos rasgos; solo importan clínicamente cuando son persistentes y limitantes."),
+  labels: { inatt: "Inatención", hyp: "Hiperactividad / impulsividad", overall: "Nivel global de rasgos", important: "Importante" },
+  importantNote: "Solo un/a profesional autorizado/a puede diagnosticar el TDAH. Este cribado no puede.",
+};
+const ADHD_TYPE_FR: AdhdTypeBundle = {
+  levels: { high: "élevé", mid: "modéré", low: "faible" },
+  titles: { many: "De nombreux traits associés au TDAH", some: "Quelques traits associés au TDAH", few: "Peu de traits associés au TDAH" },
+  summary: (lvl, high) =>
+    `Ceci est un dépistage éducatif, pas un diagnostic. Vous avez rapporté un niveau ${lvl} de traits associés au TDAH. ` +
+    (high
+      ? "Si ces traits affectent nettement votre travail, vos relations ou votre bien-être, envisagez d'en parler à un(e) clinicien(ne) qualifié(e) pour une évaluation appropriée."
+      : "Beaucoup de gens présentent certains de ces traits ; ils ne comptent cliniquement que lorsqu'ils sont persistants et handicapants."),
+  labels: { inatt: "Inattention", hyp: "Hyperactivité / impulsivité", overall: "Niveau global des traits", important: "Important" },
+  importantNote: "Seul(e) un(e) professionnel(le) habilité(e) peut diagnostiquer le TDAH. Ce dépistage ne le peut pas.",
+};
+export function adhdTypeStrings(locale?: string): AdhdTypeBundle | undefined {
+  return locale === "es" ? ADHD_TYPE_ES : locale === "fr" ? ADHD_TYPE_FR : undefined;
+}
+
+export interface AutismTypeBundle {
+  levels: { high: string; mid: string; low: string };
+  titles: { many: string; some: string; few: string };
+  summary: (lvl: string, high: boolean) => string;
+  labels: { social: string; detail: string; routine: string; important: string };
+  importantNote: string;
+}
+const AUTISM_TYPE_ES: AutismTypeBundle = {
+  levels: { high: "muchos", mid: "algunos", low: "pocos" },
+  titles: { many: "Muchos rasgos autistas", some: "Algunos rasgos autistas", few: "Pocos rasgos autistas" },
+  summary: (lvl, high) =>
+    `Este es un cribado educativo, no un diagnóstico, y los rasgos autistas son diferencias, no carencias. Has reportado ${lvl} rasgos asociados al autismo. ` +
+    (high
+      ? "Si te resuena y quieres claridad o apoyo, un/a clínico/a con experiencia en autismo adulto puede ofrecerte una evaluación adecuada."
+      : "Mucha gente comparte algunos de estos rasgos; son simplemente parte de la rica variación en cómo funcionan las mentes."),
+  labels: { social: "Comunicación social", detail: "Foco y detalle", routine: "Rutina y sensorialidad", important: "Importante" },
+  importantNote: "Solo un/a profesional cualificado/a puede evaluar el autismo. Este cribado no puede.",
+};
+const AUTISM_TYPE_FR: AutismTypeBundle = {
+  levels: { high: "de nombreux", mid: "quelques", low: "peu de" },
+  titles: { many: "De nombreux traits autistiques", some: "Quelques traits autistiques", few: "Peu de traits autistiques" },
+  summary: (lvl, high) =>
+    `Ceci est un dépistage éducatif, pas un diagnostic — et les traits autistiques sont des différences, pas des déficits. Vous avez rapporté ${lvl} traits associés à l'autisme. ` +
+    (high
+      ? "Si cela résonne et que vous souhaitez de la clarté ou du soutien, un(e) clinicien(ne) expérimenté(e) en autisme adulte peut proposer une évaluation appropriée."
+      : "Beaucoup de gens partagent certains de ces traits ; ils font simplement partie de la riche variation des façons dont les esprits fonctionnent."),
+  labels: { social: "Communication sociale", detail: "Focalisation et détail", routine: "Routine et sensorialité", important: "Important" },
+  importantNote: "Seul(e) un(e) professionnel(le) qualifié(e) peut évaluer l'autisme. Ce dépistage ne le peut pas.",
+};
+export function autismTypeStrings(locale?: string): AutismTypeBundle | undefined {
+  return locale === "es" ? AUTISM_TYPE_ES : locale === "fr" ? AUTISM_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { adhdTypeStrings, type AdhdTypeBundle } from "./i18n";
 
 /**
  * ADHD Traits — an EDUCATIONAL self-screen for traits associated with attention
@@ -27,34 +28,37 @@ const items: Item[] = [
   it("HY6", "I make quick decisions I sometimes regret.", "HYP"),
 ];
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+/** Canonical, language-agnostic band codes. */
+const CODE: Record<string, string> = { many: "Many traits", some: "Some traits", few: "Few traits" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (adhdTypeStrings). */
+const ADHD_TYPE_EN: AdhdTypeBundle = {
+  levels: { high: "elevated", mid: "moderate", low: "low" },
+  titles: { many: "Many ADHD-associated traits", some: "Some ADHD-associated traits", few: "Few ADHD-associated traits" },
+  summary: (lvl, high) =>
+    `This is an educational self-screen, not a diagnosis. You reported a ${lvl} level of traits associated with ADHD. ` +
+    (high
+      ? "If these traits significantly affect your work, relationships, or wellbeing, consider talking to a qualified clinician for a proper evaluation."
+      : "Many people have some of these traits; they only matter clinically when they're persistent and impairing."),
+  labels: { inatt: "Inattention", hyp: "Hyperactivity / impulsivity", overall: "Overall trait level", important: "Important" },
+  importantNote: "Only a licensed professional can diagnose ADHD. This screen can't.",
+};
+
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = adhdTypeStrings(locale) ?? ADHD_TYPE_EN;
   const overall = Math.round((s.INATT.normalized + s.HYP.normalized) / 2);
-  const lvl = (n: number) => (n >= 66 ? "elevated" : n >= 40 ? "moderate" : "low");
-  let code: string;
-  let title: string;
-  if (overall >= 66) {
-    code = "Many traits";
-    title = "Many ADHD-associated traits";
-  } else if (overall >= 40) {
-    code = "Some traits";
-    title = "Some ADHD-associated traits";
-  } else {
-    code = "Few traits";
-    title = "Few ADHD-associated traits";
-  }
+  const band = (n: number): "high" | "mid" | "low" => (n >= 66 ? "high" : n >= 40 ? "mid" : "low");
+  const lvl = (n: number) => T.levels[band(n)];
+  const key = overall >= 66 ? "many" : overall >= 40 ? "some" : "few";
   return {
-    code,
-    title,
-    summary:
-      `This is an educational self-screen, not a diagnosis. You reported a ${lvl(overall)} level of traits associated with ADHD. ` +
-      (overall >= 66
-        ? "If these traits significantly affect your work, relationships, or wellbeing, consider talking to a qualified clinician for a proper evaluation."
-        : "Many people have some of these traits; they only matter clinically when they're persistent and impairing."),
+    code: CODE[key],
+    title: T.titles[key],
+    summary: T.summary(lvl(overall), overall >= 66),
     components: [
-      { label: "Inattention", value: lvl(s.INATT.normalized), detail: `${Math.round(s.INATT.normalized)}/100` },
-      { label: "Hyperactivity / impulsivity", value: lvl(s.HYP.normalized), detail: `${Math.round(s.HYP.normalized)}/100` },
-      { label: "Overall trait level", value: `${overall}/100`, detail: title },
-      { label: "Important", value: "Only a licensed professional can diagnose ADHD. This screen can't." },
+      { label: T.labels.inatt, value: lvl(s.INATT.normalized), detail: `${Math.round(s.INATT.normalized)}/100` },
+      { label: T.labels.hyp, value: lvl(s.HYP.normalized), detail: `${Math.round(s.HYP.normalized)}/100` },
+      { label: T.labels.overall, value: `${overall}/100`, detail: T.titles[key] },
+      { label: T.labels.important, value: T.importantNote },
     ],
     confidence: 0.6,
   };

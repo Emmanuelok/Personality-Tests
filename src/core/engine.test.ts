@@ -221,6 +221,12 @@ describe("temperaments, careers & trait screens", () => {
     expect(adhdHigh.type?.code).toBe("Many traits");
     expect(adhdHigh.type?.summary.toLowerCase()).toContain("not a diagnosis");
     expect(scoreAssessment(autism, allLow(autism)).type?.code).toBe("Few traits");
+    // localized: canonical code stays English; title + summary translate
+    const esA = scoreAssessment(localizeInstrument(adhd, "es"), allHigh(adhd)).type!;
+    expect(esA.code).toBe("Many traits");
+    expect(esA.summary.toLowerCase()).toContain("no un diagnóstico");
+    expect(esA.components.some((c) => c.label === "Inatención")).toBe(true);
+    expect(scoreAssessment(localizeInstrument(autism, "fr"), allLow(autism)).type!.summary.toLowerCase()).toContain("pas un diagnostic");
   });
 });
 
@@ -928,7 +934,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
