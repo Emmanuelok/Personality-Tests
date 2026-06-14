@@ -355,7 +355,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
         )}
 
         {roles.length > 0 && (
-          <section className="panel">
+          <section className="panel gp-dynamics">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.dynamics}</h3>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.dynamicsSub}</p>
             <ul className="gp-roles">

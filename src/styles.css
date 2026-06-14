@@ -1300,10 +1300,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .gp-scale-name { color: var(--text-dim); }
 .gp-range { color: var(--text-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* Group dynamics — per-member signature roles */
-.gp-roles { list-style: none; margin: 4px 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+/* Group dynamics — per-member signature roles (agentic team reading) */
+.gp-dynamics { position: relative; overflow: hidden; }
+.gp-dynamics::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--grad); opacity: 0.9; }
+.gp-roles { list-style: none; margin: 4px 0 14px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
 .gp-role { display: flex; gap: 12px; align-items: center; }
-.gp-role-tag { flex: none; min-width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; background: var(--bg-2); border: 1px solid var(--border-soft); color: var(--accent); font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; }
+.gp-role-tag { flex: none; min-width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: var(--grad); color: #241c10; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; box-shadow: 0 4px 14px -6px rgba(154, 123, 46, 0.5); }
 .gp-role p { margin: 0; color: var(--text); font-size: 14.5px; line-height: 1.5; }
 
 /* Scroll-reveal — gentle fade + rise as sections enter the viewport */
