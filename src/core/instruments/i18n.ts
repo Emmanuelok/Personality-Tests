@@ -1264,6 +1264,32 @@ const TCI_FR: InstrumentTranslation = {
     ST1: "Je ressens parfois un lien profond avec quelque chose de plus grand que moi.", ST2: "Je me concentre sur le concret et le matériel, pas sur le spirituel ou le transcendant.",
   },
 };
+const SENSATION_ES: InstrumentTranslation = {
+  name: "Búsqueda de sensaciones", shortName: "Sensaciones",
+  tagline: "Tu apetito por la novedad, la intensidad y un poco de riesgo.",
+  description: "La búsqueda de sensaciones, cartografiada por Marvin Zuckerman, es el impulso hacia la experiencia variada, novedosa e intensa, y la disposición a asumir riesgos físicos o sociales para conseguirla. Aquí aparece en dos sabores: el gusto por la emoción física y la aventura, y la atracción por la experiencia novedosa y desinhibida. Alta o baja, moldea la vida que construyes.",
+  scales: {
+    TAS: { name: "Búsqueda de emoción y aventura", description: "Deseo de emoción física, velocidad y aventura.", poles: { low: "Cauto", high: "Busca emociones" }, highDescriptor: "atraído/a por la adrenalina, la velocidad y el riesgo físico", lowDescriptor: "más a gusto con actividades tranquilas y de bajo riesgo" },
+    DIS: { name: "Experiencia y desinhibición", description: "Deseo de experiencia novedosa, intensa y poco convencional.", poles: { low: "Estable", high: "Busca novedad" }, highDescriptor: "atraído/a por la novedad, la intensidad y la espontaneidad", lowDescriptor: "a gusto con lo familiar y predecible" },
+  },
+  items: {
+    T1: "Me encantaría probar actividades como el paracaidismo, surfear olas grandes o la escalada.", T2: "Me atraen las emociones físicas y un toque de peligro.", T3: "La velocidad, las alturas y el movimiento rápido me emocionan más de lo que me asustan.", T4: "Busco activamente experiencias aventureras y llenas de adrenalina.",
+    D1: "Disfruto de experiencias salvajes, espontáneas y desinhibidas.", D2: "Me atrae lo novedoso, lo intenso o lo poco convencional.", D3: "Me inquieto y me aburro cuando la vida se vuelve demasiado familiar.", D4: "Pruebo algo solo por ver cómo es, aunque sea un poco arriesgado.",
+  },
+};
+const SENSATION_FR: InstrumentTranslation = {
+  name: "Recherche de sensations", shortName: "Sensations",
+  tagline: "Votre appétit pour la nouveauté, l'intensité et un brin de risque.",
+  description: "La recherche de sensations, cartographiée par Marvin Zuckerman, est la quête d'expériences variées, nouvelles et intenses — et la volonté de prendre des risques physiques ou sociaux pour les vivre. Elle apparaît ici sous deux formes : le goût du frisson physique et de l'aventure, et l'attrait pour l'expérience nouvelle et désinhibée. Élevée ou faible, elle façonne la vie que vous bâtissez.",
+  scales: {
+    TAS: { name: "Recherche de frisson et d'aventure", description: "Désir de frisson physique, de vitesse et d'aventure.", poles: { low: "Prudent", high: "Cherche le frisson" }, highDescriptor: "attiré(e) par l'adrénaline, la vitesse et le risque physique", lowDescriptor: "plus à l'aise dans des activités calmes et peu risquées" },
+    DIS: { name: "Expérience et désinhibition", description: "Désir d'expérience nouvelle, intense et non conventionnelle.", poles: { low: "Stable", high: "Cherche la nouveauté" }, highDescriptor: "attiré(e) par la nouveauté, l'intensité et la spontanéité", lowDescriptor: "satisfait(e) du familier et du prévisible" },
+  },
+  items: {
+    T1: "J'adorerais essayer des activités comme le parachutisme, le surf de grosses vagues ou l'escalade.", T2: "Je suis attiré(e) par les sensations physiques et une pointe de danger.", T3: "La vitesse, les hauteurs et le mouvement rapide m'excitent plus qu'ils ne m'effraient.", T4: "Je recherche activement des expériences aventureuses et pleines d'adrénaline.",
+    D1: "J'aime les expériences débridées, spontanées et désinhibées.", D2: "Je suis attiré(e) par ce qui est nouveau, intense ou non conventionnel.", D3: "Je deviens agité(e) et je m'ennuie quand la vie devient trop familière.", D4: "J'essaie quelque chose juste pour voir ce que ça fait, même si c'est un peu risqué.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1275,7 +1301,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
     "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES, "riasec-careers": RIASEC_ES, "empathy-iri": EMPATHY_ES,
     "eysenck-pen": EYSENCK_ES, "perceived-stress": PSS_ES, "worry-checkin": WORRY_ES,
-    "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES,
+    "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES, "sensation-seeking": SENSATION_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1286,7 +1312,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
     "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR, "riasec-careers": RIASEC_FR, "empathy-iri": EMPATHY_FR,
     "eysenck-pen": EYSENCK_FR, "perceived-stress": PSS_FR, "worry-checkin": WORRY_FR,
-    "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR,
+    "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR, "sensation-seeking": SENSATION_FR,
   },
 };
 
