@@ -2198,6 +2198,66 @@ const KEIRSEY_FR: InstrumentTranslation = {
     KA5: ["pragmatique et utilitaire", "coopératif(ve) et correct(e)"],
   },
 };
+const LEADERSHIP_ES: InstrumentTranslation = {
+  name: "Estilos de liderazgo", shortName: "Liderazgo",
+  tagline: "Transformacional, transaccional o distante: cómo lideras.",
+  description: "El modelo de Liderazgo de Rango Completo (detrás del muy utilizado Cuestionario Multifactorial de Liderazgo) mapea cómo lideras en tres modos: transformacional (inspirar y desarrollar a las personas), transaccional (intercambio claro y supervisión) y pasivo/laissez-faire (sin intervenir). Los líderes más fuertes son sobre todo transformacionales, con buenos hábitos transaccionales, y bajos en el estilo pasivo.",
+  scales: {
+    TFM: { name: "Transformacional", description: "Visión inspiradora, desarrollo individualizado, estímulo intelectual.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "inspirador/a, desarrollador/a y guiado/a por la visión", lowDescriptor: "menos centrado/a en la visión y el desarrollo" },
+    TRN: { name: "Transaccional", description: "Recompensa contingente y gestión activa.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "claro/a, estructurado/a y gestor/a del desempeño", lowDescriptor: "menos centrado/a en objetivos y supervisión" },
+    LFR: { name: "Laissez-faire", description: "Liderazgo pasivo, evitativo y sin intervención.", poles: { low: "Implicado", high: "Distante" }, highDescriptor: "distante y lento/a para implicarse", lowDescriptor: "presente, implicado/a y receptivo/a" },
+  },
+  items: {
+    TF1: "Inspiro a los demás con una visión convincente de lo que es posible.", TF2: "Acompaño y desarrollo el potencial individual de cada persona.", TF3: "Logro que la gente mire más allá de su interés propio por el bien del grupo.", TF4: "Animo a los demás a cuestionar suposiciones y a pensar de formas nuevas.",
+    TS1: "Fijo expectativas claras y recompenso a quien las cumple.", TS2: "Hago seguimiento del desempeño frente a los objetivos e intervengo para corregir desviaciones.", TS3: "Dejo explícito el intercambio: haz el trabajo, recibe la recompensa.", TS4: "Me centro en las reglas, los estándares y mantener las cosas en marcha.",
+    LF1: "Tiendo a no entrometerme y dejar que las cosas funcionen solas.", LF2: "Evito implicarme hasta que los problemas se vuelven serios.", LF3: "Retraso decisiones y dejo que otros lo resuelvan.", LF4: "A menudo estoy ausente cuando se me necesita para liderar.",
+  },
+};
+const LEADERSHIP_FR: InstrumentTranslation = {
+  name: "Styles de leadership", shortName: "Leadership",
+  tagline: "Transformationnel, transactionnel ou en retrait — votre façon de diriger.",
+  description: "Le modèle de Leadership à Spectre Complet (derrière le très utilisé Questionnaire Multifactoriel de Leadership) cartographie votre façon de diriger selon trois modes : transformationnel (inspirer et développer les gens), transactionnel (échange clair et supervision) et passif/laissez-faire (en retrait). Les leaders les plus forts sont surtout transformationnels, appuyés sur de solides habitudes transactionnelles, et faibles sur le style passif.",
+  scales: {
+    TFM: { name: "Transformationnel", description: "Vision inspirante, développement individualisé, stimulation intellectuelle.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "inspirant(e), développeur(se) et guidé(e) par la vision", lowDescriptor: "moins centré(e) sur la vision et le développement" },
+    TRN: { name: "Transactionnel", description: "Récompense conditionnelle et gestion active.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "clair(e), structuré(e) et gestionnaire de la performance", lowDescriptor: "moins centré(e) sur les objectifs et la supervision" },
+    LFR: { name: "Laissez-faire", description: "Leadership passif, évitant et en retrait.", poles: { low: "Impliqué", high: "En retrait" }, highDescriptor: "en retrait et lent(e) à s'impliquer", lowDescriptor: "présent(e), impliqué(e) et réactif(ve)" },
+  },
+  items: {
+    TF1: "J'inspire les autres avec une vision convaincante du possible.", TF2: "J'accompagne et développe le potentiel individuel de chacun.", TF3: "J'amène les gens à dépasser leur intérêt propre pour le bien du groupe.", TF4: "J'encourage les autres à remettre en question les hypothèses et à penser autrement.",
+    TS1: "Je fixe des attentes claires et je récompense ceux qui les atteignent.", TS2: "Je suis la performance par rapport aux objectifs et j'interviens pour corriger les écarts.", TS3: "Je rends l'échange explicite : faites le travail, recevez la récompense.", TS4: "Je me concentre sur les règles, les standards et le maintien du cap.",
+    LF1: "J'ai tendance à m'effacer et à laisser les choses se réguler seules.", LF2: "J'évite de m'impliquer jusqu'à ce que les problèmes deviennent sérieux.", LF3: "Je retarde les décisions et je laisse les autres régler les choses.", LF4: "Je suis souvent absent(e) quand on a besoin de moi pour diriger.",
+  },
+};
+const MCCLELLAND_ES: InstrumentTranslation = {
+  name: "Necesidades de McClelland", shortName: "Necesidades",
+  tagline: "Logro, afiliación o poder: lo que de verdad te impulsa.",
+  description: "David McClelland sostenía que tres motivos aprendidos moldean buena parte de nuestra conducta en el trabajo y en la vida: la necesidad de Logro (sobresalir), Afiliación (pertenecer) y Poder (influir). La mayoría tiene un impulsor dominante. Conocer el tuyo aclara qué roles, metas y entornos te darán energía de verdad.",
+  scales: {
+    ACH: { name: "Necesidad de logro", description: "Impulso por fijar y alcanzar metas exigentes.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "guiado/a por metas y en busca de excelencia", lowDescriptor: "menos movido/a por el logro personal" },
+    AFF: { name: "Necesidad de afiliación", description: "Impulso por las relaciones cálidas y la pertenencia.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "en busca de conexión y armonía", lowDescriptor: "menos movido/a por la pertenencia" },
+    POW: { name: "Necesidad de poder", description: "Impulso por influir, liderar y generar impacto.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "en busca de influencia e impacto", lowDescriptor: "menos movido/a por la influencia" },
+  },
+  items: {
+    AC1: "Me fijo metas desafiantes y siento el impulso de cumplirlas.", AC2: "Me encanta medir mi progreso y superar mi propia marca.", AC3: "El logro personal me motiva más que el dinero o el estatus.", AC4: "Prefiero tareas con estándares claros donde pueda destacar.",
+    AF1: "Las relaciones cálidas y cercanas me importan más que ganar o liderar.", AF2: "Hago un esfuerzo extra por caer bien y por pertenecer.", AF3: "Me siento mejor cuando estoy conectado/a y en armonía con los demás.", AF4: "Me disgusta el conflicto y me esfuerzo por mantener las relaciones fluidas.",
+    PW1: "Me llena de energía influir en la gente y dar forma a los resultados.", PW2: "Busco posiciones donde pueda dirigir a otros y generar impacto.", PW3: "Tener un efecto en el mundo me importa muchísimo.", PW4: "Disfruto estar al mando y persuadir a otros de mi punto de vista.",
+  },
+};
+const MCCLELLAND_FR: InstrumentTranslation = {
+  name: "Besoins de McClelland", shortName: "Besoins",
+  tagline: "Accomplissement, affiliation ou pouvoir — ce qui vous motive vraiment.",
+  description: "David McClelland soutenait que trois motifs appris façonnent une grande partie de notre comportement au travail et dans la vie : le besoin d'Accomplissement (exceller), d'Affiliation (appartenir) et de Pouvoir (influencer). La plupart des gens ont un moteur dominant. Connaître le vôtre clarifie quels rôles, objectifs et environnements vous donneront vraiment de l'énergie.",
+  scales: {
+    ACH: { name: "Besoin d'accomplissement", description: "Élan à fixer et atteindre des objectifs exigeants.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "guidé(e) par les objectifs et en quête d'excellence", lowDescriptor: "moins porté(e) par la réussite personnelle" },
+    AFF: { name: "Besoin d'affiliation", description: "Élan vers les relations chaleureuses et l'appartenance.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "en quête de connexion et d'harmonie", lowDescriptor: "moins porté(e) par l'appartenance" },
+    POW: { name: "Besoin de pouvoir", description: "Élan à influencer, diriger et avoir de l'impact.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "en quête d'influence et d'impact", lowDescriptor: "moins porté(e) par l'influence" },
+  },
+  items: {
+    AC1: "Je me fixe des objectifs exigeants et je ressens l'élan de les atteindre.", AC2: "J'adore mesurer mes progrès et battre mon propre record.", AC3: "L'accomplissement personnel me motive plus que l'argent ou le statut.", AC4: "Je préfère les tâches aux critères clairs où je peux exceller.",
+    AF1: "Les relations chaleureuses et proches comptent plus pour moi que gagner ou diriger.", AF2: "Je fais des efforts pour être apprécié(e) et pour appartenir.", AF3: "Je me sens au mieux quand je suis connecté(e) et en harmonie avec les autres.", AF4: "Je n'aime pas le conflit et je m'efforce de garder des relations fluides.",
+    PW1: "Influencer les gens et façonner les résultats me stimule.", PW2: "Je recherche des postes où je peux diriger les autres et avoir de l'impact.", PW3: "Avoir un effet sur le monde compte énormément pour moi.", PW4: "J'aime être aux commandes et persuader les autres de mon point de vue.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2215,6 +2275,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
     "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
+    "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2231,6 +2292,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
     "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
+    "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR,
   },
 };
 
@@ -2742,6 +2804,59 @@ const KEIRSEY_TYPE_FR: KeirseyTypeBundle = {
 };
 export function keirseyTypeStrings(locale?: string): KeirseyTypeBundle | undefined {
   return locale === "es" ? KEIRSEY_TYPE_ES : locale === "fr" ? KEIRSEY_TYPE_FR : undefined;
+}
+
+/* ── Ranked-triad type cards (Leadership Styles, McClelland's Needs) ──
+   Both rank three categories and report dominant/secondary/range/profile, so they
+   share one bundle shape. */
+export interface RankedStyleBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { dominant: string; secondary: string; range: string; profile: string };
+  lead: string;
+  blend: string;
+  profileDetail: string;
+}
+const LEADERSHIP_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    TFM: { name: "Transformacional", title: "El Visionario", desc: "inspirar, desarrollar, elevar", summary: "Tu estilo dominante es transformacional: lideras inspirando una visión compartida, desarrollando a las personas y elevándolas más allá de su interés propio. El estilo más eficaz de forma constante, cuando se acompaña de cumplimiento." },
+    TRN: { name: "Transaccional", title: "El Gestor", desc: "claridad, intercambio, supervisión", summary: "Tu estilo dominante es transaccional: lideras fijando expectativas claras, recompensando resultados y gestionando el desempeño. Fiable y justo; más potente cuando se complementa con visión." },
+    LFR: { name: "Laissez-faire", title: "El Líder Distante", desc: "evitativo, sin supervisión", summary: "Tu estilo dominante es pasivo/laissez-faire: tiendes a no intervenir. A veces es una delegación sana; a menudo deja un vacío de liderazgo. Es el estilo que la investigación vincula con los peores resultados." },
+  },
+  labels: { dominant: "Estilo dominante", secondary: "Estilo secundario", range: "Rango completo", profile: "Perfil" },
+  lead: "un estilo lidera", blend: "una mezcla de estilos", profileDetail: "los mejores líderes alternan transformacional + transaccional",
+};
+const LEADERSHIP_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    TFM: { name: "Transformationnel", title: "Le Visionnaire", desc: "inspirer, développer, élever", summary: "Votre style dominant est transformationnel : vous dirigez en inspirant une vision partagée, en développant les gens et en les élevant au-delà de leur intérêt propre. Le style le plus constamment efficace, lorsqu'il s'accompagne de suivi." },
+    TRN: { name: "Transactionnel", title: "Le Gestionnaire", desc: "clarté, échange, supervision", summary: "Votre style dominant est transactionnel : vous dirigez en fixant des attentes claires, en récompensant les résultats et en gérant la performance. Fiable et juste ; plus puissant lorsqu'il est complété par une vision." },
+    LFR: { name: "Laissez-faire", title: "Le Leader en Retrait", desc: "évitant, sans supervision", summary: "Votre style dominant est passif/laissez-faire : vous avez tendance à ne pas intervenir. Parfois une délégation saine ; souvent un vide de leadership. C'est le style que la recherche associe aux résultats les plus faibles." },
+  },
+  labels: { dominant: "Style dominant", secondary: "Style secondaire", range: "Gamme complète", profile: "Profil" },
+  lead: "un style domine", blend: "un mélange de styles", profileDetail: "les meilleurs leaders alternent transformationnel + transactionnel",
+};
+export function leadershipTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? LEADERSHIP_TYPE_ES : locale === "fr" ? LEADERSHIP_TYPE_FR : undefined;
+}
+const MCCLELLAND_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    ACH: { name: "Logro", title: "El Realizador", desc: "maestría, metas, excelencia", summary: "Tu motivo dominante es el Logro: te impulsa fijar metas exigentes, medir el progreso y destacar. Prosperas con el logro personal y los estándares claros de éxito." },
+    AFF: { name: "Afiliación", title: "El Conector", desc: "pertenencia, calidez, armonía", summary: "Tu motivo dominante es la Afiliación: las relaciones cercanas y cálidas y el sentido de pertenencia son lo que más te importa. Te llena la conexión y la armonía." },
+    POW: { name: "Poder", title: "El Influyente", desc: "impacto, influencia, liderar", summary: "Tu motivo dominante es el Poder: te llena la influencia y el impacto. Dirigido hacia los demás (poder socializado), da lugar a un liderazgo fuerte que empodera." },
+  },
+  labels: { dominant: "Motivo dominante", secondary: "Motivo secundario", range: "Perfil de motivos", profile: "Equilibrio" },
+  lead: "un motivo lidera con claridad", blend: "dos motivos van muy parejos", profileDetail: "cuán dominante es tu motivo principal",
+};
+const MCCLELLAND_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    ACH: { name: "Accomplissement", title: "Le Réalisateur", desc: "maîtrise, objectifs, excellence", summary: "Votre motif dominant est l'Accomplissement : vous êtes poussé(e) à fixer des objectifs exigeants, à mesurer vos progrès et à exceller. Vous vous épanouissez dans la réussite personnelle et des critères de succès clairs." },
+    AFF: { name: "Affiliation", title: "Le Connecteur", desc: "appartenance, chaleur, harmonie", summary: "Votre motif dominant est l'Affiliation : des relations proches et chaleureuses et un sentiment d'appartenance comptent le plus pour vous. La connexion et l'harmonie vous stimulent." },
+    POW: { name: "Pouvoir", title: "L'Influenceur", desc: "impact, influence, diriger", summary: "Votre motif dominant est le Pouvoir : l'influence et l'impact vous stimulent. Orienté vers les autres (pouvoir socialisé), il donne un leadership fort et émancipateur." },
+  },
+  labels: { dominant: "Motif dominant", secondary: "Motif secondaire", range: "Profil des motifs", profile: "Équilibre" },
+  lead: "un motif domine nettement", blend: "deux motifs sont au coude à coude", profileDetail: "à quel point votre motif principal domine",
+};
+export function mcclellandTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? MCCLELLAND_TYPE_ES : locale === "fr" ? MCCLELLAND_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

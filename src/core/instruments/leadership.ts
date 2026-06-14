@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { leadershipTypeStrings, type RankedStyleBundle } from "./i18n";
 
 /**
  * Leadership Styles (Full-Range Leadership / MLQ tradition).
@@ -26,30 +27,40 @@ const items: Item[] = [
   it("LF4", "I'm often absent when I'm needed to lead.", "LFR"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  TFM: { name: "Transformational", title: "The Visionary", desc: "inspire, develop, elevate", summary: "Your dominant style is transformational — you lead by inspiring a shared vision, developing people, and lifting them beyond self-interest. The most consistently effective style, when paired with follow-through." },
-  TRN: { name: "Transactional", title: "The Manager", desc: "clarity, exchange, oversight", summary: "Your dominant style is transactional — you lead by setting clear expectations, rewarding results, and managing performance. Reliable and fair; most powerful when topped up with vision." },
-  LFR: { name: "Laissez-Faire", title: "The Hands-Off Lead", desc: "avoidant, absent oversight", summary: "Your dominant style is passive/laissez-faire — you tend to stay out of the way. Sometimes that's healthy delegation; often it leaves a leadership vacuum. This is the style research links to the weakest outcomes." },
+/** Canonical, language-agnostic style codes. */
+const CODE_EN: Record<string, string> = { TFM: "Transformational", TRN: "Transactional", LFR: "Laissez-Faire" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (leadershipTypeStrings). */
+const LEADERSHIP_TYPE_EN: RankedStyleBundle = {
+  meta: {
+    TFM: { name: "Transformational", title: "The Visionary", desc: "inspire, develop, elevate", summary: "Your dominant style is transformational — you lead by inspiring a shared vision, developing people, and lifting them beyond self-interest. The most consistently effective style, when paired with follow-through." },
+    TRN: { name: "Transactional", title: "The Manager", desc: "clarity, exchange, oversight", summary: "Your dominant style is transactional — you lead by setting clear expectations, rewarding results, and managing performance. Reliable and fair; most powerful when topped up with vision." },
+    LFR: { name: "Laissez-Faire", title: "The Hands-Off Lead", desc: "avoidant, absent oversight", summary: "Your dominant style is passive/laissez-faire — you tend to stay out of the way. Sometimes that's healthy delegation; often it leaves a leadership vacuum. This is the style research links to the weakest outcomes." },
+  },
+  labels: { dominant: "Dominant style", secondary: "Secondary style", range: "Full range", profile: "Profile" },
+  lead: "one style leads", blend: "a blend of styles", profileDetail: "the best leaders flex transformational + transactional",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
-  const arr = Object.keys(META).map((id) => ({ id, mean: s[id].mean }));
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = leadershipTypeStrings(locale) ?? LEADERSHIP_TYPE_EN;
+  const arr = Object.keys(CODE_EN).map((id) => ({ id, mean: s[id].mean }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const sep = top.mean - sorted[1].mean;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
+  const sName = T.meta[sorted[1].id].name;
   return {
-    code: meta.name,
+    code: CODE_EN[top.id],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Dominant style", value: meta.name, detail: meta.desc },
-      { label: "Secondary style", value: META[sorted[1].id].name, detail: META[sorted[1].id].desc },
-      { label: "Full range", value: sorted.map((x) => META[x.id].name).join(" › ") },
-      { label: "Profile", value: sep >= 0.5 ? "one style leads" : "a blend of styles", detail: "the best leaders flex transformational + transactional" },
+      { label: T.labels.dominant, value: meta.name, detail: meta.desc },
+      { label: T.labels.secondary, value: sName, detail: T.meta[sorted[1].id].desc },
+      { label: T.labels.range, value: sorted.map((x) => T.meta[x.id].name).join(" › ") },
+      { label: T.labels.profile, value: sep >= 0.5 ? T.lead : T.blend, detail: T.profileDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.95, 0.5 + sep)),
-    secondary: META[sorted[1].id].name,
+    secondary: sName,
   };
 }
 

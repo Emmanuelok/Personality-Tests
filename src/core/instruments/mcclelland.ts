@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { mcclellandTypeStrings, type RankedStyleBundle } from "./i18n";
 
 /**
  * McClelland's Needs (Achievement · Affiliation · Power).
@@ -26,30 +27,40 @@ const items: Item[] = [
   it("PW4", "I enjoy being in charge and persuading others to my view.", "POW"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  ACH: { name: "Achievement", title: "The Achiever", desc: "mastery, goals, excellence", summary: "Your dominant motive is Achievement — you're driven to set challenging goals, measure progress, and excel. You thrive on personal accomplishment and clear standards of success." },
-  AFF: { name: "Affiliation", title: "The Connector", desc: "belonging, warmth, harmony", summary: "Your dominant motive is Affiliation — close, warm relationships and a sense of belonging matter most to you. You're energized by connection and harmony." },
-  POW: { name: "Power", title: "The Influencer", desc: "impact, influence, leading", summary: "Your dominant motive is Power — you're energized by influence and impact. Channeled toward others (socialized power), it makes for strong, empowering leadership." },
+/** Canonical, language-agnostic motive codes. */
+const CODE_EN: Record<string, string> = { ACH: "Achievement", AFF: "Affiliation", POW: "Power" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (mcclellandTypeStrings). */
+const MCCLELLAND_TYPE_EN: RankedStyleBundle = {
+  meta: {
+    ACH: { name: "Achievement", title: "The Achiever", desc: "mastery, goals, excellence", summary: "Your dominant motive is Achievement — you're driven to set challenging goals, measure progress, and excel. You thrive on personal accomplishment and clear standards of success." },
+    AFF: { name: "Affiliation", title: "The Connector", desc: "belonging, warmth, harmony", summary: "Your dominant motive is Affiliation — close, warm relationships and a sense of belonging matter most to you. You're energized by connection and harmony." },
+    POW: { name: "Power", title: "The Influencer", desc: "impact, influence, leading", summary: "Your dominant motive is Power — you're energized by influence and impact. Channeled toward others (socialized power), it makes for strong, empowering leadership." },
+  },
+  labels: { dominant: "Dominant motive", secondary: "Secondary motive", range: "Motive profile", profile: "Balance" },
+  lead: "one motive clearly leads", blend: "two motives run close", profileDetail: "how dominant your top motive is",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
-  const arr = Object.keys(META).map((id) => ({ id, mean: s[id].mean }));
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = mcclellandTypeStrings(locale) ?? MCCLELLAND_TYPE_EN;
+  const arr = Object.keys(CODE_EN).map((id) => ({ id, mean: s[id].mean }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const sep = top.mean - sorted[1].mean;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
+  const sName = T.meta[sorted[1].id].name;
   return {
-    code: meta.name,
+    code: CODE_EN[top.id],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Dominant motive", value: meta.name, detail: meta.desc },
-      { label: "Secondary motive", value: META[sorted[1].id].name, detail: META[sorted[1].id].desc },
-      { label: "Motive profile", value: sorted.map((x) => META[x.id].name).join(" › ") },
-      { label: "Balance", value: sep >= 0.5 ? "one motive clearly leads" : "two motives run close", detail: "how dominant your top motive is" },
+      { label: T.labels.dominant, value: meta.name, detail: meta.desc },
+      { label: T.labels.secondary, value: sName, detail: T.meta[sorted[1].id].desc },
+      { label: T.labels.range, value: sorted.map((x) => T.meta[x.id].name).join(" › ") },
+      { label: T.labels.profile, value: sep >= 0.5 ? T.lead : T.blend, detail: T.profileDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.95, 0.5 + sep)),
-    secondary: META[sorted[1].id].name,
+    secondary: sName,
   };
 }
 
