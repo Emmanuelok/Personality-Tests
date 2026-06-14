@@ -2114,6 +2114,40 @@ const FOURTEMP_FR: InstrumentTranslation = {
     PH1: "Je suis calme, stable et difficile à ébranler.", PH2: "Je suis accommodant(e) et je m'adapte pour préserver la paix.", PH3: "Je suis patient(e), loyal(e) et fiable.", PH4: "Je préfère une vie tranquille et prévisible au drame et au changement.",
   },
 };
+const COLOR_ES: InstrumentTranslation = {
+  name: "Cuatro estilos de color", shortName: "Colores",
+  tagline: "Dorado, azul, verde, naranja: tu color al trabajar y relacionarte.",
+  description: "Una instantánea amable y codificada por colores de cómo trabajas y te relacionas, en la tradición de True Colors e Insights Discovery. El Dorado organiza, el Azul conecta, el Verde analiza y el Naranja se aventura. La mayoría es una mezcla liderada por un color brillante: un lenguaje rápido y memorable para equipos, familias y autoconocimiento.",
+  scales: {
+    GOLD: { name: "Dorado — Estructura", description: "Responsabilidad, orden y deber.", poles: { low: "Flexible", high: "Estructurado" }, highDescriptor: "organizado/a, fiable y cumplidor/a", lowDescriptor: "suelto/a y sin estructura" },
+    BLUE: { name: "Azul — Conexión", description: "Empatía, armonía y sentido.", poles: { low: "Distante", high: "Cariñoso" }, highDescriptor: "cálido/a, empático/a y buscador/a de armonía", lowDescriptor: "distante y práctico/a" },
+    GREEN: { name: "Verde — Análisis", description: "Lógica, curiosidad y competencia.", poles: { low: "Intuitivo", high: "Analítico" }, highDescriptor: "analítico/a, de cabeza fría y curioso/a", lowDescriptor: "guiado/a por el sentir y menos analítico/a" },
+    ORANGE: { name: "Naranja — Acción", description: "Espontaneidad, energía y audacia.", poles: { low: "Estable", high: "Espontáneo" }, highDescriptor: "espontáneo/a, enérgico/a y audaz", lowDescriptor: "estable y amante de la rutina" },
+  },
+  items: {
+    G1: "Me gustan los planes claros, los horarios y hacer las cosas como es debido.", G2: "Soy fiable, organizado/a y termino lo que me comprometo a hacer.", G3: "Valoro la tradición, el deber y ser responsable.", G4: "Me siento incómodo/a cuando las cosas están desorganizadas o se dejan para el último momento.",
+    B1: "Me importan profundamente los sentimientos de la gente y la armonía.", B2: "Busco el sentido, la autenticidad y la conexión.", B3: "Soy cálido/a, empático/a y buen/a oyente.", B4: "Ayudar a los demás a crecer es una de mis mayores alegrías.",
+    N1: "Pienso las cosas con lógica y valoro la competencia.", N2: "Soy curioso/a y me encanta entender cómo funcionan las cosas.", N3: "Me mantengo sereno/a y analítico/a cuando otros se emocionan.", N4: "Cuestiono las suposiciones y quiero pruebas antes de convencerme.",
+    O1: "Soy espontáneo/a y me encantan la acción, la variedad y la diversión.", O2: "Actúo rápido y me adapto con facilidad en el momento.", O3: "Me inquietan demasiadas reglas o rutinas.", O4: "Soy audaz, juguetón/a y me gusta algo de riesgo.",
+  },
+};
+const COLOR_FR: InstrumentTranslation = {
+  name: "Quatre styles de couleur", shortName: "Couleurs",
+  tagline: "Or, bleu, vert, orange — votre couleur au travail et dans les relations.",
+  description: "Un aperçu convivial et codé par couleurs de votre façon de travailler et de vous relier, dans la tradition de True Colors et d'Insights Discovery. L'Or organise, le Bleu relie, le Vert analyse et l'Orange se lance à l'aventure. La plupart des gens sont un mélange mené par une couleur vive : un langage rapide et mémorable pour les équipes, les familles et la connaissance de soi.",
+  scales: {
+    GOLD: { name: "Or — Structure", description: "Responsabilité, ordre et devoir.", poles: { low: "Flexible", high: "Structuré" }, highDescriptor: "organisé(e), fiable et consciencieux(se)", lowDescriptor: "relâché(e) et sans structure" },
+    BLUE: { name: "Bleu — Connexion", description: "Empathie, harmonie et sens.", poles: { low: "Détaché", high: "Attentionné" }, highDescriptor: "chaleureux(se), empathique et en quête d'harmonie", lowDescriptor: "détaché(e) et terre-à-terre" },
+    GREEN: { name: "Vert — Analyse", description: "Logique, curiosité et compétence.", poles: { low: "Intuitif", high: "Analytique" }, highDescriptor: "analytique, de sang-froid et curieux(se)", lowDescriptor: "guidé(e) par le ressenti et moins analytique" },
+    ORANGE: { name: "Orange — Action", description: "Spontanéité, énergie et audace.", poles: { low: "Stable", high: "Spontané" }, highDescriptor: "spontané(e), énergique et audacieux(se)", lowDescriptor: "stable et amateur(trice) de routine" },
+  },
+  items: {
+    G1: "J'aime les plans clairs, les emplois du temps et faire les choses correctement.", G2: "Je suis fiable, organisé(e) et je termine ce que je m'engage à faire.", G3: "Je valorise la tradition, le devoir et le fait d'être responsable.", G4: "Je suis mal à l'aise quand les choses sont désorganisées ou faites à la dernière minute.",
+    B1: "Je me soucie profondément des sentiments des gens et de l'harmonie.", B2: "Je recherche le sens, l'authenticité et la connexion.", B3: "Je suis chaleureux(se), empathique et bon(ne) auditeur(trice).", B4: "Aider les autres à grandir est l'une de mes plus grandes joies.",
+    N1: "Je réfléchis logiquement et je valorise la compétence.", N2: "Je suis curieux(se) et j'adore comprendre comment les choses fonctionnent.", N3: "Je reste calme et analytique quand les autres s'emportent.", N4: "Je remets en question les suppositions et je veux des preuves avant d'être convaincu(e).",
+    O1: "Je suis spontané(e) et j'adore l'action, la variété et le plaisir.", O2: "J'agis vite et je m'adapte facilement sur le moment.", O3: "Trop de règles ou de routines me rendent agité(e).", O4: "Je suis audacieux(se), joueur(se) et j'aime un peu de risque.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2130,7 +2164,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
-    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES,
+    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2146,7 +2180,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
-    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR,
+    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR,
   },
 };
 
@@ -2574,6 +2608,48 @@ const FOURTEMP_TYPE_FR: FourTempTypeBundle = {
 };
 export function fourTempTypeStrings(locale?: string): FourTempTypeBundle | undefined {
   return locale === "es" ? FOURTEMP_TYPE_ES : locale === "fr" ? FOURTEMP_TYPE_FR : undefined;
+}
+
+/* ── Four Color Styles (typological; type card localized separately) ── */
+export interface ColorTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { lead: string; support: string; spectrum: string; pattern: string };
+  spectrumHint: string;
+  blend: string;
+  clear: (name: string) => string;
+  blendDetail: string;
+  clearDetail: string;
+}
+const COLOR_TYPE_ES: ColorTypeBundle = {
+  meta: {
+    GOLD: { name: "Dorado", title: "El Organizador", desc: "responsable, estructurado, fiable", summary: "El Dorado lidera en ti: responsable, organizado/a y leal. Construyes la estructura y el cumplimiento en los que otros confían." },
+    BLUE: { name: "Azul", title: "El Conector", desc: "cálido, empático, en busca de sentido", summary: "El Azul lidera en ti: cálido/a, auténtico/a y centrado/a en las personas. Cultivas la armonía, el sentido y el crecimiento de quienes te rodean." },
+    GREEN: { name: "Verde", title: "El Pensador", desc: "analítico, curioso, movido por la competencia", summary: "El Verde lidera en ti: lógico/a, curioso/a y de cabeza fría. Dominas ideas y sistemas y valoras la competencia." },
+    ORANGE: { name: "Naranja", title: "El Aventurero", desc: "espontáneo, enérgico, audaz", summary: "El Naranja lidera en ti: espontáneo/a, amante de la acción y adaptable. Aportas energía, valentía y un sentido del juego." },
+  },
+  labels: { lead: "Color principal", support: "Color de apoyo", spectrum: "Espectro", pattern: "Patrón" },
+  spectrumHint: "tus colores, del más brillante al más tenue",
+  blend: "Una mezcla de dos colores",
+  clear: (name) => `${name} claro`,
+  blendDetail: "dos colores van muy parejos",
+  clearDetail: "un color destaca con claridad",
+};
+const COLOR_TYPE_FR: ColorTypeBundle = {
+  meta: {
+    GOLD: { name: "Or", title: "L'Organisateur", desc: "responsable, structuré, fiable", summary: "L'Or domine chez vous : responsable, organisé(e) et loyal(e). Vous bâtissez la structure et le suivi sur lesquels les autres comptent." },
+    BLUE: { name: "Bleu", title: "Le Connecteur", desc: "chaleureux, empathique, en quête de sens", summary: "Le Bleu domine chez vous : chaleureux(se), authentique et tourné(e) vers les gens. Vous cultivez l'harmonie, le sens et la croissance de votre entourage." },
+    GREEN: { name: "Vert", title: "Le Penseur", desc: "analytique, curieux, porté sur la compétence", summary: "Le Vert domine chez vous : logique, curieux(se) et de sang-froid. Vous maîtrisez les idées et les systèmes et prisez la compétence." },
+    ORANGE: { name: "Orange", title: "L'Aventurier", desc: "spontané, énergique, audacieux", summary: "L'Orange domine chez vous : spontané(e), amateur(trice) d'action et adaptable. Vous apportez énergie, courage et sens du jeu." },
+  },
+  labels: { lead: "Couleur principale", support: "Couleur d'appoint", spectrum: "Spectre", pattern: "Profil" },
+  spectrumHint: "vos couleurs, de la plus vive à la plus pâle",
+  blend: "Un mélange de deux couleurs",
+  clear: (name) => `${name} net`,
+  blendDetail: "deux couleurs sont au coude à coude",
+  clearDetail: "une couleur se détache nettement",
+};
+export function colorTypeStrings(locale?: string): ColorTypeBundle | undefined {
+  return locale === "es" ? COLOR_TYPE_ES : locale === "fr" ? COLOR_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

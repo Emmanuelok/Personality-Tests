@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { colorTypeStrings, type ColorTypeBundle } from "./i18n";
 
 /**
  * Four Color Styles (the "True Colors" / Insights team-temperament tradition).
@@ -30,33 +31,47 @@ const items: Item[] = [
   it("O4", "I'm bold, playful, and like a bit of risk.", "ORANGE"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  GOLD: { name: "Gold", title: "The Organizer", desc: "responsible, structured, dependable", summary: "Gold leads in you — responsible, organized, and loyal. You build the structure and follow-through that others rely on." },
-  BLUE: { name: "Blue", title: "The Connector", desc: "warm, empathetic, meaning-seeking", summary: "Blue leads in you — warm, authentic, and people-centered. You nurture harmony, meaning, and the growth of those around you." },
-  GREEN: { name: "Green", title: "The Thinker", desc: "analytical, curious, competence-driven", summary: "Green leads in you — logical, curious, and cool-headed. You master ideas and systems and prize competence." },
-  ORANGE: { name: "Orange", title: "The Adventurer", desc: "spontaneous, energetic, bold", summary: "Orange leads in you — spontaneous, action-loving, and adaptable. You bring energy, courage, and a sense of play." },
+/** Canonical, language-agnostic color codes (the English color names). */
+const CODE_EN: Record<string, string> = { GOLD: "Gold", BLUE: "Blue", GREEN: "Green", ORANGE: "Orange" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (colorTypeStrings). */
+const COLOR_TYPE_EN: ColorTypeBundle = {
+  meta: {
+    GOLD: { name: "Gold", title: "The Organizer", desc: "responsible, structured, dependable", summary: "Gold leads in you — responsible, organized, and loyal. You build the structure and follow-through that others rely on." },
+    BLUE: { name: "Blue", title: "The Connector", desc: "warm, empathetic, meaning-seeking", summary: "Blue leads in you — warm, authentic, and people-centered. You nurture harmony, meaning, and the growth of those around you." },
+    GREEN: { name: "Green", title: "The Thinker", desc: "analytical, curious, competence-driven", summary: "Green leads in you — logical, curious, and cool-headed. You master ideas and systems and prize competence." },
+    ORANGE: { name: "Orange", title: "The Adventurer", desc: "spontaneous, energetic, bold", summary: "Orange leads in you — spontaneous, action-loving, and adaptable. You bring energy, courage, and a sense of play." },
+  },
+  labels: { lead: "Lead color", support: "Support color", spectrum: "Spectrum", pattern: "Pattern" },
+  spectrumHint: "your colors, brightest first",
+  blend: "A two-color blend",
+  clear: (name) => `Clear ${name}`,
+  blendDetail: "two colors run close",
+  clearDetail: "one color clearly leads",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = colorTypeStrings(locale) ?? COLOR_TYPE_EN;
   const arr = ["GOLD", "BLUE", "GREEN", "ORANGE"].map((id) => ({ id, mean: s[id].mean }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const second = sorted[1];
   const sep = top.mean - second.mean;
   const blended = sep < 0.4;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
+  const sName = T.meta[second.id].name;
   return {
-    code: blended ? `${meta.name}/${META[second.id].name}` : meta.name,
+    code: blended ? `${CODE_EN[top.id]}/${CODE_EN[second.id]}` : CODE_EN[top.id],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Lead color", value: meta.name, detail: meta.desc },
-      { label: "Support color", value: META[second.id].name, detail: META[second.id].desc },
-      { label: "Spectrum", value: sorted.map((x) => META[x.id].name).join(" › "), detail: "your colors, brightest first" },
-      { label: "Pattern", value: blended ? "A two-color blend" : `Clear ${meta.name}`, detail: blended ? "two colors run close" : "one color clearly leads" },
+      { label: T.labels.lead, value: meta.name, detail: meta.desc },
+      { label: T.labels.support, value: sName, detail: T.meta[second.id].desc },
+      { label: T.labels.spectrum, value: sorted.map((x) => T.meta[x.id].name).join(" › "), detail: T.spectrumHint },
+      { label: T.labels.pattern, value: blended ? T.blend : T.clear(meta.name), detail: blended ? T.blendDetail : T.clearDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.96, 0.5 + sep)),
-    secondary: META[second.id].name,
+    secondary: sName,
   };
 }
 
