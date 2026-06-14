@@ -229,6 +229,13 @@ describe("conflict, chronotype, moral foundations & starter pack", () => {
     // choice format: pick the Competing option (index 0) on every scenario
     const responses = Object.fromEntries(conflictStyle.items.map((i) => [i.id, 0]));
     expect(scoreAssessment(conflictStyle, responses).type?.code).toBe("Competing");
+    // localized: canonical code stays English; title + labels translate
+    const es = scoreAssessment(localizeInstrument(conflictStyle, "es"), responses).type!;
+    expect(es.code).toBe("Competing");
+    expect(es.title).toBe("El Director");
+    expect(es.components.some((c) => c.label === "Estilo principal")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(conflictStyle, "fr"), responses).type!;
+    expect(fr.title).toBe("Le Directeur");
   });
 
   it("classifies chronotype as Lark or Owl", () => {
@@ -890,7 +897,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");

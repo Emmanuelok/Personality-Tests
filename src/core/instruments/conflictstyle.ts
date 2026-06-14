@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { conflictTypeStrings, type ConflictTypeBundle } from "./i18n";
 
 /**
  * Conflict Style (Thomas–Kilmann model) — five modes of handling conflict along
@@ -34,31 +35,40 @@ const items: Item[] = [
   mc("CS10", "ACCOMM", "The trap you're most prone to in conflict is…", ["winning the point but straining the relationship", "over-investing time in small disputes", "settling for less than was possible", "leaving real issues unaddressed", "burying your own needs"]),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  COMPETE: { name: "Competing", title: "The Director", desc: "assertive and goal-driven", summary: "You go after what you believe is right — decisive and willing to stand your ground. Great in a crisis; watch that you don't win battles and lose relationships." },
-  COLLAB: { name: "Collaborating", title: "The Problem-Solver", desc: "assertive and cooperative", summary: "You work to satisfy everyone's real needs and solve the underlying issue. The richest mode — just mind that not every conflict is worth the time it takes." },
-  COMPROMISE: { name: "Compromising", title: "The Dealmaker", desc: "balanced give-and-take", summary: "You find fair middle ground fast. Pragmatic and efficient; just make sure you're not settling when a fuller solution was available." },
-  AVOID: { name: "Avoiding", title: "The Sidestepper", desc: "low-key and conflict-averse", summary: "You sidestep or defer conflict to keep things calm. Useful for trivial or heated moments; costly when real issues go unaddressed." },
-  ACCOMM: { name: "Accommodating", title: "The Harmonizer", desc: "giving and harmony-seeking", summary: "You yield to preserve the relationship. Generous and gracious; watch that chronic giving-in doesn't bury your own needs." },
+/** Canonical, language-agnostic mode codes (the English mode names). */
+const CODE_EN: Record<string, string> = { COMPETE: "Competing", COLLAB: "Collaborating", COMPROMISE: "Compromising", AVOID: "Avoiding", ACCOMM: "Accommodating" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (conflictTypeStrings). */
+const CONFLICT_TYPE_EN: ConflictTypeBundle = {
+  meta: {
+    COMPETE: { name: "Competing", title: "The Director", desc: "assertive and goal-driven", summary: "You go after what you believe is right — decisive and willing to stand your ground. Great in a crisis; watch that you don't win battles and lose relationships." },
+    COLLAB: { name: "Collaborating", title: "The Problem-Solver", desc: "assertive and cooperative", summary: "You work to satisfy everyone's real needs and solve the underlying issue. The richest mode — just mind that not every conflict is worth the time it takes." },
+    COMPROMISE: { name: "Compromising", title: "The Dealmaker", desc: "balanced give-and-take", summary: "You find fair middle ground fast. Pragmatic and efficient; just make sure you're not settling when a fuller solution was available." },
+    AVOID: { name: "Avoiding", title: "The Sidestepper", desc: "low-key and conflict-averse", summary: "You sidestep or defer conflict to keep things calm. Useful for trivial or heated moments; costly when real issues go unaddressed." },
+    ACCOMM: { name: "Accommodating", title: "The Harmonizer", desc: "giving and harmony-seeking", summary: "You yield to preserve the relationship. Generous and gracious; watch that chronic giving-in doesn't bury your own needs." },
+  },
+  labels: { primary: "Primary style", backup: "Backup style", order: "Full order", grow: "Grow" },
+  growTip: "The mode you use least is often the one worth practicing for hard situations.",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = conflictTypeStrings(locale) ?? CONFLICT_TYPE_EN;
   const sorted = MODES5.map((id) => ({ id, n: s[id].normalized })).sort((a, b) => b.n - a.n);
   const top = sorted[0];
   const second = sorted[1];
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
   return {
-    code: meta.name,
+    code: CODE_EN[top.id],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Primary style", value: meta.name, detail: meta.desc },
-      { label: "Backup style", value: META[second.id].name, detail: META[second.id].desc },
-      { label: "Full order", value: sorted.map((x) => META[x.id].name).join(" › ") },
-      { label: "Grow", value: "The mode you use least is often the one worth practicing for hard situations." },
+      { label: T.labels.primary, value: meta.name, detail: meta.desc },
+      { label: T.labels.backup, value: T.meta[second.id].name, detail: T.meta[second.id].desc },
+      { label: T.labels.order, value: sorted.map((x) => T.meta[x.id].name).join(" › ") },
+      { label: T.labels.grow, value: T.growTip },
     ],
     confidence: Math.max(0.2, Math.min(0.98, 0.5 + (top.n - second.n) / 100)),
-    secondary: META[second.id].name,
+    secondary: T.meta[second.id].name,
   };
 }
 

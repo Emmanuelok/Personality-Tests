@@ -1894,6 +1894,62 @@ const LOVELANG_FR: InstrumentTranslation = {
     LL10: ["« Dis-moi que tu m'aimes. »", "« Passe du temps avec moi. »", "« Laisse-moi t'aider. »", "« Je t'ai pris quelque chose. »", "« Serre-moi dans tes bras. »"],
   },
 };
+const CONFLICT_ES: InstrumentTranslation = {
+  name: "Estilo de conflicto (Thomas-Kilmann)", shortName: "Estilo de conflicto",
+  tagline: "Cómo manejas el desacuerdo: tu modo por defecto y tu reserva.",
+  description: "El modelo de Thomas-Kilmann mapea cinco formas de manejar el conflicto en dos ejes: cuán firme eres y cuán cooperativo. No hay un modo 'mejor'; la habilidad está en usar el adecuado para cada situación. Este perfilador encuentra tus estilos principal y de reserva, y señala el modo que vale la pena practicar.",
+  scales: {
+    COMPETE: { name: "Competir", description: "Firme, poco cooperativo: persigues tus propios intereses.", poles: { low: "Conciliador", high: "Contundente" }, highDescriptor: "firme, directo/a y dispuesto/a a mantenerse en sus trece", lowDescriptor: "rara vez contundente en el conflicto" },
+    COLLAB: { name: "Colaborar", description: "Firme y cooperativo: resolver para todos.", poles: { low: "Superficial", high: "Resolutivo" }, highDescriptor: "implicado/a, abierto/a y buscador/a de soluciones", lowDescriptor: "menos inclinado/a a profundizar en soluciones compartidas" },
+    COMPROMISE: { name: "Comprometer", description: "Toma y daca moderado.", poles: { low: "Todo o nada", high: "Punto medio" }, highDescriptor: "pragmático/a y buscador/a de equidad", lowDescriptor: "menos inclinado/a a partir la diferencia" },
+    AVOID: { name: "Evitar", description: "Poco firme, poco cooperativo: esquivar.", poles: { low: "Confrontador", high: "Evasivo" }, highDescriptor: "tranquilo/a, reacio/a al conflicto y desescalador/a", lowDescriptor: "inclinado/a a implicarse en lugar de retirarse" },
+    ACCOMM: { name: "Ceder", description: "Poco firme, cooperativo: ceder por armonía.", poles: { low: "Se afirma", high: "Cede" }, highDescriptor: "generoso/a, buscador/a de armonía y abnegado/a", lowDescriptor: "menos inclinado/a a ceder por la paz" },
+  },
+  items: {
+    CS1: "Un colega impulsa un plan que crees equivocado. Lo más probable es que…", CS2: "La tensión sube en un desacuerdo. Tu instinto es…", CS3: "Tú y un amigo queréis cosas distintas para un plan compartido. Tú…", CS4: "Alguien te desafía en una reunión. Tiendes a…", CS5: "Cuando un conflicto simplemente no se resuelve, lo más probable es que…",
+    CS6: "En la mayoría de los desacuerdos, tu máxima prioridad es…", CS7: "Un familiar quiere algo que tú no. Normalmente…", CS8: "Bajo presión en una disputa, por defecto eres…", CS9: "Mirando atrás a los conflictos que has tenido, lo más frecuente es que…", CS10: "La trampa a la que más propenso/a eres en un conflicto es…",
+  },
+  options: {
+    CS1: ["defender tu postura con firmeza y empujar por tu enfoque", "indagar juntos en el problema real para hallar la mejor respuesta", "buscar un punto medio con el que ambos podáis vivir", "dejarlo pasar por ahora y retomarlo después si importa", "seguirle el plan para mantener la fluidez"],
+    CS2: ["mantenerte firme y seguir defendiendo tu punto", "ir más despacio y trabajar lo que de verdad ocurre", "proponer un reparto rápido y justo para que ambos sigáis adelante", "dar un paso atrás y dejar que las cosas se enfríen", "ceder para mantener la paz"],
+    CS3: ["abogar con fuerza por lo que quieres", "buscar una opción que os dé a ambos lo que más importa", "ceder un poco cada uno y encontraros en el medio", "seguir la corriente y evitar hacer de ello un problema", "ceder a lo que prefiera"],
+    CS4: ["replicar y defender tu posición", "invitar su punto de vista y construir hacia una solución", "encontrar un compromiso que satisfaga lo suficiente a ambos", "desviar y hacer avanzar la conversación", "ceder para evitar la fricción"],
+    CS5: ["presionar hasta que se resuelva a tu manera", "seguir trabajándolo hasta cubrir las necesidades de todos", "negociar un trato en el que todos cedan algo", "aparcarlo y apartarte por ahora", "ceder para que se acabe"],
+    CS6: ["lograr el resultado correcto, tal como lo ves", "resolver del todo el problema de fondo", "alcanzar rápido una resolución justa y viable", "mantener la calma y el bajo dramatismo", "proteger la relación y la armonía"],
+    CS7: ["mantenerte firme en lo que necesitas", "hablarlo hasta el final hacia una solución real", "encontrar un punto intermedio", "dejarlo correr para evitar una pelea", "darle la razón para mantener la paz"],
+    CS8: ["decidido/a y contundente", "abierto/a y centrado/a en la solución", "práctico/a y ecuánime", "discreto/a y distante", "amable y dispuesto/a a ceder"],
+    CS9: ["luchaste por tu posición", "trabajaste hacia un beneficio mutuo", "partiste la diferencia", "te apartaste de ello", "dejaste que la otra persona se saliera con la suya"],
+    CS10: ["ganar el punto pero tensar la relación", "invertir demasiado tiempo en disputas pequeñas", "conformarte con menos de lo posible", "dejar sin abordar los problemas reales", "enterrar tus propias necesidades"],
+  },
+};
+const CONFLICT_FR: InstrumentTranslation = {
+  name: "Style de conflit (Thomas-Kilmann)", shortName: "Style de conflit",
+  tagline: "Comment vous gérez le désaccord — votre mode par défaut et votre mode de secours.",
+  description: "Le modèle de Thomas-Kilmann cartographie cinq façons de gérer le conflit selon deux axes : votre degré d'affirmation et de coopération. Il n'y a pas de « meilleur » mode ; l'art est d'utiliser le bon selon la situation. Ce profileur identifie vos styles principal et de secours, et désigne le mode qui mérite d'être travaillé.",
+  scales: {
+    COMPETE: { name: "Rivaliser", description: "Affirmé, peu coopératif : poursuivre ses propres intérêts.", poles: { low: "Conciliant", high: "Énergique" }, highDescriptor: "affirmé(e), direct(e) et prêt(e) à tenir bon", lowDescriptor: "rarement énergique en cas de conflit" },
+    COLLAB: { name: "Collaborer", description: "Affirmé et coopératif : résoudre pour tous.", poles: { low: "Superficiel", high: "Résolutif" }, highDescriptor: "impliqué(e), ouvert(e) et en quête de solutions", lowDescriptor: "moins enclin(e) à creuser des solutions partagées" },
+    COMPROMISE: { name: "Compromis", description: "Donnant-donnant modéré.", poles: { low: "Tout ou rien", high: "Juste milieu" }, highDescriptor: "pragmatique et soucieux(se) d'équité", lowDescriptor: "moins enclin(e) à couper la poire en deux" },
+    AVOID: { name: "Éviter", description: "Peu affirmé, peu coopératif : esquiver.", poles: { low: "Confrontant", high: "Fuyant" }, highDescriptor: "calme, réfractaire au conflit et apaisant(e)", lowDescriptor: "enclin(e) à s'impliquer plutôt qu'à se retirer" },
+    ACCOMM: { name: "Accommoder", description: "Peu affirmé, coopératif : céder pour l'harmonie.", poles: { low: "S'affirme", high: "Cède" }, highDescriptor: "généreux(se), en quête d'harmonie et prêt(e) à se sacrifier", lowDescriptor: "moins enclin(e) à céder pour la paix" },
+  },
+  items: {
+    CS1: "Un collègue défend un plan que vous jugez mauvais. Vous allez très probablement…", CS2: "La tension monte dans un désaccord. Votre instinct est de…", CS3: "Vous et un ami voulez des choses différentes pour un projet commun. Vous…", CS4: "Quelqu'un vous met au défi en réunion. Vous avez tendance à…", CS5: "Quand un conflit ne se résout tout simplement pas, vous allez surtout…",
+    CS6: "Dans la plupart des désaccords, votre priorité absolue est de…", CS7: "Un membre de la famille veut quelque chose que vous ne voulez pas. Vous…", CS8: "Sous pression dans un différend, vous êtes par défaut…", CS9: "En repensant aux conflits que vous avez eus, le plus souvent vous…", CS10: "Le piège auquel vous êtes le plus enclin(e) en cas de conflit est…",
+  },
+  options: {
+    CS1: ["défendre votre point fermement et pousser votre approche", "creuser ensemble le vrai problème pour trouver la meilleure réponse", "chercher un terrain d'entente acceptable pour vous deux", "laisser tomber pour l'instant et y revenir plus tard si ça compte", "vous rallier à son plan pour que tout reste fluide"],
+    CS2: ["tenir bon et continuer à défendre votre point", "ralentir et démêler ce qui se passe vraiment", "proposer un partage rapide et équitable pour avancer tous les deux", "prendre du recul et laisser les choses se calmer", "céder pour préserver la paix"],
+    CS3: ["plaider fort pour ce que vous voulez", "chercher une option qui donne à chacun l'essentiel", "que chacun cède un peu et se rejoindre au milieu", "suivre le mouvement et éviter d'en faire une affaire", "vous ranger à sa préférence"],
+    CS4: ["répliquer et défendre votre position", "inviter son point de vue et construire vers une solution", "trouver un compromis qui satisfasse assez les deux", "détourner et faire avancer la discussion", "concéder pour éviter les frictions"],
+    CS5: ["insister jusqu'à ce que ce soit réglé à votre façon", "continuer à y travailler jusqu'à satisfaire les besoins de chacun", "négocier un accord où chacun donne quelque chose", "le mettre de côté et vous retirer pour l'instant", "céder pour que ce soit fini"],
+    CS6: ["obtenir le bon résultat, tel que vous le voyez", "résoudre pleinement le problème de fond", "parvenir vite à une résolution juste et réalisable", "garder le calme et éviter le drame", "protéger la relation et l'harmonie"],
+    CS7: ["tenir bon sur ce dont vous avez besoin", "en parler jusqu'au bout vers une vraie solution", "trouver un compromis à mi-chemin", "laisser couler pour éviter une dispute", "lui donner raison pour préserver la paix"],
+    CS8: ["décidé(e) et énergique", "ouvert(e) et axé(e) sur la solution", "pratique et impartial(e)", "discret(ète) et en retrait", "aimable et conciliant(e)"],
+    CS9: ["vous êtes battu(e) pour votre position", "avez œuvré vers un gagnant-gagnant", "avez coupé la poire en deux", "vous en êtes éloigné(e)", "avez laissé l'autre avoir gain de cause"],
+    CS10: ["gagner le point mais tendre la relation", "investir trop de temps dans de petites disputes", "vous contenter de moins que le possible", "laisser de vrais problèmes sans réponse", "enterrer vos propres besoins"],
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1909,7 +1965,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
-    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES,
+    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1924,7 +1980,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
-    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR,
+    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
   },
 };
 
@@ -2169,6 +2225,38 @@ const LOVE_TYPE_FR: LoveLangTypeBundle = {
 };
 export function loveLangTypeStrings(locale?: string): LoveLangTypeBundle | undefined {
   return locale === "es" ? LOVE_TYPE_ES : locale === "fr" ? LOVE_TYPE_FR : undefined;
+}
+
+/* ── Conflict Style / Thomas–Kilmann (typological; type card localized separately) ── */
+export interface ConflictTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { primary: string; backup: string; order: string; grow: string };
+  growTip: string;
+}
+const CONFLICT_TYPE_ES: ConflictTypeBundle = {
+  meta: {
+    COMPETE: { name: "Competir", title: "El Director", desc: "firme y orientado a objetivos", summary: "Persigues lo que crees correcto: decidido/a y dispuesto/a a mantenerte firme. Genial en una crisis; cuida no ganar batallas y perder relaciones." },
+    COLLAB: { name: "Colaborar", title: "El Solucionador", desc: "firme y cooperativo", summary: "Trabajas para satisfacer las necesidades reales de todos y resolver el problema de fondo. El modo más rico; solo ten en cuenta que no todo conflicto merece el tiempo que requiere." },
+    COMPROMISE: { name: "Comprometer", title: "El Negociador", desc: "toma y daca equilibrado", summary: "Encuentras rápido un punto medio justo. Pragmático/a y eficiente; solo asegúrate de no conformarte cuando había una solución más completa." },
+    AVOID: { name: "Evitar", title: "El Esquivador", desc: "discreto y reacio al conflicto", summary: "Esquivas o aplazas el conflicto para mantener la calma. Útil en momentos triviales o acalorados; costoso cuando quedan problemas reales sin abordar." },
+    ACCOMM: { name: "Ceder", title: "El Armonizador", desc: "generoso y buscador de armonía", summary: "Cedes para preservar la relación. Generoso/a y amable; cuida que ceder de forma crónica no entierre tus propias necesidades." },
+  },
+  labels: { primary: "Estilo principal", backup: "Estilo de reserva", order: "Orden completo", grow: "Crecer" },
+  growTip: "El modo que menos usas suele ser el que vale la pena practicar para las situaciones difíciles.",
+};
+const CONFLICT_TYPE_FR: ConflictTypeBundle = {
+  meta: {
+    COMPETE: { name: "Rivaliser", title: "Le Directeur", desc: "affirmé et orienté objectifs", summary: "Vous poursuivez ce que vous croyez juste — décidé(e) et prêt(e) à tenir bon. Excellent en cas de crise ; veillez à ne pas gagner des batailles en perdant des relations." },
+    COLLAB: { name: "Collaborer", title: "Le Résolveur", desc: "affirmé et coopératif", summary: "Vous cherchez à satisfaire les vrais besoins de chacun et à résoudre le problème de fond. Le mode le plus riche — gardez en tête que tout conflit ne vaut pas le temps qu'il prend." },
+    COMPROMISE: { name: "Compromis", title: "Le Négociateur", desc: "donnant-donnant équilibré", summary: "Vous trouvez vite un juste milieu. Pragmatique et efficace ; assurez-vous seulement de ne pas vous contenter de peu alors qu'une solution plus complète existait." },
+    AVOID: { name: "Éviter", title: "L'Esquiveur", desc: "discret et réfractaire au conflit", summary: "Vous esquivez ou différez le conflit pour garder le calme. Utile pour les moments anodins ou houleux ; coûteux quand de vrais problèmes restent sans réponse." },
+    ACCOMM: { name: "Accommoder", title: "L'Harmonisateur", desc: "généreux et en quête d'harmonie", summary: "Vous cédez pour préserver la relation. Généreux(se) et gracieux(se) ; veillez à ce que céder sans cesse n'enterre pas vos propres besoins." },
+  },
+  labels: { primary: "Style principal", backup: "Style de secours", order: "Ordre complet", grow: "Grandir" },
+  growTip: "Le mode que vous utilisez le moins est souvent celui qu'il vaut la peine de travailler pour les situations difficiles.",
+};
+export function conflictTypeStrings(locale?: string): ConflictTypeBundle | undefined {
+  return locale === "es" ? CONFLICT_TYPE_ES : locale === "fr" ? CONFLICT_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */
