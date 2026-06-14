@@ -2258,6 +2258,90 @@ const MCCLELLAND_FR: InstrumentTranslation = {
     PW1: "Influencer les gens et façonner les résultats me stimule.", PW2: "Je recherche des postes où je peux diriger les autres et avoir de l'impact.", PW3: "Avoir un effet sur le monde compte énormément pour moi.", PW4: "J'aime être aux commandes et persuader les autres de mon point de vue.",
   },
 };
+const ANCHORS_ES: InstrumentTranslation = {
+  name: "Anclas de carrera", shortName: "Anclas",
+  tagline: "Aquello a lo que no renunciarías en una carrera.",
+  description: "Edgar Schein descubrió que, a medida que las personas ganan experiencia, su carrera acaba girando en torno a un único 'ancla': el valor o la necesidad a la que no renunciarían si se vieran obligadas a elegir. Este perfilador sopesa las ocho —desde la maestría técnica y la gestión hasta la autonomía, la seguridad, el emprendimiento, el servicio, el puro desafío y el estilo de vida— y nombra la que te ancla.",
+  scales: {
+    TF: { name: "Técnico/Funcional", description: "Dominio de un área de pericia específica.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la pericia profunda", lowDescriptor: "menos movido/a por la maestría técnica" },
+    GM: { name: "Dirección general", description: "Liderar, integrar y asumir responsabilidad.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en el liderazgo y la gestión", lowDescriptor: "menos atraído/a por gestionar" },
+    AU: { name: "Autonomía/Independencia", description: "Libertad para trabajar a tu manera.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la independencia", lowDescriptor: "cómodo/a dentro de la estructura" },
+    SE: { name: "Seguridad/Estabilidad", description: "Previsibilidad y un camino fiable.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la seguridad", lowDescriptor: "cómodo/a con el riesgo y el cambio" },
+    EC: { name: "Creatividad emprendedora", description: "Construir algo nuevo y propio.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en crear proyectos", lowDescriptor: "menos atraído/a por fundar cosas" },
+    SV: { name: "Servicio/Dedicación", description: "Servir a una causa mayor que uno mismo.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en el servicio y el sentido", lowDescriptor: "menos movido/a por una causa" },
+    CH: { name: "Puro desafío", description: "Superar problemas difíciles y ganar.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en el desafío y la competencia", lowDescriptor: "menos movido/a por la dificultad en sí" },
+    LS: { name: "Estilo de vida", description: "Integrar la carrera con una vida equilibrada.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la integración trabajo-vida", lowDescriptor: "dispuesto/a a que el trabajo domine" },
+  },
+  items: {
+    TF1: "Ser un experto reconocido, el mejor en una habilidad específica, es lo que más me importa.", TF2: "Prefiero profundizar mi maestría técnica antes que pasar a la dirección general.",
+    GM1: "Me impulsa liderar, gestionar personas y llevar las riendas de todo.", GM2: "Llegar a un puesto de alta dirección es una ambición central.",
+    AU1: "La libertad de hacer mi trabajo a mi manera me importa más que el estatus o el dinero.", AU2: "Me incomodan las reglas rígidas, los jefes y la estructura.",
+    SE1: "La seguridad y la estabilidad me importan más que el riesgo o el ascenso rápido.", SE2: "Valoro un camino profesional predecible y fiable.",
+    EC1: "Sueño con construir algo propio: un proyecto o una creación.", EC2: "Crear un negocio o producto que sea de verdad mío es una meta que me impulsa.",
+    SV1: "Quiero que mi trabajo sirva a una causa o mejore el mundo.", SV2: "El sentido y la contribución me importan más que el dinero o el rango.",
+    CH1: "Soy más feliz abordando los problemas más difíciles, los que parecen imposibles.", CH2: "Busco retos duros y competencia para ganar.",
+    LS1: "Quiero que mi carrera encaje en una vida equilibrada, no que la domine.", LS2: "Integrar el trabajo con la familia y la vida personal es innegociable para mí.",
+  },
+};
+const ANCHORS_FR: InstrumentTranslation = {
+  name: "Ancres de carrière", shortName: "Ancres",
+  tagline: "Ce à quoi vous ne renonceriez pas dans une carrière.",
+  description: "Edgar Schein a découvert qu'à mesure que les gens acquièrent de l'expérience, leur carrière finit par tourner autour d'une seule « ancre » : la valeur ou le besoin auquel ils ne renonceraient pas s'ils devaient choisir. Ce profileur pèse les huit — de la maîtrise technique et la gestion à l'autonomie, la sécurité, l'entrepreneuriat, le service, le pur défi et le style de vie — et nomme celle qui vous ancre.",
+  scales: {
+    TF: { name: "Technique/Fonctionnel", description: "Maîtrise d'un domaine d'expertise précis.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans l'expertise profonde", lowDescriptor: "moins porté(e) par la maîtrise technique" },
+    GM: { name: "Direction générale", description: "Diriger, intégrer et assumer la responsabilité.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans le leadership et la gestion", lowDescriptor: "moins attiré(e) par la gestion" },
+    AU: { name: "Autonomie/Indépendance", description: "Liberté de travailler à votre façon.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans l'indépendance", lowDescriptor: "à l'aise dans la structure" },
+    SE: { name: "Sécurité/Stabilité", description: "Prévisibilité et parcours fiable.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans la sécurité", lowDescriptor: "à l'aise avec le risque et le changement" },
+    EC: { name: "Créativité entrepreneuriale", description: "Bâtir du neuf qui vous appartient.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans la création de projets", lowDescriptor: "moins porté(e) à fonder des choses" },
+    SV: { name: "Service/Dévouement", description: "Servir une cause plus grande que soi.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans le service et le sens", lowDescriptor: "moins porté(e) par une cause" },
+    CH: { name: "Pur défi", description: "Surmonter des problèmes difficiles et gagner.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans le défi et la compétition", lowDescriptor: "moins porté(e) par la difficulté en soi" },
+    LS: { name: "Style de vie", description: "Intégrer la carrière à une vie équilibrée.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans l'équilibre vie-travail", lowDescriptor: "prêt(e) à laisser le travail dominer" },
+  },
+  items: {
+    TF1: "Être un expert reconnu, le meilleur dans une compétence précise, compte le plus pour moi.", TF2: "Je préfère approfondir ma maîtrise technique plutôt que de passer à la direction générale.",
+    GM1: "Je suis poussé(e) à diriger, à gérer des gens et à tout piloter.", GM2: "Atteindre un poste de haute direction est une ambition centrale.",
+    AU1: "La liberté de faire mon travail à ma façon compte plus pour moi que le statut ou l'argent.", AU2: "Je supporte mal les règles rigides, les chefs et la structure.",
+    SE1: "La sécurité et la stabilité comptent plus pour moi que le risque ou l'avancement rapide.", SE2: "Je valorise un parcours professionnel prévisible et fiable.",
+    EC1: "Je rêve de bâtir quelque chose qui m'appartient : un projet ou une création.", EC2: "Créer une entreprise ou un produit qui soit vraiment le mien est un objectif moteur.",
+    SV1: "Je veux que mon travail serve une cause ou améliore le monde.", SV2: "Le sens et la contribution comptent plus pour moi que l'argent ou le rang.",
+    CH1: "Je suis le plus heureux(se) en m'attaquant aux problèmes les plus difficiles, ceux qui semblent impossibles.", CH2: "Je recherche des défis ardus et la compétition pour gagner.",
+    LS1: "Je veux que ma carrière s'inscrive dans une vie équilibrée, pas qu'elle la domine.", LS2: "Intégrer le travail à la famille et à la vie personnelle est non négociable pour moi.",
+  },
+};
+const COPE_ES: InstrumentTranslation = {
+  name: "Estilos de afrontamiento", shortName: "Afrontamiento",
+  tagline: "Cómo manejas el estrés: resolver, reencuadrar, apoyarte o evitar.",
+  description: "Cuando llega el estrés, cada persona echa mano de herramientas distintas. A partir del Brief-COPE de Carver, este perfilador agrupa el afrontamiento en cuatro estilos —centrado en el problema, centrado en la emoción, búsqueda de apoyo y evitativo— y nombra tu recurso habitual. El afrontamiento más sano no es un solo estilo, sino la flexibilidad: ajustar la herramienta a si la situación se puede cambiar.",
+  scales: {
+    PROB: { name: "Centrado en el problema", description: "Actuar directamente para cambiar el estresor.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "activo/a, planificador/a y orientado/a a la solución", lowDescriptor: "menos inclinado/a a afrontar los estresores de frente" },
+    EMO: { name: "Centrado en la emoción", description: "Gestionar los sentimientos con reencuadre y aceptación.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "que reencuadra, acepta y construye sentido", lowDescriptor: "menos inclinado/a a trabajar tu respuesta interior" },
+    SUP: { name: "Búsqueda de apoyo", description: "Recurrir a los demás en busca de consuelo y ayuda.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "que busca apoyo y consejo", lowDescriptor: "más propenso/a a afrontar en solitario" },
+    AVO: { name: "Evitativo", description: "Distracción, negación y escape.", poles: { low: "Rara vez", high: "A menudo" }, highDescriptor: "que se apoya en la distracción y el escape", lowDescriptor: "que rara vez evita o escapa de los estresores" },
+  },
+  items: {
+    P1: "Doy pasos activos para resolver el problema.", P2: "Hago un plan de acción y lo voy ejecutando.", P3: "Centro mi energía en lo que de verdad puedo hacer al respecto.", P4: "Me concentro a fondo en resolverlo.",
+    E1: "Intento ver la situación bajo una luz más positiva.", E2: "Acepto la realidad de lo que ha pasado.", E3: "Busco sentido o crecimiento en la experiencia.", E4: "Me recuerdo que las cosas podrían ser peores.",
+    S1: "Recurro a los demás en busca de consuelo emocional.", S2: "Pido a la gente consejo o ayuda práctica.", S3: "Hablo con alguien sobre cómo me siento.", S4: "Me apoyo en amigos o familia para salir adelante.",
+    A1: "Me distraigo para no tener que pensar en ello.", A2: "Me digo que no está pasando de verdad.", A3: "Renuncio a intentar lidiar con ello.", A4: "Uso la comida, la bebida u otros escapes para sentirme mejor.",
+  },
+};
+const COPE_FR: InstrumentTranslation = {
+  name: "Styles de coping", shortName: "Coping",
+  tagline: "Comment vous gérez le stress : résoudre, recadrer, vous appuyer ou éviter.",
+  description: "Quand le stress survient, chacun saisit des outils différents. À partir du Brief-COPE de Carver, ce profileur regroupe le coping en quatre styles — centré sur le problème, centré sur l'émotion, recherche de soutien et évitant — et nomme votre recours habituel. Le coping le plus sain n'est pas un seul style mais la flexibilité : adapter l'outil selon que la situation peut être changée.",
+  scales: {
+    PROB: { name: "Centré sur le problème", description: "Agir directement pour changer le facteur de stress.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "actif(ve), planificateur(trice) et orienté(e) solution", lowDescriptor: "moins enclin(e) à affronter les stresseurs de front" },
+    EMO: { name: "Centré sur l'émotion", description: "Gérer les sentiments par le recadrage et l'acceptation.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "qui recadre, accepte et donne du sens", lowDescriptor: "moins enclin(e) à travailler votre réponse intérieure" },
+    SUP: { name: "Recherche de soutien", description: "Se tourner vers les autres pour réconfort et aide.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "qui cherche soutien et conseils", lowDescriptor: "plus enclin(e) à faire face seul(e)" },
+    AVO: { name: "Évitant", description: "Distraction, déni et fuite.", poles: { low: "Rarement", high: "Souvent" }, highDescriptor: "qui s'appuie sur la distraction et la fuite", lowDescriptor: "qui évite ou fuit rarement les stresseurs" },
+  },
+  items: {
+    P1: "Je prends des mesures actives pour résoudre le problème.", P2: "Je fais un plan d'action et je le déroule.", P3: "Je concentre mon énergie sur ce que je peux réellement faire.", P4: "Je me concentre intensément pour le résoudre.",
+    E1: "J'essaie de voir la situation sous un jour plus positif.", E2: "J'accepte la réalité de ce qui est arrivé.", E3: "Je cherche du sens ou de la croissance dans l'expérience.", E4: "Je me rappelle que les choses pourraient être pires.",
+    S1: "Je me tourne vers les autres pour du réconfort émotionnel.", S2: "Je demande aux gens des conseils ou une aide pratique.", S3: "Je parle à quelqu'un de ce que je ressens.", S4: "Je m'appuie sur des amis ou la famille pour tenir le coup.",
+    A1: "Je me distrais pour ne pas avoir à y penser.", A2: "Je me dis que ça n'arrive pas vraiment.", A3: "J'abandonne l'idée d'y faire face.", A4: "J'utilise la nourriture, la boisson ou d'autres échappatoires pour me sentir mieux.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2275,7 +2359,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
     "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
-    "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES,
+    "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2292,7 +2376,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
     "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
-    "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR,
+    "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
   },
 };
 
@@ -2857,6 +2941,60 @@ const MCCLELLAND_TYPE_FR: RankedStyleBundle = {
 };
 export function mcclellandTypeStrings(locale?: string): RankedStyleBundle | undefined {
   return locale === "es" ? MCCLELLAND_TYPE_ES : locale === "fr" ? MCCLELLAND_TYPE_FR : undefined;
+}
+const ANCHORS_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    TF: { name: "Técnico/Funcional", title: "El Experto", desc: "dominio de un oficio", summary: "Tu ancla es la pericia profunda: das lo mejor dominando un oficio y siendo realmente bueno/a en algo específico." },
+    GM: { name: "Dirección general", title: "El Líder", desc: "liderar e integrar", summary: "Tu ancla es la dirección: te atrae liderar personas, integrar funciones y asumir la responsabilidad de los resultados." },
+    AU: { name: "Autonomía", title: "El Independiente", desc: "libertad y autodirección", summary: "Tu ancla es la autonomía: la libertad de trabajar a tu manera te importa más que el rango, la estructura o la seguridad." },
+    SE: { name: "Seguridad/Estabilidad", title: "El Ancla", desc: "estabilidad y previsibilidad", summary: "Tu ancla es la seguridad: valoras un camino estable y fiable y la tranquilidad por encima del riesgo y el cambio rápido." },
+    EC: { name: "Creatividad emprendedora", title: "El Fundador", desc: "construir algo nuevo", summary: "Tu ancla es crear: te impulsa construir algo propio, una empresa o producto que lleve tu sello." },
+    SV: { name: "Servicio/Dedicación", title: "El Servidor", desc: "una causa que merece servir", summary: "Tu ancla es el servicio: el trabajo debe servir a una causa y significar algo; la contribución pesa más que el dinero y el estatus." },
+    CH: { name: "Puro desafío", title: "El Retador", desc: "problemas difíciles que ganar", summary: "Tu ancla es el desafío: vives por los problemas difíciles y la competencia dura, y los necesitas para sentirte vivo/a en el trabajo." },
+    LS: { name: "Estilo de vida", title: "El Integrador", desc: "una vida equilibrada y completa", summary: "Tu ancla es el estilo de vida: quieres una carrera que encaje en una vida equilibrada, integrando trabajo, familia y persona." },
+  },
+  labels: { dominant: "Ancla principal", secondary: "Ancla secundaria", range: "Las tres primeras", profile: "Claridad" },
+  lead: "un claro líder", blend: "las anclas van parejas", profileDetail: "con qué decisión lidera un ancla",
+};
+const ANCHORS_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    TF: { name: "Technique/Fonctionnel", title: "L'Expert", desc: "maîtrise d'un métier", summary: "Votre ancre est l'expertise profonde : vous êtes au mieux en maîtrisant un métier et en étant vraiment bon(ne) dans un domaine précis." },
+    GM: { name: "Direction générale", title: "Le Leader", desc: "diriger et intégrer", summary: "Votre ancre est la direction : vous êtes attiré(e) par le fait de diriger des gens, d'intégrer des fonctions et d'assumer la responsabilité des résultats." },
+    AU: { name: "Autonomie", title: "L'Indépendant", desc: "liberté et autodétermination", summary: "Votre ancre est l'autonomie : la liberté de travailler à votre façon compte plus que le rang, la structure ou la sécurité." },
+    SE: { name: "Sécurité/Stabilité", title: "L'Ancre", desc: "stabilité et prévisibilité", summary: "Votre ancre est la sécurité : vous valorisez un parcours stable et fiable et la tranquillité d'esprit plutôt que le risque et le changement rapide." },
+    EC: { name: "Créativité entrepreneuriale", title: "Le Fondateur", desc: "bâtir du neuf", summary: "Votre ancre est la création : vous êtes poussé(e) à bâtir quelque chose qui vous appartient, une entreprise ou un produit qui porte votre marque." },
+    SV: { name: "Service/Dévouement", title: "Le Serviteur", desc: "une cause qui mérite d'être servie", summary: "Votre ancre est le service : le travail doit servir une cause et avoir du sens ; la contribution prime sur l'argent et le statut." },
+    CH: { name: "Pur défi", title: "Le Challengeur", desc: "des problèmes difficiles à gagner", summary: "Votre ancre est le défi : vous vivez pour les problèmes difficiles et la compétition rude, et il vous les faut pour vous sentir vivant(e) au travail." },
+    LS: { name: "Style de vie", title: "L'Intégrateur", desc: "une vie équilibrée et entière", summary: "Votre ancre est le style de vie : vous voulez une carrière qui s'inscrit dans une vie équilibrée, intégrant travail, famille et soi." },
+  },
+  labels: { dominant: "Ancre principale", secondary: "Ancre secondaire", range: "Les trois premières", profile: "Clarté" },
+  lead: "une tête nette", blend: "les ancres sont au coude à coude", profileDetail: "avec quelle netteté une ancre domine",
+};
+export function anchorsTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? ANCHORS_TYPE_ES : locale === "fr" ? ANCHORS_TYPE_FR : undefined;
+}
+const COPE_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    PROB: { name: "Centrado en el problema", title: "El Solucionador", desc: "afrontamiento activo, planificación", summary: "Tu estilo habitual es centrado en el problema: afrontas el estrés de frente, haces planes y cambias lo que puedes. Potente cuando la situación es controlable; agotador cuando no lo es." },
+    EMO: { name: "Centrado en la emoción", title: "El Reencuadrador", desc: "reencuadre, aceptación, sentido", summary: "Tu estilo habitual es centrado en la emoción: gestionas el clima interior mediante el reencuadre, la aceptación y el sentido. Inestimable para lo que no se puede cambiar; arriesgado si se vuelve evitación de la acción." },
+    SUP: { name: "Búsqueda de apoyo", title: "El Conector", desc: "apoyo emocional y práctico", summary: "Tu estilo habitual es buscar apoyo: recurres a los demás en busca de consuelo y consejo. Una verdadera fortaleza, siempre que complemente (y no sustituya) actuar sobre el problema." },
+    AVO: { name: "Evitativo", title: "El Evitador", desc: "distracción, negación, escape", summary: "Tu estilo habitual tiende a la evitación: distracción, negación o escape. Puede dar alivio a corto plazo, pero como hábito tiende a prolongar el estrés. Vale la pena desplazarse con suavidad hacia los otros tres." },
+  },
+  labels: { dominant: "Estilo dominante", secondary: "Estilo secundario", range: "Orden completo", profile: "Flexibilidad" },
+  lead: "un claro recurso", blend: "un repertorio equilibrado", profileDetail: "recurrir a varios estilos es en sí una fortaleza",
+};
+const COPE_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    PROB: { name: "Centré sur le problème", title: "Le Résolveur", desc: "coping actif, planification", summary: "Votre style de prédilection est centré sur le problème : vous affrontez le stress de face, faites des plans et changez ce que vous pouvez. Puissant quand la situation est contrôlable ; épuisant quand elle ne l'est pas." },
+    EMO: { name: "Centré sur l'émotion", title: "Le Recadreur", desc: "recadrage, acceptation, sens", summary: "Votre style de prédilection est centré sur l'émotion : vous gérez la météo intérieure par le recadrage, l'acceptation et le sens. Inestimable pour ce qui ne peut être changé ; risqué s'il devient évitement de l'action." },
+    SUP: { name: "Recherche de soutien", title: "Le Connecteur", desc: "soutien émotionnel et pratique", summary: "Votre style de prédilection est de chercher du soutien : vous vous tournez vers les autres pour du réconfort et des conseils. Une vraie force, tant qu'elle complète (et ne remplace pas) l'action sur le problème." },
+    AVO: { name: "Évitant", title: "L'Évitant", desc: "distraction, déni, fuite", summary: "Votre style de prédilection penche vers l'évitement : distraction, déni ou fuite. Cela peut soulager à court terme, mais en habitude cela tend à prolonger le stress. À déplacer en douceur vers les trois autres." },
+  },
+  labels: { dominant: "Style dominant", secondary: "Style secondaire", range: "Ordre complet", profile: "Flexibilité" },
+  lead: "un recours net", blend: "un répertoire équilibré", profileDetail: "puiser dans plusieurs styles est en soi une force",
+};
+export function copeTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? COPE_TYPE_ES : locale === "fr" ? COPE_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

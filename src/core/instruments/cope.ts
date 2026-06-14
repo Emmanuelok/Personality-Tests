@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { copeTypeStrings, type RankedStyleBundle } from "./i18n";
 
 /**
  * Coping Styles (Brief-COPE tradition) — how you tend to handle stress, grouped
@@ -28,31 +29,41 @@ const items: Item[] = [
   it("A4", "I use food, drink, or other escapes to feel better.", "AVO"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  PROB: { name: "Problem-Focused", title: "The Problem-Solver", desc: "active coping, planning", summary: "Your go-to style is problem-focused — you meet stress head-on, making plans and changing what you can. Powerful when a situation is controllable; tiring when it isn't." },
-  EMO: { name: "Emotion-Focused", title: "The Reframer", desc: "reframing, acceptance, meaning", summary: "Your go-to style is emotion-focused — you manage the inner weather through reframing, acceptance, and meaning. Invaluable for what can't be changed; risky if it becomes avoidance of action." },
-  SUP: { name: "Support-Seeking", title: "The Connector", desc: "emotional & practical support", summary: "Your go-to style is seeking support — you turn to others for comfort and advice. A genuine strength, as long as it complements (not replaces) acting on the problem." },
-  AVO: { name: "Avoidant", title: "The Avoider", desc: "distraction, denial, escape", summary: "Your go-to style leans avoidant — distraction, denial, or escape. It can buy short-term relief, but as a habit it tends to prolong stress. Worth gently shifting toward the other three." },
+/** Canonical, language-agnostic coping-style codes. */
+const CODE_EN: Record<string, string> = { PROB: "Problem-Focused", EMO: "Emotion-Focused", SUP: "Support-Seeking", AVO: "Avoidant" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (copeTypeStrings). */
+const COPE_TYPE_EN: RankedStyleBundle = {
+  meta: {
+    PROB: { name: "Problem-Focused", title: "The Problem-Solver", desc: "active coping, planning", summary: "Your go-to style is problem-focused — you meet stress head-on, making plans and changing what you can. Powerful when a situation is controllable; tiring when it isn't." },
+    EMO: { name: "Emotion-Focused", title: "The Reframer", desc: "reframing, acceptance, meaning", summary: "Your go-to style is emotion-focused — you manage the inner weather through reframing, acceptance, and meaning. Invaluable for what can't be changed; risky if it becomes avoidance of action." },
+    SUP: { name: "Support-Seeking", title: "The Connector", desc: "emotional & practical support", summary: "Your go-to style is seeking support — you turn to others for comfort and advice. A genuine strength, as long as it complements (not replaces) acting on the problem." },
+    AVO: { name: "Avoidant", title: "The Avoider", desc: "distraction, denial, escape", summary: "Your go-to style leans avoidant — distraction, denial, or escape. It can buy short-term relief, but as a habit it tends to prolong stress. Worth gently shifting toward the other three." },
+  },
+  labels: { dominant: "Dominant style", secondary: "Secondary style", range: "Full order", profile: "Flexibility" },
+  lead: "one clear go-to", blend: "a balanced repertoire", profileDetail: "drawing on several styles is itself a strength",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = copeTypeStrings(locale) ?? COPE_TYPE_EN;
   const arr = ["PROB", "EMO", "SUP", "AVO"].map((id) => ({ id, mean: s[id].mean }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const sep = top.mean - sorted[1].mean;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
+  const sName = T.meta[sorted[1].id].name;
   return {
-    code: meta.name,
+    code: CODE_EN[top.id],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Dominant style", value: meta.name, detail: meta.desc },
-      { label: "Secondary style", value: META[sorted[1].id].name, detail: META[sorted[1].id].desc },
-      { label: "Full order", value: sorted.map((x) => META[x.id].name).join(" › ") },
-      { label: "Flexibility", value: sep < 0.4 ? "a balanced repertoire" : "one clear go-to", detail: "drawing on several styles is itself a strength" },
+      { label: T.labels.dominant, value: meta.name, detail: meta.desc },
+      { label: T.labels.secondary, value: sName, detail: T.meta[sorted[1].id].desc },
+      { label: T.labels.range, value: sorted.map((x) => T.meta[x.id].name).join(" › ") },
+      { label: T.labels.profile, value: sep < 0.4 ? T.blend : T.lead, detail: T.profileDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.95, 0.5 + sep)),
-    secondary: META[sorted[1].id].name,
+    secondary: sName,
   };
 }
 

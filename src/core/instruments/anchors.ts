@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { anchorsTypeStrings, type RankedStyleBundle } from "./i18n";
 
 /**
  * Career Anchors (Schein).
@@ -30,35 +31,45 @@ const items: Item[] = [
   it("LS2", "Integrating work with family and personal life is non-negotiable for me.", "LS"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  TF: { name: "Technical/Functional", title: "The Expert", desc: "mastery of a craft", summary: "Your anchor is deep expertise — you're at your best mastering a craft and being genuinely good at something specific." },
-  GM: { name: "General Management", title: "The Leader", desc: "leading and integrating", summary: "Your anchor is management — you're drawn to leading people, integrating functions, and bearing responsibility for outcomes." },
-  AU: { name: "Autonomy", title: "The Independent", desc: "freedom and self-direction", summary: "Your anchor is autonomy — freedom to work your own way matters more to you than rank, structure, or security." },
-  SE: { name: "Security/Stability", title: "The Anchor", desc: "stability and predictability", summary: "Your anchor is security — you value a stable, dependable path and peace of mind over risk and rapid change." },
-  EC: { name: "Entrepreneurial Creativity", title: "The Founder", desc: "building something new", summary: "Your anchor is creating — you're driven to build something of your own, a venture or product that bears your stamp." },
-  SV: { name: "Service/Dedication", title: "The Servant", desc: "a cause worth serving", summary: "Your anchor is service — work must serve a cause and mean something; contribution outranks money and status." },
-  CH: { name: "Pure Challenge", title: "The Challenger", desc: "hard problems to win", summary: "Your anchor is challenge — you live for hard problems and tough competition, and you need them to feel alive at work." },
-  LS: { name: "Lifestyle", title: "The Integrator", desc: "a balanced whole life", summary: "Your anchor is lifestyle — you want a career that fits a balanced life, integrating work with family and self." },
+/** Canonical, language-agnostic anchor codes. */
+const CODE_EN: Record<string, string> = { TF: "Technical/Functional", GM: "General Management", AU: "Autonomy", SE: "Security/Stability", EC: "Entrepreneurial Creativity", SV: "Service/Dedication", CH: "Pure Challenge", LS: "Lifestyle" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (anchorsTypeStrings). */
+const ANCHORS_TYPE_EN: RankedStyleBundle = {
+  meta: {
+    TF: { name: "Technical/Functional", title: "The Expert", desc: "mastery of a craft", summary: "Your anchor is deep expertise — you're at your best mastering a craft and being genuinely good at something specific." },
+    GM: { name: "General Management", title: "The Leader", desc: "leading and integrating", summary: "Your anchor is management — you're drawn to leading people, integrating functions, and bearing responsibility for outcomes." },
+    AU: { name: "Autonomy", title: "The Independent", desc: "freedom and self-direction", summary: "Your anchor is autonomy — freedom to work your own way matters more to you than rank, structure, or security." },
+    SE: { name: "Security/Stability", title: "The Anchor", desc: "stability and predictability", summary: "Your anchor is security — you value a stable, dependable path and peace of mind over risk and rapid change." },
+    EC: { name: "Entrepreneurial Creativity", title: "The Founder", desc: "building something new", summary: "Your anchor is creating — you're driven to build something of your own, a venture or product that bears your stamp." },
+    SV: { name: "Service/Dedication", title: "The Servant", desc: "a cause worth serving", summary: "Your anchor is service — work must serve a cause and mean something; contribution outranks money and status." },
+    CH: { name: "Pure Challenge", title: "The Challenger", desc: "hard problems to win", summary: "Your anchor is challenge — you live for hard problems and tough competition, and you need them to feel alive at work." },
+    LS: { name: "Lifestyle", title: "The Integrator", desc: "a balanced whole life", summary: "Your anchor is lifestyle — you want a career that fits a balanced life, integrating work with family and self." },
+  },
+  labels: { dominant: "Primary anchor", secondary: "Secondary anchor", range: "Top three", profile: "Clarity" },
+  lead: "a clear lead", blend: "anchors run close", profileDetail: "how decisively one anchor leads",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
-  const arr = Object.keys(META).map((id) => ({ id, mean: s[id].mean }));
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = anchorsTypeStrings(locale) ?? ANCHORS_TYPE_EN;
+  const arr = Object.keys(CODE_EN).map((id) => ({ id, mean: s[id].mean }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const sep = top.mean - sorted[1].mean;
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
+  const sName = T.meta[sorted[1].id].name;
   return {
-    code: meta.name,
+    code: CODE_EN[top.id],
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Primary anchor", value: meta.name, detail: meta.desc },
-      { label: "Secondary anchor", value: META[sorted[1].id].name, detail: META[sorted[1].id].desc },
-      { label: "Top three", value: sorted.slice(0, 3).map((x) => META[x.id].name).join(" › ") },
-      { label: "Clarity", value: sep >= 0.5 ? "a clear lead" : "anchors run close", detail: "how decisively one anchor leads" },
+      { label: T.labels.dominant, value: meta.name, detail: meta.desc },
+      { label: T.labels.secondary, value: sName, detail: T.meta[sorted[1].id].desc },
+      { label: T.labels.range, value: sorted.slice(0, 3).map((x) => T.meta[x.id].name).join(" › ") },
+      { label: T.labels.profile, value: sep >= 0.5 ? T.lead : T.blend, detail: T.profileDetail },
     ],
     confidence: Math.max(0.2, Math.min(0.95, 0.5 + sep)),
-    secondary: META[sorted[1].id].name,
+    secondary: sName,
   };
 }
 
