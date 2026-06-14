@@ -610,10 +610,18 @@ describe("multiple-choice (choice-format) scoring", () => {
     expect(keirsey.format).toBe("choice");
     expect(kolb.format).toBe("choice");
     // Keirsey: picking the high pole (index 0) on every pair → abstract + utilitarian → Rational (NT)
-    const kHi = scoreAssessment(keirsey, Object.fromEntries(keirsey.items.map((i) => [i.id, 0])));
+    const kAllHi = Object.fromEntries(keirsey.items.map((i) => [i.id, 0]));
+    const kHi = scoreAssessment(keirsey, kAllHi);
     expect(kHi.scales.COMM.normalized).toBe(100);
     expect(kHi.scales.ACT.normalized).toBe(100);
     expect(kHi.type?.code).toBe("NT");
+    // localized: code stays canonical (NT); title + option text translate
+    const esKr = localizeInstrument(keirsey, "es");
+    expect(esKr.items[0].options![0].text).not.toBe(keirsey.items[0].options![0].text);
+    const esKrType = scoreAssessment(esKr, kAllHi).type!;
+    expect(esKrType.code).toBe("NT");
+    expect(esKrType.title).toBe("El Racional");
+    expect(scoreAssessment(localizeInstrument(keirsey, "fr"), kAllHi).type!.title).toBe("Le Rationnel");
     // picking the low pole (index 1) everywhere → concrete + cooperative → Guardian (SJ)
     const kLo = scoreAssessment(keirsey, Object.fromEntries(keirsey.items.map((i) => [i.id, 1])));
     expect(kLo.scales.COMM.normalized).toBe(0);
@@ -920,7 +928,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");

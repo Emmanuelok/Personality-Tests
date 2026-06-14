@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { keirseyTypeStrings, type KeirseyTypeBundle } from "./i18n";
 
 /**
  * Keirsey Temperaments (Guardian · Artisan · Idealist · Rational).
@@ -36,32 +37,46 @@ const items: Item[] = [
 ];
 
 type Key = "Guardian" | "Artisan" | "Idealist" | "Rational";
-const META: Record<Key, { code: string; title: string; family: string; summary: string }> = {
-  Guardian: { code: "SJ", title: "The Guardian", family: "Sensing–Judging (SJ)", summary: "Dependable, dutiful, and grounded — you keep people, plans, and institutions steady and looked-after." },
-  Artisan: { code: "SP", title: "The Artisan", family: "Sensing–Perceiving (SP)", summary: "Adaptable, hands-on, and bold — you read the moment and make things work, often with style and flair." },
-  Idealist: { code: "NF", title: "The Idealist", family: "Intuitive–Feeling (NF)", summary: "Empathic, meaning-seeking, and authentic — you nurture growth, harmony, and people's potential." },
-  Rational: { code: "NT", title: "The Rational", family: "Intuitive–Thinking (NT)", summary: "Strategic, inventive, and competence-driven — you master systems, ideas, and long-range problems." },
+/** Canonical, language-agnostic two-letter codes. */
+const CODE: Record<Key, string> = { Guardian: "SJ", Artisan: "SP", Idealist: "NF", Rational: "NT" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (keirseyTypeStrings). */
+const KEIRSEY_TYPE_EN: KeirseyTypeBundle = {
+  meta: {
+    Guardian: { name: "Guardian", title: "The Guardian", family: "Sensing–Judging (SJ)", summary: "Dependable, dutiful, and grounded — you keep people, plans, and institutions steady and looked-after." },
+    Artisan: { name: "Artisan", title: "The Artisan", family: "Sensing–Perceiving (SP)", summary: "Adaptable, hands-on, and bold — you read the moment and make things work, often with style and flair." },
+    Idealist: { name: "Idealist", title: "The Idealist", family: "Intuitive–Feeling (NF)", summary: "Empathic, meaning-seeking, and authentic — you nurture growth, harmony, and people's potential." },
+    Rational: { name: "Rational", title: "The Rational", family: "Intuitive–Thinking (NT)", summary: "Strategic, inventive, and competence-driven — you master systems, ideas, and long-range problems." },
+  },
+  labels: { temperament: "Temperament", communication: "Communication", action: "Action", clarity: "Clarity" },
+  abstract: { value: "Abstract", detail: "ideas, patterns, possibilities" },
+  concrete: { value: "Concrete", detail: "facts, the tangible here-and-now" },
+  utilitarian: { value: "Utilitarian", detail: "do what works" },
+  cooperative: { value: "Cooperative", detail: "do what's proper" },
+  clarityDetail: "how decisively both axes leaned",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = keirseyTypeStrings(locale) ?? KEIRSEY_TYPE_EN;
   const abstract = s.COMM.normalized >= 50;
   const utilitarian = s.ACT.normalized >= 50;
   const key: Key = abstract
     ? utilitarian ? "Rational" : "Idealist"
     : utilitarian ? "Artisan" : "Guardian";
-  const meta = META[key];
+  const meta = T.meta[key];
+  const code = CODE[key];
   const commGap = Math.abs(s.COMM.normalized - 50) / 50;
   const actGap = Math.abs(s.ACT.normalized - 50) / 50;
   const confidence = Math.max(0.2, Math.min(0.98, 0.45 + (commGap + actGap) / 2));
   return {
-    code: meta.code,
+    code,
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Temperament", value: `${key} · ${meta.code}`, detail: meta.family },
-      { label: "Communication", value: abstract ? "Abstract" : "Concrete", detail: abstract ? "ideas, patterns, possibilities" : "facts, the tangible here-and-now" },
-      { label: "Action", value: utilitarian ? "Utilitarian" : "Cooperative", detail: utilitarian ? "do what works" : "do what's proper" },
-      { label: "Clarity", value: `${Math.round((commGap + actGap) * 50)}/100`, detail: "how decisively both axes leaned" },
+      { label: T.labels.temperament, value: `${meta.name} · ${code}`, detail: meta.family },
+      { label: T.labels.communication, value: abstract ? T.abstract.value : T.concrete.value, detail: abstract ? T.abstract.detail : T.concrete.detail },
+      { label: T.labels.action, value: utilitarian ? T.utilitarian.value : T.cooperative.value, detail: utilitarian ? T.utilitarian.detail : T.cooperative.detail },
+      { label: T.labels.clarity, value: `${Math.round((commGap + actGap) * 50)}/100`, detail: T.clarityDetail },
     ],
     confidence,
   };

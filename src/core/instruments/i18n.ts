@@ -2148,6 +2148,56 @@ const COLOR_FR: InstrumentTranslation = {
     O1: "Je suis spontané(e) et j'adore l'action, la variété et le plaisir.", O2: "J'agis vite et je m'adapte facilement sur le moment.", O3: "Trop de règles ou de routines me rendent agité(e).", O4: "Je suis audacieux(se), joueur(se) et j'aime un peu de risque.",
   },
 };
+const KEIRSEY_ES: InstrumentTranslation = {
+  name: "Temperamentos de Keirsey", shortName: "Keirsey",
+  tagline: "Cuatro temperamentos: guardián, artesano, idealista, racional.",
+  description: "David Keirsey reorganizó los dieciséis tipos junguianos en cuatro temperamentos construidos sobre dos preguntas: ¿te comunicas en términos concretos o abstractos, y actúas de forma cooperativa o haces lo que sea eficaz? El cruce de esos dos ejes da el guardián, el artesano, el idealista y el racional: una mirada memorable y centrada en la conducta sobre el tipo.",
+  scales: {
+    COMM: { name: "Comunicación", description: "Enfoque concreto/observador frente a abstracto/introspectivo.", poles: { low: "Concreta", high: "Abstracta" }, highDescriptor: "abstracto/a, orientado/a al futuro y a las posibilidades", lowDescriptor: "concreto/a, factual y centrado/a en el presente" },
+    ACT: { name: "Acción", description: "Enfoque cooperativo (correcto) frente a utilitario (eficaz).", poles: { low: "Cooperativa", high: "Utilitaria" }, highDescriptor: "utilitario/a: hace lo que funciona", lowDescriptor: "cooperativo/a: hace lo que es correcto" },
+  },
+  items: {
+    KC1: "Cuando hablas y piensas, te atraen más…", KC2: "Preferirías que una buena conversación fuera…", KC3: "Tu atención va naturalmente hacia…", KC4: "Confías más en…", KC5: "Tu mente tiende a derivar hacia…",
+    KA1: "Para alcanzar una meta, preferirías…", KA2: "¿Qué te guía más?", KA3: "Cuando el método oficial es ineficiente, tú…", KA4: "Te sientes mejor cuando…", KA5: "Te describirías como más…",
+  },
+  options: {
+    KC1: ["las teorías, los patrones y lo que las cosas podrían significar", "los hechos concretos y lo que tienes delante"],
+    KC2: ["imaginativa, simbólica o filosófica", "práctica, literal y con los pies en la tierra"],
+    KC3: ["las posibilidades futuras y lo que podría ser", "las realidades del presente y lo que de hecho es"],
+    KC4: ["la teoría y los patrones que infieres", "la experiencia directa y lo tangible"],
+    KC5: ["las abstracciones y el sentido de conjunto", "los detalles, las especificidades y lo concreto"],
+    KA1: ["hacer lo que funcione, aunque sea poco convencional", "hacerlo de la forma correcta y debida"],
+    KA2: ["la eficacia y los resultados", "las reglas y el procedimiento aceptado"],
+    KA3: ["improvisas el tuyo, que funciona", "lo sigues igualmente, por corrección"],
+    KA4: ["consigues el resultado por cualquier medio sensato", "actúas de formas socialmente aprobadas"],
+    KA5: ["pragmático/a y utilitario/a", "cooperativo/a y correcto/a"],
+  },
+};
+const KEIRSEY_FR: InstrumentTranslation = {
+  name: "Tempéraments de Keirsey", shortName: "Keirsey",
+  tagline: "Quatre tempéraments — gardien, artisan, idéaliste, rationnel.",
+  description: "David Keirsey a réorganisé les seize types jungiens en quatre tempéraments fondés sur deux questions : communiquez-vous en termes concrets ou abstraits, et agissez-vous de façon coopérative ou faites-vous ce qui est efficace ? Le croisement de ces deux axes donne le gardien, l'artisan, l'idéaliste et le rationnel — un regard mémorable et centré sur le comportement.",
+  scales: {
+    COMM: { name: "Communication", description: "Focalisation concrète/observatrice vs. abstraite/introspective.", poles: { low: "Concrète", high: "Abstraite" }, highDescriptor: "abstrait(e), tourné(e) vers l'avenir et les possibilités", lowDescriptor: "concret(ète), factuel(le) et centré(e) sur le présent" },
+    ACT: { name: "Action", description: "Approche coopérative (correcte) vs. utilitaire (efficace).", poles: { low: "Coopérative", high: "Utilitaire" }, highDescriptor: "utilitaire : fait ce qui marche", lowDescriptor: "coopératif(ve) : fait ce qui est correct" },
+  },
+  items: {
+    KC1: "Quand vous parlez et pensez, vous êtes plus attiré(e) par…", KC2: "Vous préféreriez qu'une bonne conversation soit…", KC3: "Votre attention va naturellement vers…", KC4: "Vous faites davantage confiance…", KC5: "Votre esprit a tendance à dériver vers…",
+    KA1: "Pour atteindre un but, vous préféreriez…", KA2: "Qu'est-ce qui vous guide le plus ?", KA3: "Quand la méthode officielle est inefficace, vous…", KA4: "Vous vous sentez mieux quand vous…", KA5: "Vous vous décririez comme plutôt…",
+  },
+  options: {
+    KC1: ["les théories, les motifs et ce que les choses pourraient signifier", "les faits concrets et ce qui est devant vous"],
+    KC2: ["imaginative, symbolique ou philosophique", "pratique, littérale et terre-à-terre"],
+    KC3: ["les possibilités futures et ce qui pourrait être", "les réalités présentes et ce qui est réellement"],
+    KC4: ["la théorie et les motifs que vous déduisez", "l'expérience directe et le tangible"],
+    KC5: ["les abstractions et le sens d'ensemble", "les détails, les spécificités et le concret"],
+    KA1: ["faire ce qui marche, même si c'est peu conventionnel", "le faire de la bonne et juste manière"],
+    KA2: ["l'efficacité et les résultats", "les règles et la procédure admise"],
+    KA3: ["improvisez la vôtre, qui marche", "la suivez quand même, par correction"],
+    KA4: ["obtenez le résultat par tout moyen sensé", "agissez de façons socialement approuvées"],
+    KA5: ["pragmatique et utilitaire", "coopératif(ve) et correct(e)"],
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2164,7 +2214,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
     "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
-    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES,
+    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2180,7 +2230,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
     "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
-    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR,
+    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
   },
 };
 
@@ -2650,6 +2700,48 @@ const COLOR_TYPE_FR: ColorTypeBundle = {
 };
 export function colorTypeStrings(locale?: string): ColorTypeBundle | undefined {
   return locale === "es" ? COLOR_TYPE_ES : locale === "fr" ? COLOR_TYPE_FR : undefined;
+}
+
+/* ── Keirsey Temperaments (typological; type card localized separately) ── */
+export interface KeirseyTypeBundle {
+  meta: Record<string, { name: string; title: string; family: string; summary: string }>;
+  labels: { temperament: string; communication: string; action: string; clarity: string };
+  abstract: { value: string; detail: string };
+  concrete: { value: string; detail: string };
+  utilitarian: { value: string; detail: string };
+  cooperative: { value: string; detail: string };
+  clarityDetail: string;
+}
+const KEIRSEY_TYPE_ES: KeirseyTypeBundle = {
+  meta: {
+    Guardian: { name: "Guardián", title: "El Guardián", family: "Sensación–Juicio (SJ)", summary: "Fiable, cumplidor/a y con los pies en la tierra: mantienes a las personas, los planes y las instituciones estables y bien cuidados." },
+    Artisan: { name: "Artesano", title: "El Artesano", family: "Sensación–Percepción (SP)", summary: "Adaptable, práctico/a y audaz: lees el momento y haces que las cosas funcionen, a menudo con estilo y soltura." },
+    Idealist: { name: "Idealista", title: "El Idealista", family: "Intuición–Sentimiento (NF)", summary: "Empático/a, en busca de sentido y auténtico/a: cultivas el crecimiento, la armonía y el potencial de las personas." },
+    Rational: { name: "Racional", title: "El Racional", family: "Intuición–Pensamiento (NT)", summary: "Estratégico/a, inventivo/a y movido/a por la competencia: dominas sistemas, ideas y problemas de largo alcance." },
+  },
+  labels: { temperament: "Temperamento", communication: "Comunicación", action: "Acción", clarity: "Claridad" },
+  abstract: { value: "Abstracta", detail: "ideas, patrones, posibilidades" },
+  concrete: { value: "Concreta", detail: "hechos, el aquí y ahora tangible" },
+  utilitarian: { value: "Utilitaria", detail: "hacer lo que funciona" },
+  cooperative: { value: "Cooperativa", detail: "hacer lo que es correcto" },
+  clarityDetail: "con qué decisión se inclinaron ambos ejes",
+};
+const KEIRSEY_TYPE_FR: KeirseyTypeBundle = {
+  meta: {
+    Guardian: { name: "Gardien", title: "Le Gardien", family: "Sensation–Jugement (SJ)", summary: "Fiable, consciencieux(se) et les pieds sur terre : vous maintenez les gens, les plans et les institutions stables et bien encadrés." },
+    Artisan: { name: "Artisan", title: "L'Artisan", family: "Sensation–Perception (SP)", summary: "Adaptable, concret(ète) et audacieux(se) : vous lisez l'instant et faites en sorte que les choses marchent, souvent avec style et aisance." },
+    Idealist: { name: "Idéaliste", title: "L'Idéaliste", family: "Intuition–Sentiment (NF)", summary: "Empathique, en quête de sens et authentique : vous cultivez la croissance, l'harmonie et le potentiel des gens." },
+    Rational: { name: "Rationnel", title: "Le Rationnel", family: "Intuition–Pensée (NT)", summary: "Stratège, inventif(ve) et porté(e) sur la compétence : vous maîtrisez les systèmes, les idées et les problèmes de longue haleine." },
+  },
+  labels: { temperament: "Tempérament", communication: "Communication", action: "Action", clarity: "Clarté" },
+  abstract: { value: "Abstraite", detail: "idées, motifs, possibilités" },
+  concrete: { value: "Concrète", detail: "faits, l'ici et maintenant tangible" },
+  utilitarian: { value: "Utilitaire", detail: "faire ce qui marche" },
+  cooperative: { value: "Coopérative", detail: "faire ce qui est correct" },
+  clarityDetail: "avec quelle netteté les deux axes ont penché",
+};
+export function keirseyTypeStrings(locale?: string): KeirseyTypeBundle | undefined {
+  return locale === "es" ? KEIRSEY_TYPE_ES : locale === "fr" ? KEIRSEY_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */
