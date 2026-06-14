@@ -2466,6 +2466,119 @@ const SOCIONICS_FR: InstrumentTranslation = {
     OR1: "J'aime que les choses soient planifiées, décidées et réglées à l'avance.", OR2: "Je me sens plus calme une fois la décision prise et la voie fixée.", OR3: "Je garde ma vie structurée et organisée.", OR4: "Je préfère rester flexible et m'adapter au fil des choses.",
   },
 };
+/** Strength → English virtue key (for building localized scale descriptions). */
+const VIA_VKEY: Record<string, string> = {
+  CREAT: "Wisdom", CURIO: "Wisdom", JUDGE: "Wisdom", LEARN: "Wisdom", PERSP: "Wisdom",
+  BRAVE: "Courage", PERSV: "Courage", HONES: "Courage", ZEST: "Courage",
+  LOVE: "Humanity", KIND: "Humanity", SOCIN: "Humanity",
+  TEAM: "Justice", FAIR: "Justice", LEAD: "Justice",
+  FORGV: "Temperance", HUMIL: "Temperance", PRUD: "Temperance", SELFR: "Temperance",
+  BEAUT: "Transcendence", GRAT: "Transcendence", HOPE: "Transcendence", HUMOR: "Transcendence", SPIRIT: "Transcendence",
+};
+const VIA_NAMES_ES: Record<string, string> = {
+  CREAT: "Creatividad", CURIO: "Curiosidad", JUDGE: "Juicio", LEARN: "Amor por el aprendizaje", PERSP: "Perspectiva",
+  BRAVE: "Valentía", PERSV: "Perseverancia", HONES: "Honestidad", ZEST: "Vitalidad",
+  LOVE: "Amor", KIND: "Amabilidad", SOCIN: "Inteligencia social",
+  TEAM: "Trabajo en equipo", FAIR: "Justicia", LEAD: "Liderazgo",
+  FORGV: "Perdón", HUMIL: "Humildad", PRUD: "Prudencia", SELFR: "Autorregulación",
+  BEAUT: "Apreciación de la belleza", GRAT: "Gratitud", HOPE: "Esperanza", HUMOR: "Humor", SPIRIT: "Espiritualidad",
+};
+const VIA_NAMES_FR: Record<string, string> = {
+  CREAT: "Créativité", CURIO: "Curiosité", JUDGE: "Discernement", LEARN: "Amour de l'apprentissage", PERSP: "Recul",
+  BRAVE: "Courage", PERSV: "Persévérance", HONES: "Honnêteté", ZEST: "Entrain",
+  LOVE: "Amour", KIND: "Bonté", SOCIN: "Intelligence sociale",
+  TEAM: "Travail d'équipe", FAIR: "Équité", LEAD: "Leadership",
+  FORGV: "Pardon", HUMIL: "Humilité", PRUD: "Prudence", SELFR: "Autorégulation",
+  BEAUT: "Appréciation de la beauté", GRAT: "Gratitude", HOPE: "Espoir", HUMOR: "Humour", SPIRIT: "Spiritualité",
+};
+const VIA_VIRTUE_ES: Record<string, string> = { Wisdom: "Sabiduría", Courage: "Coraje", Humanity: "Humanidad", Justice: "Justicia", Temperance: "Templanza", Transcendence: "Trascendencia" };
+const VIA_VIRTUE_FR: Record<string, string> = { Wisdom: "Sagesse", Courage: "Courage", Humanity: "Humanité", Justice: "Justice", Temperance: "Tempérance", Transcendence: "Transcendance" };
+const VIA_DESC_ES: Record<string, string> = {
+  CREAT: "inventivo/a y original", CURIO: "curioso/a y explorador/a", JUDGE: "de mente abierta y criterio", LEARN: "ávido/a de aprender y dominar", PERSP: "sabio/a y que aporta perspectiva",
+  BRAVE: "valiente y con principios", PERSV: "persistente y trabajador/a", HONES: "honesto/a y auténtico/a", ZEST: "enérgico/a y lleno/a de vitalidad",
+  LOVE: "cálido/a y cariñoso/a", KIND: "amable y generoso/a", SOCIN: "perceptivo/a y sintonizado/a socialmente",
+  TEAM: "leal y con mentalidad de equipo", FAIR: "justo/a y ecuánime", LEAD: "organizador/a y líder natural",
+  FORGV: "indulgente y misericordioso/a", HUMIL: "humilde y modesto/a", PRUD: "cuidadoso/a y prudente", SELFR: "autodisciplinado/a y sereno/a",
+  BEAUT: "conmovido/a por la belleza y la excelencia", GRAT: "agradecido/a y apreciativo/a", HOPE: "esperanzado/a y optimista", HUMOR: "juguetón/a y de buen humor", SPIRIT: "guiado/a por el propósito y conectado/a con el sentido",
+};
+const VIA_DESC_FR: Record<string, string> = {
+  CREAT: "inventif(ve) et original(e)", CURIO: "curieux(se) et explorateur(trice)", JUDGE: "ouvert(e) d'esprit et perspicace", LEARN: "avide d'apprendre et de maîtriser", PERSP: "sage et porteur(se) de recul",
+  BRAVE: "courageux(se) et de principes", PERSV: "persévérant(e) et travailleur(se)", HONES: "honnête et authentique", ZEST: "énergique et plein(e) d'entrain",
+  LOVE: "chaleureux(se) et aimant(e)", KIND: "bienveillant(e) et généreux(se)", SOCIN: "perspicace et à l'écoute sur le plan social",
+  TEAM: "loyal(e) et tourné(e) vers l'équipe", FAIR: "juste et impartial(e)", LEAD: "organisateur(trice) et leader naturel(le)",
+  FORGV: "indulgent(e) et clément(e)", HUMIL: "humble et modeste", PRUD: "prudent(e) et avisé(e)", SELFR: "discipliné(e) et posé(e)",
+  BEAUT: "touché(e) par la beauté et l'excellence", GRAT: "reconnaissant(e) et appréciatif(ve)", HOPE: "plein(e) d'espoir et optimiste", HUMOR: "joueur(se) et de bonne humeur", SPIRIT: "guidé(e) par le sens et relié(e) à quelque chose de plus grand",
+};
+/** Build the 24 localized strength scales from the name/virtue/descriptor maps. */
+function viaScales(names: Record<string, string>, virtues: Record<string, string>, descs: Record<string, string>, lowD: string, sep: (v: string, n: string) => string): NonNullable<InstrumentTranslation["scales"]> {
+  const out: NonNullable<InstrumentTranslation["scales"]> = {};
+  for (const id of Object.keys(names)) out[id] = { name: names[id], description: sep(virtues[VIA_VKEY[id]], names[id]), highDescriptor: descs[id], lowDescriptor: lowD };
+  return out;
+}
+const VIA_ES: InstrumentTranslation = {
+  name: "Fortalezas del carácter (VIA-24)", shortName: "Fortalezas",
+  tagline: "Descubre tus fortalezas distintivas: lo mejor de quien eres.",
+  description: "La Clasificación VIA identifica 24 fortalezas del carácter agrupadas en seis virtudes universales. Este perfilador mide las 24 y revela tus 'fortalezas distintivas' principales: las que se sienten más esencialmente tuyas. Décadas de investigación muestran que usar tus fortalezas distintivas de formas nuevas mejora el bienestar de forma fiable.",
+  scales: viaScales(VIA_NAMES_ES, VIA_VIRTUE_ES, VIA_DESC_ES, "más discreta aquí que en tus fortalezas distintivas", (v, n) => `${v} — tu ${n.toLowerCase()}.`),
+  items: {
+    CREAT1: "A menudo se me ocurren formas nuevas y originales de hacer las cosas.", CREAT2: "La gente me ve como imaginativo/a e inventivo/a.",
+    CURIO1: "Siento curiosidad por casi todo y me encanta explorar.", CURIO2: "Siempre estoy haciendo preguntas y buscando experiencias nuevas.",
+    JUDGE1: "Reflexiono y sopeso la evidencia antes de decidir.", JUDGE2: "Estoy dispuesto/a a cambiar de opinión cuando los hechos lo exigen.",
+    LEARN1: "Me encanta dominar nuevas habilidades y temas por sí mismos.", LEARN2: "Aprender algo nuevo me produce una emoción genuina.",
+    PERSP1: "La gente acude a mí en busca de consejo sabio y perspectiva.", PERSP2: "Veo el panorama general y ayudo a otros a darle sentido a las cosas.",
+    BRAVE1: "Defiendo lo que es correcto, aunque sea difícil o arriesgado.", BRAVE2: "No me amedrento ante los desafíos, las amenazas o el dolor.",
+    PERSV1: "Termino lo que empiezo, aunque se ponga difícil.", PERSV2: "Trabajo duro y no me rindo con facilidad.",
+    HONES1: "Soy honesto/a y me muestro de forma genuina ante los demás.", HONES2: "Asumo la responsabilidad de mis actos y mis sentimientos.",
+    ZEST1: "Afronto la vida con emoción y energía.", ZEST2: "Me siento vivo/a, vital y entusiasta la mayor parte del tiempo.",
+    LOVE1: "Valoro las relaciones cercanas y cariñosas y las cuido.", LOVE2: "Me siento a gusto tanto dando como recibiendo amor y cuidado.",
+    KIND1: "Hago un esfuerzo extra por ayudar y ser generoso/a con los demás.", KIND2: "Hacer cosas amables por la gente me anima de verdad.",
+    SOCIN1: "Se me da bien percibir lo que otros sienten y qué les mueve.", SOCIN2: "Sé cómo hacer que la gente se sienta cómoda y comprendida.",
+    TEAM1: "Soy un miembro leal y fiable de cualquier equipo en el que esté.", TEAM2: "Hago mi parte y trabajo bien por las metas comunes.",
+    FAIR1: "Trato a todas las personas con justicia y doy a cada cual una oportunidad justa.", FAIR2: "No dejo que mis sentimientos sesguen cómo juzgo o trato a los demás.",
+    LEAD1: "Se me da bien organizar a la gente y lograr que las cosas se hagan en grupo.", LEAD2: "La gente naturalmente me busca para liderar.",
+    FORGV1: "Perdono a quienes me han hecho daño y suelto los rencores.", FORGV2: "Doy con facilidad una segunda oportunidad a la gente.",
+    HUMIL1: "Dejo que mis logros hablen por sí solos en lugar de buscar protagonismo.", HUMIL2: "No me considero más especial que los demás.",
+    PRUD1: "Soy cuidadoso/a y evito hacer cosas de las que luego pueda arrepentirme.", PRUD2: "Pienso antes de actuar y me mantengo alejado/a de riesgos innecesarios.",
+    SELFR1: "Tengo buen control sobre mis emociones e impulsos.", SELFR2: "Soy disciplinado/a con mis hábitos y rutinas.",
+    BEAUT1: "A menudo me conmueve la belleza de la naturaleza, el arte o una ejecución magistral.", BEAUT2: "Noto y aprecio la excelencia en muchos ámbitos de la vida.",
+    GRAT1: "Siento y expreso gratitud por las cosas buenas de mi vida.", GRAT2: "Con regularidad me tomo un tiempo para contar mis bendiciones.",
+    HOPE1: "Espero lo mejor y trabajo para que ocurra.", HOPE2: "Me mantengo optimista sobre el futuro, incluso en tiempos difíciles.",
+    HUMOR1: "Me encanta reír y aportar ligereza y juego a las situaciones.", HUMOR2: "Uso el humor para conectar con la gente y levantar el ánimo.",
+    SPIRIT1: "Tengo un sentido claro de propósito y significado en mi vida.", SPIRIT2: "Me siento conectado/a con algo más grande que yo.",
+  },
+};
+const VIA_FR: InstrumentTranslation = {
+  name: "Forces de caractère (VIA-24)", shortName: "Forces",
+  tagline: "Découvrez vos forces de signature — le meilleur de qui vous êtes.",
+  description: "La Classification VIA identifie 24 forces de caractère regroupées sous six vertus universelles. Ce profileur mesure les 24 et révèle vos principales « forces de signature » — celles qui vous semblent les plus essentiellement vôtres. Des décennies de recherche montrent qu'utiliser vos forces de signature de façons nouvelles améliore le bien-être de manière fiable.",
+  scales: viaScales(VIA_NAMES_FR, VIA_VIRTUE_FR, VIA_DESC_FR, "plus discrète ici que dans vos forces de signature", (v, n) => `${v} — votre ${n.toLowerCase()}.`),
+  items: {
+    CREAT1: "Je trouve souvent des façons nouvelles et originales de faire les choses.", CREAT2: "Les gens me voient comme imaginatif(ve) et inventif(ve).",
+    CURIO1: "Je suis curieux(se) de presque tout et j'adore explorer.", CURIO2: "Je pose sans cesse des questions et recherche de nouvelles expériences.",
+    JUDGE1: "Je réfléchis et pèse les preuves avant de décider.", JUDGE2: "Je suis prêt(e) à changer d'avis quand les faits l'exigent.",
+    LEARN1: "J'adore maîtriser de nouvelles compétences et de nouveaux sujets pour eux-mêmes.", LEARN2: "Apprendre quelque chose de nouveau me procure un vrai frisson.",
+    PERSP1: "Les gens viennent me chercher pour des conseils avisés et du recul.", PERSP2: "Je vois la vue d'ensemble et j'aide les autres à donner du sens aux choses.",
+    BRAVE1: "Je défends ce qui est juste, même quand c'est difficile ou risqué.", BRAVE2: "Je ne recule pas devant les défis, les menaces ou la douleur.",
+    PERSV1: "Je termine ce que je commence, même quand ça devient dur.", PERSV2: "Je travaille dur et je n'abandonne pas facilement.",
+    HONES1: "Je suis honnête et je me présente de façon authentique aux autres.", HONES2: "J'assume la responsabilité de mes actes et de mes sentiments.",
+    ZEST1: "J'aborde la vie avec enthousiasme et énergie.", ZEST2: "Je me sens vivant(e), plein(e) de vitalité et enthousiaste la plupart du temps.",
+    LOVE1: "Je valorise les relations proches et aimantes et je les entretiens.", LOVE2: "Je suis à l'aise pour donner comme pour recevoir amour et soin.",
+    KIND1: "Je fais des efforts pour aider et être généreux(se) envers les autres.", KIND2: "Faire des choses gentilles pour les gens me met vraiment du baume au cœur.",
+    SOCIN1: "Je sais bien percevoir ce que ressentent les autres et ce qui les anime.", SOCIN2: "Je sais mettre les gens à l'aise et les faire se sentir compris.",
+    TEAM1: "Je suis un membre loyal et fiable de toute équipe dont je fais partie.", TEAM2: "Je fais ma part et je travaille bien vers des buts communs.",
+    FAIR1: "Je traite tout le monde équitablement et je donne à chacun une chance juste.", FAIR2: "Je ne laisse pas mes sentiments biaiser ma façon de juger ou de traiter les autres.",
+    LEAD1: "Je sais bien organiser les gens et faire avancer les choses en groupe.", LEAD2: "Les gens se tournent naturellement vers moi pour mener.",
+    FORGV1: "Je pardonne à ceux qui m'ont fait du tort et je lâche les rancunes.", FORGV2: "J'accorde volontiers une seconde chance aux gens.",
+    HUMIL1: "Je laisse mes accomplissements parler d'eux-mêmes plutôt que de chercher les projecteurs.", HUMIL2: "Je ne me considère pas plus spécial(e) que les autres.",
+    PRUD1: "Je suis prudent(e) et j'évite de faire des choses que je pourrais regretter.", PRUD2: "Je réfléchis avant d'agir et j'évite les risques inutiles.",
+    SELFR1: "J'ai un bon contrôle sur mes émotions et mes impulsions.", SELFR2: "Je suis discipliné(e) dans mes habitudes et mes routines.",
+    BEAUT1: "Je suis souvent ému(e) par la beauté de la nature, de l'art ou d'une performance magistrale.", BEAUT2: "Je remarque et j'apprécie l'excellence dans de nombreux domaines de la vie.",
+    GRAT1: "Je ressens et j'exprime de la gratitude pour les bonnes choses de ma vie.", GRAT2: "Je prends régulièrement le temps de compter mes bienfaits.",
+    HOPE1: "J'espère le meilleur et je travaille à le faire advenir.", HOPE2: "Je reste optimiste quant à l'avenir, même dans les moments difficiles.",
+    HUMOR1: "J'adore rire et apporter légèreté et jeu aux situations.", HUMOR2: "J'utilise l'humour pour me connecter aux gens et remonter le moral.",
+    SPIRIT1: "J'ai un sens clair du but et du sens dans ma vie.", SPIRIT2: "Je me sens relié(e) à quelque chose de plus grand que moi.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2484,7 +2597,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
     "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
-    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES,
+    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2502,7 +2615,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
     "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
-    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR,
+    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
   },
 };
 
@@ -3260,6 +3373,33 @@ const SOCIONICS_TYPE_FR: SocionicsTypeBundle = {
 };
 export function socionicsTypeStrings(locale?: string): SocionicsTypeBundle | undefined {
   return locale === "es" ? SOCIONICS_TYPE_ES : locale === "fr" ? SOCIONICS_TYPE_FR : undefined;
+}
+
+/* ── VIA Character Strengths (24) — type card + 24 strength scales localized ── */
+export interface ViaTypeBundle {
+  names: Record<string, string>;
+  virtues: Record<string, string>;
+  labels: { top: string; signature: string; virtue: string; use: string };
+  signaturePrefix: string;
+  summary: (names: string[]) => string;
+  useTip: (name: string) => string;
+}
+const VIA_TYPE_ES: ViaTypeBundle = {
+  names: VIA_NAMES_ES, virtues: VIA_VIRTUE_ES,
+  labels: { top: "Fortaleza n.º 1", signature: "Fortalezas distintivas", virtue: "Virtud principal", use: "Úsala bien" },
+  signaturePrefix: "Fortaleza distintiva: ",
+  summary: (n) => `Tus fortalezas distintivas son ${n.join(", ")}. Usarlas de formas nuevas es uno de los caminos más seguros hacia una vida más plena.`,
+  useTip: (name) => `Encuentra una forma nueva de usar tu ${name} esta semana.`,
+};
+const VIA_TYPE_FR: ViaTypeBundle = {
+  names: VIA_NAMES_FR, virtues: VIA_VIRTUE_FR,
+  labels: { top: "Force n°1", signature: "Forces de signature", virtue: "Vertu dominante", use: "Bien l'utiliser" },
+  signaturePrefix: "Force de signature : ",
+  summary: (n) => `Vos forces de signature sont ${n.join(", ")}. Les utiliser de façons nouvelles est l'un des chemins les plus sûrs vers une vie plus pleine.`,
+  useTip: (name) => `Trouvez une nouvelle façon d'utiliser votre ${name} cette semaine.`,
+};
+export function viaTypeStrings(locale?: string): ViaTypeBundle | undefined {
+  return locale === "es" ? VIA_TYPE_ES : locale === "fr" ? VIA_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

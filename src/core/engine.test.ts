@@ -404,9 +404,9 @@ describe("instrument localization", () => {
     expect(es.scales.find((s) => s.id === "O")!.name).toBe("Apertura a la experiencia");
   });
 
-  it("falls back to the original for locales/instruments without a translation", () => {
-    expect(localizeInstrument(bigFive, "en")).toBe(bigFive);
-    expect(localizeInstrument(via, "es")).toBe(via); // no translation yet → original returned
+  it("falls back to the original for unsupported locales", () => {
+    expect(localizeInstrument(bigFive, "en")).toBe(bigFive); // English is the source
+    expect(localizeInstrument(via, "de")).toBe(via); // no German translation → original returned
   });
 
   it("translates DISC (es/fr) while preserving ids and type resolution", () => {
@@ -934,7 +934,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -947,6 +947,19 @@ describe("procrastination / perfectionism / gratitude", () => {
       // (e.g. VARK "Visual"), so a translated description still proves localization.
       expect(es.scales[0].name !== inst.scales[0].name || es.scales[0].description !== inst.scales[0].description).toBe(true);
     }
+  });
+
+  it("localizes the VIA signature-strength card while keeping the canonical strength code", () => {
+    const viaInst = get("via-24");
+    const ans = answerAll(viaInst, (it) => (it.scale === "CREAT" ? 5 : 1)); // Creativity on top
+    const en = scoreAssessment(viaInst, ans).type!;
+    expect(en.code).toBe("Creativity");
+    const es = scoreAssessment(localizeInstrument(viaInst, "es"), ans).type!;
+    expect(es.code).toBe("Creativity"); // canonical, language-agnostic
+    expect(es.title).toContain("Creatividad");
+    expect(es.components.some((c) => c.label === "Virtud principal")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(viaInst, "fr"), ans).type!;
+    expect(fr.title).toContain("Créativité");
   });
 
   it("score and expose the expected scales", () => {

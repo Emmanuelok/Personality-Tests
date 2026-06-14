@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { viaTypeStrings, type ViaTypeBundle } from "./i18n";
 
 /**
  * VIA Character Strengths — the full 24 strengths within six virtues.
@@ -87,7 +88,19 @@ const VIRTUE_OF: Record<string, string> = {
   BEAUT: "Transcendence", GRAT: "Transcendence", HOPE: "Transcendence", HUMOR: "Transcendence", SPIRIT: "Transcendence",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+/** English default; es/fr live in core/instruments/i18n.ts (viaTypeStrings).
+ *  Strength names (used as the canonical code) and English virtue keys stay stable. */
+const VIA_TYPE_EN: ViaTypeBundle = {
+  names: STRENGTH_NAMES,
+  virtues: { Wisdom: "Wisdom", Courage: "Courage", Humanity: "Humanity", Justice: "Justice", Temperance: "Temperance", Transcendence: "Transcendence" },
+  labels: { top: "#1 strength", signature: "Signature strengths", virtue: "Leading virtue", use: "Use it well" },
+  signaturePrefix: "Signature strength: ",
+  summary: (n) => `Your signature strengths are ${n.join(", ")}. Using these in fresh ways is one of the surest paths to a fuller life.`,
+  useTip: (name) => `Find one new way to use your ${name} this week.`,
+};
+
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = viaTypeStrings(locale) ?? VIA_TYPE_EN;
   const ranked = Object.keys(STRENGTH_NAMES)
     .map((id) => ({ id, mean: s[id]?.mean ?? 0 }))
     .sort((a, b) => b.mean - a.mean);
@@ -103,15 +116,16 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
   const dominantVirtue = Object.entries(virtueScore).sort((a, b) => b[1].sum / b[1].n - a[1].sum / a[1].n)[0][0];
 
   const sep = top5[0].mean - (ranked[5]?.mean ?? top5[0].mean);
+  const top5Names = top5.map((x) => T.names[x.id]);
   return {
     code: STRENGTH_NAMES[top5[0].id],
-    title: `Signature strength: ${STRENGTH_NAMES[top5[0].id]}`,
-    summary: `Your signature strengths are ${top5.map((x) => STRENGTH_NAMES[x.id]).join(", ")}. Using these in fresh ways is one of the surest paths to a fuller life.`,
+    title: `${T.signaturePrefix}${T.names[top5[0].id]}`,
+    summary: T.summary(top5Names),
     components: [
-      { label: "#1 strength", value: STRENGTH_NAMES[top5[0].id], detail: VIRTUE_OF[top5[0].id] },
-      { label: "Signature strengths", value: top5.map((x) => STRENGTH_NAMES[x.id]).join(" · ") },
-      { label: "Leading virtue", value: dominantVirtue },
-      { label: "Use it well", value: `Find one new way to use your ${STRENGTH_NAMES[top5[0].id].toLowerCase()} this week.` },
+      { label: T.labels.top, value: T.names[top5[0].id], detail: T.virtues[VIRTUE_OF[top5[0].id]] },
+      { label: T.labels.signature, value: top5Names.join(" · ") },
+      { label: T.labels.virtue, value: T.virtues[dominantVirtue] },
+      { label: T.labels.use, value: T.useTip(T.names[top5[0].id].toLowerCase()) },
     ],
     confidence: Math.max(0.3, Math.min(0.97, 0.5 + sep)),
     secondary: STRENGTH_NAMES[top5[1].id],
