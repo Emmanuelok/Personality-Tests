@@ -2398,6 +2398,40 @@ const AUTISM_FR: InstrumentTranslation = {
     RT1: "Je préfère fortement les routines et je suis déstabilisé(e) quand les plans changent.", RT2: "Je suis sensible à certains sons, textures, lumières ou sensations.", RT3: "J'aime faire les mêmes choses de la même manière et je n'aime pas la perturbation.", RT4: "Le changement inattendu est stressant et difficile à gérer pour moi.",
   },
 };
+const DARKTETRAD_ES: InstrumentTranslation = {
+  name: "Tétrada oscura", shortName: "Tétrada oscura",
+  tagline: "La tríada oscura más el sadismo cotidiano: tu lado aversivo, visto con honestidad.",
+  description: "La tétrada oscura amplía la tríada oscura —maquiavelismo, narcisismo y psicopatía— con el sadismo cotidiano. Son tendencias subclínicas, dentro del rango normal, que todo el mundo tiene en alguna medida. Verlas con claridad no es un veredicto; es el primer paso para evitar que las corrientes más oscuras dirijan en silencio tus decisiones.",
+  scales: {
+    MACH: { name: "Maquiavelismo", description: "Manipulación estratégica y cinismo.", poles: { low: "Franco", high: "Calculador" }, highDescriptor: "calculador/a, estratégico/a y reservado/a", lowDescriptor: "directo/a, abierto/a y confiado/a" },
+    NARC: { name: "Narcisismo", description: "Grandiosidad y necesidad de admiración.", poles: { low: "Humilde", high: "Grandioso" }, highDescriptor: "autoensalzador/a y en busca de estatus", lowDescriptor: "modesto/a y discreto/a" },
+    PSY: { name: "Psicopatía", description: "Insensibilidad, audacia e impulsividad (subclínica).", poles: { low: "Sensible", high: "Insensible" }, highDescriptor: "frío/a, intrépido/a y con poca culpa", lowDescriptor: "cauto/a, empático/a y concienzudo/a" },
+    SAD: { name: "Sadismo cotidiano", description: "Disfrute del malestar ajeno.", poles: { low: "Amable", high: "Sádico" }, highDescriptor: "atraído/a por la confrontación y el malestar ajeno", lowDescriptor: "reacio/a a causar o presenciar daño" },
+  },
+  items: {
+    M1: "Es inteligente reservarse cierta información para usarla más tarde.", M2: "Estoy dispuesto/a a manejar una situación entre bastidores para salir ganando.", M3: "Evito mostrar mis verdaderas intenciones cuando me conviene.", M4: "A casi todo el mundo se le puede influir con el enfoque adecuado.",
+    N1: "Merezco más reconocimiento del que suelo recibir.", N2: "Me gusta ser el centro de atención.", N3: "Soy más capaz que la mayoría de quienes me rodean.", N4: "Espero que los demás noten lo especial que soy.",
+    P1: "Rara vez me siento culpable tras hacer daño a alguien.", P2: "Asumo riesgos aunque otros puedan salir perjudicados.", P3: "Tiendo a actuar primero y a preocuparme por las consecuencias después.", P4: "Los sentimientos de los demás no influyen mucho en mis decisiones.",
+    S1: "Admito que puede haber cierta emoción en ver a alguien incómodo.", S2: "A veces disfruto burlándome o menospreciando a la gente.", S3: "Me resulta satisfactorio dominar a alguien que me ha molestado.", S4: "El entretenimiento intenso o violento me atrae.",
+  },
+};
+const DARKTETRAD_FR: InstrumentTranslation = {
+  name: "Tétrade noire", shortName: "Tétrade noire",
+  tagline: "La triade noire plus le sadisme ordinaire — votre côté aversif, vu honnêtement.",
+  description: "La tétrade noire étend la triade noire — machiavélisme, narcissisme et psychopathie — avec le sadisme ordinaire. Ce sont des tendances sous-cliniques, dans la plage normale, que tout le monde possède à quelque degré. Les voir clairement n'est pas un verdict ; c'est le premier pas pour empêcher les courants plus sombres de diriger discrètement vos choix.",
+  scales: {
+    MACH: { name: "Machiavélisme", description: "Manipulation stratégique et cynisme.", poles: { low: "Franc", high: "Calculateur" }, highDescriptor: "calculateur(trice), stratégique et sur la réserve", lowDescriptor: "direct(e), ouvert(e) et confiant(e)" },
+    NARC: { name: "Narcissisme", description: "Grandiosité et besoin d'admiration.", poles: { low: "Humble", high: "Grandiose" }, highDescriptor: "auto-valorisant(e) et en quête de statut", lowDescriptor: "modeste et effacé(e)" },
+    PSY: { name: "Psychopathie", description: "Insensibilité, audace et impulsivité (sous-clinique).", poles: { low: "Sensible", high: "Insensible" }, highDescriptor: "froid(e), intrépide et peu enclin(e) à la culpabilité", lowDescriptor: "prudent(e), empathique et consciencieux(se)" },
+    SAD: { name: "Sadisme ordinaire", description: "Plaisir pris au malaise d'autrui.", poles: { low: "Doux", high: "Sadique" }, highDescriptor: "attiré(e) par la confrontation et le malaise d'autrui", lowDescriptor: "réticent(e) à causer ou voir du mal" },
+  },
+  items: {
+    M1: "Il est malin de garder certaines informations pour les utiliser plus tard.", M2: "Je suis prêt(e) à gérer une situation en coulisses pour m'en sortir gagnant(e).", M3: "J'évite de montrer mes véritables intentions quand cela m'arrange.", M4: "On peut influencer presque tout le monde avec la bonne approche.",
+    N1: "Je mérite plus de reconnaissance que je n'en reçois d'habitude.", N2: "J'aime être le centre de l'attention.", N3: "Je suis plus capable que la plupart des gens autour de moi.", N4: "J'attends des autres qu'ils remarquent à quel point je suis spécial(e).",
+    P1: "Je me sens rarement coupable après avoir blessé quelqu'un.", P2: "Je prends des risques même si d'autres pourraient être blessés.", P3: "J'ai tendance à agir d'abord et à me soucier des conséquences ensuite.", P4: "Les sentiments des autres n'influencent pas beaucoup mes décisions.",
+    S1: "J'admets qu'il peut y avoir un certain frisson à voir quelqu'un mal à l'aise.", S2: "Il m'arrive d'aimer me moquer des gens ou les rabaisser.", S3: "Je trouve satisfaisant de dominer quelqu'un qui m'a agacé(e).", S4: "Les divertissements intenses ou violents m'attirent.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2416,7 +2450,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
     "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
-    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES,
+    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2434,7 +2468,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
     "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
-    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR,
+    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR,
   },
 };
 
@@ -3120,6 +3154,42 @@ const AUTISM_TYPE_FR: AutismTypeBundle = {
 };
 export function autismTypeStrings(locale?: string): AutismTypeBundle | undefined {
   return locale === "es" ? AUTISM_TYPE_ES : locale === "fr" ? AUTISM_TYPE_FR : undefined;
+}
+
+/* ── Dark Tetrad (typological; type card localized separately) ── */
+export interface DarkTetradTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { dominant: string; load: string; profile: string; lightest: string };
+  loadHigh: string;
+  loadMid: string;
+  loadLow: string;
+  profileHint: string;
+  lightestHint: string;
+}
+const DARKTETRAD_TYPE_ES: DarkTetradTypeBundle = {
+  meta: {
+    MACH: { name: "Maquiavelismo", title: "El Estratega", desc: "calculador, controlador, pragmático", summary: "Tu rasgo oscuro más pronunciado es la manipulación estratégica: leer los ángulos, guardarte las cartas y dirigir los resultados. Usado con ética, es astucia política; sin freno, erosiona la confianza." },
+    NARC: { name: "Narcisismo", title: "El Foco", desc: "grandioso, en busca de estatus, autoensalzador", summary: "Tu rasgo oscuro más pronunciado es el narcisismo: hambre de reconocimiento y sensación de ser excepcional. Puede alimentar la ambición y el carisma, pero deriva en sensación de merecimiento y orgullo frágil." },
+    PSY: { name: "Psicopatía", title: "El Temerario", desc: "audaz, insensible, impulsivo", summary: "Tu rasgo oscuro más pronunciado es la psicopatía subclínica: frialdad ante la amenaza, apetito de riesgo y poca culpa. Aporta intrepidez, pero puede percibirse como frío o imprudente." },
+    SAD: { name: "Sadismo", title: "El Antagonista", desc: "confrontador, disfruta el malestar ajeno", summary: "Tu rasgo oscuro más pronunciado es el sadismo cotidiano: una atracción hacia el malestar ajeno. Nombrarlo con honestidad es justo cómo evitas que dirija tu conducta." },
+  },
+  labels: { dominant: "Rasgo dominante", load: "Carga oscura global", profile: "Perfil", lightest: "Rasgo más leve" },
+  loadHigh: "elevada: merece una reflexión honesta", loadMid: "en torno a la media", loadLow: "baja: estas tendencias están atenuadas en ti",
+  profileHint: "tus cuatro rasgos, del más fuerte al más débil", lightestHint: "donde estas tendencias son más débiles",
+};
+const DARKTETRAD_TYPE_FR: DarkTetradTypeBundle = {
+  meta: {
+    MACH: { name: "Machiavélisme", title: "Le Stratège", desc: "calculateur, contrôlant, pragmatique", summary: "Votre trait sombre le plus marqué est la manipulation stratégique : lire les angles, garder ses cartes et orienter les résultats. Utilisé avec éthique, c'est du sens politique ; sans frein, cela érode la confiance." },
+    NARC: { name: "Narcissisme", title: "Le Projecteur", desc: "grandiose, en quête de statut, auto-valorisant", summary: "Votre trait sombre le plus marqué est le narcissisme : une faim de reconnaissance et un sentiment d'être exceptionnel. Il peut nourrir l'ambition et le charisme, mais bascule dans le sentiment de dû et l'orgueil fragile." },
+    PSY: { name: "Psychopathie", title: "Le Casse-cou", desc: "audacieux, insensible, impulsif", summary: "Votre trait sombre le plus marqué est la psychopathie sous-clinique : sang-froid face à la menace, appétit du risque et peu de culpabilité. Elle apporte l'intrépidité, mais peut paraître froide ou imprudente." },
+    SAD: { name: "Sadisme", title: "L'Antagoniste", desc: "conflictuel, savoure le malaise d'autrui", summary: "Votre trait sombre le plus marqué est le sadisme ordinaire : une attirance vers le malaise d'autrui. Le nommer honnêtement est précisément ce qui l'empêche de diriger votre comportement." },
+  },
+  labels: { dominant: "Trait dominant", load: "Charge sombre globale", profile: "Profil", lightest: "Trait le plus léger" },
+  loadHigh: "élevée — mérite une réflexion honnête", loadMid: "autour de la moyenne", loadLow: "faible — ces tendances sont atténuées chez vous",
+  profileHint: "vos quatre traits, du plus fort au plus faible", lightestHint: "là où ces tendances sont les plus faibles",
+};
+export function darkTetradTypeStrings(locale?: string): DarkTetradTypeBundle | undefined {
+  return locale === "es" ? DARKTETRAD_TYPE_ES : locale === "fr" ? DARKTETRAD_TYPE_FR : undefined;
 }
 
 /** Return a locale-translated clone of the instrument (English fallback per field). */

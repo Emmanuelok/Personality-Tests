@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { darkTetradTypeStrings, type DarkTetradTypeBundle } from "./i18n";
 
 /**
  * Dark Tetrad (Machiavellianism · Narcissism · Psychopathy · Sadism).
@@ -35,33 +36,43 @@ const items: Item[] = [
   it("S4", "Intense or violent entertainment appeals to me.", "SAD"),
 ];
 
-const META: Record<string, { name: string; title: string; desc: string; summary: string }> = {
-  MACH: { name: "Machiavellianism", title: "The Strategist", desc: "calculating, controlling, pragmatic", summary: "Your most pronounced dark trait is strategic manipulation — reading angles, keeping cards close, and steering outcomes. Used ethically, it's political savvy; unchecked, it erodes trust." },
-  NARC: { name: "Narcissism", title: "The Spotlight", desc: "grandiose, status-seeking, self-enhancing", summary: "Your most pronounced dark trait is narcissism — a hunger for recognition and a sense of being exceptional. It can fuel ambition and charisma, but tips into entitlement and fragile pride." },
-  PSY: { name: "Psychopathy", title: "The Daredevil", desc: "bold, callous, impulsive", summary: "Your most pronounced dark trait is sub-clinical psychopathy — coolness under threat, risk appetite, and low guilt. It brings fearlessness, but can read as cold or reckless to others." },
-  SAD: { name: "Sadism", title: "The Antagonist", desc: "confrontational, enjoys others' discomfort", summary: "Your most pronounced dark trait is everyday sadism — a pull toward others' discomfort. Naming it honestly is exactly how you keep it from steering your behavior." },
+/** Canonical, language-agnostic trait names (the code slices the English name). */
+const CODE_EN: Record<string, string> = { MACH: "Machiavellianism", NARC: "Narcissism", PSY: "Psychopathy", SAD: "Sadism" };
+
+/** English default; es/fr live in core/instruments/i18n.ts (darkTetradTypeStrings). */
+const DARKTETRAD_TYPE_EN: DarkTetradTypeBundle = {
+  meta: {
+    MACH: { name: "Machiavellianism", title: "The Strategist", desc: "calculating, controlling, pragmatic", summary: "Your most pronounced dark trait is strategic manipulation — reading angles, keeping cards close, and steering outcomes. Used ethically, it's political savvy; unchecked, it erodes trust." },
+    NARC: { name: "Narcissism", title: "The Spotlight", desc: "grandiose, status-seeking, self-enhancing", summary: "Your most pronounced dark trait is narcissism — a hunger for recognition and a sense of being exceptional. It can fuel ambition and charisma, but tips into entitlement and fragile pride." },
+    PSY: { name: "Psychopathy", title: "The Daredevil", desc: "bold, callous, impulsive", summary: "Your most pronounced dark trait is sub-clinical psychopathy — coolness under threat, risk appetite, and low guilt. It brings fearlessness, but can read as cold or reckless to others." },
+    SAD: { name: "Sadism", title: "The Antagonist", desc: "confrontational, enjoys others' discomfort", summary: "Your most pronounced dark trait is everyday sadism — a pull toward others' discomfort. Naming it honestly is exactly how you keep it from steering your behavior." },
+  },
+  labels: { dominant: "Dominant trait", load: "Overall dark load", profile: "Profile", lightest: "Lightest trait" },
+  loadHigh: "elevated — worth honest reflection", loadMid: "around average", loadLow: "low — these tendencies are muted in you",
+  profileHint: "your four traits, strongest first", lightestHint: "where these tendencies are weakest",
 };
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = darkTetradTypeStrings(locale) ?? DARKTETRAD_TYPE_EN;
   const arr = ["MACH", "NARC", "PSY", "SAD"].map((id) => ({ id, mean: s[id].mean, norm: s[id].normalized }));
   const sorted = [...arr].sort((a, b) => b.mean - a.mean);
   const top = sorted[0];
   const load = Math.round(arr.reduce((sum, x) => sum + x.norm, 0) / arr.length);
-  const meta = META[top.id];
+  const meta = T.meta[top.id];
   const sep = top.mean - sorted[1].mean;
   const confidence = Math.max(0.2, Math.min(0.96, 0.45 + sep));
   return {
-    code: `${meta.name.slice(0, 4)} · ${load}/100`,
+    code: `${CODE_EN[top.id].slice(0, 4)} · ${load}/100`,
     title: meta.title,
     summary: meta.summary,
     components: [
-      { label: "Dominant trait", value: meta.name, detail: meta.desc },
-      { label: "Overall dark load", value: `${load}/100`, detail: load >= 60 ? "elevated — worth honest reflection" : load >= 40 ? "around average" : "low — these tendencies are muted in you" },
-      { label: "Profile", value: sorted.map((x) => x.id).join(" › "), detail: "your four traits, strongest first" },
-      { label: "Lightest trait", value: META[sorted[3].id].name, detail: "where these tendencies are weakest" },
+      { label: T.labels.dominant, value: meta.name, detail: meta.desc },
+      { label: T.labels.load, value: `${load}/100`, detail: load >= 60 ? T.loadHigh : load >= 40 ? T.loadMid : T.loadLow },
+      { label: T.labels.profile, value: sorted.map((x) => x.id).join(" › "), detail: T.profileHint },
+      { label: T.labels.lightest, value: T.meta[sorted[3].id].name, detail: T.lightestHint },
     ],
     confidence,
-    secondary: META[sorted[1].id].name,
+    secondary: T.meta[sorted[1].id].name,
   };
 }
 
