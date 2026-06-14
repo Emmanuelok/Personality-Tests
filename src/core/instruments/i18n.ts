@@ -984,6 +984,45 @@ const MINDSET_FR: InstrumentTranslation = {
   },
 };
 
+const EQ_ES: InstrumentTranslation = {
+  name: "Inteligencia emocional", shortName: "Intel. emocional",
+  tagline: "El predictor más entrenable de relaciones, liderazgo y bienestar.",
+  description: "La inteligencia emocional es la capacidad de reconocer, comprender y manejar las emociones —las tuyas y las de los demás—. Este perfilador estima cinco dominios: Autoconciencia, Autorregulación, Motivación, Empatía y Habilidades sociales. A diferencia del CI, la inteligencia emocional se aprende mucho, así que cada dominio es también una meta de crecimiento.",
+  scales: {
+    SA: { name: "Autoconciencia", description: "Reconocer tus propias emociones y sus efectos.", poles: { low: "Inconsciente", high: "Consciente de sí" }, highDescriptor: "en sintonía con tus emociones y con cómo te impulsan", lowDescriptor: "menos reflexivo/a sobre tus estados emocionales internos" },
+    SR: { name: "Autorregulación", description: "Manejar los impulsos y recuperarse de emociones difíciles.", poles: { low: "Reactivo/a", high: "Sereno/a" }, highDescriptor: "sereno/a, con autocontrol y capaz de recomponerte bajo estrés", lowDescriptor: "más reactivo/a e impulsivo/a cuando las emociones se intensifican" },
+    MO: { name: "Motivación", description: "Impulso, optimismo y resiliencia hacia las metas.", poles: { low: "Se desanima fácil", high: "Motivado/a" }, highDescriptor: "motivado/a, optimista y rápido/a para recuperarte", lowDescriptor: "más fácilmente desanimado/a cuando baja la motivación" },
+    EM: { name: "Empatía", description: "Percibir y comprender lo que sienten los demás.", poles: { low: "Distante", high: "Empático/a" }, highDescriptor: "perceptivo/a y sintonizado/a con lo que sienten los demás", lowDescriptor: "menos sintonizado/a de forma natural con las emociones ajenas" },
+    SS: { name: "Habilidades sociales", description: "Gestionar relaciones, influencia y conflicto.", poles: { low: "Torpe", high: "Hábil" }, highDescriptor: "socialmente hábil, persuasivo/a y bueno/a con el conflicto", lowDescriptor: "menos cómodo/a navegando las dinámicas sociales" },
+  },
+  items: {
+    SA1: "Suelo poder nombrar exactamente qué siento, y por qué.", SA2: "Soy consciente de cómo mis estados de ánimo moldean mi conducta.", SA3: "A menudo me pillan por sorpresa mis propias reacciones emocionales.", SA4: "Conozco bien mis fortalezas emocionales y mis detonantes.",
+    SR1: "Puedo mantener la calma y la compostura bajo presión.", SR2: "Cuando me altero, sé calmarme y volver a enfocarme.", SR3: "A menudo digo o hago cosas en el calor del momento de las que luego me arrepiento.", SR4: "Puedo posponer la gratificación para alcanzar una meta mayor.",
+    MO1: "Sigo motivado/a hacia mis metas incluso sin recompensas externas.", MO2: "Me recupero rápido de los reveses.", MO3: "Pierdo la motivación en cuanto las cosas se ponen difíciles.", MO4: "Soy optimista en que el esfuerzo acabará dando frutos.",
+    EM1: "Puedo percibir cómo se sienten los demás, aunque no lo digan.", EM2: "Sintonizo de verdad con las perspectivas de otras personas.", EM3: "Me cuesta entender por qué la gente se siente como se siente.", EM4: "Capto señales sutiles en el tono y el lenguaje corporal.",
+    SS1: "Manejo bien los conflictos y las conversaciones difíciles.", SS2: "Puedo conectar con casi cualquier persona.", SS3: "Se me da bien influir e inspirar a la gente.", SS4: "Las situaciones sociales me resultan incómodas y difíciles de manejar.",
+  },
+};
+const EQ_FR: InstrumentTranslation = {
+  name: "Intelligence émotionnelle", shortName: "Intel. émotionnelle",
+  tagline: "Le prédicteur le plus exerçable des relations, du leadership et du bien-être.",
+  description: "L'intelligence émotionnelle, c'est la capacité de reconnaître, comprendre et gérer les émotions — les vôtres et celles des autres. Ce profileur estime cinq domaines : Conscience de soi, Autorégulation, Motivation, Empathie et Compétences sociales. Contrairement au QI, l'intelligence émotionnelle s'apprend beaucoup, alors chaque domaine est aussi un axe de progrès.",
+  scales: {
+    SA: { name: "Conscience de soi", description: "Reconnaître ses propres émotions et leurs effets.", poles: { low: "Peu conscient(e)", high: "Conscient(e) de soi" }, highDescriptor: "à l'écoute de vos émotions et de la façon dont elles vous animent", lowDescriptor: "moins réfléchi(e) sur vos états émotionnels intérieurs" },
+    SR: { name: "Autorégulation", description: "Gérer ses impulsions et se remettre d'émotions difficiles.", poles: { low: "Réactif(ve)", high: "Posé(e)" }, highDescriptor: "posé(e), maître de vous et capable de vous reprendre sous stress", lowDescriptor: "plus réactif(ve) et impulsif(ve) quand les émotions montent" },
+    MO: { name: "Motivation", description: "Élan, optimisme et résilience vers les objectifs.", poles: { low: "Vite découragé(e)", high: "Motivé(e)" }, highDescriptor: "motivé(e), optimiste et prompt(e) à rebondir", lowDescriptor: "plus facilement découragé(e) quand la motivation baisse" },
+    EM: { name: "Empathie", description: "Percevoir et comprendre ce que ressentent les autres.", poles: { low: "Distant(e)", high: "Empathique" }, highDescriptor: "perceptif(ve) et accordé(e) à ce que ressentent les autres", lowDescriptor: "moins naturellement accordé(e) aux émotions d'autrui" },
+    SS: { name: "Compétences sociales", description: "Gérer les relations, l'influence et le conflit.", poles: { low: "Maladroit(e)", high: "Habile" }, highDescriptor: "socialement habile, persuasif(ve) et à l'aise avec le conflit", lowDescriptor: "moins à l'aise dans les dynamiques sociales" },
+  },
+  items: {
+    SA1: "J'arrive en général à nommer exactement ce que je ressens, et pourquoi.", SA2: "Je suis conscient(e) de la façon dont mes humeurs façonnent mon comportement.", SA3: "Je suis souvent pris(e) au dépourvu par mes propres réactions émotionnelles.", SA4: "Je connais bien mes forces émotionnelles et mes déclencheurs.",
+    SR1: "Je sais rester calme et posé(e) sous pression.", SR2: "Quand je suis contrarié(e), je sais m'apaiser et me recentrer.", SR3: "Je dis ou fais souvent des choses sur le coup que je regrette ensuite.", SR4: "Je peux différer une gratification pour atteindre un objectif plus grand.",
+    MO1: "Je reste motivé(e) vers mes objectifs même sans récompense extérieure.", MO2: "Je rebondis vite après les revers.", MO3: "Je perds ma motivation dès que les choses se compliquent.", MO4: "Je suis optimiste : l'effort finira par payer.",
+    EM1: "Je sens ce que ressentent les autres, même quand ils ne le disent pas.", EM2: "Je me mets vraiment à la place des autres.", EM3: "J'ai du mal à comprendre pourquoi les gens ressentent ce qu'ils ressentent.", EM4: "Je capte les signaux subtils du ton et du langage corporel.",
+    SS1: "Je gère bien les conflits et les conversations difficiles.", SS2: "Je peux créer un lien avec presque n'importe qui.", SS3: "Je suis doué(e) pour influencer et inspirer les gens.", SS4: "Les situations sociales me semblent gênantes et difficiles à gérer.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
@@ -992,7 +1031,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
     "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
     "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
-    "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES,
+    "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1001,7 +1040,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
     "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
     "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
-    "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR,
+    "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR,
   },
 };
 
