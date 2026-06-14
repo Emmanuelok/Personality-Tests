@@ -1100,6 +1100,86 @@ const EMPATHY_FR: InstrumentTranslation = {
     PD1: "En cas d'urgence, je me sens anxieux(se), tendu(e) et un peu débordé(e).", PD2: "Être dans une situation émotionnellement chargée me fait peur.", PD3: "Quand je vois quelqu'un gravement blessé, j'ai tendance à un peu m'effondrer.",
   },
 };
+const EYSENCK_ES: InstrumentTranslation = {
+  name: "Perfil PEN de Eysenck", shortName: "PEN",
+  tagline: "Tres grandes dimensiones: extraversión, neuroticismo y dureza de carácter.",
+  description: "Hans Eysenck sostenía que la personalidad se reduce a unas pocas dimensiones amplias y de base biológica. Este perfilador mapea las tres clásicas: Extraversión, Neuroticismo (reactividad emocional) y Psicoticismo (una etiqueta histórica para las tendencias de carácter firme, inconformistas e impulsivas, no la psicosis). Es un complemento útil a los Cinco Grandes, recorriendo el mismo terreno desde la influyente mirada de Eysenck.",
+  scales: {
+    EXT: { name: "Extraversión", description: "Sociabilidad, actividad y búsqueda de estimulación.", poles: { low: "Introvertido", high: "Extravertido" }, highDescriptor: "extrovertido/a, enérgico/a y atraído/a por la emoción", lowDescriptor: "reservado/a, tranquilo/a y a gusto con la calma" },
+    NEU: { name: "Neuroticismo", description: "Reactividad emocional y propensión al estrés.", poles: { low: "Estable", high: "Reactivo" }, highDescriptor: "emocionalmente reactivo/a, sensible al estrés y propenso/a a preocuparse", lowDescriptor: "tranquilo/a, sereno/a y difícil de alterar" },
+    PSY: { name: "Dureza de carácter", description: "Inconformismo, falta de sentimentalismo y franqueza (el 'Psicoticismo' de Eysenck).", poles: { low: "Tierno / conformista", high: "Duro / inconformista" }, highDescriptor: "independiente, de carácter firme y poco convencional", lowDescriptor: "cálido/a, afable y convencional" },
+  },
+  items: {
+    E1: "Hago amigos con facilidad y disfruto de las reuniones sociales animadas.", E2: "Me consideraría más el alma de la fiesta que alguien que pasa desapercibido.", E3: "Me gusta tener mucha emoción y actividad a mi alrededor.", E4: "A menudo actúo por impulso del momento.", E5: "Prefiero una velada tranquila a solas a un gran evento social.", E6: "Tiendo a mantenerme en segundo plano en los eventos sociales.",
+    N1: "Mi estado de ánimo puede cambiar rápidamente sin gran motivo.", N2: "Sigo dándole vueltas a las cosas mucho después de que han pasado.", N3: "A menudo me siento tenso/a o nervioso/a.", N4: "Con frecuencia me siento ansioso/a sin saber muy bien por qué.", N5: "Me mantengo tranquilo/a y firme bajo presión.", N6: "Los pequeños contratiempos rara vez alteran mi compostura.",
+    P1: "Cuestiono las reglas y convenciones en vez de seguirlas sin más.", P2: "Soy bastante poco sentimental y práctico/a con casi todo.", P3: "Prefiero seguir mi propio camino, aunque otros lo desaprueben.", P4: "Puedo ser franco/a y de carácter firme cuando la situación lo exige.", P5: "Soy muy considerado/a con los sentimientos de los demás.", P6: "Me gusta encajar y seguir las normas sociales aceptadas.",
+  },
+};
+const EYSENCK_FR: InstrumentTranslation = {
+  name: "Profil PEN d'Eysenck", shortName: "PEN",
+  tagline: "Trois grandes dimensions : extraversion, névrosisme et fermeté d'esprit.",
+  description: "Hans Eysenck soutenait que la personnalité se résume à quelques dimensions larges et d'origine biologique. Ce profileur cartographie les trois classiques : l'Extraversion, le Névrosisme (réactivité émotionnelle) et le Psychoticisme (une étiquette historique pour les tendances au caractère ferme, non-conformistes et impulsives — pas la psychose). C'est un complément utile aux Big Five, parcourant le même terrain depuis le regard influent d'Eysenck.",
+  scales: {
+    EXT: { name: "Extraversion", description: "Sociabilité, activité et recherche de stimulation.", poles: { low: "Introverti", high: "Extraverti" }, highDescriptor: "sociable, énergique et attiré(e) par l'excitation", lowDescriptor: "réservé(e), calme et à l'aise dans le calme" },
+    NEU: { name: "Névrosisme", description: "Réactivité émotionnelle et propension au stress.", poles: { low: "Stable", high: "Réactif" }, highDescriptor: "émotionnellement réactif(ve), sensible au stress et prompt(e) à s'inquiéter", lowDescriptor: "calme, posé(e) et difficile à ébranler" },
+    PSY: { name: "Fermeté d'esprit", description: "Non-conformisme, absence de sentimentalité et franchise (le « Psychoticisme » d'Eysenck).", poles: { low: "Tendre / conformiste", high: "Dur / non-conformiste" }, highDescriptor: "indépendant(e), au caractère ferme et peu conventionnel(le)", lowDescriptor: "chaleureux(se), accommodant(e) et conventionnel(le)" },
+  },
+  items: {
+    E1: "Je me fais des amis facilement et j'aime les réunions sociales animées.", E2: "Je me décrirais plutôt comme l'âme de la fête que comme quelqu'un d'effacé.", E3: "J'aime avoir beaucoup d'animation et d'activité autour de moi.", E4: "J'agis souvent sur un coup de tête.", E5: "Je préfère une soirée tranquille seul(e) à un grand événement social.", E6: "J'ai tendance à rester en retrait lors des événements sociaux.",
+    N1: "Mon humeur peut changer rapidement sans grande raison.", N2: "Je continue de ressasser les choses longtemps après qu'elles sont finies.", N3: "Je me sens souvent tendu(e) ou à cran.", N4: "Je me sens fréquemment anxieux(se) sans trop savoir pourquoi.", N5: "Je reste calme et posé(e) sous la pression.", N6: "Les petits contretemps ébranlent rarement mon sang-froid.",
+    P1: "Je remets en question les règles et les conventions plutôt que de simplement les suivre.", P2: "Je suis assez peu sentimental(e) et terre-à-terre sur la plupart des choses.", P3: "Je préfère suivre ma propre voie, même si d'autres le désapprouvent.", P4: "Je peux être direct(e) et ferme quand la situation l'exige.", P5: "Je suis très attentif(ve) aux sentiments des autres.", P6: "J'aime m'intégrer et suivre les normes sociales admises.",
+  },
+};
+const PSS_ES: InstrumentTranslation = {
+  name: "Estrés percibido", shortName: "Estrés",
+  tagline: "Qué tan desbordada, impredecible y fuera de control se ha sentido la vida últimamente.",
+  description: "El estrés no consiste solo en lo que te ocurre, sino en cuánto sientes que puedes manejarlo. La Escala de Estrés Percibido, la más utilizada del campo, capta esa valoración: qué tan impredecible, incontrolable y desbordante ha sido el último mes. Es una instantánea de un período de tiempo, y cambia a medida que cambian tus circunstancias y tu forma de afrontarlas.",
+  scales: {
+    STRESS: { name: "Estrés percibido", description: "Estrés evaluado durante el último mes.", poles: { low: "Con control", high: "Desbordado/a" }, highDescriptor: "con sensación de sobrecarga y poco control", lowDescriptor: "con sensación de estabilidad y control" },
+  },
+  items: {
+    S1: "En el último mes, ¿con qué frecuencia te has alterado por algo que ocurrió inesperadamente?", S2: "¿Con qué frecuencia has sentido que no podías controlar las cosas importantes de tu vida?", S3: "¿Con qué frecuencia te has sentido nervioso/a y estresado/a?", S4: "¿Con qué frecuencia te has visto incapaz de afrontar todo lo que tenías que hacer?", S5: "¿Con qué frecuencia te han enfadado cosas que estaban fuera de tu control?",
+    S6: "¿Con qué frecuencia has sentido que las dificultades se acumulaban tanto que no podías superarlas?", S7: "¿Con qué frecuencia te has sentido seguro/a de tu capacidad para manejar tus problemas personales?", S8: "¿Con qué frecuencia has sentido que las cosas te iban bien?", S9: "¿Con qué frecuencia has sido capaz de controlar las irritaciones de tu vida?", S10: "¿Con qué frecuencia has sentido que tenías todo bajo control?",
+  },
+};
+const PSS_FR: InstrumentTranslation = {
+  name: "Stress perçu", shortName: "Stress",
+  tagline: "À quel point la vie a semblé surchargée, imprévisible et hors de contrôle ces derniers temps.",
+  description: "Le stress ne tient pas seulement à ce qui vous arrive, mais à votre sentiment de pouvoir y faire face. L'Échelle de Stress Perçu, la plus utilisée du domaine, saisit cette évaluation : à quel point le mois écoulé a semblé imprévisible, incontrôlable et surchargeant. C'est un instantané d'une période, et il évolue au fil de vos circonstances et de votre manière d'y faire face.",
+  scales: {
+    STRESS: { name: "Stress perçu", description: "Stress évalué au cours du dernier mois.", poles: { low: "Maîtrisé", high: "Débordé(e)" }, highDescriptor: "avec un sentiment de surcharge et de perte de contrôle", lowDescriptor: "avec un sentiment de stabilité et de maîtrise" },
+  },
+  items: {
+    S1: "Au cours du dernier mois, à quelle fréquence avez-vous été contrarié(e) par un événement inattendu ?", S2: "À quelle fréquence avez-vous eu le sentiment de ne pas pouvoir contrôler les choses importantes de votre vie ?", S3: "À quelle fréquence vous êtes-vous senti(e) nerveux(se) et stressé(e) ?", S4: "À quelle fréquence avez-vous trouvé que vous ne pouviez pas faire face à tout ce que vous aviez à faire ?", S5: "À quelle fréquence avez-vous été irrité(e) par des choses hors de votre contrôle ?",
+    S6: "À quelle fréquence avez-vous senti les difficultés s'accumuler au point de ne pas pouvoir les surmonter ?", S7: "À quelle fréquence vous êtes-vous senti(e) confiant(e) dans votre capacité à gérer vos problèmes personnels ?", S8: "À quelle fréquence avez-vous eu le sentiment que les choses allaient comme vous le vouliez ?", S9: "À quelle fréquence avez-vous été capable de maîtriser les irritations de votre vie ?", S10: "À quelle fréquence avez-vous eu le sentiment de maîtriser la situation ?",
+  },
+};
+const WORRY_ES: InstrumentTranslation = {
+  name: "Chequeo de preocupación", shortName: "Preocupación",
+  tagline: "Una instantánea amable de dos semanas sobre preocupación y calma: apoyo, no diagnóstico.",
+  description: "Un breve y cuidadoso chequeo sobre la preocupación y la tensión de las últimas dos semanas, en el espíritu de los cribados habituales de ansiedad, pero planteado en torno a la calma y la estabilidad en lugar de los síntomas. Las puntuaciones más altas indican más bienestar. Es un estímulo para el autoconocimiento y el autocuidado, nunca un diagnóstico.",
+  scales: {
+    CALM: { name: "Calma y bienestar", description: "Ausencia de preocupación ansiosa.", poles: { low: "Ansioso/a", high: "En calma" }, highDescriptor: "tranquilo/a, a gusto y capaz de relajarse", lowDescriptor: "ansioso/a, en tensión y preocupado/a" },
+    STDY: { name: "Estabilidad", description: "Estabilidad interior y ausencia de inquietud.", poles: { low: "Inquieto/a", high: "Estable" }, highDescriptor: "asentado/a, sereno/a y estable", lowDescriptor: "inquieto/a, irritable o aprensivo/a" },
+  },
+  items: {
+    C1: "En las últimas dos semanas, me he sentido nervioso/a, ansioso/a o con los nervios de punta.", C2: "No he podido dejar de preocuparme ni controlar la preocupación.", C3: "Me he sentido tranquilo/a y a gusto.", C4: "He podido relajarme cuando he querido.",
+    S1: "Me he sentido relajado/a en lugar de tenso/a.", S2: "He estado inquieto/a o me ha costado quedarme quieto/a.", S3: "Me he sentido fácilmente molesto/a o irritable.", S4: "He sentido miedo de que pudiera pasar algo terrible.",
+  },
+};
+const WORRY_FR: InstrumentTranslation = {
+  name: "Point sur l'inquiétude", shortName: "Inquiétude",
+  tagline: "Un aperçu bienveillant sur deux semaines de l'inquiétude et du calme — un soutien, pas un diagnostic.",
+  description: "Un bref point attentionné sur l'inquiétude et la tension des deux dernières semaines, dans l'esprit des dépistages courants de l'anxiété — mais articulé autour du calme et de la stabilité plutôt que des symptômes. Des scores plus élevés signifient plus de sérénité. C'est une invitation à mieux se connaître et à prendre soin de soi, jamais un diagnostic.",
+  scales: {
+    CALM: { name: "Calme et sérénité", description: "Absence d'inquiétude anxieuse.", poles: { low: "Anxieux", high: "Calme" }, highDescriptor: "calme, à l'aise et capable de se détendre", lowDescriptor: "anxieux(se), à cran et inquiet(ète)" },
+    STDY: { name: "Stabilité", description: "Stabilité intérieure et absence d'agitation.", poles: { low: "Agité", high: "Stable" }, highDescriptor: "posé(e), égal(e) et stable", lowDescriptor: "agité(e), irritable ou inquiet(ète)" },
+  },
+  items: {
+    C1: "Au cours des deux dernières semaines, je me suis senti(e) nerveux(se), anxieux(se) ou à cran.", C2: "Je n'ai pas pu arrêter de m'inquiéter ni contrôler mon inquiétude.", C3: "Je me suis senti(e) calme et à l'aise.", C4: "J'ai pu me détendre quand je le voulais.",
+    S1: "Je me suis senti(e) détendu(e) plutôt que crispé(e).", S2: "J'ai été agité(e) ou j'ai eu du mal à rester en place.", S3: "Je me suis senti(e) facilement contrarié(e) ou irritable.", S4: "J'ai eu peur qu'il puisse arriver quelque chose d'affreux.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1110,6 +1190,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
     "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
     "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES, "riasec-careers": RIASEC_ES, "empathy-iri": EMPATHY_ES,
+    "eysenck-pen": EYSENCK_ES, "perceived-stress": PSS_ES, "worry-checkin": WORRY_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1119,6 +1200,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
     "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
     "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR, "riasec-careers": RIASEC_FR, "empathy-iri": EMPATHY_FR,
+    "eysenck-pen": EYSENCK_FR, "perceived-stress": PSS_FR, "worry-checkin": WORRY_FR,
   },
 };
 
