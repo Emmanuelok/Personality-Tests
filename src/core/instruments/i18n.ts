@@ -1388,6 +1388,92 @@ const BURNOUT_FR: InstrumentTranslation = {
     PA1: "J'ai le sentiment d'accomplir des choses qui en valent la peine.", PA2: "Je gère les problèmes efficacement.", PA3: "Je me sens plein(e) d'énergie quand je fais bien mon travail.", PA4: "J'ai un impact positif sur les autres par ce que je fais.",
   },
 };
+const LOCUS_ES: InstrumentTranslation = {
+  name: "Locus de control", shortName: "Locus",
+  tagline: "¿Diriges tu vida o la vida te sucede?",
+  description: "El locus de control es uno de los constructos más perdurables de la psicología: el grado en que crees que los resultados provienen de tus propias acciones (un locus interno) frente a la suerte, el destino y los demás poderosos (un locus externo). Un locus más interno predice mejor afrontamiento, logro y salud, pero la postura más sana es realista: hacerte cargo de lo que puedes mientras aceptas lo que no.",
+  scales: {
+    LOC: { name: "Locus interno", description: "Creencia de que tus propias acciones determinan tus resultados.", poles: { low: "Externo", high: "Interno" }, highDescriptor: "con sentido de agencia: sientes que llevas el timón", lowDescriptor: "externo/a: sientes que los resultados se te escapan de las manos" },
+  },
+  items: {
+    L1: "Lo que me ocurre es sobre todo el resultado de mis propias acciones.", L2: "Puedo dar forma a mi futuro mediante las decisiones que tomo.", L3: "Cuando me esfuerzo, normalmente obtengo los resultados que quiero.", L4: "Si me preparo bien, puedo afrontar lo que venga.",
+    L5: "Buena parte de lo que me ocurre es cuestión de suerte o destino.", L6: "Por más que lo intente, fuerzas fuera de mi control deciden el resultado.", L7: "Tiene poco sentido planificar: la vida es sobre todo azar.", L8: "Otras personas poderosas determinan en gran medida lo que puedo lograr.",
+  },
+};
+const LOCUS_FR: InstrumentTranslation = {
+  name: "Lieu de contrôle", shortName: "Locus",
+  tagline: "Dirigez-vous votre vie, ou la vie vous arrive-t-elle ?",
+  description: "Le lieu de contrôle est l'un des concepts les plus durables de la psychologie : la mesure dans laquelle vous croyez que les résultats découlent de vos propres actions (un lieu interne) plutôt que de la chance, du destin et des autres puissants (un lieu externe). Un lieu plus interne prédit un meilleur ajustement, de meilleures réussites et une meilleure santé — mais la posture la plus saine est réaliste : assumer ce que vous pouvez tout en acceptant ce que vous ne pouvez pas.",
+  scales: {
+    LOC: { name: "Lieu interne", description: "Conviction que vos propres actions déterminent vos résultats.", poles: { low: "Externe", high: "Interne" }, highDescriptor: "doté(e) d'un sentiment d'agir : vous tenez le volant", lowDescriptor: "externe : vous sentez que les résultats vous échappent" },
+  },
+  items: {
+    L1: "Ce qui m'arrive résulte surtout de mes propres actions.", L2: "Je peux façonner mon avenir par les choix que je fais.", L3: "Quand je travaille dur, j'obtiens généralement les résultats que je veux.", L4: "Si je me prépare bien, je peux faire face à tout ce qui se présente.",
+    L5: "Une grande partie de ce qui m'arrive est une question de chance ou de destin.", L6: "Quels que soient mes efforts, des forces hors de mon contrôle décident du résultat.", L7: "Il ne sert à rien de planifier — la vie est surtout affaire de hasard.", L8: "D'autres personnes puissantes déterminent en grande partie ce que je peux accomplir.",
+  },
+};
+const SELFMON_ES: InstrumentTranslation = {
+  name: "Automonitoreo", shortName: "Automonitoreo",
+  tagline: "¿Camaleón social o el mismo en cada sala?",
+  description: "El automonitoreo, un constructo clásico de la psicología social de Mark Snyder, capta cuánto observas y ajustas tu autopresentación para encajar en el momento. Quienes puntúan alto leen las situaciones y se adaptan a ellas; quienes puntúan bajo se mantienen fieles a su estado interior en cualquier contexto. Cada estilo tiene ventajas sociales reales, y también costes.",
+  scales: {
+    SM: { name: "Automonitoreo", description: "Tendencia a observar y ajustar la autopresentación a la situación.", poles: { low: "Consistente", high: "Adaptable" }, highDescriptor: "adaptable y atento/a a la situación (un camaleón social)", lowDescriptor: "consistente y fiel a sí mismo/a en cualquier contexto" },
+  },
+  items: {
+    M1: "En situaciones sociales, ajusto mi comportamiento a quienquiera con quien esté.", M2: "Se me da bien leer el ambiente y actuar en consecuencia.", M3: "Puedo presentarme de formas bastante distintas según la situación.", M4: "Puedo mirar a alguien a los ojos y soltar una mentira piadosa sin inmutarme.",
+    M5: "Probablemente sería un actor decente.", M6: "Mi comportamiento suele ser una expresión honesta de cómo me siento de verdad, sea cual sea el contexto.", M7: "Me cuesta cambiar mi comportamiento para adaptarme a distintas personas y situaciones.", M8: "Rara vez finjo para impresionar o agradar a la gente.",
+  },
+};
+const SELFMON_FR: InstrumentTranslation = {
+  name: "Monitorage de soi", shortName: "Monitorage",
+  tagline: "Caméléon social ou le même dans chaque pièce ?",
+  description: "Le monitorage de soi, un concept classique de la psychologie sociale dû à Mark Snyder, mesure à quel point vous observez et ajustez votre présentation de vous-même pour coller au moment. Les hauts monitoreurs lisent les situations et s'y adaptent ; les bas monitoreurs restent fidèles à leur état intérieur en toute circonstance. Chaque style a de réels avantages sociaux — et des coûts.",
+  scales: {
+    SM: { name: "Monitorage de soi", description: "Tendance à observer et ajuster sa présentation de soi à la situation.", poles: { low: "Constant", high: "Adaptable" }, highDescriptor: "adaptable et à l'écoute de la situation (un caméléon social)", lowDescriptor: "constant(e) et fidèle à soi en toute circonstance" },
+  },
+  items: {
+    M1: "Dans les situations sociales, j'ajuste mon comportement à la personne avec qui je suis.", M2: "Je sais lire une assemblée et agir en conséquence.", M3: "Je peux me présenter très différemment selon la situation.", M4: "Je peux regarder quelqu'un dans les yeux et dire un pieux mensonge sans broncher.",
+    M5: "Je ferais sans doute un acteur correct.", M6: "Mon comportement est généralement une expression honnête de ce que je ressens vraiment, quel que soit le contexte.", M7: "J'ai du mal à changer mon comportement pour m'adapter à différentes personnes et situations.", M8: "Je fais rarement semblant pour impressionner ou plaire aux gens.",
+  },
+};
+const MORAL_ES: InstrumentTranslation = {
+  name: "Fundamentos morales", shortName: "Fund. morales",
+  tagline: "Las intuiciones bajo tu sentido del bien y el mal.",
+  description: "La Teoría de los Fundamentos Morales sostiene que nuestros juicios morales se apoyan en un puñado de fundamentos intuitivos: cuidado, equidad, lealtad, autoridad y santidad. Cuáles pesan más en ti moldea tus valores, tu política y dónde chocas con los demás. Este perfilador muestra tu huella moral: ningún fundamento es correcto o incorrecto.",
+  scales: {
+    CARE: { name: "Cuidado / Daño", description: "Sensibilidad al sufrimiento y compasión.", highDescriptor: "compasivo/a y protector/a de los vulnerables", lowDescriptor: "menos guiado/a por evitar el daño en tus juicios morales" },
+    FAIR: { name: "Equidad / Trampa", description: "Preocupación por la justicia, los derechos y la proporcionalidad.", highDescriptor: "con sentido de la justicia y atento/a a la equidad y los derechos", lowDescriptor: "menos centrado/a en la equidad en tus juicios morales" },
+    LOYAL: { name: "Lealtad / Traición", description: "Valorar la solidaridad y la fidelidad al grupo.", highDescriptor: "leal, con sentido de grupo y entregado/a a los tuyos", lowDescriptor: "más individualista que fiel al grupo" },
+    AUTH: { name: "Autoridad / Subversión", description: "Respeto por la autoridad legítima y la tradición.", highDescriptor: "respetuoso/a del orden, la jerarquía y la tradición", lowDescriptor: "más escéptico/a ante la autoridad y la tradición" },
+    SANCT: { name: "Santidad / Degradación", description: "Preocupación por la pureza, la decencia y lo sagrado.", highDescriptor: "atento/a a la santidad, la decencia y lo sagrado", lowDescriptor: "menos movido/a por preocupaciones de pureza o santidad" },
+  },
+  items: {
+    CARE1: "Que alguien haya sufrido o no es central en cómo juzgo una acción.", CARE2: "La compasión por quienes sufren es una de las virtudes más importantes.", CARE3: "Está profundamente mal dañar a una criatura vulnerable o indefensa.",
+    FAIR1: "La justicia y tratar a las personas por igual es una de mis máximas prioridades.", FAIR2: "Me molesta profundamente que se le nieguen a alguien sus derechos.", FAIR3: "Las personas deberían ser recompensadas en proporción a lo que aportan.",
+    LOYAL1: "La lealtad a mi grupo, mi familia o mi país me importa muchísimo.", LOYAL2: "Las personas deberían apoyar a su comunidad, aun a costa personal.", LOYAL3: "Traicionar a tu grupo es una de las peores cosas que se pueden hacer.",
+    AUTH1: "Valoro el respeto por la autoridad legítima y la tradición.", AUTH2: "La sociedad funciona mejor cuando la gente sigue a líderes y normas legítimos.", AUTH3: "Se debería enseñar a los niños a respetar a sus mayores.",
+    SANCT1: "Algunas cosas son sagradas y nunca deberían profanarse.", SANCT2: "Me importa si las acciones son decentes y puras frente a degradantes.", SANCT3: "Las personas deberían mantener ciertos estándares de decencia y autodisciplina.",
+  },
+};
+const MORAL_FR: InstrumentTranslation = {
+  name: "Fondements moraux", shortName: "Fond. moraux",
+  tagline: "Les intuitions sous votre sens du bien et du mal.",
+  description: "La théorie des fondements moraux montre que nos jugements moraux reposent sur une poignée de fondements intuitifs : bienveillance, équité, loyauté, autorité et sainteté. Ceux qui pèsent le plus pour vous façonnent vos valeurs, votre politique et vos points de friction avec autrui. Ce profileur révèle votre empreinte morale — aucun fondement n'est juste ou faux.",
+  scales: {
+    CARE: { name: "Bienveillance / Préjudice", description: "Sensibilité à la souffrance et compassion.", highDescriptor: "compatissant(e) et protecteur(trice) des plus vulnérables", lowDescriptor: "moins guidé(e) par l'évitement du préjudice dans vos jugements moraux" },
+    FAIR: { name: "Équité / Tricherie", description: "Souci de la justice, des droits et de la proportionnalité.", highDescriptor: "soucieux(se) de justice et attentif(ve) à l'équité et aux droits", lowDescriptor: "moins centré(e) sur l'équité dans vos jugements moraux" },
+    LOYAL: { name: "Loyauté / Trahison", description: "Valoriser la solidarité et la fidélité au groupe.", highDescriptor: "loyal(e), attaché(e) au groupe et dévoué(e) aux vôtres", lowDescriptor: "plus individualiste que loyal(e) au groupe" },
+    AUTH: { name: "Autorité / Subversion", description: "Respect de l'autorité légitime et de la tradition.", highDescriptor: "respectueux(se) de l'ordre, de la hiérarchie et de la tradition", lowDescriptor: "plus sceptique envers l'autorité et la tradition" },
+    SANCT: { name: "Sainteté / Dégradation", description: "Souci de la pureté, de la décence et du sacré.", highDescriptor: "attentif(ve) à la sainteté, à la décence et au sacré", lowDescriptor: "moins touché(e) par les préoccupations de pureté ou de sainteté" },
+  },
+  items: {
+    CARE1: "Le fait que quelqu'un ait souffert ou non est central dans ma façon de juger une action.", CARE2: "La compassion pour ceux qui souffrent est l'une des vertus les plus importantes.", CARE3: "Il est profondément mal de nuire à une créature vulnérable ou sans défense.",
+    FAIR1: "La justice et le traitement égal des personnes comptent parmi mes plus hautes priorités.", FAIR2: "Cela me dérange profondément qu'on prive quelqu'un de ses droits.", FAIR3: "Les gens devraient être récompensés en proportion de ce qu'ils apportent.",
+    LOYAL1: "La loyauté envers mon groupe, ma famille ou mon pays compte énormément pour moi.", LOYAL2: "On devrait soutenir sa communauté, même à titre personnel coûteux.", LOYAL3: "Trahir son groupe est l'une des pires choses qu'une personne puisse faire.",
+    AUTH1: "Je tiens au respect de l'autorité légitime et de la tradition.", AUTH2: "La société fonctionne mieux quand les gens suivent des dirigeants et des règles légitimes.", AUTH3: "On devrait apprendre aux enfants à respecter leurs aînés.",
+    SANCT1: "Certaines choses sont sacrées et ne devraient jamais être violées.", SANCT2: "Je me soucie de savoir si les actions sont décentes et pures plutôt que dégradantes.", SANCT3: "Les gens devraient maintenir certaines normes de décence et d'autodiscipline.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -1401,6 +1487,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "eysenck-pen": EYSENCK_ES, "perceived-stress": PSS_ES, "worry-checkin": WORRY_ES,
     "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES, "sensation-seeking": SENSATION_ES,
     "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
+    "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -1413,6 +1500,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "eysenck-pen": EYSENCK_FR, "perceived-stress": PSS_FR, "worry-checkin": WORRY_FR,
     "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR, "sensation-seeking": SENSATION_FR,
     "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
+    "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
   },
 };
 
