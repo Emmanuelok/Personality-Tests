@@ -28,6 +28,7 @@ export function Home({
   streakDays = 0,
   cognitiveCount = 0,
   onUpdateGoals,
+  onAutopilot,
   onStart,
   onCompatibility,
   onIntegrated,
@@ -47,6 +48,7 @@ export function Home({
   streakDays?: number;
   cognitiveCount?: number;
   onUpdateGoals?: (focus: string[]) => void;
+  onAutopilot?: () => void;
   onStart: (instrument: Instrument) => void;
   onCompatibility: () => void;
   onIntegrated?: () => void;
@@ -169,6 +171,9 @@ export function Home({
                   );
                 })}
               </ol>
+              {onAutopilot && roadmap.pct < 100 && (
+                <button className="btn autopilot-cta" onClick={onAutopilot}>{t("home.autopilot")}</button>
+              )}
             </div>
           )}
           {nudge && (

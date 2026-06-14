@@ -12,6 +12,8 @@ import { Onboarding } from "./ui/Onboarding";
 import { CoachDock } from "./ui/CoachDock";
 import { Settings } from "./ui/Settings";
 import { decodeRoom, type StudyRoom } from "@core/collab";
+import { AgentStep } from "./ui/AgentStep";
+import { autopilotNext, autopilotLength, agentBrief, autopilotNextUp } from "@core/autopilot";
 import { Intro } from "./ui/Intro";
 import { Quiz } from "./ui/Quiz";
 import { Calculating } from "./ui/Calculating";
@@ -66,7 +68,7 @@ import {
   type Profile,
 } from "./profile";
 
-type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "iat" | "creativity" | "battery" | "admin" | "study";
+type View = "home" | "intro" | "quiz" | "calc" | "result" | "compatibility" | "integrated" | "growth" | "packstep" | "ability" | "abilityResult" | "memory" | "corsi" | "speed" | "adaptive" | "iat" | "creativity" | "battery" | "admin" | "study" | "agent";
 
 const top = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
 const randSeed = () => Math.floor(Math.random() * 2_000_000_000);
@@ -77,6 +79,7 @@ export default function App() {
   const [skipOnb, setSkipOnb] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
+  const [autopilot, setAutopilot] = useState<{ active: boolean; total: number; done: number }>({ active: false, total: 0, done: 0 });
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -473,7 +476,42 @@ export default function App() {
     top();
   };
   const afterCalc = () => {
+    if (autopilot.active) {
+      setAutopilot((a) => ({ ...a, done: a.done + 1 }));
+      setView("agent");
+      top();
+      return;
+    }
     setView(packTotal > 0 ? "packstep" : "result");
+    top();
+  };
+
+  /* ── Atlas Autopilot — autonomous, narrated journey ─────────────────── */
+  const startAutopilot = () => {
+    if (!autopilotNext(entries, profile?.focus ?? [], { locale })) return;
+    setPack([]);
+    setPackTotal(0);
+    setAutopilot({ active: true, total: autopilotLength(entries), done: 0 });
+    setView("agent");
+    top();
+  };
+  const agentContinue = () => {
+    const next = autopilotNext(entries, profile?.focus ?? [], { locale });
+    const inst = next && getInstrument(next.instrumentId);
+    if (inst) beginInstrument(inst);
+    else finishAutopilot();
+  };
+  const finishAutopilot = () => {
+    setAutopilot({ active: false, total: 0, done: 0 });
+    if (entries.length) {
+      setIntegrated(buildIntegratedProfile(entries, { name, locale }));
+      setView("integrated");
+    } else setView("home");
+    top();
+  };
+  const pauseAutopilot = () => {
+    setAutopilot({ active: false, total: 0, done: 0 });
+    setView(result ? "result" : "home");
     top();
   };
 
@@ -505,7 +543,7 @@ export default function App() {
   };
 
   const hasHistory = entries.length > 0 || (profile?.cognitiveHistory?.length ?? 0) > 0;
-  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi" && view !== "speed" && view !== "adaptive" && view !== "iat" && view !== "creativity";
+  const showChrome = view !== "quiz" && view !== "calc" && view !== "ability" && view !== "memory" && view !== "corsi" && view !== "speed" && view !== "adaptive" && view !== "iat" && view !== "creativity" && view !== "agent";
 
   // First-run: a goal-based onboarding wizard that previews the personalized roadmap.
   if (!profile && !skipOnb && view === "home") {
@@ -545,6 +583,7 @@ export default function App() {
           streakDays={profile?.streak.days ?? 0}
           cognitiveCount={profile?.cognitiveHistory?.length ?? 0}
           onUpdateGoals={updateGoals}
+          onAutopilot={startAutopilot}
           onStart={start}
           onCompatibility={goCompat}
           onIntegrated={entries.length ? goIntegrated : undefined}
@@ -645,6 +684,31 @@ export default function App() {
           joinRoom={joinRoom}
         />
       )}
+
+      {view === "agent" && (() => {
+        const next = autopilot.done < autopilot.total ? autopilotNext(entries, profile?.focus ?? [], { locale }) : null;
+        if (!next) {
+          return (
+            <div className="container view-enter">
+              <section className="agent-stage">
+                <div className="agent-aura" aria-hidden="true" />
+                <span className="agent-eyebrow"><span className="cmp-dot" /> {autopilotNextUp(locale)}</span>
+                <h1 className="agent-head">{t("agent.done")}</h1>
+                <p style={{ color: "rgba(255,255,255,0.72)", maxWidth: 460, margin: "0 auto 26px" }}>{t("agent.doneSub")}</p>
+                <button className="glass-btn primary agent-go" onClick={finishAutopilot}>{t("agent.seePortrait")}</button>
+              </section>
+            </div>
+          );
+        }
+        return (
+          <AgentStep
+            brief={agentBrief(entries, next, autopilot.done + 1, autopilot.total, { locale })}
+            nextUpLabel={autopilotNextUp(locale)}
+            onContinue={agentContinue}
+            onPause={pauseAutopilot}
+          />
+        );
+      })()}
 
       {view === "growth" && profile && (
         <Growth

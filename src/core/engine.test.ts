@@ -12,6 +12,7 @@ import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage } from "./collab";
+import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
 import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
@@ -950,6 +951,31 @@ describe("response-style analysis", () => {
     expect(en.flags).toHaveLength(0);
     expect(en.summary).toBeTruthy();
     expect(fr.summary).not.toBe(en.summary);
+  });
+});
+
+describe("Atlas Autopilot agent", () => {
+  it("opens a new traveler on the foundation and advances after it", () => {
+    const first = autopilotNext([], ["Understand myself"], {});
+    expect(first?.instrumentId).toBe("big-five-ipip50");
+    const e = [{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }];
+    const second = autopilotNext(e, ["Understand myself"], {});
+    expect(second).toBeTruthy();
+    expect(second!.instrumentId).not.toBe("big-five-ipip50");
+    expect(second!.reason.length).toBeGreaterThan(8);
+  });
+
+  it("composes a narrated, localized brief with a running insight", () => {
+    const e = [
+      { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) },
+      { instrument: hexaco, result: scoreAssessment(hexaco, allHigh(hexaco)) },
+    ];
+    const next = autopilotNext(e, [], { locale: "fr" })!;
+    const b = agentBrief(e, next, 3, 5, { locale: "fr" });
+    expect(b.eyebrow).toContain("3/5");
+    expect(b.nextName.length).toBeGreaterThan(1);
+    expect(b.insight).toBeTruthy(); // 2+ tests → a cross-test insight
+    expect(autopilotLength([])).toBeGreaterThanOrEqual(3);
   });
 });
 
