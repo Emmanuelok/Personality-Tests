@@ -102,17 +102,22 @@ export default function App() {
   const cogUnlocked = useMemo(() => !!cog && isUnlocked(cog.fingerprint), [cog, unlockNonce]);
   const battery = useMemo(() => buildBattery(profile?.cognitiveHistory ?? []), [profile]);
 
-  // Rescore the latest take of each completed instrument for synthesis.
+  // Rescore the latest take of each completed instrument for synthesis. Localize the
+  // instrument first so resolved type cards (DISC "El Impulsor", etc.) match the active
+  // locale across the integrated profile, growth, and collaboration surfaces.
   const entries = useMemo<SynthEntry[]>(() => {
     if (!profile) return [];
     const out: SynthEntry[] = [];
     for (const id of completedInstrumentIds(profile)) {
       const inst = getInstrument(id);
       const saved = latestResult(profile, id);
-      if (inst && saved) out.push({ instrument: inst, result: scoreAssessment(inst, saved.responses) });
+      if (inst && saved) {
+        const li = localizeInstrument(inst, locale);
+        out.push({ instrument: li, result: scoreAssessment(li, saved.responses) });
+      }
     }
     return out;
-  }, [profile]);
+  }, [profile, locale]);
 
   // Return trip from Stripe Checkout.
   useEffect(() => {
