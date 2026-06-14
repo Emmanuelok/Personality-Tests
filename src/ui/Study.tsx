@@ -5,6 +5,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { buildRoadmap } from "@core/roadmap";
 import {
   createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights,
+  groupRoles, groupResonance, roleLine, pairingNotes,
   type StudyRoom, type MemberProgress,
 } from "@core/collab";
 import type { SynthEntry } from "@core/synthesis";
@@ -23,7 +24,8 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
     invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 Add session", plan: "Shared plan", autopilot: "✨ Run this plan on Autopilot", begin: "Begin", retake: "Done ✓",
-    group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
+    group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared",
+    dynamics: "Who brings what", dynamicsSub: "Each teammate\u2019s signature strength, and the pairs who click \u2014 or stretch each other.", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
   },
   es: {
@@ -33,7 +35,8 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
     invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 Añadir sesión", plan: "Plan compartido", autopilot: "✨ Ejecutar este plan en piloto automático", begin: "Empezar", retake: "Hecho ✓",
-    group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
+    group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos",
+    dynamics: "Quién aporta qué", dynamicsSub: "La fortaleza distintiva de cada compañero, y las parejas que encajan… o que se complementan.", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
   },
   fr: {
@@ -43,7 +46,8 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
     invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 Ajouter séance", plan: "Plan partagé", autopilot: "✨ Lancer ce plan en pilote automatique", begin: "Commencer", retake: "Fait ✓",
-    group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
+    group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés",
+    dynamics: "Qui apporte quoi", dynamicsSub: "La force distinctive de chaque coéquipier, et les binômes qui s'accordent — ou se complètent.", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
   },
 };
@@ -227,6 +231,8 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
   const coverage = planCoverage(room, allMembers);
   const portrait = groupPortrait(room.plan, allMembers, { locale: L });
   const gInsights = groupInsights(portrait, { locale: L });
+  const roles = groupRoles(room.plan, allMembers, { locale: L });
+  const pairing = pairingNotes(groupResonance(room.plan, allMembers), { locale: L });
   const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
   const link = roomLink(room, origin);
   const nextId = room.plan.find((id) => !done.has(id));
@@ -344,6 +350,24 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
                   </div>
                 ))}
               </div>
+            ))}
+          </section>
+        )}
+
+        {roles.length > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.dynamics}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.dynamicsSub}</p>
+            <ul className="gp-roles">
+              {roles.map((r) => (
+                <li className="gp-role" key={r.name + r.instrumentId + r.scaleId}>
+                  <span className="gp-role-tag">{r.value}</span>
+                  <p>{roleLine(r, { locale: L })}</p>
+                </li>
+              ))}
+            </ul>
+            {pairing.map((p, i) => (
+              <div className="gp-insight" key={i}><span aria-hidden="true">⇄</span><p>{p}</p></div>
             ))}
           </section>
         )}

@@ -230,3 +230,152 @@ export function groupInsights(portrait: GroupInstrumentStat[], opts: { locale?: 
   }
   return out;
 }
+
+/* ── group dynamics — what each member brings, and who clicks vs. stretches ──
+   A team reading for students learning together: each member's signature
+   strength (the scale they sit furthest from the group mean on), and the pairs
+   who are most in sync — or most complementary. All pure, all localized. */
+
+export interface MemberRole {
+  name: string;
+  instrumentId: string;
+  instrumentName: string;
+  scaleId: string;
+  scaleName: string;
+  /** Pole label in the direction this member leans (high pole if at/above the mean, else low). */
+  pole?: string;
+  value: number;
+  mean: number;
+  /** Signed distance from the group mean (positive = above the group). */
+  delta: number;
+}
+
+/** Each member's single most distinctive scale across the shared plan — "what they
+ *  uniquely bring." One signature per member, strongest deviation first. Needs 2+
+ *  members with shared scores; only deviations of ≥6 points count as a signature. */
+export function groupRoles(plan: string[], members: MemberProgress[], opts: { locale?: string } = {}): MemberRole[] {
+  const have = members.filter((m) => m.scores);
+  if (have.length < 2) return [];
+  // Group means per instrument → scale.
+  const means: Record<string, Record<string, { sum: number; n: number }>> = {};
+  for (const instId of plan) {
+    const acc: Record<string, { sum: number; n: number }> = {};
+    for (const m of have) {
+      const row = m.scores?.[instId];
+      if (!row) continue;
+      for (const [k, v] of Object.entries(row)) {
+        if (typeof v !== "number") continue;
+        (acc[k] ??= { sum: 0, n: 0 });
+        acc[k].sum += v;
+        acc[k].n += 1;
+      }
+    }
+    means[instId] = acc;
+  }
+  const roles: MemberRole[] = [];
+  for (const m of have) {
+    let best: MemberRole | null = null;
+    for (const instId of plan) {
+      const row = m.scores?.[instId];
+      if (!row) continue;
+      const inst = getInstrument(instId);
+      if (!inst) continue;
+      const li = localizeInstrument(inst, opts.locale ?? "en");
+      for (const sc of li.scales) {
+        const v = row[sc.id];
+        const agg = means[instId]?.[sc.id];
+        if (typeof v !== "number" || !agg || agg.n < 2) continue;
+        const mean = agg.sum / agg.n;
+        const delta = v - mean;
+        if (!best || Math.abs(delta) > Math.abs(best.delta)) {
+          const pole = delta >= 0 ? (sc.poles?.high ?? sc.name) : (sc.poles?.low ?? sc.name);
+          best = { name: m.name, instrumentId: instId, instrumentName: li.name, scaleId: sc.id, scaleName: sc.name, pole, value: Math.round(v), mean: Math.round(mean), delta: Math.round(delta) };
+        }
+      }
+    }
+    if (best && Math.abs(best.delta) >= 6) roles.push(best);
+  }
+  return roles.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+}
+
+export interface MemberPair {
+  a: string;
+  b: string;
+  /** 0..100; 100 = identical across every shared scale. */
+  similarity: number;
+  scalesCompared: number;
+}
+export interface GroupResonance {
+  /** All comparable pairs, most aligned first. */
+  pairs: MemberPair[];
+  mostAligned?: MemberPair;
+  /** Present only when a pair differs clearly more than the most-aligned pair. */
+  mostComplementary?: MemberPair;
+}
+
+/** Pairwise resonance across the group's shared scale snapshots. Two members are
+ *  "comparable" when they share ≥3 scales; similarity is 100 minus their mean
+ *  per-scale gap. Surfaces the natural study pair and the perspective-stretching one. */
+export function groupResonance(plan: string[], members: MemberProgress[]): GroupResonance {
+  const flat = (m: MemberProgress): Record<string, number> => {
+    const out: Record<string, number> = {};
+    for (const instId of plan) {
+      const row = m.scores?.[instId];
+      if (!row) continue;
+      for (const [k, v] of Object.entries(row)) if (typeof v === "number") out[`${instId}:${k}`] = v;
+    }
+    return out;
+  };
+  const vs = members.filter((m) => m.scores).map((m) => ({ name: m.name, v: flat(m) }));
+  const pairs: MemberPair[] = [];
+  for (let i = 0; i < vs.length; i++) {
+    for (let j = i + 1; j < vs.length; j++) {
+      const keys = Object.keys(vs[i].v).filter((k) => k in vs[j].v);
+      if (keys.length < 3) continue;
+      const gap = keys.reduce((a, k) => a + Math.abs(vs[i].v[k] - vs[j].v[k]), 0) / keys.length;
+      pairs.push({ a: vs[i].name, b: vs[j].name, similarity: Math.round(100 - gap), scalesCompared: keys.length });
+    }
+  }
+  pairs.sort((a, b) => b.similarity - a.similarity);
+  const mostAligned = pairs[0];
+  const tail = pairs.length > 1 ? pairs[pairs.length - 1] : undefined;
+  const mostComplementary = tail && mostAligned && tail.similarity <= mostAligned.similarity - 8 ? tail : undefined;
+  return { pairs, mostAligned, mostComplementary };
+}
+
+const GD_STR: Record<GLoc, {
+  role: (name: string, pole: string, scale: string) => string;
+  aligned: (a: string, b: string, pct: number) => string;
+  complement: (a: string, b: string) => string;
+}> = {
+  en: {
+    role: (name, pole, scale) => `${name} stands out most on ${scale} — the group's most ${pole}.`,
+    aligned: (a, b, pct) => `${a} and ${b} are the most in sync (${pct}% aligned) — a natural study pair.`,
+    complement: (a, b) => `${a} and ${b} see things most differently — pairing them stretches both perspectives.`,
+  },
+  es: {
+    role: (name, pole, scale) => `${name} es quien más destaca en ${scale} — lo más ${pole} del grupo.`,
+    aligned: (a, b, pct) => `${a} y ${b} son los más sincronizados (${pct}% de afinidad): una pareja de estudio natural.`,
+    complement: (a, b) => `${a} y ${b} son quienes más difieren: emparejarlos amplía la perspectiva de ambos.`,
+  },
+  fr: {
+    role: (name, pole, scale) => `${name} se distingue surtout sur ${scale} — le profil le plus ${pole} du groupe.`,
+    aligned: (a, b, pct) => `${a} et ${b} sont les plus en phase (${pct}% d'affinité) — un binôme d'étude naturel.`,
+    complement: (a, b) => `${a} et ${b} voient les choses le plus différemment — les associer élargit la perspective des deux.`,
+  },
+};
+
+/** A localized one-liner for a single member's signature role. */
+export function roleLine(r: MemberRole, opts: { locale?: string } = {}): string {
+  const s = GD_STR[gpLoc(opts.locale)];
+  return s.role(r.name, r.pole ?? r.scaleName, r.scaleName);
+}
+
+/** Localized pairing suggestions (0–2): the natural study pair and the stretch pair. */
+export function pairingNotes(resonance: GroupResonance, opts: { locale?: string } = {}): string[] {
+  const s = GD_STR[gpLoc(opts.locale)];
+  const out: string[] = [];
+  if (resonance.mostAligned) out.push(s.aligned(resonance.mostAligned.a, resonance.mostAligned.b, resonance.mostAligned.similarity));
+  if (resonance.mostComplementary) out.push(s.complement(resonance.mostComplementary.a, resonance.mostComplementary.b));
+  return out;
+}

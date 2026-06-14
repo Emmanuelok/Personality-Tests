@@ -11,7 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
-import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights } from "./collab";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
@@ -1069,6 +1069,37 @@ describe("Study Together collaboration", () => {
     const cov = planCoverage(r, members);
     expect(cov.find((c) => c.instrumentId === "big-five-ipip50")!.doneBy.sort()).toEqual(["Ada", "Bo"]);
     expect(cov.find((c) => c.instrumentId === "jung-16-types")!.doneBy).toEqual([]);
+  });
+
+  it("reads group dynamics — each member's signature role and pairwise resonance", () => {
+    const members: MemberProgress[] = [
+      { name: "Ada", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 90, C: 50, E: 50, A: 55, N: 30 } } },
+      { name: "Bo", done: ["big-five-ipip50"], at: "y", scores: { "big-five-ipip50": { O: 52, C: 95, E: 48, A: 55, N: 32 } } },
+      { name: "Cy", done: ["big-five-ipip50"], at: "z", scores: { "big-five-ipip50": { O: 50, C: 52, E: 50, A: 56, N: 31 } } },
+    ];
+    const roles = groupRoles(["big-five-ipip50"], members, { locale: "en" });
+    // Ada's signature is Openness (far above the group mean); Bo's is Conscientiousness.
+    const ada = roles.find((r) => r.name === "Ada")!;
+    expect(ada.scaleId).toBe("O");
+    expect(ada.delta).toBeGreaterThan(0);
+    expect(roles.find((r) => r.name === "Bo")!.scaleId).toBe("C");
+    expect(roleLine(ada, { locale: "en" })).toContain("Ada");
+    expect(roleLine(ada, { locale: "fr" })).not.toBe(roleLine(ada, { locale: "en" }));
+
+    const res = groupResonance(["big-five-ipip50"], members);
+    // Cy sits near the middle on every scale, so Cy is closest to the others;
+    // Ada (high O) and Bo (high C) are the most complementary pair.
+    expect(res.mostAligned).toBeTruthy();
+    expect(res.mostComplementary).toBeTruthy();
+    expect([res.mostComplementary!.a, res.mostComplementary!.b].sort()).toEqual(["Ada", "Bo"]);
+    expect(res.mostAligned!.similarity).toBeGreaterThan(res.mostComplementary!.similarity);
+    const notes = pairingNotes(res, { locale: "es" });
+    expect(notes.length).toBe(2);
+    expect(notes[0]).toMatch(/afinidad/);
+
+    // A single sharer yields no roles and no comparable pairs.
+    expect(groupRoles(["big-five-ipip50"], [members[0]], {})).toHaveLength(0);
+    expect(groupResonance(["big-five-ipip50"], [members[0]]).pairs).toHaveLength(0);
   });
 });
 
