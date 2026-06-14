@@ -47,3 +47,12 @@ export function saveMember(roomId: string, m: MemberProgress): void {
   const rest = loadMembers(roomId).filter((x) => x.name.toLowerCase() !== m.name.toLowerCase());
   write(memKey(roomId), [m, ...rest].slice(0, 20));
 }
+
+/** The local user's collaboration profile — their team/org, reused across rooms. */
+const PROFILE = "psyche-collab-profile";
+export function loadOrg(): string {
+  return read<{ org?: string }>(PROFILE, {}).org ?? "";
+}
+export function saveOrg(org: string): void {
+  write(PROFILE, { org: org.trim().slice(0, 50) });
+}

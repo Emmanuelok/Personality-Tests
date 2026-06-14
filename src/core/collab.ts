@@ -32,6 +32,8 @@ export interface MemberProgress {
   at: string;
   /** Optional scale snapshots (instrumentId → scaleId → 0..100) for the group portrait. */
   scores?: Record<string, Record<string, number>>;
+  /** Optional team / organization the member belongs to (for cross-org collaboration). */
+  org?: string;
 }
 
 const VER = 1;
@@ -89,7 +91,7 @@ export function roomLink(r: StudyRoom, origin: string): string {
 }
 
 export function encodeProgress(p: MemberProgress): string {
-  return b64urlEncode(JSON.stringify({ n: p.name, d: p.done, a: p.at, s: p.scores }));
+  return b64urlEncode(JSON.stringify({ n: p.name, d: p.done, a: p.at, s: p.scores, o: p.org }));
 }
 
 export function decodeProgress(code: string): MemberProgress | null {
@@ -101,6 +103,7 @@ export function decodeProgress(code: string): MemberProgress | null {
       done: o.d.filter((x: unknown) => typeof x === "string"),
       at: String(o.a || new Date().toISOString()),
       scores: o.s && typeof o.s === "object" ? (o.s as Record<string, Record<string, number>>) : undefined,
+      org: o.o ? String(o.o).slice(0, 50) : undefined,
     };
   } catch {
     return null;
@@ -131,6 +134,48 @@ export function roomStandings(room: StudyRoom, members: MemberProgress[]): RoomS
 /** Per-step completion across all members — "who's done what" on the shared plan. */
 export function planCoverage(room: StudyRoom, members: MemberProgress[]): { instrumentId: string; doneBy: string[] }[] {
   return room.plan.map((id) => ({ instrumentId: id, doneBy: members.filter((m) => m.done.includes(id)).map((m) => m.name) }));
+}
+
+/* ── teams & organizations — cross-org collaboration on one shared project ── */
+
+export interface TeamStanding {
+  /** Team / organization label. */
+  org: string;
+  members: number;
+  names: string[];
+  /** Distinct plan steps completed by at least one member of the team. */
+  covered: number;
+  total: number;
+  /** Team coverage of the plan, as a percentage. */
+  pct: number;
+}
+
+/** Group members by their org/team and report each team's collective coverage of the
+ *  plan. Members without an org are grouped under `ungrouped`. Useful when people
+ *  from different organizations work the same project together. */
+export function teamStandings(room: StudyRoom, members: MemberProgress[], opts: { ungrouped?: string } = {}): TeamStanding[] {
+  const planSet = new Set(room.plan);
+  const total = room.plan.length;
+  const fallback = opts.ungrouped ?? "Independent";
+  const byOrg = new Map<string, MemberProgress[]>();
+  for (const m of members) {
+    const org = (m.org ?? "").trim() || fallback;
+    const list = byOrg.get(org);
+    if (list) list.push(m);
+    else byOrg.set(org, [m]);
+  }
+  const out: TeamStanding[] = [];
+  for (const [org, ms] of byOrg) {
+    const covered = new Set<string>();
+    for (const m of ms) for (const id of m.done) if (planSet.has(id)) covered.add(id);
+    out.push({ org, members: ms.length, names: ms.map((m) => m.name), covered: covered.size, total, pct: total ? Math.round((covered.size / total) * 100) : 0 });
+  }
+  return out.sort((a, b) => b.pct - a.pct || b.members - a.members || a.org.localeCompare(b.org));
+}
+
+/** How many distinct teams/orgs are represented (named orgs only). */
+export function teamCount(members: MemberProgress[]): number {
+  return new Set(members.map((m) => (m.org ?? "").trim()).filter(Boolean)).size;
 }
 
 /* ── group portrait — the collective profile when teammates share results ── */

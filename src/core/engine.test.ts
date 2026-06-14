@@ -11,7 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeResponseStyle } from "./responsestyle";
-import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, type MemberProgress } from "./collab";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
@@ -1184,6 +1184,30 @@ describe("Study Together collaboration", () => {
     const allDone: MemberProgress[] = [{ name: "Ada", done: plan, at: "x" }, { name: "Bo", done: plan, at: "y" }];
     expect(groupNextStep(plan, allDone, {})).toBeNull();
     expect(groupNextStep(plan, [], {})).toBeNull();
+  });
+
+  it("groups members by team/org and reports each team's plan coverage", () => {
+    const r = createRoom({ title: "Cross-org study", plan: ["big-five-ipip50", "hexaco-24", "jung-16-types"], host: "Ada" });
+    const members: MemberProgress[] = [
+      { name: "Ada", done: ["big-five-ipip50", "hexaco-24"], at: "x", org: "Lincoln High" },
+      { name: "Bo", done: ["jung-16-types"], at: "y", org: "Lincoln High" },
+      { name: "Cy", done: ["big-five-ipip50"], at: "z", org: "Globe Academy" },
+      { name: "Di", done: [], at: "w" }, // no org → ungrouped
+    ];
+    expect(teamCount(members)).toBe(2);
+    const teams = teamStandings(r, members, { ungrouped: "Independent" });
+    // Lincoln High collectively covered all 3 plan steps → 100%, leads.
+    expect(teams[0].org).toBe("Lincoln High");
+    expect(teams[0].members).toBe(2);
+    expect(teams[0].covered).toBe(3);
+    expect(teams[0].pct).toBe(100);
+    const globe = teams.find((t) => t.org === "Globe Academy")!;
+    expect(globe.covered).toBe(1);
+    expect(teams.some((t) => t.org === "Independent")).toBe(true);
+
+    // org survives the progress round-trip.
+    const back = decodeProgress(encodeProgress(members[0]));
+    expect(back?.org).toBe("Lincoln High");
   });
 });
 
