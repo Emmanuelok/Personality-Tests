@@ -987,7 +987,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -1029,6 +1029,32 @@ describe("procrastination / perfectionism / gratitude", () => {
     const ext = analyzeConvergence([bf, pr], {}).readings.find((r) => r.id === "conscientiousness")!;
     expect(ext).toBeTruthy();
     expect(ext.sources.length).toBe(2);
+  });
+});
+
+describe("money scripts (Klontz)", () => {
+  const money = INSTRUMENTS.find((i) => i.id === "money-scripts")!;
+
+  it("scores all four scripts and resolves the dominant one", () => {
+    expect(Object.keys(scoreAssessment(money, allHigh(money)).scales).sort()).toEqual(["AVOID", "STATUS", "VIGIL", "WORSHIP"]);
+    // Drive Money Avoidance to the top (every item is keyed +1).
+    const avoidant = answerAll(money, (it) => (it.scale === "AVOID" ? 5 : 1));
+    const t = scoreAssessment(money, avoidant).type!;
+    expect(t.code).toBe("Money Avoidance");
+    expect(t.title).toBe("The Avoider");
+    expect(t.components.some((c) => c.label === "Dominant script")).toBe(true);
+    expect(t.components.find((c) => c.label === "Full ranking")!.value).toContain("›"); // ranks all four
+  });
+
+  it("keeps the canonical script code while localizing the result card (es/fr)", () => {
+    const avoidant = answerAll(money, (it) => (it.scale === "AVOID" ? 5 : 1));
+    const es = scoreAssessment(localizeInstrument(money, "es"), avoidant).type!;
+    expect(es.code).toBe("Money Avoidance"); // canonical, language-agnostic
+    expect(es.title).toBe("El Evitador");
+    expect(es.components.some((c) => c.label === "Guion dominante")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(money, "fr"), avoidant).type!;
+    expect(fr.code).toBe("Money Avoidance");
+    expect(fr.title).toBe("L'Évitant");
   });
 });
 

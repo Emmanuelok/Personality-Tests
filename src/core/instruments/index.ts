@@ -64,6 +64,7 @@ import { gratitude } from "./gratitude";
 import { coupleComm } from "./couplecomm";
 import { teamComm } from "./teamcomm";
 import { commStyle } from "./commstyle";
+import { moneyScripts } from "./moneyscripts";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -107,6 +108,7 @@ export const INSTRUMENTS: Instrument[] = [
   panas,
   ryff,
   cope,
+  moneyScripts,
   vark,
   kolb,
   adhd,
@@ -186,6 +188,7 @@ export {
   panas,
   ryff,
   cope,
+  moneyScripts,
   vark,
   kolb,
   adhd,

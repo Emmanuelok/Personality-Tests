@@ -404,6 +404,15 @@ const GLYPHS: Record<string, EmblemFn> = {
       <path className="gold" d="M34,15 C37.5,18.5 37.5,28.5 34,32 M38,12 C42.5,17 42.5,30 38,35" />
     </>
   ),
+  // Money Scripts — a coin marked with a dollar sign.
+  "money-scripts": () => (
+    <>
+      <circle cx="24" cy="24" r="17" />
+      <circle className="gold" cx="24" cy="24" r="11" />
+      <line className="gold" x1="24" y1="14.5" x2="24" y2="33.5" />
+      <path className="gold" d="M28,18.5 C28,16.6 26.2,15.5 24,15.5 C21.8,15.5 20,16.6 20,18.8 C20,23 28,21.5 28,25.4 C28,27.5 26.2,28.5 24,28.5 C21.8,28.5 20,27.4 20,25.5" />
+    </>
+  ),
   // VIA character strengths — a medal of virtue.
   "via-24": () => (
     <>

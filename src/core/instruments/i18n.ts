@@ -2706,6 +2706,41 @@ const COMMSTYLE_FR: InstrumentTranslation = {
   },
 };
 
+const MONEY_ES: InstrumentTranslation = {
+  name: "Guiones del dinero", shortName: "Dinero",
+  tagline: "Las creencias ocultas sobre el dinero que dirigen en silencio cómo ganas, gastas y ahorras.",
+  description: "Gran parte de nuestra conducta con el dinero la dirigen los 'guiones del dinero': creencias sobre el dinero, normalmente absorbidas en la infancia, que rara vez examinamos. La investigación de Brad Klontz mapea cuatro: evitación del dinero (el dinero es malo o inmerecido), adoración del dinero (más dinero lo arreglará todo), estatus del dinero (autoestima = patrimonio) y vigilancia del dinero (alerta, cuidadoso, reservado). Tres de los cuatro predicen tensión financiera; la vigilancia es el más sano. Este perfilador saca a la luz tu guion dominante para que no lleve él las riendas.",
+  scales: {
+    AVOID: { name: "Evitación del dinero", description: "Creencia de que el dinero es malo, corruptor o inmerecido.", poles: { low: "A gusto", high: "Evitativo" }, highDescriptor: "receloso/a del dinero y propenso/a a descuidarlo", lowDescriptor: "a gusto con el lugar del dinero en tu vida" },
+    WORSHIP: { name: "Adoración del dinero", description: "Creencia de que más dinero trae felicidad y resuelve problemas.", poles: { low: "Conforme", high: "Adorador" }, highDescriptor: "convencido/a de que más dinero es la respuesta; nunca es suficiente", lowDescriptor: "tranquilo/a con que el dinero no es la clave de la felicidad" },
+    STATUS: { name: "Estatus del dinero", description: "Ligar la autoestima y la identidad al éxito financiero.", poles: { low: "Autoestima ≠ patrimonio", high: "Guiado por el estatus" }, highDescriptor: "que liga el valor y el estatus a la riqueza y al éxito visible", lowDescriptor: "con la autoestima separada del patrimonio" },
+    VIGIL: { name: "Vigilancia del dinero", description: "Atención, cuidado, frugalidad y discreción con el dinero (el guion más sano).", poles: { low: "Despreocupado", high: "Vigilante" }, highDescriptor: "alerta, frugal y cuidadoso/a con el dinero", lowDescriptor: "relajado/a, a veces descuidado/a, con el dinero" },
+  },
+  items: {
+    AV1: "El dinero es, en el fondo, la causa de mucho de lo que va mal en el mundo.", AV2: "Hay una verdadera virtud en vivir con menos dinero.", AV3: "No merezco tener mucho dinero cuando otros tienen tan poco.", AV4: "Las personas ricas tienden a ser codiciosas o a haber hecho trampas para llegar.", AV5: "Evito pensar en mi dinero o lidiar con él.",
+    WO1: "Las cosas me irían mejor si tuviera más dinero.", WO2: "Más dinero me haría más feliz.", WO3: "Es difícil ser pobre y feliz a la vez.", WO4: "Por mucho que tenga, nunca hay suficiente dinero.", WO5: "El dinero resolvería la mayoría de mis problemas.",
+    ST1: "Tu autoestima está estrechamente ligada a tu patrimonio.", ST2: "Las personas tienen tanto éxito como el dinero que ganan.", ST3: "Quiero poder mostrarle a la gente que tengo dinero.", ST4: "Si algo es lo más caro, probablemente sea lo mejor.", ST5: "Admiro a quienes poseen cosas caras y quiero lo mismo.",
+    VG1: "Vigilo mis finanzas de cerca y con cuidado.", VG2: "Es importante ahorrar para un día difícil.", VG3: "Prefiero no decir a los demás cuánto dinero tengo o gano.", VG4: "Me siento intranquilo/a si no soy cuidadoso/a y frugal con el dinero.", VG5: "Siempre quiero saber exactamente a dónde va mi dinero.",
+  },
+};
+const MONEY_FR: InstrumentTranslation = {
+  name: "Scripts monétaires", shortName: "Argent",
+  tagline: "Les croyances cachées sur l'argent qui dirigent en silence votre façon de gagner, dépenser et épargner.",
+  description: "Une grande partie de notre comportement avec l'argent est dirigée par des « scripts monétaires » : des croyances sur l'argent, le plus souvent absorbées dans l'enfance, que nous examinons rarement. Les travaux de Brad Klontz en cartographient quatre : l'évitement (l'argent est mauvais ou immérité), le culte (plus d'argent réglera tout), le statut (estime de soi = patrimoine) et la vigilance (attentif, prudent, discret). Trois des quatre prédisent des difficultés financières ; la vigilance est le plus sain. Ce profileur révèle votre script dominant pour qu'il ne mène pas la danse.",
+  scales: {
+    AVOID: { name: "Évitement de l'argent", description: "Croyance que l'argent est mauvais, corrupteur ou immérité.", poles: { low: "À l'aise", high: "Évitant" }, highDescriptor: "méfiant(e) envers l'argent et enclin(e) à le négliger", lowDescriptor: "à l'aise avec la place de l'argent dans votre vie" },
+    WORSHIP: { name: "Culte de l'argent", description: "Croyance que plus d'argent apporte le bonheur et résout les problèmes.", poles: { low: "Satisfait", high: "Adorateur" }, highDescriptor: "convaincu(e) que plus d'argent est la réponse ; jamais assez", lowDescriptor: "serein(e) sur le fait que l'argent n'est pas la clé du bonheur" },
+    STATUS: { name: "Statut par l'argent", description: "Lier l'estime de soi et l'identité à la réussite financière.", poles: { low: "Estime ≠ patrimoine", high: "Guidé par le statut" }, highDescriptor: "liant la valeur et le statut à la richesse et au succès visible", lowDescriptor: "avec une estime de soi distincte du patrimoine" },
+    VIGIL: { name: "Vigilance financière", description: "Attention, prudence, frugalité et discrétion avec l'argent (le script le plus sain).", poles: { low: "Insouciant", high: "Vigilant" }, highDescriptor: "attentif(ve), frugal(e) et prudent(e) avec l'argent", lowDescriptor: "détendu(e), parfois négligent(e), avec l'argent" },
+  },
+  items: {
+    AV1: "L'argent est, au fond, la cause d'une grande partie de ce qui ne va pas dans le monde.", AV2: "Il y a une vraie vertu à vivre avec moins d'argent.", AV3: "Je ne mérite pas beaucoup d'argent quand d'autres en ont si peu.", AV4: "Les gens riches ont tendance à être cupides ou à avoir triché pour y arriver.", AV5: "J'évite de penser à mon argent ou de m'en occuper.",
+    WO1: "Les choses iraient mieux pour moi si j'avais plus d'argent.", WO2: "Plus d'argent me rendrait plus heureux(se).", WO3: "Il est difficile d'être pauvre et heureux à la fois.", WO4: "Quoi que j'aie, il n'y a jamais tout à fait assez d'argent.", WO5: "L'argent résoudrait la plupart de mes problèmes.",
+    ST1: "Votre estime de soi est étroitement liée à votre patrimoine.", ST2: "Les gens réussissent à la hauteur de l'argent qu'ils gagnent.", ST3: "Je veux pouvoir montrer aux gens que j'ai de l'argent.", ST4: "Si une chose est la plus chère, c'est sans doute la meilleure.", ST5: "J'admire ceux qui possèdent des choses chères, et je veux la même chose.",
+    VG1: "Je surveille mes finances de près et avec soin.", VG2: "Il est important d'épargner pour les jours difficiles.", VG3: "Je préfère ne pas dire aux autres combien d'argent j'ai ou je gagne.", VG4: "Je me sens mal à l'aise si je ne suis pas prudent(e) et frugal(e) avec l'argent.", VG5: "Je veux toujours savoir exactement où va mon argent.",
+  },
+};
+
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
     "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
@@ -2725,6 +2760,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
     "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
     "couple-communication": COUPLECOMM_ES, "team-communication": TEAMCOMM_ES, "communication-style": COMMSTYLE_ES,
+    "money-scripts": MONEY_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2744,6 +2780,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
     "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
     "couple-communication": COUPLECOMM_FR, "team-communication": TEAMCOMM_FR, "communication-style": COMMSTYLE_FR,
+    "money-scripts": MONEY_FR,
   },
 };
 
@@ -3362,6 +3399,29 @@ const COPE_TYPE_FR: RankedStyleBundle = {
 };
 export function copeTypeStrings(locale?: string): RankedStyleBundle | undefined {
   return locale === "es" ? COPE_TYPE_ES : locale === "fr" ? COPE_TYPE_FR : undefined;
+}
+const MONEY_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    AVOID: { name: "Evitación del dinero", title: "El Evitador", desc: "el dinero se siente malo o inmerecido", summary: "Tu guion de dinero dominante es la evitación: la sensación de que el dinero es malo, corruptor o inmerecido. Puede mantenerte íntegro/a y poco materialista, pero cuidado con descuidar tus finanzas o sabotear tu propio éxito." },
+    WORSHIP: { name: "Adoración del dinero", title: "El Buscador", desc: "más dinero = felicidad", summary: "Tu guion de dinero dominante es la adoración: la creencia de que más dinero resolverá los problemas y traerá felicidad. Puede impulsar la ambición, pero deriva en gastar de más, trabajar en exceso y sentir que nunca es suficiente." },
+    STATUS: { name: "Estatus del dinero", title: "El Buscador de estatus", desc: "autoestima ligada al patrimonio", summary: "Tu guion de dinero dominante es el estatus: ligar la autoestima al patrimonio y al éxito visible. Puede impulsar el logro, pero arriesga gastar para impresionar y una autoestima que sube y baja con tu saldo." },
+    VIGIL: { name: "Vigilancia del dinero", title: "El Vigilante", desc: "alerta, cuidadoso, reservado", summary: "Tu guion de dinero dominante es la vigilancia: alerta, cuidadoso/a y reservado/a con el dinero. Es el más sano de los cuatro y protege de la deuda, siempre que no derive en ansiedad ni en no permitirte disfrutar de lo que tienes." },
+  },
+  labels: { dominant: "Guion dominante", secondary: "Guion secundario", range: "Clasificación completa", profile: "Equilibrio" },
+  lead: "un guion lidera con claridad", blend: "dos guiones van muy parejos", profileDetail: "La vigilancia del dinero es el más sano de los cuatro; la evitación, la adoración y el estatus conviene reequilibrarlos con suavidad.",
+};
+const MONEY_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    AVOID: { name: "Évitement de l'argent", title: "L'Évitant", desc: "l'argent semble mauvais ou immérité", summary: "Votre script monétaire dominant est l'évitement : le sentiment que l'argent est mauvais, corrupteur ou immérité. Cela peut vous garder intègre et peu matérialiste, mais attention à ne pas négliger vos finances ni saboter votre réussite." },
+    WORSHIP: { name: "Culte de l'argent", title: "Le Chercheur", desc: "plus d'argent = bonheur", summary: "Votre script monétaire dominant est le culte : la croyance que plus d'argent résoudra les problèmes et apportera le bonheur. Cela peut nourrir l'ambition, mais bascule dans la surdépense, le surmenage et le sentiment que ce n'est jamais assez." },
+    STATUS: { name: "Statut par l'argent", title: "Le Chercheur de statut", desc: "estime de soi liée au patrimoine", summary: "Votre script monétaire dominant est le statut : lier l'estime de soi au patrimoine et à la réussite visible. Cela peut stimuler l'accomplissement, mais risque la dépense pour impressionner et une estime de soi qui monte et descend avec le solde." },
+    VIGIL: { name: "Vigilance financière", title: "Le Vigilant", desc: "attentif, prudent, discret", summary: "Votre script monétaire dominant est la vigilance : attentif(ve), prudent(e) et discret(ète) avec l'argent. C'est le plus sain des quatre et il protège de la dette, tant qu'il ne bascule pas dans l'anxiété ou le refus de profiter de ce qu'on a." },
+  },
+  labels: { dominant: "Script dominant", secondary: "Script secondaire", range: "Classement complet", profile: "Équilibre" },
+  lead: "un script domine nettement", blend: "deux scripts sont au coude à coude", profileDetail: "La vigilance financière est le plus sain des quatre ; l'évitement, le culte et le statut méritent d'être rééquilibrés en douceur.",
+};
+export function moneyTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? MONEY_TYPE_ES : locale === "fr" ? MONEY_TYPE_FR : undefined;
 }
 
 /* ── ADHD / Autism educational screeners (typological; type card localized) ── */
