@@ -202,6 +202,33 @@ describe("compatibility engine", () => {
     const rep = computeCompatibility(attachment, a, b, { seed: 2 });
     expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
   });
+
+  it("reads couple communication compatibility through a Gottman lens", () => {
+    const couple = INSTRUMENTS.find((i) => i.id === "couple-communication")!;
+    const healthy = answerAll(couple, (it) => (it.scale === "HORSE" || it.scale === "DEMWD" ? (it.keyed === 1 ? 1 : 5) : it.keyed === 1 ? 5 : 1));
+    const hsum = toSummary(couple, scoreAssessment(couple, healthy));
+    const good = computeCompatibility(couple, hsum, hsum, { seed: 3 });
+    expect(good.overall).toBeGreaterThanOrEqual(70); // both healthy → strong
+    expect(good.strengths.length).toBeGreaterThan(0);
+
+    const horsey = answerAll(couple, (it) => (it.scale === "HORSE" || it.scale === "DEMWD" ? (it.keyed === 1 ? 5 : 1) : it.keyed === 1 ? 1 : 5));
+    const ssum = toSummary(couple, scoreAssessment(couple, horsey));
+    const rough = computeCompatibility(couple, ssum, ssum, { seed: 4 });
+    expect(rough.frictions.join(" ").toLowerCase()).toContain("horsemen");
+    expect(rough.overall).toBeLessThan(good.overall);
+  });
+
+  it("localizes the compatibility report (band + summary) by locale", () => {
+    const big = toSummary(bigFive, scoreAssessment(bigFive, allHigh(bigFive)));
+    const en = computeCompatibility(bigFive, big, big, { seed: 1, locale: "en" });
+    const es = computeCompatibility(bigFive, big, big, { seed: 1, locale: "es" });
+    const fr = computeCompatibility(bigFive, big, big, { seed: 1, locale: "fr" });
+    expect(en.band).toBe("Highly compatible");
+    expect(es.band).toBe("Muy compatibles");
+    expect(fr.band).toBe("Très compatibles");
+    expect(es.summary.join(" ")).not.toBe(en.summary.join(" "));
+    expect(en.overall).toBe(es.overall); // scoring is language-agnostic
+  });
 });
 
 describe("temperaments, careers & trait screens", () => {

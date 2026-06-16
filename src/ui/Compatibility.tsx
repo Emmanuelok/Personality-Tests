@@ -8,6 +8,7 @@ import {
   toSummary,
   type CompatibilityReport,
 } from "@core/compatibility";
+import { useI18n } from "../i18n";
 
 export function Compatibility({
   instrument,
@@ -20,6 +21,7 @@ export function Compatibility({
   onStart: (inst: Instrument) => void;
   onBack: () => void;
 }) {
+  const { locale } = useI18n();
   const myCode = useMemo(
     () => (instrument && result ? encodeSummary(toSummary(instrument, result)) : ""),
     [instrument, result],
@@ -52,12 +54,12 @@ export function Compatibility({
       setError(`That code is for a different assessment. You both need to share codes from the same test (${instrument.name}).`);
       return;
     }
-    setReport(computeCompatibility(instrument, toSummary(instrument, result), them));
+    setReport(computeCompatibility(instrument, toSummary(instrument, result), them, { locale }));
   };
 
   // No result yet — invite the user to take a relational assessment first.
   if (!instrument || !result) {
-    const suggested = INSTRUMENTS.filter((i) => ["relationships", "core", "emotional"].includes(i.category));
+    const suggested = INSTRUMENTS.filter((i) => ["relationships", "communication", "core", "emotional"].includes(i.category));
     return (
       <div className="container">
         <div className="report-head">
