@@ -413,6 +413,14 @@ const GLYPHS: Record<string, EmblemFn> = {
       <path className="gold" d="M28,18.5 C28,16.6 26.2,15.5 24,15.5 C21.8,15.5 20,16.6 20,18.8 C20,23 28,21.5 28,25.4 C28,27.5 26.2,28.5 24,28.5 C21.8,28.5 20,27.4 20,25.5" />
     </>
   ),
+  // Self-Compassion — a heart cradled in two cupped hands.
+  "self-compassion-scs": () => (
+    <>
+      <path className="gold gold-fill" d="M24,28 C24,28 15,22 15,17.5 C15,14.8 17,13.2 19.3,13.2 C21.2,13.2 22.8,14.4 24,16.2 C25.2,14.4 26.8,13.2 28.7,13.2 C31,13.2 33,14.8 33,17.5 C33,22 24,28 24,28 Z" />
+      <path d="M13,30 C15,37 19,40 24,40 C29,40 33,37 35,30" />
+      <path d="M13,30 L16,28 M35,30 L32,28" />
+    </>
+  ),
   // VIA character strengths — a medal of virtue.
   "via-24": () => (
     <>

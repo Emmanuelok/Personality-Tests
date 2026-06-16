@@ -987,7 +987,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -1058,6 +1058,38 @@ describe("money scripts (Klontz)", () => {
   });
 });
 
+describe("self-compassion (Neff)", () => {
+  const scs = INSTRUMENTS.find((i) => i.id === "self-compassion-scs")!;
+  const POS = ["SK", "CH", "MI"]; // the warmer three; the other three are their harsher opposites
+
+  it("scores six facets and bands the composite from warm to harsh", () => {
+    expect(Object.keys(scoreAssessment(scs, allHigh(scs)).scales).sort()).toEqual(["CH", "IS", "MI", "OI", "SJ", "SK"]);
+    // Warmer three high, harsher three low → strongly self-compassionate.
+    const warm = answerAll(scs, (it) => (POS.includes(it.scale) ? 5 : 1));
+    const t = scoreAssessment(scs, warm).type!;
+    expect(t.code).toBe("Self-Compassionate");
+    expect(t.title).toBe("A Warm Inner Voice");
+    expect(t.components.some((c) => c.label === "Greatest strength")).toBe(true);
+    expect(t.components.find((c) => c.label === "Overall self-compassion")!.value).toBe("100/100");
+    // Flip every facet → a harsh inner critic.
+    const harsh = answerAll(scs, (it) => (POS.includes(it.scale) ? 1 : 5));
+    const h = scoreAssessment(scs, harsh).type!;
+    expect(h.code).toBe("Self-Critical");
+    expect(h.title).toBe("A Harsh Inner Critic");
+  });
+
+  it("keeps the canonical band code while localizing the result card (es/fr)", () => {
+    const warm = answerAll(scs, (it) => (POS.includes(it.scale) ? 5 : 1));
+    const es = scoreAssessment(localizeInstrument(scs, "es"), warm).type!;
+    expect(es.code).toBe("Self-Compassionate"); // canonical, language-agnostic
+    expect(es.title).toBe("Una voz interior cálida");
+    expect(es.components.some((c) => c.label === "Mayor fortaleza")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(scs, "fr"), warm).type!;
+    expect(fr.code).toBe("Self-Compassionate");
+    expect(fr.title).toBe("Une voix intérieure bienveillante");
+  });
+});
+
 describe("cross-test convergence", () => {
   const driveScale = (inst: Instrument, scale: string, high: boolean) =>
     ({ instrument: inst, result: scoreAssessment(inst, answerAll(inst, (it) => (it.scale === scale ? (it.keyed === 1 ? (high ? inst.responseFormat.max : inst.responseFormat.min) : (high ? inst.responseFormat.min : inst.responseFormat.max)) : Math.round((inst.responseFormat.min + inst.responseFormat.max) / 2)))) });
@@ -1093,6 +1125,19 @@ describe("cross-test convergence", () => {
     const fr = analyzeConvergence(entries, { locale: "fr" }).readings.find((x) => x.id === "extraversion")!;
     expect(en.name).toBe("Extraversion");
     expect(fr.insight).not.toBe(en.insight);
+  });
+
+  it("lets self-compassion triangulate emotional stability with the Big Five", () => {
+    const scs = INSTRUMENTS.find((i) => i.id === "self-compassion-scs")!;
+    // Big Five with low Neuroticism (steady) + self-compassion warm (low self-judgment/isolation/over-identification).
+    const stableBf = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, (it) => (it.scale === "N" ? (it.keyed === 1 ? 1 : 5) : 3))) };
+    const warmScs = { instrument: scs, result: scoreAssessment(scs, answerAll(scs, (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1))) };
+    const reading = analyzeConvergence([stableBf, warmScs], {}).readings.find((r) => r.id === "stability")!;
+    expect(reading).toBeTruthy();
+    expect(reading.sources.length).toBe(2); // both instruments now speak to stability
+    expect(reading.sources.some((s) => s.instrumentId === "self-compassion-scs")).toBe(true);
+    expect(reading.position).toBeGreaterThan(60); // both read "steady"
+    expect(reading.convergent).toBe(true);
   });
 
   it("picks a cross-validating target — a contradiction first, then a strong single-source read", () => {

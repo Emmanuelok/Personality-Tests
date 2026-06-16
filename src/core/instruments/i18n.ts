@@ -2740,6 +2740,48 @@ const MONEY_FR: InstrumentTranslation = {
     VG1: "Je surveille mes finances de près et avec soin.", VG2: "Il est important d'épargner pour les jours difficiles.", VG3: "Je préfère ne pas dire aux autres combien d'argent j'ai ou je gagne.", VG4: "Je me sens mal à l'aise si je ne suis pas prudent(e) et frugal(e) avec l'argent.", VG5: "Je veux toujours savoir exactement où va mon argent.",
   },
 };
+const SCS_ES: InstrumentTranslation = {
+  name: "Autocompasión", shortName: "Autocompasión",
+  tagline: "Con cuánta amabilidad —o cuánta dureza— te tratas cuando la vida se pone difícil.",
+  description: "La autocompasión es cómo te relacionas contigo mismo/a en los momentos de dificultad, fracaso o dolor. El modelo de Kristin Neff mapea tres pares: autobondad frente a autojuicio (calidez frente a dureza), humanidad compartida frente a aislamiento («todos luchan» frente a «solo yo») y atención plena frente a sobreidentificación (conciencia equilibrada frente a dejarse arrastrar). Una mayor autocompasión es uno de los amortiguadores con más respaldo frente a la ansiedad y el agotamiento y, a diferencia de la autoestima, no depende de tener éxito ni de compararte bien. Este perfilador muestra dónde tu voz interior es cálida, dónde es dura y la faceta donde la amabilidad crece más rápido.",
+  scales: {
+    SK: { name: "Autobondad", description: "Recibir tu propio dolor con calidez y comprensión.", poles: { low: "Retraído", high: "Amable" }, highDescriptor: "amable y comprensivo/a contigo cuando luchas", lowDescriptor: "que rara vez se ofrece calidez en los momentos difíciles" },
+    SJ: { name: "Autojuicio", description: "Ser duro/a, crítico/a y reprobador/a contigo mismo/a.", poles: { low: "Comprensivo", high: "Autocrítico" }, highDescriptor: "rápido/a en criticar y condenar tus defectos", lowDescriptor: "capaz de aceptar tus defectos sin dureza" },
+    CH: { name: "Humanidad compartida", description: "Ver tus luchas como parte de la experiencia humana común.", poles: { low: "Solo", high: "Conectado" }, highDescriptor: "consciente de que todos luchan, así que no te sientes señalado/a", lowDescriptor: "propenso/a a sentir que tus dificultades son solo tuyas" },
+    IS: { name: "Aislamiento", description: "Sentirte aislado/a y solo/a cuando sufres.", poles: { low: "Conectado", high: "Aislado" }, highDescriptor: "que se siente apartado/a y solo/a en tus luchas", lowDescriptor: "que se siente conectado/a con los demás incluso en los malos momentos" },
+    MI: { name: "Atención plena", description: "Sostener los sentimientos dolorosos en una conciencia equilibrada y clara.", poles: { low: "Desbordado", high: "Equilibrado" }, highDescriptor: "capaz de afrontar los sentimientos difíciles con perspectiva y apertura", lowDescriptor: "más propenso/a a evitar o a verse desbordado/a por los sentimientos difíciles" },
+    OI: { name: "Sobreidentificación", description: "Dejarte arrastrar y llevar por las emociones dolorosas.", poles: { low: "Sereno", high: "Arrastrado" }, highDescriptor: "que se deja consumir y arrastrar por lo que va mal", lowDescriptor: "capaz de sentir dolor sin verse engullido/a por él" },
+  },
+  items: {
+    SK1: "Cuando atravieso un momento difícil, me trato con cuidado y ternura.", SK2: "Intento ser comprensivo/a y paciente con las partes de mí que no me gustan.", SK3: "Cuando sufro, me doy la amabilidad que le ofrecería a un buen amigo.", SK4: "Soy amable conmigo cuando estoy luchando o sufriendo.",
+    SJ1: "Soy reprobador/a y crítico/a con mis propios defectos y carencias.", SJ2: "Cuando fracaso en algo que importa, soy duro/a conmigo.", SJ3: "Puedo ser frío/a y áspero/a conmigo cuando estoy sufriendo.", SJ4: "Soy impaciente e intolerante con las partes de mí que me disgustan.",
+    CH1: "Cuando las cosas van mal, me recuerdo que los reveses son parte de ser humano.", CH2: "Veo mis dificultades como algo por lo que pasa casi todo el mundo, no solo yo.", CH3: "Cuando me siento insuficiente, recuerdo que muchas otras personas se sienten así también.", CH4: "Intento ver mis fracasos como parte de la experiencia humana común.",
+    IS1: "Cuando estoy muy decaído/a, siento que la mayoría de la gente probablemente es más feliz que yo.", IS2: "Cuando fracaso en algo, me siento solo/a y apartado/a en mi fracaso.", IS3: "Cuando estoy luchando, tiendo a sentir que los demás lo tienen más fácil que yo.", IS4: "Mis momentos difíciles me hacen sentir separado/a y aislado/a de los demás.",
+    MI1: "Cuando ocurre algo doloroso, intento ver la situación de forma equilibrada.", MI2: "Cuando me siento mal, intento observar mis emociones con apertura y claridad.", MI3: "Puedo sostener un sentimiento difícil en la conciencia sin verme desbordado/a por él.", MI4: "Cuando estoy alterado/a, mantengo algo de perspectiva en lugar de perderme en ello.",
+    OI1: "Cuando fracaso en algo, me consumen los sentimientos de insuficiencia.", OI2: "Cuando algo me altera, me dejo llevar por mis sentimientos.", OI3: "Cuando estoy decaído/a, tiendo a fijarme y obsesionarme con todo lo que está mal.", OI4: "Los sentimientos dolorosos tienden a arrastrarme y apoderarse de mí.",
+  },
+};
+const SCS_FR: InstrumentTranslation = {
+  name: "Autocompassion", shortName: "Autocompassion",
+  tagline: "Avec quelle bienveillance — ou quelle dureté — vous vous traitez quand la vie devient difficile.",
+  description: "L'autocompassion, c'est la façon dont vous vous traitez dans les moments de difficulté, d'échec ou de douleur. Le modèle de Kristin Neff cartographie trois paires : bienveillance envers soi contre auto-jugement (chaleur contre dureté), humanité commune contre isolement (« tout le monde lutte » contre « seulement moi ») et pleine conscience contre suridentification (conscience équilibrée contre se laisser emporter). Une autocompassion plus élevée est l'un des remparts les mieux étayés contre l'anxiété et l'épuisement et, contrairement à l'estime de soi, elle ne dépend pas de la réussite ni des comparaisons favorables. Ce profileur montre où votre voix intérieure est chaleureuse, où elle est dure, et la facette où la bienveillance grandit le plus vite.",
+  scales: {
+    SK: { name: "Bienveillance envers soi", description: "Accueillir sa propre douleur avec chaleur et compréhension.", poles: { low: "Distant", high: "Bienveillant" }, highDescriptor: "doux(ce) et soutenant(e) envers vous-même quand vous luttez", lowDescriptor: "offrant rarement de la chaleur dans les moments difficiles" },
+    SJ: { name: "Auto-jugement", description: "Être dur(e), critique et désapprobateur(trice) envers soi-même.", poles: { low: "Accueillant", high: "Autocritique" }, highDescriptor: "prompt(e) à critiquer et à condamner vos défauts", lowDescriptor: "capable d'accepter vos défauts sans dureté" },
+    CH: { name: "Humanité commune", description: "Voir ses luttes comme partie de l'expérience humaine partagée.", poles: { low: "Seul", high: "Relié" }, highDescriptor: "conscient(e) que tout le monde lutte, donc sans vous sentir visé(e)", lowDescriptor: "enclin(e) à sentir que vos difficultés n'appartiennent qu'à vous" },
+    IS: { name: "Isolement", description: "Se sentir coupé(e) et seul(e) quand on souffre.", poles: { low: "Relié", high: "Isolé" }, highDescriptor: "qui se sent à part et seul(e) dans ses luttes", lowDescriptor: "qui se sent relié(e) aux autres même dans les moments difficiles" },
+    MI: { name: "Pleine conscience", description: "Tenir les sentiments douloureux dans une conscience équilibrée et claire.", poles: { low: "Submergé", high: "Équilibré" }, highDescriptor: "capable d'affronter les sentiments difficiles avec recul et ouverture", lowDescriptor: "plus enclin(e) à éviter les sentiments difficiles ou à en être submergé(e)" },
+    OI: { name: "Suridentification", description: "Se laisser emporter et envahir par les émotions douloureuses.", poles: { low: "Posé", high: "Emporté" }, highDescriptor: "qui se laisse consumer et emporter par ce qui ne va pas", lowDescriptor: "capable de ressentir la douleur sans en être englouti(e)" },
+  },
+  items: {
+    SK1: "Quand je traverse une période difficile, je me traite avec soin et tendresse.", SK2: "J'essaie d'être compréhensif(ve) et patient(e) envers les parties de moi que je n'aime pas.", SK3: "Quand je souffre, je m'offre la bienveillance que j'offrirais à un bon ami.", SK4: "Je suis doux(ce) envers moi-même quand je lutte ou que je souffre.",
+    SJ1: "Je suis désapprobateur(trice) et critique envers mes propres défauts et lacunes.", SJ2: "Quand j'échoue à quelque chose qui compte, je suis dur(e) envers moi-même.", SJ3: "Je peux être froid(e) et rude envers moi-même quand je souffre.", SJ4: "Je suis impatient(e) et intolérant(e) envers les parties de moi que je n'aime pas.",
+    CH1: "Quand les choses tournent mal, je me rappelle que les revers font partie de la condition humaine.", CH2: "Je vois mes difficultés comme quelque chose que traversent la plupart des gens, pas seulement moi.", CH3: "Quand je me sens insuffisant(e), je me rappelle que beaucoup d'autres ressentent cela aussi.", CH4: "J'essaie de voir mes échecs comme partie de l'expérience humaine commune.",
+    IS1: "Quand je suis vraiment au plus bas, j'ai l'impression que la plupart des gens sont sans doute plus heureux que moi.", IS2: "Quand j'échoue à quelque chose, je me sens seul(e) et à part dans mon échec.", IS3: "Quand je lutte, j'ai tendance à sentir que les autres ont la vie plus facile que moi.", IS4: "Mes moments difficiles me donnent le sentiment d'être séparé(e) et coupé(e) des autres.",
+    MI1: "Quand quelque chose de douloureux arrive, j'essaie d'avoir une vue équilibrée de la situation.", MI2: "Quand je me sens mal, j'essaie d'observer mes émotions avec ouverture et clarté.", MI3: "Je peux tenir un sentiment difficile dans ma conscience sans en être submergé(e).", MI4: "Quand je suis contrarié(e), je garde un peu de recul au lieu de m'y perdre.",
+    OI1: "Quand j'échoue à quelque chose, je suis consumé(e) par un sentiment d'insuffisance.", OI2: "Quand quelque chose me contrarie, je me laisse emporter par mes sentiments.", OI3: "Quand je suis au plus bas, j'ai tendance à me fixer et à ruminer tout ce qui ne va pas.", OI4: "Les sentiments douloureux ont tendance à m'emporter et à prendre le dessus.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2760,7 +2802,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
     "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
     "couple-communication": COUPLECOMM_ES, "team-communication": TEAMCOMM_ES, "communication-style": COMMSTYLE_ES,
-    "money-scripts": MONEY_ES,
+    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2780,7 +2822,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
     "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
     "couple-communication": COUPLECOMM_FR, "team-communication": TEAMCOMM_FR, "communication-style": COMMSTYLE_FR,
-    "money-scripts": MONEY_FR,
+    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR,
   },
 };
 
@@ -3422,6 +3464,34 @@ const MONEY_TYPE_FR: RankedStyleBundle = {
 };
 export function moneyTypeStrings(locale?: string): RankedStyleBundle | undefined {
   return locale === "es" ? MONEY_TYPE_ES : locale === "fr" ? MONEY_TYPE_FR : undefined;
+}
+
+/** Self-Compassion banded type card (the warm / growing / harsh bands + facets). */
+export interface SelfCompassionTypeBundle {
+  bands: Record<"warm" | "growing" | "harsh", { title: string; summary: string }>;
+  labels: { overall: string; strength: string; growth: string; critic: string };
+  facets: Record<"SK" | "SJ" | "CH" | "IS" | "MI" | "OI", string>;
+}
+const SCS_TYPE_ES: SelfCompassionTypeBundle = {
+  bands: {
+    warm: { title: "Una voz interior cálida", summary: "Recibes tus propias dificultades con verdadera amabilidad: te tratas como tratarías a un buen amigo, recuerdas que no estás solo/a y sostienes los sentimientos difíciles sin ahogarte en ellos. Esta calidez interior es uno de los mejores amortiguadores que existen frente a la ansiedad, el agotamiento y la autocrítica dura." },
+    growing: { title: "Cultivando la autocompasión", summary: "Puedes ser amable contigo, pero una voz crítica todavía toma la palabra cuando algo sale mal. Estás en un punto intermedio, que es donde está la mayoría. Reforzar tu faceta más cálida y suavizar la más dura es la vía más rápida hacia un bienestar más estable." },
+    harsh: { title: "Un crítico interior severo", summary: "Cuando luchas o te quedas corto/a, tiendes a volverte contra ti: con juicio, con la sensación de estar solo/a en ello, o con emociones que te desbordan. Ese crítico interior agota, y rara vez ayuda a hacerlo mejor. La buena noticia: la autocompasión es una habilidad que se aprende, y aquí los pequeños cambios rinden rápido." },
+  },
+  labels: { overall: "Autocompasión global", strength: "Mayor fortaleza", growth: "Palanca de crecimiento", critic: "Crítico interior más fuerte" },
+  facets: { SK: "Autobondad", SJ: "Autojuicio", CH: "Humanidad compartida", IS: "Aislamiento", MI: "Atención plena", OI: "Sobreidentificación" },
+};
+const SCS_TYPE_FR: SelfCompassionTypeBundle = {
+  bands: {
+    warm: { title: "Une voix intérieure bienveillante", summary: "Vous accueillez vos propres difficultés avec une réelle bienveillance : vous vous traitez comme vous traiteriez un bon ami, vous vous rappelez que vous n'êtes pas seul(e) et vous tenez les sentiments difficiles sans vous y noyer. Cette chaleur intérieure est l'un des meilleurs remparts qui soient contre l'anxiété, l'épuisement et l'autocritique dure." },
+    growing: { title: "Cultiver la bienveillance", summary: "Vous savez être doux(ce) envers vous-même, mais une voix critique prend encore la parole quand les choses tournent mal. Vous êtes entre les deux, là où se trouve la plupart des gens. Renforcer votre facette la plus chaleureuse et adoucir la plus dure est le chemin le plus rapide vers un bien-être plus stable." },
+    harsh: { title: "Un critique intérieur sévère", summary: "Quand vous luttez ou échouez, vous avez tendance à vous retourner contre vous-même : par le jugement, par le sentiment d'être seul(e) dans l'épreuve, ou par des émotions qui vous submergent. Ce critique intérieur épuise, et il aide rarement à faire mieux. La bonne nouvelle : l'autocompassion est une compétence qui s'apprend, et ici de petits changements paient vite." },
+  },
+  labels: { overall: "Autocompassion globale", strength: "Plus grande force", growth: "Levier de croissance", critic: "Critique intérieur le plus fort" },
+  facets: { SK: "Bienveillance envers soi", SJ: "Auto-jugement", CH: "Humanité commune", IS: "Isolement", MI: "Pleine conscience", OI: "Suridentification" },
+};
+export function selfCompassionTypeStrings(locale?: string): SelfCompassionTypeBundle | undefined {
+  return locale === "es" ? SCS_TYPE_ES : locale === "fr" ? SCS_TYPE_FR : undefined;
 }
 
 /* ── ADHD / Autism educational screeners (typological; type card localized) ── */

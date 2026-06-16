@@ -123,6 +123,11 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "tci-cloninger", scale: "HA", dir: -1, w: 0.6 },
       { inst: "zkpq-alt5", scale: "NANX", dir: -1, w: 0.7 },
       { inst: "perfectionism-2f", scale: "CONC", dir: -1, w: 0.6 },
+      { inst: "self-compassion-scs", scale: "OI", dir: -1, w: 0.6 },
+      { inst: "self-compassion-scs", scale: "IS", dir: -1, w: 0.5 },
+      { inst: "self-compassion-scs", scale: "SJ", dir: -1, w: 0.5 },
+      { inst: "self-compassion-scs", scale: "MI", dir: 1, w: 0.5 },
+      { inst: "self-compassion-scs", scale: "SK", dir: 1, w: 0.4 },
     ],
   },
   {

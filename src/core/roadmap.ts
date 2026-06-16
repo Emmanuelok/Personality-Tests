@@ -63,7 +63,7 @@ const GOAL_MAP: Record<GoalKey, string[]> = {
   grow: ["grit-resilience", "self-efficacy-gse", "self-control-bscs", "procrastination-pps", "mindset-dweck", "communication-style"],
   relationships: ["attachment-styles", "love-languages", "conflict-style", "couple-communication"],
   career: ["riasec-careers", "disc-4", "career-anchors", "team-communication"],
-  wellbeing: ["emotional-intelligence", "emotion-regulation-erq", "gratitude-gq6", "perma-flourishing", "brief-resilience", "money-scripts"],
+  wellbeing: ["emotional-intelligence", "self-compassion-scs", "emotion-regulation-erq", "gratitude-gq6", "perma-flourishing", "brief-resilience", "money-scripts"],
   curious: ["jung-16-types", "via-24", "vark-learning"],
 };
 
