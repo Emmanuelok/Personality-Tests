@@ -139,6 +139,32 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
           </section>
         )}
 
+        {ip.wellbeing && ip.wellbeing.themes.length > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 24 }}>{t("iep.well")}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{t("iep.wellSub")}</p>
+            {ip.wellbeing.themes.length >= 3 && (
+              <div className="radar-wrap" style={{ margin: "4px 0 8px" }}>
+                <RadarChart data={ip.wellbeing.themes.map((th) => ({ label: th.highLabel, value: th.score }))} size={300} />
+              </div>
+            )}
+            {ip.wellbeing.themes.map((th) => (
+              <div className="xcheck" key={th.id}>
+                <div className="xc-top">
+                  <h4>{th.name} <span className="xc-band">· {th.band}</span></h4>
+                </div>
+                <ScaleBar value={th.score} leftLabel={th.lowLabel} rightLabel={th.highLabel} />
+                <div className="xc-sources">
+                  {th.sources.map((s) => (
+                    <span className="xc-src" key={s.instrumentId}>{s.instrumentName}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <p className="xc-insight">{ip.wellbeing.insight}</p>
+          </section>
+        )}
+
         {ip.responseStyle.summary && (
           <section className="panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("iep.readstyle")}</h3>
@@ -204,7 +230,7 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
           <button className="btn" onClick={() => downloadIntegratedMarkdown(ip, {
             title: t("iep.titleYours"), threads: t("iep.threads"), manual: t("iep.manual"),
             crosscheck: t("iep.crosscheck"), readstyle: t("iep.readstyle"), strengths: t("iep.strengths"),
-            growth: t("iep.growth"), tensions: t("iep.tensions"), comm: t("iep.comm"),
+            growth: t("iep.growth"), tensions: t("iep.tensions"), comm: t("iep.comm"), well: t("iep.well"),
             from: t("iep.exportFrom"), generated: t("iep.exportGen"),
           })}>{t("iep.exportMd")}</button>
           <button className="btn ghost" onClick={onBack}>{t("iep.backDash")}</button>

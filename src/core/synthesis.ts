@@ -4,6 +4,7 @@ import { capitalize, oxford, sentence } from "./variation";
 import { localizeInstrument } from "./instruments/i18n";
 import { analyzeConvergence, type ConvergenceResult } from "./converge";
 import { analyzeCommunication, type CommunicationPortrait } from "./commsynth";
+import { analyzeWellbeing, type WellbeingPortrait } from "./wellsynth";
 import { analyzeResponseStyle, type ResponseStyle } from "./responsestyle";
 import {
   synthLoc, themeStr, buildHeadline, tensionStr, omText, OM_LABELS, OM_CONNECT_AVOID,
@@ -64,6 +65,8 @@ export interface IntegratedProfile {
   responseStyle: ResponseStyle;
   /** Cross-context synthesis of the communication & conflict tests, when any are taken. */
   communication?: CommunicationPortrait;
+  /** Cross-context synthesis of the wellbeing tests, when two or more are taken. */
+  wellbeing?: WellbeingPortrait;
   /** 0..100 how complete the picture is (more tests → higher). */
   depth: number;
 }
@@ -430,6 +433,7 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
     convergence: analyzeConvergence(entries, { locale: opts.locale }),
     responseStyle: analyzeResponseStyle(entries, { locale: opts.locale }),
     communication: analyzeCommunication(entries, { locale: opts.locale }) ?? undefined,
+    wellbeing: analyzeWellbeing(entries, { locale: opts.locale }) ?? undefined,
     depth,
   };
 }

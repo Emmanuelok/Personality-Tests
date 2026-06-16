@@ -84,7 +84,7 @@ export function downloadMarkdown(instrument: Instrument, report: PersonalityRepo
 export interface IntegratedLabels {
   title: string; threads: string; manual: string; crosscheck: string; readstyle: string;
   strengths: string; growth: string; tensions: string; from: string; generated: string;
-  comm?: string;
+  comm?: string; well?: string;
 }
 
 export function integratedToMarkdown(ip: IntegratedProfile, l: IntegratedLabels): string {
@@ -117,6 +117,13 @@ export function integratedToMarkdown(ip: IntegratedProfile, l: IntegratedLabels)
     ip.communication.themes.forEach((th) => L.push(`- **${th.name}** (${th.score}/100, ${th.band})`));
     L.push("");
     L.push(ip.communication.insight + "\n");
+  }
+
+  if (ip.wellbeing && ip.wellbeing.themes.length) {
+    L.push(`## ${l.well ?? "Wellbeing portrait"}`);
+    ip.wellbeing.themes.forEach((th) => L.push(`- **${th.name}** (${th.score}/100, ${th.band})`));
+    L.push("");
+    L.push(ip.wellbeing.insight + "\n");
   }
 
   if (ip.responseStyle.summary) {

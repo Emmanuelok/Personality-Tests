@@ -11,6 +11,7 @@ import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeCommunication } from "./commsynth";
+import { analyzeWellbeing } from "./wellsynth";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
@@ -1476,6 +1477,49 @@ describe("communication portrait", () => {
     const es = analyzeCommunication([styleHi], { locale: "es" })!;
     expect(en.themes[0].name).not.toBe(es.themes[0].name);
     expect(en.insight).not.toBe(es.insight);
+  });
+});
+
+describe("wellbeing portrait", () => {
+  const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
+  const ent = (id: string, fn: (it: Item) => number) => ({ instrument: get(id), result: scoreAssessment(get(id), answerAll(get(id), fn)) });
+
+  it("needs at least two wellbeing tests before it synthesizes", () => {
+    // One wellbeing test alone → no portrait (its own report covers it).
+    expect(analyzeWellbeing([ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1))], {})).toBeNull();
+    // A non-wellbeing test never triggers it either.
+    expect(analyzeWellbeing([{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }], {})).toBeNull();
+  });
+
+  it("weaves five flourishing dimensions, flipping risk scales to mean 'healthier'", () => {
+    // Self-compassion warm + resilience high + low perceived stress → a bright portrait.
+    const warmSc = ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1));
+    const resilient = ent("brief-resilience", (it) => (it.keyed === 1 ? 5 : 1));
+    const lowStress = ent("perceived-stress", (it) => (it.keyed === 1 ? 1 : 5)); // STRESS is direction-flipped
+    const p = analyzeWellbeing([warmSc, resilient, lowStress], { locale: "en" })!;
+    expect(p).toBeTruthy();
+    expect(p.themes.length).toBeGreaterThanOrEqual(3);
+    expect(p.themes.find((th) => th.id === "kindness")!.score).toBeGreaterThan(70);
+    expect(p.themes.find((th) => th.id === "resilience")!.score).toBeGreaterThan(70); // high resilience + low stress
+    expect(p.topStrength).toBeTruthy();
+    expect(p.insight.length).toBeGreaterThan(30);
+  });
+
+  it("lets heavy self-judgment & stress drag the relevant dimensions down", () => {
+    const harshSc = ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 1 : 5));
+    const highStress = ent("perceived-stress", (it) => (it.keyed === 1 ? 5 : 1));
+    const p = analyzeWellbeing([harshSc, highStress], { locale: "en" })!;
+    expect(p.themes.find((th) => th.id === "kindness")!.score).toBeLessThan(35);
+    expect(p.themes.find((th) => th.id === "resilience")!.score).toBeLessThan(40);
+  });
+
+  it("localizes dimension names and the synthesis insight", () => {
+    const a = ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1));
+    const b = ent("brief-resilience", (it) => (it.keyed === 1 ? 5 : 1));
+    const en = analyzeWellbeing([a, b], { locale: "en" })!;
+    const fr = analyzeWellbeing([a, b], { locale: "fr" })!;
+    expect(en.themes[0].name).not.toBe(fr.themes[0].name);
+    expect(en.insight).not.toBe(fr.insight);
   });
 });
 
