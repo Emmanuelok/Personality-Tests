@@ -987,7 +987,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs", "time-perspective-ztpi"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -1087,6 +1087,47 @@ describe("self-compassion (Neff)", () => {
     const fr = scoreAssessment(localizeInstrument(scs, "fr"), warm).type!;
     expect(fr.code).toBe("Self-Compassionate");
     expect(fr.title).toBe("Une voix intérieure bienveillante");
+  });
+});
+
+describe("time perspective (Zimbardo)", () => {
+  const time = INSTRUMENTS.find((i) => i.id === "time-perspective-ztpi")!;
+
+  it("scores five frames and names the leading one", () => {
+    expect(Object.keys(scoreAssessment(time, allHigh(time)).scales).sort()).toEqual(["FU", "PF", "PH", "PN", "PP"]);
+    // Drive Future high, the rest low → a future-dominant profile.
+    const future = answerAll(time, (it) => (it.scale === "FU" ? 5 : 1));
+    const t = scoreAssessment(time, future).type!;
+    expect(t.code).toBe("Future");
+    expect(t.title).toBe("The Planner");
+    expect(t.components.find((c) => c.label === "Full profile")!.value).toContain("›"); // ranks all five
+  });
+
+  it("recognizes a balanced time perspective as its own (healthiest) type", () => {
+    // Answers chosen to sit near Zimbardo's balanced ideal: warm past, engaged present, planful future, low negativity.
+    const target: Record<string, number> = { PP: 4, FU: 4, PH: 3, PN: 2, PF: 2 };
+    const balanced = answerAll(time, (it) => target[it.scale] ?? 3);
+    const t = scoreAssessment(time, balanced).type!;
+    expect(t.code).toBe("Balanced Time Perspective");
+    expect(t.title).toBe("The Time-Balanced");
+    // canonical code stable across locales; title + balance label localize
+    const es = scoreAssessment(localizeInstrument(time, "es"), balanced).type!;
+    expect(es.code).toBe("Balanced Time Perspective");
+    expect(es.title).toBe("El Equilibrado en el Tiempo");
+    expect(es.components.some((c) => c.label === "Equilibrio temporal")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(time, "fr"), balanced).type!;
+    expect(fr.code).toBe("Balanced Time Perspective");
+    expect(fr.title).toBe("L'Équilibré dans le Temps");
+  });
+
+  it("lets a future orientation triangulate Conscientiousness", () => {
+    // Big Five high-C + time-perspective high-Future → both speak to conscientiousness.
+    const highC = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, (it) => (it.scale === "C" ? (it.keyed === 1 ? 5 : 1) : 3))) };
+    const future = { instrument: time, result: scoreAssessment(time, answerAll(time, (it) => (it.scale === "FU" ? 5 : 1))) };
+    const reading = analyzeConvergence([highC, future], {}).readings.find((r) => r.id === "conscientiousness")!;
+    expect(reading).toBeTruthy();
+    expect(reading.sources.some((s) => s.instrumentId === "time-perspective-ztpi")).toBe(true);
+    expect(reading.position).toBeGreaterThan(60);
   });
 });
 

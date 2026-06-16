@@ -421,6 +421,18 @@ const GLYPHS: Record<string, EmblemFn> = {
       <path d="M13,30 L16,28 M35,30 L32,28" />
     </>
   ),
+  // Time Perspective — an hourglass: past above, future below, the present mid-fall.
+  "time-perspective-ztpi": () => (
+    <>
+      <line x1="14" y1="9" x2="34" y2="9" />
+      <line x1="14" y1="39" x2="34" y2="39" />
+      <path d="M16,9 C16,18 32,18 32,9" />
+      <path d="M16,39 C16,30 32,30 32,39" />
+      <path className="gold gold-fill" d="M19,12.5 C19,16.5 29,16.5 29,12.5 Z" />
+      <path className="gold gold-fill" d="M21.5,39 C21.5,35 26.5,35 26.5,39 Z" />
+      <line className="gold" x1="24" y1="22" x2="24" y2="27" />
+    </>
+  ),
   // VIA character strengths — a medal of virtue.
   "via-24": () => (
     <>

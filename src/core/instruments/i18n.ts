@@ -2782,6 +2782,44 @@ const SCS_FR: InstrumentTranslation = {
     OI1: "Quand j'échoue à quelque chose, je suis consumé(e) par un sentiment d'insuffisance.", OI2: "Quand quelque chose me contrarie, je me laisse emporter par mes sentiments.", OI3: "Quand je suis au plus bas, j'ai tendance à me fixer et à ruminer tout ce qui ne va pas.", OI4: "Les sentiments douloureux ont tendance à m'emporter et à prendre le dessus.",
   },
 };
+const TIME_ES: InstrumentTranslation = {
+  name: "Perspectiva temporal", shortName: "Tiempo",
+  tagline: "Cómo tu relación con el pasado, el presente y el futuro moldea en silencio tu vida.",
+  description: "La perspectiva temporal es la forma —casi siempre inconsciente— en que clasificas la experiencia en pasado, presente y futuro, y dirige mucho más de lo que crees: tus decisiones, estados de ánimo, riesgos y metas. El modelo de Philip Zimbardo mapea cinco marcos: pasado negativo, pasado positivo, presente hedonista, presente fatalista y futuro. El giro de la investigación es que ningún marco es el ideal: el perfil más feliz y sano es una perspectiva temporal equilibrada que se adapta al momento. Este perfilador muestra tu marco dominante, tu perfil completo y qué tan cerca estás de ese equilibrio.",
+  scales: {
+    PN: { name: "Pasado negativo", description: "Un foco aversivo y lleno de arrepentimiento sobre el pasado.", poles: { low: "En paz", high: "Cargado" }, highDescriptor: "atormentado/a por heridas y arrepentimientos del pasado", lowDescriptor: "en gran medida en paz con tu pasado" },
+    PP: { name: "Pasado positivo", description: "Una relación cálida, nostálgica y arraigada con el pasado.", poles: { low: "Desapegado", high: "Nostálgico" }, highDescriptor: "cálidamente conectado/a con recuerdos, tradiciones y raíces", lowDescriptor: "menos atraído/a por la nostalgia o el pasado" },
+    PH: { name: "Presente hedonista", description: "Búsqueda de placer, espontaneidad y vivir el ahora.", poles: { low: "Mesurado", high: "Hedonista" }, highDescriptor: "espontáneo/a, buscador/a de placer y viviendo el momento", lowDescriptor: "más mesurado/a y menos impulsivo/a con el placer" },
+    PF: { name: "Presente fatalista", description: "Una visión fatalista de que las decisiones no importan.", poles: { low: "Con control", high: "Fatalista" }, highDescriptor: "sintiendo que la vida la moldean fuerzas fuera de tu control", lowDescriptor: "con un fuerte sentido de agencia sobre tu vida" },
+    FU: { name: "Futuro", description: "Planificación, metas y postergar la gratificación.", poles: { low: "Centrado en el presente", high: "Planificador" }, highDescriptor: "planificador/a, orientado/a a metas y capaz de postergar la gratificación", lowDescriptor: "más centrado/a en el presente y menos guiado/a por planes a largo plazo" },
+  },
+  items: {
+    PN1: "A menudo pienso en las cosas malas que me han pasado.", PN2: "Las experiencias dolorosas del pasado se repiten en mi mente.", PN3: "Me cuesta olvidar escenas desagradables de mi pasado.", PN4: "Cuando miro atrás, veo más decepciones que buenos momentos.",
+    PP1: "Los recuerdos felices de los buenos tiempos me vuelven con facilidad.", PP2: "Las rutinas y rituales familiares de mi pasado me reconfortan.", PP3: "Me encanta volver a lugares antiguos y las sensaciones que traen.", PP4: "Mirando atrás, me siento contento/a con buena parte de cómo ha ido mi vida.",
+    PH1: "Tomo cada día como viene en lugar de planificar con antelación.", PH2: "Hago cosas por impulso si suenan divertidas.", PH3: "Prefiero disfrutar el momento que preocuparme por lo que viene.", PH4: "Un poco de riesgo y emoción evita que la vida se vuelva aburrida.",
+    PF1: "No tiene mucho sentido planificar, porque mucho está fuera de mis manos.", PF2: "Mi vida la moldean en gran medida fuerzas que no puedo controlar.", PF3: "Lo que tenga que ser, será; mis decisiones cambian poco.", PF4: "Tiene poco sentido preocuparse por el futuro; el destino lo decidirá.",
+    FU1: "Hago listas de tareas y las voy completando.", FU2: "Cumplo mis plazos y obligaciones a tiempo.", FU3: "Renuncio al disfrute de ahora por una recompensa mayor más adelante.", FU4: "Antes de decidir, sopeso cómo afectará a mi futuro.",
+  },
+};
+const TIME_FR: InstrumentTranslation = {
+  name: "Perspective temporelle", shortName: "Temps",
+  tagline: "Comment votre rapport au passé, au présent et au futur façonne en silence votre vie.",
+  description: "La perspective temporelle est la façon — le plus souvent inconsciente — dont vous classez l'expérience en passé, présent et futur, et elle dirige bien plus que vous ne le pensez : vos décisions, vos humeurs, vos risques et vos objectifs. Le modèle de Philip Zimbardo cartographie cinq cadres : passé négatif, passé positif, présent hédoniste, présent fataliste et futur. La surprise de la recherche, c'est qu'aucun cadre n'est idéal : le profil le plus heureux et le plus sain est une perspective temporelle équilibrée qui s'adapte au moment. Ce profileur montre votre cadre dominant, votre profil complet et votre proximité avec cet équilibre.",
+  scales: {
+    PN: { name: "Passé négatif", description: "Une attention aversive et pleine de regrets envers le passé.", poles: { low: "En paix", high: "Accablé" }, highDescriptor: "hanté(e) par les blessures et regrets du passé", lowDescriptor: "globalement en paix avec votre passé" },
+    PP: { name: "Passé positif", description: "Un rapport chaleureux, nostalgique et enraciné au passé.", poles: { low: "Détaché", high: "Nostalgique" }, highDescriptor: "chaleureusement relié(e) aux souvenirs, traditions et racines", lowDescriptor: "moins attiré(e) par la nostalgie ou le passé" },
+    PH: { name: "Présent hédoniste", description: "Recherche de plaisir, spontanéité et vivre l'instant.", poles: { low: "Mesuré", high: "Hédoniste" }, highDescriptor: "spontané(e), en quête de plaisir et vivant l'instant", lowDescriptor: "plus mesuré(e) et moins impulsif(ve) face au plaisir" },
+    PF: { name: "Présent fataliste", description: "Une vision fataliste selon laquelle les choix ne comptent pas.", poles: { low: "Aux commandes", high: "Fataliste" }, highDescriptor: "sentant que la vie est façonnée par des forces hors de votre contrôle", lowDescriptor: "avec un fort sentiment d'agir sur votre vie" },
+    FU: { name: "Futur", description: "Planification, objectifs et report de la gratification.", poles: { low: "Centré sur le présent", high: "Planificateur" }, highDescriptor: "planificateur(trice), orienté(e) objectifs et capable de différer la gratification", lowDescriptor: "plus centré(e) sur le présent et moins guidé(e) par des plans à long terme" },
+  },
+  items: {
+    PN1: "Je pense souvent aux mauvaises choses qui me sont arrivées.", PN2: "Les expériences douloureuses du passé repassent dans mon esprit.", PN3: "J'ai du mal à oublier des scènes désagréables de mon passé.", PN4: "Quand je regarde en arrière, je vois plus de déceptions que de bons moments.",
+    PP1: "Les souvenirs heureux des bons moments me reviennent facilement.", PP2: "Les routines et rituels familiers de mon passé me réconfortent.", PP3: "J'aime retourner dans des lieux anciens et les sensations qu'ils ramènent.", PP4: "En regardant en arrière, je suis content(e) d'une bonne partie de ma vie.",
+    PH1: "Je prends chaque jour comme il vient plutôt que de planifier à l'avance.", PH2: "Je fais des choses sur un coup de tête si elles semblent amusantes.", PH3: "Je préfère profiter de l'instant que m'inquiéter de la suite.", PH4: "Un peu de risque et d'excitation empêche la vie de devenir ennuyeuse.",
+    PF1: "Cela n'a pas beaucoup de sens de planifier, car tant de choses m'échappent.", PF2: "Ma vie est largement façonnée par des forces que je ne peux pas contrôler.", PF3: "Ce qui doit arriver arrivera — mes choix n'y changent pas grand-chose.", PF4: "Il sert à peu de s'inquiéter de l'avenir ; le destin en décidera.",
+    FU1: "Je fais des listes de choses à faire et je les accomplis une à une.", FU2: "Je respecte mes échéances et mes obligations à temps.", FU3: "Je renonce au plaisir immédiat pour une plus grande récompense plus tard.", FU4: "Avant de décider, je pèse l'effet sur mon avenir.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2802,7 +2840,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
     "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
     "couple-communication": COUPLECOMM_ES, "team-communication": TEAMCOMM_ES, "communication-style": COMMSTYLE_ES,
-    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES,
+    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES, "time-perspective-ztpi": TIME_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2822,7 +2860,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
     "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
     "couple-communication": COUPLECOMM_FR, "team-communication": TEAMCOMM_FR, "communication-style": COMMSTYLE_FR,
-    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR,
+    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR, "time-perspective-ztpi": TIME_FR,
   },
 };
 
@@ -3492,6 +3530,43 @@ const SCS_TYPE_FR: SelfCompassionTypeBundle = {
 };
 export function selfCompassionTypeStrings(locale?: string): SelfCompassionTypeBundle | undefined {
   return locale === "es" ? SCS_TYPE_ES : locale === "fr" ? SCS_TYPE_FR : undefined;
+}
+
+/** Time Perspective type card — the five frames plus the balanced ideal (BAL). */
+export interface TimeTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { dominant: string; secondary: string; range: string; balance: string };
+  balanceBands: { balanced: string; moderate: string; skewed: string };
+  balanceDetail: string;
+}
+const TIME_TYPE_ES: TimeTypeBundle = {
+  meta: {
+    PN: { name: "Pasado negativo", title: "El Cargado", desc: "el pasado aún te pesa", summary: "Tu marco temporal más fuerte es el pasado negativo: viejas heridas y arrepentimientos todavía pesan. Puede hacerte cauto/a y profundo/a, pero sin atenderlo alimenta la rumiación y el ánimo bajo. De los cinco marcos, es el que más conviene (y más se puede) suavizar, mediante reencuadre, autocompasión y, a veces, apoyo." },
+    PP: { name: "Pasado positivo", title: "El Nostálgico", desc: "calidez y raíces en el pasado", summary: "Tu marco temporal más fuerte es el pasado positivo: extraes calidez, identidad y consuelo de los buenos recuerdos, las tradiciones y las raíces. Es una verdadera fortaleza ligada al bienestar; solo cuida que no derive en vivir en el pasado a costa del presente y el futuro." },
+    PH: { name: "Presente hedonista", title: "El Aventurero", desc: "el placer y el ahora", summary: "Tu marco temporal más fuerte es el presente hedonista: vives el momento, buscas el disfrute y abrazas la espontaneidad. Trae alegría, energía y entusiasmo; con un poco de orientación al futuro es maravilloso, pero sin freno puede desplazar la planificación y las metas a largo plazo." },
+    PF: { name: "Presente fatalista", title: "El Fatalista", desc: "la vida se siente fuera de tus manos", summary: "Tu marco temporal más fuerte es el presente fatalista: la sensación de que tus decisiones cambian poco y la vida la moldean fuerzas ajenas a ti. Puede traer cierta aceptación, pero tiende a minar la motivación y la agencia. Reconstruir la sensación de que tus actos importan es aquí la clave del crecimiento." },
+    FU: { name: "Futuro", title: "El Planificador", desc: "las metas y el camino por delante", summary: "Tu marco temporal más fuerte es el futuro: planificas, fijas metas y cambias el disfrute de ahora por una recompensa mayor después. Impulsa el logro y los hábitos saludables; solo cuídate de no vivir tan adelantado/a que pierdas el presente, y acompáñalo de calidez hacia el pasado." },
+    BAL: { name: "Perspectiva temporal equilibrada", title: "El Equilibrado en el Tiempo", desc: "una mezcla flexible entre tiempos", summary: "Tus marcos se acercan a la perspectiva temporal equilibrada que Zimbardo asocia con el mayor bienestar: cálido/a con el pasado, presente en el ahora, planificador/a del futuro y bajo/a en los marcos negativo y fatalista. En lugar de regirte por un solo marco, sabes flexibilizarte hacia el que pide cada momento: el perfil más sano de todos." },
+  },
+  labels: { dominant: "Marco temporal principal", secondary: "Marco secundario", range: "Perfil completo", balance: "Equilibrio temporal" },
+  balanceBands: { balanced: "cerca del ideal equilibrado", moderate: "moderadamente equilibrado", skewed: "dominado por uno o dos marcos" },
+  balanceDetail: "El bienestar depende más del equilibrio entre marcos que de uno solo: pasado cálido, presente presente, futuro planificado, poca negatividad.",
+};
+const TIME_TYPE_FR: TimeTypeBundle = {
+  meta: {
+    PN: { name: "Passé négatif", title: "L'Accablé", desc: "le passé pèse encore sur vous", summary: "Votre cadre temporel le plus fort est le passé négatif : d'anciennes blessures et regrets pèsent encore. Cela peut vous rendre prudent(e) et profond(e), mais sans soin il nourrit la rumination et l'humeur basse. Des cinq cadres, c'est celui qu'il vaut le plus (et qu'on peut le mieux) adoucir, par le recadrage, l'autocompassion et parfois du soutien." },
+    PP: { name: "Passé positif", title: "Le Nostalgique", desc: "chaleur et racines dans le passé", summary: "Votre cadre temporel le plus fort est le passé positif : vous puisez chaleur, identité et réconfort dans les bons souvenirs, les traditions et les racines. C'est une vraie force liée au bien-être ; veillez seulement à ne pas glisser vers vivre dans le passé au détriment du présent et de l'avenir." },
+    PH: { name: "Présent hédoniste", title: "L'Aventurier", desc: "le plaisir et l'instant", summary: "Votre cadre temporel le plus fort est le présent hédoniste : vous vivez l'instant, recherchez le plaisir et embrassez la spontanéité. Cela apporte joie, énergie et entrain ; avec un peu d'orientation vers l'avenir c'est merveilleux, mais sans frein cela peut évincer la planification et les objectifs à long terme." },
+    PF: { name: "Présent fataliste", title: "Le Fataliste", desc: "la vie semble hors de vos mains", summary: "Votre cadre temporel le plus fort est le présent fataliste : le sentiment que vos choix changent peu et que la vie est façonnée par des forces qui vous dépassent. Cela peut apporter une certaine acceptation, mais tend à saper la motivation et l'agentivité. Reconstruire le sentiment que vos actes comptent est ici le grand levier de croissance." },
+    FU: { name: "Futur", title: "Le Planificateur", desc: "les objectifs et la route à venir", summary: "Votre cadre temporel le plus fort est le futur : vous planifiez, fixez des objectifs et échangez le plaisir immédiat contre une plus grande récompense plus tard. Cela alimente la réussite et les comportements de santé ; gardez-vous seulement de vivre si loin devant que vous perdez le présent, et associez-le à de la chaleur envers le passé." },
+    BAL: { name: "Perspective temporelle équilibrée", title: "L'Équilibré dans le Temps", desc: "un mélange souple entre les temps", summary: "Vos cadres s'approchent de la perspective temporelle équilibrée que Zimbardo associe au plus grand bien-être : chaleureux(se) envers le passé, présent(e) dans l'instant, planificateur(trice) de l'avenir et bas(se) sur les cadres négatif et fataliste. Plutôt que d'être gouverné(e) par un seul cadre, vous savez vous adapter à celui que le moment réclame — le profil le plus sain de tous." },
+  },
+  labels: { dominant: "Cadre temporel principal", secondary: "Cadre secondaire", range: "Profil complet", balance: "Équilibre temporel" },
+  balanceBands: { balanced: "proche de l'idéal équilibré", moderate: "modérément équilibré", skewed: "dominé par un ou deux cadres" },
+  balanceDetail: "Le bien-être dépend plus de l'équilibre entre les cadres que d'un seul : passé chaleureux, présent engagé, futur planifié, peu de négativité.",
+};
+export function timeTypeStrings(locale?: string): TimeTypeBundle | undefined {
+  return locale === "es" ? TIME_TYPE_ES : locale === "fr" ? TIME_TYPE_FR : undefined;
 }
 
 /* ── ADHD / Autism educational screeners (typological; type card localized) ── */

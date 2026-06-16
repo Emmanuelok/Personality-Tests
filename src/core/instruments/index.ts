@@ -66,6 +66,7 @@ import { teamComm } from "./teamcomm";
 import { commStyle } from "./commstyle";
 import { moneyScripts } from "./moneyscripts";
 import { selfCompassion } from "./selfcompassion";
+import { timePerspective } from "./timeperspective";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -111,6 +112,7 @@ export const INSTRUMENTS: Instrument[] = [
   cope,
   moneyScripts,
   selfCompassion,
+  timePerspective,
   vark,
   kolb,
   adhd,
@@ -192,6 +194,7 @@ export {
   cope,
   moneyScripts,
   selfCompassion,
+  timePerspective,
   vark,
   kolb,
   adhd,

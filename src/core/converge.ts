@@ -88,6 +88,7 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "tci-cloninger", scale: "PS", dir: 1, w: 0.5 },
       { inst: "procrastination-pps", scale: "PROC", dir: -1, w: 0.6 },
       { inst: "perfectionism-2f", scale: "STAND", dir: 1, w: 0.4 },
+      { inst: "time-perspective-ztpi", scale: "FU", dir: 1, w: 0.6 },
     ],
   },
   {
@@ -128,6 +129,8 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "self-compassion-scs", scale: "SJ", dir: -1, w: 0.5 },
       { inst: "self-compassion-scs", scale: "MI", dir: 1, w: 0.5 },
       { inst: "self-compassion-scs", scale: "SK", dir: 1, w: 0.4 },
+      { inst: "time-perspective-ztpi", scale: "PN", dir: -1, w: 0.6 },
+      { inst: "time-perspective-ztpi", scale: "PF", dir: -1, w: 0.4 },
     ],
   },
   {
