@@ -213,3 +213,32 @@ export function analyzeWellbeing(
 
   return { themes, topStrength, topGrowth, insight, instrumentsUsed };
 }
+
+/**
+ * The smartest single next test for someone with a wellbeing portrait: a fresh
+ * lens on their weakest covered dimension (their growth edge). Returns the
+ * highest-weight instrument that feeds that dimension but hasn't been taken yet,
+ * or null when there's no portrait or nothing left to add. Powers a gap-aware,
+ * non-spammy nudge in the recommendation engine.
+ */
+export function wellbeingGrowthNudge(
+  entries: { instrument: Instrument; result: AssessmentResult }[],
+  opts: { locale?: string } = {},
+): { dimensionId: string; dimensionName: string; instrumentId: string } | null {
+  const portrait = analyzeWellbeing(entries, opts);
+  if (!portrait || !portrait.topGrowth) return null;
+  const def = THEMES.find((t) => t.id === portrait.topGrowth!.id);
+  if (!def) return null;
+  const done = new Set(entries.map((e) => e.instrument.id));
+  const seen = new Set<string>();
+  const candidate = [...def.sources]
+    .sort((a, b) => b.w - a.w)
+    .map((s) => s.inst)
+    .find((id) => {
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return !done.has(id) && Boolean(getInstrument(id));
+    });
+  if (!candidate) return null;
+  return { dimensionId: portrait.topGrowth.id, dimensionName: portrait.topGrowth.name, instrumentId: candidate };
+}

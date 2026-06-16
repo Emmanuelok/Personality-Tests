@@ -818,6 +818,20 @@ describe("recommendation engine", () => {
     expect(portrait[0].reason.toLowerCase()).toMatch(/communication|portrait/);
   });
 
+  it("points a fresh lens at the wellbeing portrait's weakest dimension", () => {
+    const scs = INSTRUMENTS.find((i) => i.id === "self-compassion-scs")!;
+    const res = INSTRUMENTS.find((i) => i.id === "brief-resilience")!;
+    // Warm self-compassion (kindness high) + low resilience → resilience is the growth edge.
+    const warmSc = { instrument: scs, result: scoreAssessment(scs, answerAll(scs, (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1))) };
+    const lowRes = { instrument: res, result: scoreAssessment(res, answerAll(res, (it) => (it.keyed === 1 ? 1 : 5))) };
+    const recs = recommendNext([warmSc, lowRes], { limit: 20 });
+    const portrait = recs.filter((r) => r.kind === "portrait");
+    expect(portrait.length).toBeGreaterThan(0);
+    // It nudges a wellbeing instrument not yet taken, naming the dimension in the reason.
+    expect(portrait[0].reason.toLowerCase()).toMatch(/wellbeing|growth edge/);
+    expect(portrait.every((r) => r.instrument.id !== "self-compassion-scs" && r.instrument.id !== "brief-resilience")).toBe(true);
+  });
+
   it("localizes reasons differently across languages", () => {
     const en = recommendNext([bfFactor("O")], { seed: 1, locale: "en" });
     const fr = recommendNext([bfFactor("O")], { seed: 1, locale: "fr" });

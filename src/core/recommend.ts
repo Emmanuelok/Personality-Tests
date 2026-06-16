@@ -4,6 +4,7 @@ import { INSTRUMENTS, getInstrument } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { constructGaps } from "./converge";
 import { COMM_INSTRUMENT_IDS } from "./commsynth";
+import { wellbeingGrowthNudge } from "./wellsynth";
 import { Rng, seedFrom } from "./prng";
 
 /**
@@ -63,6 +64,13 @@ const PORTRAIT: Record<Loc, (taken: number, total: number) => string> = {
   en: (taken, total) => `You've mapped ${taken} of ${total} communication & conflict tests. This one rounds out your cross-context communication portrait.`,
   es: (taken, total) => `Has mapeado ${taken} de ${total} pruebas de comunicación y conflicto. Esta completa tu retrato de comunicación entre contextos.`,
   fr: (taken, total) => `Vous avez cartographié ${taken} sur ${total} tests de communication et de conflit. Celui-ci complète votre portrait de communication multi-contexte.`,
+};
+
+/** Reason for strengthening the wellbeing portrait's weakest dimension. */
+const WELL_PORTRAIT: Record<Loc, (dim: string) => string> = {
+  en: (dim) => `Across your wellbeing tests, ${dim} is your growth edge. This adds a fresh lens on it — the fastest place to lift the whole picture.`,
+  es: (dim) => `En tus pruebas de bienestar, ${dim} es tu punto de crecimiento. Esto añade una mirada nueva sobre él: el lugar más rápido para elevar todo el conjunto.`,
+  fr: (dim) => `Parmi vos tests de bien-être, ${dim} est votre axe de progrès. Ceci ajoute un regard neuf — l'endroit le plus rapide pour élever tout le tableau.`,
 };
 
 /** Reasons for convergence-aware (triangulating) recommendations. */
@@ -388,6 +396,12 @@ export function recommendNext(
       if (!doneIds.has(id)) add(id, 60, "portrait", PORTRAIT[L](commTaken, COMM_INSTRUMENT_IDS.length));
     }
   }
+
+  // 3d. Strengthen the wellbeing portrait — once 2+ wellbeing tests are in, point a
+  //     fresh lens at the weakest covered dimension (the growth edge), rather than
+  //     blanket-nudging every remaining wellbeing test.
+  const wn = wellbeingGrowthNudge(entries, { locale: L });
+  if (wn) add(wn.instrumentId, 58, "portrait", WELL_PORTRAIT[L](wn.dimensionName));
 
   // 4. Always have a fallback so the surface is never empty while tests remain.
   if (cand.size === 0) {
