@@ -70,6 +70,17 @@ export function suggestTargets(instrument: Instrument, result: AssessmentResult)
       target = cur > 45 ? clamp(cur - 16, 10, 90) : cur; // soften elevated dark traits
     } else if (instrument.id === "attachment-styles") {
       target = clamp(cur - 18, 8, 92); // move toward security: lower anxiety & avoidance
+    } else if (instrument.id === "self-compassion-scs") {
+      // Grow the warmer facets; soften the harsher three (self-judgment, isolation, over-identification).
+      const harsher = new Set(["SJ", "IS", "OI"]);
+      target = harsher.has(s.id)
+        ? clamp(cur - (cur > 30 ? 14 : 6), 5, 95)
+        : clamp(cur + (cur < 70 ? 12 : 6), 5, 95);
+    } else if (instrument.id === "time-perspective-ztpi") {
+      // Soften Past-Negative & Present-Fatalistic; grow Past-Positive & Future; keep Present-Hedonistic (moderate only if very high).
+      if (s.id === "PN" || s.id === "PF") target = clamp(cur - (cur > 30 ? 14 : 6), 5, 95);
+      else if (s.id === "PP" || s.id === "FU") target = clamp(cur + (cur < 70 ? 12 : 6), 5, 95);
+      else target = cur > 65 ? cur - 10 : cur;
     } else if (WELLBEING_IDS.has(instrument.id)) {
       target = clamp(cur + (cur < 70 ? 12 : 6), 5, 95); // grow toward flourishing, not the middle
     } else {
@@ -266,6 +277,54 @@ const STRATEGY_BANKS: Record<string, Record<string, DirSteps>> = {
       { title: "Practice gratitude and savoring", detail: "Regularly note what's going well and stretch good moments. Both reliably raise the reflective judgment that life is going well.", cadence: "Weekly", evidence: "Emmons & McCullough (2003); Bryant & Veroff (2007)" },
       { title: "Align your time with your values", detail: "Audit where your week actually goes and shift one recurring block toward what you most value. Satisfaction tracks living by your own standards.", cadence: "Monthly", evidence: "Self-concordance (Sheldon & Elliot, 1999)" },
       { title: "Invest in close ties and a meaningful goal", detail: "Put deliberate effort into your closest relationships and one goal that matters; both are among the strongest correlates of life satisfaction.", cadence: "Ongoing", evidence: "Diener & Seligman (2002)" },
+    ] },
+  },
+  "self-compassion-scs": {
+    SK: { increase: [
+      { title: "Take a self-compassion break", detail: "When you're struggling, pause for the three-part practice: name it ('this is a hard moment'), normalize it ('hard moments are part of being human'), and offer yourself a kind phrase ('may I be gentle with myself'). The core, most-tested self-compassion exercise.", cadence: "In hard moments", evidence: "Neff & Germer (2013), MSC program" },
+      { title: "Write yourself a compassionate letter", detail: "Write to yourself about a current struggle from the voice of a wise, unconditionally caring friend. Re-read it when the critic is loud.", cadence: "Weekly", evidence: "Shapira & Mongrain (2010)" },
+      { title: "Try a soothing-touch gesture", detail: "A hand over the heart or a gentle self-hug activates the body's care system and calms the threat response — surprisingly physical, surprisingly effective.", cadence: "In the moment", evidence: "Neff (2011), Self-Compassion" },
+    ] },
+    SJ: { decrease: [
+      { title: "Name and externalize the inner critic", detail: "Give the critical voice a name and notice when it speaks. Seeing it as one voice — not the truth, not you — loosens its grip.", cadence: "Daily", evidence: "Gilbert (2009), Compassion-Focused Therapy" },
+      { title: "Find the critic's kinder intention", detail: "The critic usually wants to keep you safe or improving. Acknowledge that aim, thank it, then restate the message the way a supportive coach would.", cadence: "As it arises", evidence: "Gilbert (2009), CFT" },
+      { title: "Talk to yourself as you would a friend", detail: "Catch the harsh line, then ask: 'what would I say to someone I love in this exact spot?' Say that to yourself instead.", cadence: "Daily", evidence: "Neff (2003)" },
+    ] },
+    CH: { increase: [
+      { title: "Remember the 'me too'", detail: "When you feel singled out by a struggle, deliberately recall that countless people feel exactly this. Suffering shared is suffering halved.", cadence: "In hard moments", evidence: "Neff (2003), common humanity" },
+      { title: "Trade comparison for connection", detail: "Notice compare-and-despair scrolling or thinking, and replace it with one honest conversation about real struggles. Authentic contact dissolves the illusion that you're uniquely flawed.", cadence: "Weekly", evidence: "Common-humanity research" },
+    ] },
+    IS: { decrease: [
+      { title: "Reach toward, not away", detail: "Isolation says 'withdraw'; do the opposite in a small way — text one person, sit near others. Acting against the pull-to-hide is how it loosens.", cadence: "When low", evidence: "Behavioral activation; social-connection research" },
+      { title: "Normalize out loud", detail: "Say the quiet part to someone safe: 'I've been struggling with…'. Naming it almost always surfaces a 'me too' you couldn't see alone.", cadence: "As needed", evidence: "Neff (2003)" },
+    ] },
+    MI: { increase: [
+      { title: "Label the feeling to tame it", detail: "Put painful emotion into words — 'this is anxiety,' 'this is grief.' Affect labeling measurably calms the brain's threat response.", cadence: "In the moment", evidence: "Lieberman et al. (2007)" },
+      { title: "Ground in the senses (5-4-3-2-1)", detail: "When feelings escalate, name five things you see, four you hear, three you feel, two you smell, one you taste. It anchors you in the present instead of the spiral.", cadence: "When overwhelmed", evidence: "Mindfulness-based grounding" },
+    ] },
+    OI: { decrease: [
+      { title: "Watch thoughts like weather", detail: "Picture difficult thoughts as clouds passing through a wide sky — you are the sky, not the weather. Observing feelings pass keeps them from becoming your whole identity.", cadence: "Daily, briefly", evidence: "Mindfulness; cognitive defusion (ACT)" },
+      { title: "Add a pause before the spiral", detail: "At the first sign of being swept up, take three slow breaths and name 'I'm getting pulled in.' The pause restores enough distance to choose your next move.", cadence: "As it arises", evidence: "Emotion-regulation research" },
+    ] },
+  },
+  "time-perspective-ztpi": {
+    PN: { decrease: [
+      { title: "Reframe the past narrative", detail: "Write about a hard chapter, then write what it taught you and the strengths it built. Expressive, meaning-making writing reliably loosens a painful past's hold.", cadence: "Weekly", evidence: "Pennebaker (1997); Zimbardo & Boyd (2008)" },
+      { title: "Build a positive-memory archive", detail: "Collect photos, notes, and small mementos of good times in one place and revisit them. It rebalances a memory that over-weights the negative.", cadence: "Ongoing", evidence: "Sword et al. (2014), time-perspective therapy" },
+      { title: "Practice self-forgiveness", detail: "Name a regret you still carry, acknowledge it honestly, and deliberately release it — you did what you could with what you knew then.", cadence: "As needed", evidence: "Self-forgiveness research; time-perspective therapy" },
+    ] },
+    PF: { decrease: [
+      { title: "Run small agency experiments", detail: "Pick one thing you can control today and act on it. Repeated proof that your choices change outcomes is the antidote to fatalism.", cadence: "Daily", evidence: "Learned optimism (Seligman, 1991)" },
+      { title: "Sort what's in vs. out of your control", detail: "Split a worry into two columns — controllable and not — and put your energy only in the first. It rebuilds a sense of agency where helplessness crept in.", cadence: "As needed", evidence: "Stoic 'dichotomy of control'; CBT" },
+    ] },
+    PP: { increase: [
+      { title: "Keep a nostalgia and gratitude journal", detail: "Regularly record good memories and what you're grateful for. Deliberately tending the positive past strengthens this warm, wellbeing-linked frame.", cadence: "Weekly", evidence: "Sword et al. (2014); Emmons & McCullough (2003)" },
+      { title: "Strengthen rituals and roots", detail: "Invest in traditions, reunions, and the relationships that carry your story forward. Positive continuity is built, not just remembered.", cadence: "Ongoing", evidence: "Time-perspective research" },
+    ] },
+    FU: { increase: [
+      { title: "Make goals vivid and time-bound", detail: "Turn 'someday' into a specific, dated goal with a defined next step. Concrete future goals pull present behavior forward.", cadence: "Per goal", evidence: "Locke & Latham (2002)" },
+      { title: "Meet your future self", detail: "Vividly picture — or even write a letter from — yourself years ahead. Feeling connected to your future self increases patience, saving, and planning.", cadence: "Monthly", evidence: "Hershfield (2011), future-self continuity" },
+      { title: "Bind it with if-then plans", detail: "Pre-commit with 'When X happens, I will do Y' for the actions your future depends on. Implementation intentions roughly double follow-through.", cadence: "Ongoing", evidence: "Gollwitzer (1999)" },
     ] },
   },
 };

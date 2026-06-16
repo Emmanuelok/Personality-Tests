@@ -616,6 +616,28 @@ describe("growth planning", () => {
     // pulls the hand-written positive-psychology bank, not the generic fallback
     expect(pos?.steps.some((s) => /gratitude|savor|lifts you/i.test(s.title + s.detail))).toBe(true);
   });
+
+  it("turns self-compassion and time perspective into cited, instrument-specific plans", () => {
+    const scs = INSTRUMENTS.find((i) => i.id === "self-compassion-scs")!;
+    // Harsh profile: low warmth, high self-judgment/isolation/over-identification.
+    const harsh = scoreAssessment(scs, answerAll(scs, (it) => (["SK", "CH", "MI"].includes(it.scale) ? 1 : 5)));
+    const scsPlan = buildGrowthPlan(scs, harsh, suggestTargets(scs, harsh), { seed: 3 });
+    const sk = scsPlan.areas.find((a) => a.scaleId === "SK")!;
+    expect(sk.direction).toBe("increase"); // grow self-kindness
+    expect(sk.steps.some((s) => /self-compassion break|compassionate letter|soothing/i.test(s.title + s.detail))).toBe(true);
+    const sj = scsPlan.areas.find((a) => a.scaleId === "SJ")!;
+    expect(sj.direction).toBe("decrease"); // soften self-judgment
+    expect(sj.steps.some((s) => /inner critic|friend/i.test(s.title + s.detail))).toBe(true);
+    expect(sj.steps.every((s) => Boolean(s.evidence))).toBe(true);
+
+    const time = INSTRUMENTS.find((i) => i.id === "time-perspective-ztpi")!;
+    // Heavy Past-Negative + Present-Fatalistic → soften both.
+    const stuck = scoreAssessment(time, answerAll(time, (it) => (["PN", "PF"].includes(it.scale) ? 5 : 1)));
+    const timePlan = buildGrowthPlan(time, stuck, suggestTargets(time, stuck), { seed: 4 });
+    const pn = timePlan.areas.find((a) => a.scaleId === "PN")!;
+    expect(pn.direction).toBe("decrease");
+    expect(pn.steps.some((s) => /reframe|memory|forgiv/i.test(s.title + s.detail))).toBe(true);
+  });
 });
 
 describe("multiple-choice (choice-format) scoring", () => {
