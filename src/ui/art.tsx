@@ -151,6 +151,18 @@ const EMBLEMS: Record<string, EmblemFn> = {
         d="M24,21 C23,18.5 19.5,18.7 19.5,21.6 C19.5,24 24,27 24,27 C24,27 28.5,24 28.5,21.6 C28.5,18.7 25,18.5 24,21 Z" />
     </>
   ),
+  // Communication & Conflict — two speech bubbles in dialogue.
+  communication: () => (
+    <>
+      <rect x="7" y="9" width="25" height="15" rx="4" />
+      <path d="M13,24 L13,30 L20,24" />
+      <rect className="gold" x="20" y="20" width="21" height="14" rx="4" />
+      <path className="gold" d="M35,34 L35,39 L29,34" />
+      <circle className="gold gold-fill" cx="26.5" cy="27" r="1.3" />
+      <circle className="gold gold-fill" cx="30.5" cy="27" r="1.3" />
+      <circle className="gold gold-fill" cx="34.5" cy="27" r="1.3" />
+    </>
+  ),
   // Strengths, Values & Growth — a rising sprout.
   strengths: () => (
     <>
@@ -359,6 +371,37 @@ const GLYPHS: Record<string, EmblemFn> = {
       <path d="M8,24 L19,24 M19,24 L15,21 M19,24 L15,27" />
       <path d="M40,24 L29,24 M29,24 L33,21 M29,24 L33,27" />
       <polygon className="gold gold-fill" points="24,19.5 27.5,24 24,28.5 20.5,24" />
+    </>
+  ),
+  // Couple Communication — two speech bubbles cradling a heart.
+  "couple-communication": () => (
+    <>
+      <rect x="6" y="11" width="15" height="12" rx="3.5" />
+      <rect x="27" y="11" width="15" height="12" rx="3.5" />
+      <path d="M11,23 L11,28 L16,23" />
+      <path d="M37,23 L37,28 L32,23" />
+      <path className="gold gold-fill" d="M24,40 C24,40 17,35 17,31 C17,28.4 19.6,27.5 21.3,28.7 C22.4,29.5 24,31.2 24,31.2 C24,31.2 25.6,29.5 26.7,28.7 C28.4,27.5 31,28.4 31,31 C31,35 24,40 24,40 Z" />
+    </>
+  ),
+  // Team Communication — three members linked around a shared hub.
+  "team-communication": () => (
+    <>
+      <circle cx="24" cy="11" r="5" />
+      <circle cx="11" cy="35" r="5" />
+      <circle cx="37" cy="35" r="5" />
+      <path d="M22,15.5 L14,30.5 M26,15.5 L34,30.5 M16,35 L32,35" />
+      <circle className="gold gold-fill" cx="24" cy="27" r="3" />
+    </>
+  ),
+  // Communication Style — a speech bubble radiating, heard clearly.
+  "communication-style": () => (
+    <>
+      <rect x="8" y="11" width="22" height="16" rx="4" />
+      <path d="M15,27 L15,33 L22,27" />
+      <circle className="gold gold-fill" cx="15.5" cy="19" r="1.3" />
+      <circle className="gold gold-fill" cx="19.5" cy="19" r="1.3" />
+      <circle className="gold gold-fill" cx="23.5" cy="19" r="1.3" />
+      <path className="gold" d="M34,15 C37.5,18.5 37.5,28.5 34,32 M38,12 C42.5,17 42.5,30 38,35" />
     </>
   ),
   // VIA character strengths — a medal of virtue.

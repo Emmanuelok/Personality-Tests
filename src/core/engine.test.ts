@@ -10,6 +10,7 @@ import { dailyNudge } from "./daily";
 import { buildRoadmap, goalKeys } from "./roadmap";
 import { computeMilestones } from "./milestones";
 import { analyzeConvergence, triangulationTarget } from "./converge";
+import { analyzeCommunication } from "./commsynth";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
@@ -1286,6 +1287,44 @@ describe("Study Together collaboration", () => {
     // org survives the progress round-trip.
     const back = decodeProgress(encodeProgress(members[0]));
     expect(back?.org).toBe("Lincoln High");
+  });
+});
+
+describe("communication portrait", () => {
+  const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
+  const ent = (inst: Instrument, fn: (it: Item) => number) => ({ instrument: inst, result: scoreAssessment(inst, answerAll(inst, fn)) });
+  const healthy = (it: Item) => (it.scale === "HORSE" || it.scale === "DEMWD" ? (it.keyed === 1 ? 1 : 5) : it.keyed === 1 ? 5 : 1);
+
+  it("returns null when no communication instrument is present", () => {
+    expect(analyzeCommunication([{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }], {})).toBeNull();
+  });
+
+  it("synthesizes five cross-context themes, flipping risk scales to mean 'healthier'", () => {
+    const styleHi = ent(get("communication-style"), (it) => (it.keyed === 1 ? 5 : 1));
+    const coupleHealthy = ent(get("couple-communication"), healthy);
+    const p = analyzeCommunication([styleHi, coupleHealthy], { locale: "en" })!;
+    expect(p).toBeTruthy();
+    expect(p.themes).toHaveLength(5);
+    expect(p.instrumentsUsed.map((u) => u.id).sort()).toEqual(["communication-style", "couple-communication"]);
+    // healthy answers (incl. LOW Four Horsemen) → every theme reads high
+    expect(p.themes.every((t) => t.score >= 60)).toBe(true);
+    expect(p.themes.find((t) => t.id === "composure")!.score).toBeGreaterThan(70);
+    expect(p.topStrength).toBeTruthy();
+    expect(p.insight.length).toBeGreaterThan(30);
+  });
+
+  it("lets frequent Four Horsemen drag down the Composure & Repair theme", () => {
+    const horsemen = ent(get("couple-communication"), (it) => (it.scale === "HORSE" || it.scale === "DEMWD" ? (it.keyed === 1 ? 5 : 1) : it.keyed === 1 ? 1 : 5));
+    const comp = analyzeCommunication([horsemen], { locale: "en" })!.themes.find((t) => t.id === "composure")!;
+    expect(comp.score).toBeLessThan(40);
+  });
+
+  it("localizes theme names and the synthesis insight", () => {
+    const styleHi = ent(get("communication-style"), (it) => (it.keyed === 1 ? 5 : 1));
+    const en = analyzeCommunication([styleHi], { locale: "en" })!;
+    const es = analyzeCommunication([styleHi], { locale: "es" })!;
+    expect(en.themes[0].name).not.toBe(es.themes[0].name);
+    expect(en.insight).not.toBe(es.insight);
   });
 });
 

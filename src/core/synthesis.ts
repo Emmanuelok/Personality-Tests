@@ -3,6 +3,7 @@ import { Rng, hashHex, nonce, seedFrom } from "./prng";
 import { capitalize, oxford, sentence } from "./variation";
 import { localizeInstrument } from "./instruments/i18n";
 import { analyzeConvergence, type ConvergenceResult } from "./converge";
+import { analyzeCommunication, type CommunicationPortrait } from "./commsynth";
 import { analyzeResponseStyle, type ResponseStyle } from "./responsestyle";
 import {
   synthLoc, themeStr, buildHeadline, tensionStr, omText, OM_LABELS, OM_CONNECT_AVOID,
@@ -61,6 +62,8 @@ export interface IntegratedProfile {
   convergence: ConvergenceResult;
   /** How the person tends to answer (acquiescence, extremity…), to read results wisely. */
   responseStyle: ResponseStyle;
+  /** Cross-context synthesis of the communication & conflict tests, when any are taken. */
+  communication?: CommunicationPortrait;
   /** 0..100 how complete the picture is (more tests → higher). */
   depth: number;
 }
@@ -426,6 +429,7 @@ export function buildIntegratedProfile(entries: SynthEntry[], opts: { name?: str
     operatingManual: om,
     convergence: analyzeConvergence(entries, { locale: opts.locale }),
     responseStyle: analyzeResponseStyle(entries, { locale: opts.locale }),
+    communication: analyzeCommunication(entries, { locale: opts.locale }) ?? undefined,
     depth,
   };
 }

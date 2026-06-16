@@ -84,6 +84,7 @@ export function downloadMarkdown(instrument: Instrument, report: PersonalityRepo
 export interface IntegratedLabels {
   title: string; threads: string; manual: string; crosscheck: string; readstyle: string;
   strengths: string; growth: string; tensions: string; from: string; generated: string;
+  comm?: string;
 }
 
 export function integratedToMarkdown(ip: IntegratedProfile, l: IntegratedLabels): string {
@@ -109,6 +110,13 @@ export function integratedToMarkdown(ip: IntegratedProfile, l: IntegratedLabels)
     L.push(`## ${l.crosscheck}`);
     ip.convergence.readings.forEach((r) => L.push(`- **${r.name}** (${r.band}) — ${r.insight}`));
     L.push("");
+  }
+
+  if (ip.communication && ip.communication.themes.length) {
+    L.push(`## ${l.comm ?? "Communication portrait"}`);
+    ip.communication.themes.forEach((th) => L.push(`- **${th.name}** (${th.score}/100, ${th.band})`));
+    L.push("");
+    L.push(ip.communication.insight + "\n");
   }
 
   if (ip.responseStyle.summary) {
