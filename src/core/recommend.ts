@@ -3,6 +3,7 @@ import type { SynthEntry } from "./synthesis";
 import { INSTRUMENTS, getInstrument } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { constructGaps } from "./converge";
+import { COMM_INSTRUMENT_IDS } from "./commsynth";
 import { Rng, seedFrom } from "./prng";
 
 /**
@@ -18,7 +19,7 @@ import { Rng, seedFrom } from "./prng";
  * reasons read naturally in English, Spanish, and French.
  */
 
-export type RecKind = "foundation" | "deepen" | "pairing" | "explore" | "support" | "triangulate";
+export type RecKind = "foundation" | "deepen" | "pairing" | "explore" | "support" | "triangulate" | "portrait";
 
 export interface Recommendation {
   instrument: Instrument;
@@ -54,6 +55,14 @@ const BADGE: Record<RecKind, Record<Loc, string>> = {
   explore: { en: "New territory", es: "Territorio nuevo", fr: "Nouveau terrain" },
   support: { en: "For you right now", es: "Para ti ahora", fr: "Pour vous, maintenant" },
   triangulate: { en: "Cross-check", es: "Verificación cruzada", fr: "Recoupement" },
+  portrait: { en: "Complete the picture", es: "Completa el retrato", fr: "Complétez le tableau" },
+};
+
+/** Reasons for completing the communication & conflict portrait. */
+const PORTRAIT: Record<Loc, (taken: number, total: number) => string> = {
+  en: (taken, total) => `You've mapped ${taken} of ${total} communication & conflict tests. This one rounds out your cross-context communication portrait.`,
+  es: (taken, total) => `Has mapeado ${taken} de ${total} pruebas de comunicación y conflicto. Esta completa tu retrato de comunicación entre contextos.`,
+  fr: (taken, total) => `Vous avez cartographié ${taken} sur ${total} tests de communication et de conflit. Celui-ci complète votre portrait de communication multi-contexte.`,
 };
 
 /** Reasons for convergence-aware (triangulating) recommendations. */
@@ -368,6 +377,16 @@ export function recommendNext(
     if (!gap.candidates.length) continue;
     if (gap.divergent) add(gap.candidates[0], 62, "triangulate", TRI[L].diverge(gap.name.toLowerCase()));
     else if (gap.sources === 1) add(gap.candidates[0], 50, "triangulate", TRI[L].single(gap.name.toLowerCase()));
+  }
+
+  // 3c. Complete the communication portrait — once a person has started the four
+  //     communication & conflict tests, nudge the missing ones so the cross-context
+  //     Communication Portrait fills in.
+  const commTaken = COMM_INSTRUMENT_IDS.filter((id) => doneIds.has(id)).length;
+  if (commTaken >= 1 && commTaken < COMM_INSTRUMENT_IDS.length) {
+    for (const id of COMM_INSTRUMENT_IDS) {
+      if (!doneIds.has(id)) add(id, 60, "portrait", PORTRAIT[L](commTaken, COMM_INSTRUMENT_IDS.length));
+    }
   }
 
   // 4. Always have a fallback so the surface is never empty while tests remain.

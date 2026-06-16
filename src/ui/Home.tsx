@@ -494,6 +494,7 @@ const REC_GLYPH: Record<RecKind, string> = {
   explore: "✲",
   support: "♥",
   triangulate: "⟗",
+  portrait: "◈",
 };
 function recBadgeGlyph(kind: RecKind): string {
   return REC_GLYPH[kind] ?? "✦";

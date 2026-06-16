@@ -6,7 +6,7 @@ import { getInstrument } from "@core/instruments";
 import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
 import { InstrumentGlyph } from "./art";
-import { ScaleBar } from "./charts";
+import { ScaleBar, RadarChart } from "./charts";
 import { pctLabel } from "./fmt";
 import { useI18n } from "../i18n";
 import type { CognitiveTake } from "../profile";
@@ -117,6 +117,11 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
           <section className="panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 24 }}>{t("iep.comm")}</h3>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{t("iep.commSub")}</p>
+            {ip.communication.themes.length >= 3 && (
+              <div className="radar-wrap" style={{ margin: "4px 0 8px" }}>
+                <RadarChart data={ip.communication.themes.map((th) => ({ label: th.highLabel, value: th.score }))} size={300} />
+              </div>
+            )}
             {ip.communication.themes.map((th) => (
               <div className="xcheck" key={th.id}>
                 <div className="xc-top">

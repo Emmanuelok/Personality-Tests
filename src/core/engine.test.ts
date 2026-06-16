@@ -756,6 +756,18 @@ describe("recommendation engine", () => {
     expect(a.map((r) => r.instrument.id)).toEqual(b.map((r) => r.instrument.id));
   });
 
+  it("nudges the missing communication tests once the portrait is started", () => {
+    const conflict = INSTRUMENTS.find((i) => i.id === "conflict-style")!;
+    const recs = recommendNext([{ instrument: conflict, result: scoreAssessment(conflict, allHigh(conflict)) }], { limit: 16 });
+    const portrait = recs.filter((r) => r.kind === "portrait");
+    expect(portrait.length).toBeGreaterThan(0);
+    // it should nudge the comm tests not yet taken, never the one already done
+    expect(portrait.map((r) => r.instrument.id)).toContain("communication-style");
+    expect(portrait.every((r) => r.instrument.id !== "conflict-style")).toBe(true);
+    // and the reason names the progress
+    expect(portrait[0].reason.toLowerCase()).toMatch(/communication|portrait/);
+  });
+
   it("localizes reasons differently across languages", () => {
     const en = recommendNext([bfFactor("O")], { seed: 1, locale: "en" });
     const fr = recommendNext([bfFactor("O")], { seed: 1, locale: "fr" });
