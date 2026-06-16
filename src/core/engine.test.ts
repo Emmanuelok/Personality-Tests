@@ -1600,6 +1600,13 @@ describe("catalog search", () => {
     expect(ids("relations", "fr")).toContain("attachment-styles");
   });
 
+  it("every topic-chip query returns matches (no dead chips)", () => {
+    // Mirrors the canonical `q` tokens behind the Home topic chips.
+    for (const q of ["personality", "relationships", "career", "stress", "wellbeing", "emotions", "communication", "confidence", "values", "learning"]) {
+      expect(searchInstruments(q, {}).length, q).toBeGreaterThan(0);
+    }
+  });
+
   it("matchesQuery covers non-instrument tests (the cognition battery)", () => {
     expect(matchesQuery("memory", "Memory Span", "hold a sequence in mind", ["working memory", "recall"])).toBe(true);
     expect(matchesQuery("iq", "Adaptive Reasoning", "fluid intelligence", ["reasoning", "iq"])).toBe(true);
