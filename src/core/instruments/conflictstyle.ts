@@ -78,7 +78,7 @@ export const conflictStyle: Instrument = {
   shortName: "Conflict Style",
   kind: "typological",
   format: "choice",
-  category: "relationships",
+  category: "communication",
   tagline: "How you handle disagreement — your default mode, and your backup.",
   description:
     "The Thomas–Kilmann model maps five ways of handling conflict along two axes — how assertive you are and " +

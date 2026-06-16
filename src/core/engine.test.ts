@@ -929,12 +929,25 @@ describe("new focused instruments", () => {
     expect(buildRoadmap([], ["Grow & improve"], { length: 8 }).steps.map((s) => s.instrumentId)).toContain("self-efficacy-gse");
     expect(buildRoadmap([], ["Emotional wellbeing"], { length: 8 }).steps.map((s) => s.instrumentId)).toContain("emotion-regulation-erq");
   });
+
+  it("scores the communication & conflict instruments across their full scale set", () => {
+    const couple = INSTRUMENTS.find((i) => i.id === "couple-communication")!;
+    expect(Object.keys(scoreAssessment(couple, allHigh(couple)).scales).sort()).toEqual(["CONSTR", "DEMWD", "GENTLE", "HORSE", "REPAIR", "RESPOND"]);
+    const team = INSTRUMENTS.find((i) => i.id === "team-communication")!;
+    expect(Object.keys(scoreAssessment(team, allHigh(team)).scales).sort()).toEqual(["COORD", "FRICTION", "OPEN", "RESOLVE", "SAFETY", "TASK"]);
+    const style = INSTRUMENTS.find((i) => i.id === "communication-style")!;
+    expect(Object.keys(scoreAssessment(style, allHigh(style)).scales).sort()).toEqual(["ASSERT", "COLLAB", "EMPATH", "ENGAGE", "LISTEN", "REGUL"]);
+    // all three live in the new Communication & Conflict category, alongside conflict-style
+    for (const id of ["couple-communication", "team-communication", "communication-style", "conflict-style"]) {
+      expect(INSTRUMENTS.find((i) => i.id === id)!.category).toBe("communication");
+    }
+  });
 });
 
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");

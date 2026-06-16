@@ -61,6 +61,9 @@ import { emotionRegulation } from "./emotionregulation";
 import { procrastination } from "./procrastination";
 import { perfectionism } from "./perfectionism";
 import { gratitude } from "./gratitude";
+import { coupleComm } from "./couplecomm";
+import { teamComm } from "./teamcomm";
+import { commStyle } from "./commstyle";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -81,6 +84,9 @@ export const INSTRUMENTS: Instrument[] = [
   attachment,
   loveLanguages,
   conflictStyle,
+  coupleComm,
+  teamComm,
+  commStyle,
   via,
   values,
   grit,
@@ -157,6 +163,9 @@ export {
   attachment,
   loveLanguages,
   conflictStyle,
+  coupleComm,
+  teamComm,
+  commStyle,
   via,
   values,
   grit,

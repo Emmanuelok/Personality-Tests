@@ -30,6 +30,12 @@ export const CATEGORIES: Category[] = [
     icon: "💞",
   },
   {
+    id: "communication",
+    name: "Communication & Conflict",
+    blurb: "How you express, listen, and work through friction — with partners, teammates, and everyone.",
+    icon: "💬",
+  },
+  {
     id: "strengths",
     name: "Strengths, Values & Growth",
     blurb: "What you're great at, what you care about, and what keeps you moving forward.",
