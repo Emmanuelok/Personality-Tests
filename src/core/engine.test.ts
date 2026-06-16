@@ -12,6 +12,7 @@ import { computeMilestones } from "./milestones";
 import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeCommunication } from "./commsynth";
 import { analyzeWellbeing } from "./wellsynth";
+import { searchInstruments, matchesQuery, tokenize } from "./search";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
@@ -1556,6 +1557,54 @@ describe("wellbeing portrait", () => {
     const fr = analyzeWellbeing([a, b], { locale: "fr" })!;
     expect(en.themes[0].name).not.toBe(fr.themes[0].name);
     expect(en.insight).not.toBe(fr.insight);
+  });
+});
+
+describe("catalog search", () => {
+  const ids = (q: string, locale?: string) => searchInstruments(q, { locale }).map((i) => i.id);
+
+  it("tokenizes case- and punctuation-insensitively", () => {
+    expect(tokenize("Anxiety & Worry!")).toEqual(["anxiety", "worry"]);
+    expect(tokenize("   ")).toEqual([]);
+    expect(tokenize("Time-Perspective")).toEqual(["time", "perspective"]);
+  });
+
+  it("returns nothing for an empty query", () => {
+    expect(searchInstruments("", {})).toEqual([]);
+    expect(searchInstruments("   ", {})).toEqual([]);
+  });
+
+  it("finds a test by its name, best match first", () => {
+    expect(ids("grit")[0]).toBe("grit-resilience");
+    expect(ids("time perspective")[0]).toBe("time-perspective-ztpi");
+    expect(ids("self compassion")[0]).toBe("self-compassion-scs");
+  });
+
+  it("finds tests by topic/theme even when the word isn't in the title", () => {
+    expect(ids("anxiety")).toContain("worry-checkin");
+    expect(ids("money")).toContain("money-scripts");
+    expect(ids("dating")).toContain("attachment-styles");
+    expect(ids("relationship")).toEqual(expect.arrayContaining(["attachment-styles", "love-languages"]));
+    expect(ids("focus")).toContain("adhd-traits");
+    expect(ids("happiness")).toContain("perma-flourishing");
+  });
+
+  it("requires every query word to match (precise AND semantics)", () => {
+    expect(searchInstruments("money qwxzplk", {})).toEqual([]); // nonsense token excludes everything
+    expect(ids("career")).toContain("riasec-careers");
+  });
+
+  it("matches localized names and topic words across locales", () => {
+    expect(ids("dinero", "es")).toContain("money-scripts");
+    expect(ids("ansiedad", "es")).toContain("worry-checkin");
+    expect(ids("relations", "fr")).toContain("attachment-styles");
+  });
+
+  it("matchesQuery covers non-instrument tests (the cognition battery)", () => {
+    expect(matchesQuery("memory", "Memory Span", "hold a sequence in mind", ["working memory", "recall"])).toBe(true);
+    expect(matchesQuery("iq", "Adaptive Reasoning", "fluid intelligence", ["reasoning", "iq"])).toBe(true);
+    expect(matchesQuery("zzqx", "Memory Span", "recall", ["working memory"])).toBe(false);
+    expect(matchesQuery("", "Memory Span")).toBe(false);
   });
 });
 

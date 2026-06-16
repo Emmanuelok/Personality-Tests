@@ -10,6 +10,7 @@ import { CREATIVITY_TEST } from "@core/ability/creativity";
 import { CATEGORIES } from "@core/categories";
 import { localizeCategory } from "@core/categories.i18n";
 import { localizeInstrument } from "@core/instruments/i18n";
+import { searchInstruments, matchesQuery } from "@core/search";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
 import { dailyNudge } from "@core/daily";
 import { buildRoadmap } from "@core/roadmap";
@@ -85,6 +86,60 @@ export function Home({
     const key = h < 12 ? "home.greetMorning" : h < 18 ? "home.greetAfternoon" : "home.greetEvening";
     return name ? `${t(key)}, ${name}` : t(key);
   }, [name, t]);
+
+  // Catalog search — find a test by name or topic instead of scrolling everything.
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const q = catalogQuery.trim();
+  const results = useMemo(() => (q ? searchInstruments(q, { locale }) : null), [q, locale]);
+  // The cognition battery isn't in INSTRUMENTS, so give it lightweight searchable entries.
+  const cognitionTests = [
+    ...ABILITY_TESTS.map((at) => ({ id: at.id, name: at.name, short: at.shortName, tagline: at.tagline, kind: t("h.abilityKind"), kw: ["iq", "intelligence", "reasoning", "cognitive", "ability", "matrices", "icar"], run: () => onStartAbility(at) })),
+    { id: "memory-span", name: MEMORY_TEST.name, short: MEMORY_TEST.shortName, tagline: MEMORY_TEST.tagline, kind: t("h.abilityKind"), kw: ["memory", "working memory", "digit span", "recall", "cognitive"], run: onStartMemory },
+    { id: "corsi-blocks", name: CORSI_TEST.name, short: CORSI_TEST.shortName, tagline: CORSI_TEST.tagline, kind: t("h.abilityKind"), kw: ["memory", "spatial", "visual", "corsi", "recall", "cognitive"], run: onStartCorsi },
+    { id: "processing-speed", name: PROCESSING_TEST.name, short: PROCESSING_TEST.shortName, tagline: PROCESSING_TEST.tagline, kind: t("h.abilityKind"), kw: ["speed", "processing", "attention", "timed", "symbol", "cognitive"], run: onStartSpeed },
+    { id: "adaptive-reasoning", name: ADAPTIVE_TEST.name, short: ADAPTIVE_TEST.shortName, tagline: ADAPTIVE_TEST.tagline, kind: t("h.abilityKind"), kw: ["iq", "reasoning", "fluid", "adaptive", "intelligence", "logic", "cognitive"], run: onStartAdaptive },
+    { id: "iat-demo", name: IAT_TEST.name, short: IAT_TEST.shortName, tagline: IAT_TEST.tagline, kind: t("h.rtKind"), kw: ["implicit", "bias", "association", "reaction time", "cognitive"], run: onStartIat },
+    { id: "alternative-uses", name: CREATIVITY_TEST.name, short: CREATIVITY_TEST.shortName, tagline: CREATIVITY_TEST.tagline, kind: t("h.perfKind"), kw: ["creativity", "divergent", "ideas", "imagination", "cognitive"], run: onStartCreativity },
+  ];
+  const cogResults = q ? cognitionTests.filter((c) => matchesQuery(q, c.name, c.tagline, c.kw)) : [];
+  const matchCount = (results?.length ?? 0) + cogResults.length;
+
+  const renderInstrumentCard = (inst: Instrument) => {
+    const li = localizeInstrument(inst, locale);
+    return (
+      <article className="card" key={inst.id}>
+        <span className={`card-watermark cat-${inst.category}`} aria-hidden="true">
+          <InstrumentGlyph id={inst.id} category={inst.category} />
+        </span>
+        <span className="kind">{inst.kind === "typological" ? t("h.typology") : t("h.dimensional")}</span>
+        <h3>{li.name}</h3>
+        <p className="tagline">{li.tagline}</p>
+        <div className="facts">
+          <span>⏱ {t("h.minutes").replace("{m}", String(inst.estMinutes))}</span>
+          <span>📝 {t("h.items").replace("{n}", String(inst.items.length))}</span>
+          <span>📐 {t(inst.kind === "typological" ? "h.axes" : "h.factors").replace("{n}", String(inst.scales.length))}</span>
+        </div>
+        <p className="cite">
+          {t("h.grounded")
+            .replace("{n}", String(inst.citations.length))
+            .replace("{s}", t(inst.citations.length === 1 ? "h.source" : "h.sources"))
+            .replace("{ref}", inst.citations[0].ref.split("(")[0].trim())}
+        </p>
+        <button className="btn primary" onClick={() => onStart(inst)}>{t("home.begin")} {li.shortName} →</button>
+      </article>
+    );
+  };
+  const renderCogCard = (c: { id: string; name: string; short: string; tagline: string; kind: string; run: () => void }) => (
+    <article className="card" key={c.id}>
+      <span className="card-watermark cat-cognition" aria-hidden="true">
+        <InstrumentGlyph id={c.id} category="cognition" />
+      </span>
+      <span className="kind">{c.kind}</span>
+      <h3>{c.name}</h3>
+      <p className="tagline">{c.tagline}</p>
+      <button className="btn primary" onClick={c.run}>{t("home.begin")} {c.short} →</button>
+    </article>
+  );
 
   return (
     <div className="container">
@@ -268,7 +323,39 @@ export function Home({
       <Flourish />
 
       <h2 className="section-title" id="catalog">{t("h.choose")}</h2>
-      {CATEGORIES.map((cat) => {
+
+      <div className="catalog-search">
+        <span className="catalog-search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          className="catalog-search-input"
+          value={catalogQuery}
+          onChange={(e) => setCatalogQuery(e.target.value)}
+          placeholder={t("h.searchPlaceholder")}
+          aria-label={t("h.searchPlaceholder")}
+        />
+        {q && (
+          <button className="btn ghost sm catalog-search-clear" onClick={() => setCatalogQuery("")}>{t("h.searchClear")}</button>
+        )}
+      </div>
+
+      {results !== null && (
+        <div className="search-results view-enter">
+          <p className="search-count">
+            {t("h.searchCount").replace("{n}", String(matchCount)).replace("{total}", String(INSTRUMENTS.length + cognitionTests.length)).replace("{q}", q)}
+          </p>
+          {matchCount === 0 ? (
+            <p className="note">{t("h.searchNone").replace("{q}", q)}</p>
+          ) : (
+            <div className="grid">
+              {results.map(renderInstrumentCard)}
+              {cogResults.map(renderCogCard)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {results === null && CATEGORIES.map((cat) => {
         const list = instrumentsByCategory(cat.id);
         if (!list.length) return null;
         const lc = localizeCategory(cat, locale);
@@ -284,36 +371,13 @@ export function Home({
               </div>
             </div>
             <div className="grid">
-              {list.map((inst) => {
-                const li = localizeInstrument(inst, locale);
-                return (
-                <article className="card" key={inst.id}>
-                  <span className={`card-watermark cat-${cat.id}`} aria-hidden="true">
-                    <InstrumentGlyph id={inst.id} category={cat.id} />
-                  </span>
-                  <span className="kind">{inst.kind === "typological" ? t("h.typology") : t("h.dimensional")}</span>
-                  <h3>{li.name}</h3>
-                  <p className="tagline">{li.tagline}</p>
-                  <div className="facts">
-                    <span>⏱ {t("h.minutes").replace("{m}", String(inst.estMinutes))}</span>
-                    <span>📝 {t("h.items").replace("{n}", String(inst.items.length))}</span>
-                    <span>📐 {t(inst.kind === "typological" ? "h.axes" : "h.factors").replace("{n}", String(inst.scales.length))}</span>
-                  </div>
-                  <p className="cite">
-                    {t("h.grounded")
-                      .replace("{n}", String(inst.citations.length))
-                      .replace("{s}", t(inst.citations.length === 1 ? "h.source" : "h.sources"))
-                      .replace("{ref}", inst.citations[0].ref.split("(")[0].trim())}
-                  </p>
-                  <button className="btn primary" onClick={() => onStart(inst)}>{t("home.begin")} {li.shortName} →</button>
-                </article>
-                );
-              })}
+              {list.map(renderInstrumentCard)}
             </div>
           </Reveal>
         );
       })}
 
+      {results === null && (
       <Reveal as="div" className="cat-block">
         <div className="cat-head">
           <span className="cat-emblem cat-cognition">
@@ -444,6 +508,7 @@ export function Home({
           </article>
         </div>
       </Reveal>
+      )}
 
       <Flourish />
 
