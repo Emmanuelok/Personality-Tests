@@ -13,6 +13,7 @@ import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeCommunication } from "./commsynth";
 import { analyzeWellbeing } from "./wellsynth";
 import { groupWellbeingPortrait, groupCommunicationPortrait } from "./groupsynth";
+import { buildWellbeingProgram } from "./wellbeingagent";
 import { searchInstruments, matchesQuery, tokenize } from "./search";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
@@ -1705,6 +1706,50 @@ describe("group portrait (cross-context)", () => {
     expect(gp.dimensions.length).toBe(5); // communication-style feeds all five competencies
     expect(gp.dimensions.every((d) => d.n === 2)).toBe(true);
     expect(gp.insights.length).toBeGreaterThan(0);
+  });
+});
+
+describe("wellbeing coach agent", () => {
+  const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
+  const ent = (id: string, fn: (it: Item) => number) => ({ instrument: get(id), result: scoreAssessment(get(id), answerAll(get(id), fn)) });
+
+  it("routes to foundational check-ins when there isn't enough data", () => {
+    const prog = buildWellbeingProgram([], {});
+    expect(prog.state).toBe("needs-data");
+    expect(prog.recommended.length).toBeGreaterThan(0);
+    expect(prog.recommended.every((r) => r.id && r.name)).toBe(true);
+    expect(prog.narrative.length).toBeGreaterThan(0);
+    expect(prog.plan).toBeUndefined();
+    // a single wellbeing test still isn't enough for a portrait
+    expect(buildWellbeingProgram([ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1))], {}).state).toBe("needs-data");
+  });
+
+  it("finds the growth edge and assembles a focused, cited plan for it", () => {
+    // Warm self-compassion (kindness high) + low resilience → resilience is the growth edge.
+    const warmSc = ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 5 : 1));
+    const lowRes = ent("brief-resilience", (it) => (it.keyed === 1 ? 1 : 5));
+    const prog = buildWellbeingProgram([warmSc, lowRes], { locale: "en" });
+    expect(prog.state).toBe("ready");
+    expect(prog.focusDimensionId).toBeTruthy();
+    expect(prog.portrait).toBeTruthy();
+    expect(prog.plan).toBeTruthy();
+    expect(prog.plan!.areas.length).toBeGreaterThan(0);
+    // the plan targets a wellbeing instrument the user actually took
+    expect(["self-compassion-scs", "brief-resilience"]).toContain(prog.instrumentId);
+    // keystone practices (one per targeted scale) carry evidence
+    expect(prog.practices.length).toBeGreaterThan(0);
+    expect(prog.practices.every((p) => p.title.length > 3)).toBe(true);
+    expect(prog.narrative.join(" ")).toMatch(/growth edge|focused/i);
+  });
+
+  it("is deterministic and localizes the brief", () => {
+    const a = ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 1 : 5)); // harsh → kindness is the edge
+    const b = ent("brief-resilience", (it) => (it.keyed === 1 ? 5 : 1));
+    const en1 = buildWellbeingProgram([a, b], { locale: "en", seed: 7 });
+    const en2 = buildWellbeingProgram([a, b], { locale: "en", seed: 7 });
+    expect(en1.plan!.areas.map((x) => x.scaleId)).toEqual(en2.plan!.areas.map((x) => x.scaleId));
+    const fr = buildWellbeingProgram([a, b], { locale: "fr", seed: 7 });
+    expect(fr.narrative[0]).not.toBe(en1.narrative[0]);
   });
 });
 

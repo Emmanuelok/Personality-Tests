@@ -166,6 +166,14 @@ const INSIGHT: Record<Loc, (n: number, top: string, topBand: string, grow: strin
     `Tissée à partir de ${n} ${n === 1 ? "test" : "tests"} de bien-être, votre dimension la plus lumineuse est ${top} — ${topBand}. Celle avec le plus de marge de progression est ${grow}. Le bien-être se construit, il n'est pas figé : une pratique modeste et répétée sur votre axe de progrès élève tout le tableau.`,
 };
 
+export interface WellbeingDimensionSource { inst: string; scale: string; dir: 1 | -1; w: number }
+/** The contributing (instrument, scale, direction, weight) sources behind a
+ *  wellbeing dimension — so an agent can target exactly the scales that move it. */
+export function wellbeingDimension(id: string): { id: string; sources: WellbeingDimensionSource[] } | undefined {
+  const t = THEMES.find((x) => x.id === id);
+  return t ? { id: t.id, sources: t.sources } : undefined;
+}
+
 /**
  * Resolve the five wellbeing dimensions from a flat map of normalized scale
  * scores (instrumentId → scaleId → 0..100). The shared core used by both the
