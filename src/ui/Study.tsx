@@ -3,6 +3,7 @@ import type { Instrument } from "@core/types";
 import { getInstrument } from "@core/instruments";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { buildRoadmap } from "@core/roadmap";
+import { searchInstruments } from "@core/search";
 import {
   createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights,
   groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount,
@@ -13,6 +14,7 @@ import { groupWellbeingPortrait, groupCommunicationPortrait, type GroupPortrait 
 import { ScaleBar, RadarChart } from "./charts";
 import { loadRooms, saveRoom, getRoom, removeRoom, loadMembers, saveMember, loadOrg, saveOrg } from "../collabStore";
 import { GOALS, labelsFor, toLoc, type Loc } from "./goals";
+import { TOPICS } from "./topics";
 import { CategoryEmblem } from "./art";
 import { downloadICS, googleCalUrl, outlookCalUrl, nextEveningSlot, eveningSeries, type CalEvent } from "./calendar";
 import { useI18n } from "../i18n";
@@ -21,6 +23,7 @@ const S: Record<Loc, Record<string, string>> = {
   en: {
     title: "Study Together", sub: "Learn a topic with friends, classmates, or teammates anywhere — privately, no account. Create a room, share the link, and track your progress side by side.",
     create: "＋ Create a study room", newRoom: "New study room", focus: "What will you study together?", roomName: "Room name", roomNamePh: "e.g., Psych 101 — Big Five week", make: "Create room & get link", cancel: "Cancel",
+    byTopic: "Build a plan from a topic", topicPh: "Search a topic or test… e.g. anxiety, relationships", orGoal: "Or start from a goal", clearTopic: "✕ clear", noTests: "No tests match that — try another word or a topic chip.",
     myRooms: "Your rooms", none: "No rooms yet. Create one and invite a friend with the link.", members: "members", open: "Open",
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
@@ -35,6 +38,7 @@ const S: Record<Loc, Record<string, string>> = {
   es: {
     title: "Estudiar juntos", sub: "Aprende un tema con amigos, compañeros o tu equipo en cualquier lugar, en privado y sin cuenta. Crea una sala, comparte el enlace y sigan su progreso a la par.",
     create: "＋ Crear una sala de estudio", newRoom: "Nueva sala de estudio", focus: "¿Qué van a estudiar juntos?", roomName: "Nombre de la sala", roomNamePh: "p. ej., Psico 101 — semana de los Cinco Grandes", make: "Crear sala y obtener enlace", cancel: "Cancelar",
+    byTopic: "Crea un plan a partir de un tema", topicPh: "Busca un tema o test… p. ej. ansiedad, relaciones", orGoal: "O empieza desde un objetivo", clearTopic: "✕ borrar", noTests: "Ningún test coincide; prueba otra palabra o un tema.",
     myRooms: "Tus salas", none: "Aún no hay salas. Crea una e invita a alguien con el enlace.", members: "miembros", open: "Abrir",
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
@@ -49,6 +53,7 @@ const S: Record<Loc, Record<string, string>> = {
   fr: {
     title: "Étudier ensemble", sub: "Apprenez un sujet avec des amis, des camarades ou une équipe, où qu'ils soient — en privé, sans compte. Créez une salle, partagez le lien et suivez votre progression côte à côte.",
     create: "＋ Créer une salle d'étude", newRoom: "Nouvelle salle d'étude", focus: "Qu'allez-vous étudier ensemble ?", roomName: "Nom de la salle", roomNamePh: "ex. : Psycho 101 — semaine Big Five", make: "Créer la salle et obtenir le lien", cancel: "Annuler",
+    byTopic: "Composez un plan à partir d'un thème", topicPh: "Cherchez un thème ou un test… ex. anxiété, relations", orGoal: "Ou partez d'un objectif", clearTopic: "✕ effacer", noTests: "Aucun test ne correspond ; essayez un autre mot ou un thème.",
     myRooms: "Vos salles", none: "Aucune salle. Créez-en une et invitez un ami avec le lien.", members: "membres", open: "Ouvrir",
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
@@ -188,42 +193,77 @@ function JoinPrompt({ s, room, initialName, onJoin, onSkip }: { s: Record<string
 function CreateRoom({ s, L, locale, host, onCancel, onCreate }: { s: Record<string, string>; L: Loc; locale: string; host?: string; onCancel: () => void; onCreate: (r: StudyRoom) => void }) {
   const [goal, setGoal] = useState<string>("self");
   const [title, setTitle] = useState("");
-  const plan = useMemo(() => buildRoadmap([], labelsFor([goal], locale), { locale, length: 5 }).steps.map((st) => st.instrumentId), [goal, locale]);
-  const suggested = GOALS.find((g) => g.key === goal)?.label[L] ?? "";
-  const make = () => onCreate(createRoom({ title: (title.trim() || suggested), plan, host: host ?? "", topic: goal }));
+  const [topicKey, setTopicKey] = useState("");
+  const [query, setQuery] = useState("");
+  // The plan is seeded from a topic/search (the discovery engine) or a goal —
+  // whichever the host last touched wins, so it's "Study X together" in one tap.
+  const activeTopic = TOPICS.find((tp) => tp.key === topicKey) ?? null;
+  const effQuery = activeTopic ? activeTopic.q : query.trim();
+  const usingTopic = !!effQuery;
+  const topicPlan = useMemo(() => (effQuery ? searchInstruments(effQuery, { locale }).slice(0, 5).map((i) => i.id) : []), [effQuery, locale]);
+  const goalPlan = useMemo(() => buildRoadmap([], labelsFor([goal], locale), { locale, length: 5 }).steps.map((st) => st.instrumentId), [goal, locale]);
+  const plan = usingTopic ? topicPlan : goalPlan;
+  const suggested = usingTopic ? (activeTopic ? activeTopic.label[L] : query.trim()) : (GOALS.find((g) => g.key === goal)?.label[L] ?? "");
+  const topicField = usingTopic ? (topicKey || "custom") : goal;
+  const pickGoal = (k: string) => { setGoal(k); setTopicKey(""); setQuery(""); };
+  const clearTopic = () => { setTopicKey(""); setQuery(""); };
+  const make = () => { if (plan.length) onCreate(createRoom({ title: title.trim() || suggested, plan, host: host ?? "", topic: topicField })); };
   return (
     <div className="container view-enter">
       <div className="panel" style={{ maxWidth: 620, margin: "30px auto" }}>
         <h2 style={{ fontFamily: "var(--serif)", marginTop: 0 }}>{s.newRoom}</h2>
-        <label className="onb-step-label" style={{ display: "block", marginBottom: 10 }}>{s.focus}</label>
+
+        <label className="onb-step-label" style={{ display: "block", marginBottom: 10 }}>{s.byTopic}</label>
+        <div className="catalog-search" style={{ marginBottom: 12 }}>
+          <span className="catalog-search-icon" aria-hidden="true">🔍</span>
+          <input className="catalog-search-input" type="search" value={query} placeholder={s.topicPh}
+            aria-label={s.topicPh} onChange={(e) => { setQuery(e.target.value); setTopicKey(""); }} />
+          {usingTopic && <button className="btn ghost sm catalog-search-clear" onClick={clearTopic}>{s.clearTopic}</button>}
+        </div>
+        <div className="chips">
+          {TOPICS.map((tp) => (
+            <button key={tp.key} className={`chip-toggle ${topicKey === tp.key ? "on" : ""}`} aria-pressed={topicKey === tp.key}
+              onClick={() => { setTopicKey(topicKey === tp.key ? "" : tp.key); setQuery(""); }}>
+              {tp.label[L]}
+            </button>
+          ))}
+        </div>
+
+        <label className="onb-step-label" style={{ display: "block", margin: "18px 0 10px" }}>{s.orGoal}</label>
         <div className="chips">
           {GOALS.map((g) => (
-            <button key={g.key} className={`chip-toggle ${goal === g.key ? "on" : ""}`} onClick={() => setGoal(g.key)}>
+            <button key={g.key} className={`chip-toggle ${!usingTopic && goal === g.key ? "on" : ""}`} onClick={() => pickGoal(g.key)}>
               <span aria-hidden="true" style={{ marginRight: 6 }}>{g.icon}</span>{g.label[L]}
             </button>
           ))}
         </div>
+
         <div className="rm-goals" style={{ marginTop: 14 }}>
-          <ol className="roadmap">
-            {plan.map((id, i) => {
-              const inst = getInstrument(id);
-              if (!inst) return null;
-              const li = localizeInstrument(inst, locale);
-              return (
-                <li className="rm-step" key={id}>
-                  <span className="rm-node">{i + 1}</span>
-                  <div className="rm-body"><div className="rm-name">{li.name}</div></div>
-                  <span className="rm-min">{inst.estMinutes} min</span>
-                </li>
-              );
-            })}
-          </ol>
+          {plan.length ? (
+            <ol className="roadmap">
+              {plan.map((id, i) => {
+                const inst = getInstrument(id);
+                if (!inst) return null;
+                const li = localizeInstrument(inst, locale);
+                return (
+                  <li className="rm-step" key={id}>
+                    <span className="rm-node">{i + 1}</span>
+                    <div className="rm-body"><div className="rm-name">{li.name}</div></div>
+                    <span className="rm-min">{inst.estMinutes} min</span>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : (
+            <p className="note" style={{ margin: 0 }}>{s.noTests}</p>
+          )}
         </div>
+
         <label className="onb-step-label" style={{ display: "block", margin: "16px 0 8px" }}>{s.roomName}</label>
         <input className="name-input" style={{ fontSize: 17, textAlign: "left" }} placeholder={s.roomNamePh} value={title} maxLength={70} onChange={(e) => setTitle(e.target.value)} />
         <div className="row-actions" style={{ marginTop: 18 }}>
           <button className="btn ghost" onClick={onCancel}>{s.cancel}</button>
-          <button className="btn primary" onClick={make}>{s.make}</button>
+          <button className="btn primary" onClick={make} disabled={!plan.length}>{s.make}</button>
         </div>
       </div>
     </div>

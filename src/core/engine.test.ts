@@ -1657,10 +1657,15 @@ describe("catalog search", () => {
     expect(ids("relations", "fr")).toContain("attachment-styles");
   });
 
-  it("every topic-chip query returns matches (no dead chips)", () => {
-    // Mirrors the canonical `q` tokens behind the Home topic chips.
+  it("every topic-chip query yields a valid study plan (no dead chips)", () => {
+    // Mirrors the canonical `q` tokens behind the Home topic chips and the
+    // Study room builder, which seeds a plan from searchInstruments(q).slice(0, 5).
+    const ids = new Set(INSTRUMENTS.map((i) => i.id));
     for (const q of ["personality", "relationships", "career", "stress", "wellbeing", "emotions", "communication", "confidence", "values", "learning"]) {
-      expect(searchInstruments(q, {}).length, q).toBeGreaterThan(0);
+      const plan = searchInstruments(q, {}).slice(0, 5).map((i) => i.id);
+      expect(plan.length, q).toBeGreaterThan(0);
+      expect(plan.length).toBeLessThanOrEqual(5);
+      expect(plan.every((id) => ids.has(id)), q).toBe(true);
     }
   });
 
