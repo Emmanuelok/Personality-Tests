@@ -52,7 +52,7 @@ export function Onboarding({ onDone, onSkip }: { onDone: (name: string, focus: s
   const [focus, setFocus] = useState<string[]>([]);
 
   const labels = useMemo(() => focus.map((k) => GOALS.find((g) => g.key === k)?.label[L] ?? k), [focus, L]);
-  const roadmap = useMemo(() => buildRoadmap([], labels, { locale, length: 6 }), [labels, locale]);
+  const roadmap = useMemo(() => buildRoadmap([], labels, { locale, length: 5 }), [labels, locale]);
 
   const toggle = (k: string) => setFocus((f) => (f.includes(k) ? f.filter((x) => x !== k) : [...f, k]));
   const finish = () => onDone(name.trim() || "", labels);
