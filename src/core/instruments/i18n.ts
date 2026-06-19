@@ -2820,6 +2820,32 @@ const TIME_FR: InstrumentTranslation = {
     FU1: "Je fais des listes de choses à faire et je les accomplis une à une.", FU2: "Je respecte mes échéances et mes obligations à temps.", FU3: "Je renonce au plaisir immédiat pour une plus grande récompense plus tard.", FU4: "Avant de décider, je pèse l'effet sur mon avenir.",
   },
 };
+const MEANING_ES: InstrumentTranslation = {
+  name: "Sentido de la vida", shortName: "Sentido",
+  tagline: "Dos hilos del sentido: cuánto lo sientes y cuánto lo buscas.",
+  description: "El sentido de la vida tiene dos caras y, según la investigación de Michael Steger, se mueven de forma bastante independiente: la presencia de sentido —sentir que tu vida tiene propósito y significado— y la búsqueda de sentido —buscarlo o profundizarlo activamente—. Puedes tener mucho sentido y seguir explorando, o buscar uno que aún no sientes. Este perfilador lee ambos y te sitúa en el paisaje de presencia × búsqueda, con una mirada compasiva y orientada al crecimiento sobre la combinación que sea la tuya ahora.",
+  scales: {
+    PRES: { name: "Presencia de sentido", description: "Sentir que tu vida tiene sentido, propósito y significado.", poles: { low: "Poco claro", high: "Claro" }, highDescriptor: "con una sensación clara y sentida de que tu vida tiene sentido", lowDescriptor: "menos seguro/a, por ahora, de qué da sentido a tu vida" },
+    SRCH: { name: "Búsqueda de sentido", description: "Buscar, construir o profundizar activamente un sentido.", poles: { low: "En reposo", high: "En búsqueda" }, highDescriptor: "buscando o profundizando activamente tu sentido", lowDescriptor: "sin una búsqueda activa de sentido en este momento" },
+  },
+  items: {
+    P1: "Entiendo qué hace que mi vida tenga sentido.", P2: "Mi vida tiene un propósito claro.", P3: "He descubierto un propósito satisfactorio para mi vida.", P4: "Tengo una buena idea de qué hace que mi vida valga la pena.", P5: "Cuando pienso en mi vida, veo qué le da sentido.",
+    S1: "Busco algo que haga que mi vida se sienta significativa.", S2: "Busco un propósito o una misión para mi vida.", S3: "Siempre intento descubrir de qué trata mi vida.", S4: "Busco un sentido más profundo en mi vida.", S5: "Estoy atento/a a lo que de verdad me importa.",
+  },
+};
+const MEANING_FR: InstrumentTranslation = {
+  name: "Sens de la vie", shortName: "Sens",
+  tagline: "Deux fils du sens : à quel point vous le ressentez, et à quel point vous le cherchez.",
+  description: "Le sens de la vie a deux faces et, selon les travaux de Michael Steger, elles évoluent de façon assez indépendante : la présence de sens — sentir que votre vie a un but et de l'importance — et la quête de sens — la chercher ou l'approfondir activement. Vous pouvez être riche de sens et continuer d'explorer, ou chercher un sens que vous ne ressentez pas encore. Ce profileur lit les deux et vous situe dans le paysage présence × quête, avec un regard bienveillant et tourné vers la croissance sur la combinaison qui est la vôtre aujourd'hui.",
+  scales: {
+    PRES: { name: "Présence de sens", description: "Sentir que votre vie a du sens, un but et de l'importance.", poles: { low: "Flou", high: "Clair" }, highDescriptor: "avec le sentiment clair et vécu que votre vie a du sens", lowDescriptor: "moins sûr(e), pour l'instant, de ce qui donne du sens à votre vie" },
+    SRCH: { name: "Quête de sens", description: "Chercher, construire ou approfondir activement un sens.", poles: { low: "Au repos", high: "En quête" }, highDescriptor: "cherchant ou approfondissant activement votre sens", lowDescriptor: "sans quête active de sens en ce moment" },
+  },
+  items: {
+    P1: "Je comprends ce qui donne du sens à ma vie.", P2: "Ma vie a un but clair.", P3: "J'ai découvert un but satisfaisant pour ma vie.", P4: "J'ai une bonne idée de ce qui rend ma vie utile.", P5: "Quand je considère ma vie, je vois ce qui lui donne du sens.",
+    S1: "Je cherche quelque chose qui rende ma vie significative.", S2: "Je cherche un but ou une mission pour ma vie.", S3: "J'essaie toujours de comprendre de quoi parle ma vie.", S4: "Je cherche un sens plus profond à ma vie.", S5: "Je reste attentif(ve) à ce qui compte vraiment pour moi.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2840,7 +2866,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
     "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
     "couple-communication": COUPLECOMM_ES, "team-communication": TEAMCOMM_ES, "communication-style": COMMSTYLE_ES,
-    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES, "time-perspective-ztpi": TIME_ES,
+    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES, "time-perspective-ztpi": TIME_ES, "meaning-mlq": MEANING_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2860,7 +2886,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
     "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
     "couple-communication": COUPLECOMM_FR, "team-communication": TEAMCOMM_FR, "communication-style": COMMSTYLE_FR,
-    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR, "time-perspective-ztpi": TIME_FR,
+    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR, "time-perspective-ztpi": TIME_FR, "meaning-mlq": MEANING_FR,
   },
 };
 
@@ -3567,6 +3593,36 @@ const TIME_TYPE_FR: TimeTypeBundle = {
 };
 export function timeTypeStrings(locale?: string): TimeTypeBundle | undefined {
   return locale === "es" ? TIME_TYPE_ES : locale === "fr" ? TIME_TYPE_FR : undefined;
+}
+
+/** Meaning in Life type card — the presence × search quadrants. */
+export interface MeaningTypeBundle {
+  quads: Record<string, { title: string; summary: string }>;
+  labels: { presence: string; search: string; profile: string };
+  levels: { high: string; low: string };
+}
+const MEANING_TYPE_ES: MeaningTypeBundle = {
+  quads: {
+    HP_LS: { title: "Anclado en el sentido", summary: "Sientes con claridad y serenidad que tu vida tiene sentido, y no lo buscas con inquietud. Es el perfil más asociado de forma constante con el bienestar: una base estable. Síguelo viviendo a través de lo que te importa y mantente abierto/a a que se profundice con el tiempo." },
+    HP_HS: { title: "Profundizando el sentido", summary: "Ya sientes que tu vida tiene sentido y, además, lo exploras y profundizas activamente. Esa actitud curiosa y comprometida suele ir con el crecimiento, la apertura y una vida interior rica. El arte está en disfrutar la búsqueda sin perder de vista el sentido que ya has encontrado." },
+    LP_HS: { title: "En busca de sentido", summary: "Buscas activamente un sentido más fuerte que aún no sientes del todo. Buscar es una parte normal —y a menudo fértil— de la vida, sobre todo en las transiciones, aunque puede sentirse inestable. Pequeños pasos hacia lo que importa y la conexión real con otros suelen convertir la búsqueda en presencia." },
+    LP_LS: { title: "Horizonte abierto", summary: "Ahora mismo ni sientes un sentido fuerte ni lo buscas activamente. Es un lugar común y sin presión, y también una invitación abierta. Probar cosas que te importan, contribuir a los demás y notar qué te conmueve son las vías más fiables para que el sentido eche raíces." },
+  },
+  labels: { presence: "Presencia de sentido", search: "Búsqueda de sentido", profile: "Tu perfil de sentido" },
+  levels: { high: "alta", low: "baja" },
+};
+const MEANING_TYPE_FR: MeaningTypeBundle = {
+  quads: {
+    HP_LS: { title: "Ancré dans le sens", summary: "Vous ressentez clairement et sereinement que votre vie a du sens, sans le chercher avec inquiétude. C'est le profil le plus constamment lié au bien-être — une base stable. Continuez à le vivre à travers ce qui compte pour vous, et restez ouvert(e) à ce qu'il s'approfondisse avec le temps." },
+    HP_HS: { title: "Approfondir le sens", summary: "Vous ressentez déjà que votre vie a du sens — et vous continuez à l'explorer et à l'approfondir activement. Cette posture curieuse et engagée va souvent de pair avec la croissance, l'ouverture et une vie intérieure riche. L'art est de savourer la quête sans perdre de vue le sens déjà trouvé." },
+    LP_HS: { title: "En quête de sens", summary: "Vous cherchez activement un sens plus fort que vous ne ressentez pas encore pleinement. Chercher est une part normale — souvent fertile — de la vie, surtout dans les transitions, même si cela peut sembler instable. De petits pas vers ce qui compte et une vraie connexion aux autres transforment souvent la quête en présence." },
+    LP_LS: { title: "Horizon ouvert", summary: "Pour l'instant, vous ne ressentez pas un sens fort et vous ne le cherchez pas activement. C'est un endroit courant et sans pression — et une invitation ouverte. Essayer des choses qui vous tiennent à cœur, contribuer aux autres et remarquer ce qui vous touche sont les moyens les plus fiables pour que le sens prenne racine." },
+  },
+  labels: { presence: "Présence de sens", search: "Quête de sens", profile: "Votre profil de sens" },
+  levels: { high: "élevée", low: "faible" },
+};
+export function meaningTypeStrings(locale?: string): MeaningTypeBundle | undefined {
+  return locale === "es" ? MEANING_TYPE_ES : locale === "fr" ? MEANING_TYPE_FR : undefined;
 }
 
 /* ── ADHD / Autism educational screeners (typological; type card localized) ── */

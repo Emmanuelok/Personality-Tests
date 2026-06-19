@@ -433,6 +433,15 @@ const GLYPHS: Record<string, EmblemFn> = {
       <line className="gold" x1="24" y1="22" x2="24" y2="27" />
     </>
   ),
+  // Meaning in Life — a guiding north star.
+  "meaning-mlq": () => (
+    <>
+      <path className="gold gold-fill" d="M24,7 L26.6,21.4 L41,24 L26.6,26.6 L24,41 L21.4,26.6 L7,24 L21.4,21.4 Z" />
+      <circle cx="24" cy="24" r="2.1" />
+      <circle className="gold" cx="13.5" cy="13.5" r="0.9" />
+      <circle className="gold" cx="35" cy="14" r="0.9" />
+    </>
+  ),
   // VIA character strengths — a medal of virtue.
   "via-24": () => (
     <>

@@ -131,6 +131,7 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "self-compassion-scs", scale: "SK", dir: 1, w: 0.4 },
       { inst: "time-perspective-ztpi", scale: "PN", dir: -1, w: 0.6 },
       { inst: "time-perspective-ztpi", scale: "PF", dir: -1, w: 0.4 },
+      { inst: "meaning-mlq", scale: "PRES", dir: 1, w: 0.4 },
     ],
   },
   {

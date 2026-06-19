@@ -1026,7 +1026,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs", "time-perspective-ztpi"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs", "time-perspective-ztpi", "meaning-mlq"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -1167,6 +1167,44 @@ describe("time perspective (Zimbardo)", () => {
     expect(reading).toBeTruthy();
     expect(reading.sources.some((s) => s.instrumentId === "time-perspective-ztpi")).toBe(true);
     expect(reading.position).toBeGreaterThan(60);
+  });
+});
+
+describe("meaning in life (Steger)", () => {
+  const mlq = INSTRUMENTS.find((i) => i.id === "meaning-mlq")!;
+
+  it("scores presence & search and places you in the presence × search quadrant", () => {
+    expect(Object.keys(scoreAssessment(mlq, allHigh(mlq)).scales).sort()).toEqual(["PRES", "SRCH"]);
+    // High presence, low search → anchored.
+    const anchored = answerAll(mlq, (it) => (it.scale === "PRES" ? 5 : 1));
+    const t = scoreAssessment(mlq, anchored).type!;
+    expect(t.code).toBe("Anchored in Meaning");
+    expect(t.title).toBe("Anchored in Meaning");
+    expect(t.components.some((c) => c.label === "Presence of meaning")).toBe(true);
+    // Low presence, high search → searching.
+    const searching = answerAll(mlq, (it) => (it.scale === "SRCH" ? 5 : 1));
+    expect(scoreAssessment(mlq, searching).type!.code).toBe("Searching for Meaning");
+    // Both high → deepening.
+    expect(scoreAssessment(mlq, allHigh(mlq)).type!.code).toBe("Deepening Meaning");
+  });
+
+  it("keeps the canonical quadrant code while localizing the card (es/fr)", () => {
+    const anchored = answerAll(mlq, (it) => (it.scale === "PRES" ? 5 : 1));
+    const es = scoreAssessment(localizeInstrument(mlq, "es"), anchored).type!;
+    expect(es.code).toBe("Anchored in Meaning"); // canonical
+    expect(es.title).toBe("Anclado en el sentido");
+    expect(es.components.some((c) => c.label === "Presencia de sentido")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(mlq, "fr"), anchored).type!;
+    expect(fr.code).toBe("Anchored in Meaning");
+    expect(fr.title).toBe("Ancré dans le sens");
+  });
+
+  it("lets presence of meaning triangulate emotional stability", () => {
+    const stableBf = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, (it) => (it.scale === "N" ? (it.keyed === 1 ? 1 : 5) : 3))) };
+    const meaningful = { instrument: mlq, result: scoreAssessment(mlq, answerAll(mlq, (it) => (it.scale === "PRES" ? 5 : 1))) };
+    const reading = analyzeConvergence([stableBf, meaningful], {}).readings.find((r) => r.id === "stability")!;
+    expect(reading).toBeTruthy();
+    expect(reading.sources.some((s) => s.instrumentId === "meaning-mlq")).toBe(true);
   });
 });
 

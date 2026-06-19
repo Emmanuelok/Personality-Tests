@@ -29,7 +29,7 @@ export const WELLBEING_INSTRUMENT_IDS = [
   "self-compassion-scs", "self-esteem-rses", "brief-resilience", "emotion-regulation-erq",
   "perceived-stress", "worry-checkin", "time-perspective-ztpi", "panas-affect", "mood-checkin",
   "optimism-lotr", "gratitude-gq6", "perma-flourishing", "hope-scale", "life-satisfaction-swls",
-  "self-efficacy-gse", "ryff-wellbeing", "curiosity-cei", "emotional-intelligence",
+  "self-efficacy-gse", "ryff-wellbeing", "curiosity-cei", "emotional-intelligence", "meaning-mlq",
 ] as const;
 
 export interface WellThemeSource {
@@ -120,6 +120,7 @@ const THEMES: ThemeDef[] = [
     high: { en: "Purposeful", es: "Con propósito", fr: "Habité d'un but" },
     sources: [
       { inst: "perma-flourishing", scale: "MEA", dir: 1, w: 0.8 },
+      { inst: "meaning-mlq", scale: "PRES", dir: 1, w: 0.9 },
       { inst: "perma-flourishing", scale: "ENG", dir: 1, w: 0.6 },
       { inst: "perma-flourishing", scale: "ACC", dir: 1, w: 0.6 },
       { inst: "hope-scale", scale: "PATHWAYS", dir: 1, w: 0.5 },
