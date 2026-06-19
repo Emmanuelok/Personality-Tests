@@ -15,17 +15,17 @@ export const cLoc = (l?: string): Loc => (l === "es" || l === "fr" ? l : "en");
 /* ── suggested questions ────────────────────────────────────────────────── */
 const Q: Record<Loc, { integrated: string[]; report: string[]; trait: (n: string) => string }> = {
   en: {
-    integrated: ["What are my biggest strengths?", "Where should I focus on growing?", "How consistent are my results?", "How do I handle stress?", "Sum me up in a sentence."],
+    integrated: ["What are my biggest strengths?", "What's my next practice?", "Where should I focus on growing?", "How consistent are my results?", "How do I handle stress?", "Sum me up in a sentence."],
     report: ["What does this mean for me?", "What are my strengths?", "What should I watch out for?", "How am I in relationships?", "How do I improve?"],
     trait: (n) => `Tell me about my ${n}.`,
   },
   es: {
-    integrated: ["¿Cuáles son mis mayores fortalezas?", "¿En qué debería centrarme para crecer?", "¿Qué tan consistentes son mis resultados?", "¿Cómo manejo el estrés?", "Resúmeme en una frase."],
+    integrated: ["¿Cuáles son mis mayores fortalezas?", "¿Cuál es mi próxima práctica?", "¿En qué debería centrarme para crecer?", "¿Qué tan consistentes son mis resultados?", "¿Cómo manejo el estrés?", "Resúmeme en una frase."],
     report: ["¿Qué significa esto para mí?", "¿Cuáles son mis fortalezas?", "¿A qué debo prestar atención?", "¿Cómo soy en las relaciones?", "¿Cómo puedo mejorar?"],
     trait: (n) => `Háblame de mi ${n}.`,
   },
   fr: {
-    integrated: ["Quelles sont mes plus grandes forces ?", "Où devrais-je me concentrer pour progresser ?", "Mes résultats sont-ils cohérents ?", "Comment gérer le stress ?", "Résumez-moi en une phrase."],
+    integrated: ["Quelles sont mes plus grandes forces ?", "Quelle est ma prochaine pratique ?", "Où devrais-je me concentrer pour progresser ?", "Mes résultats sont-ils cohérents ?", "Comment gérer le stress ?", "Résumez-moi en une phrase."],
     report: ["Qu'est-ce que cela signifie pour moi ?", "Quelles sont mes forces ?", "À quoi dois-je faire attention ?", "Comment suis-je en relation ?", "Comment progresser ?"],
     trait: (n) => `Parlez-moi de mon ${n}.`,
   },
@@ -40,7 +40,7 @@ export function cSuggest(kind: "report" | "integrated", distinctName: string | u
 
 /* ── intent keywords (each locale also carries the English words, so mixed or
  *    English input keeps working and the en path is unchanged) ───────────── */
-type IntentKey = "greet" | "thanks" | "improve" | "strengths" | "relationships" | "work" | "stress" | "type" | "summary" | "themes" | "consistency";
+type IntentKey = "greet" | "thanks" | "improve" | "strengths" | "relationships" | "work" | "stress" | "type" | "summary" | "themes" | "consistency" | "coach";
 const KW_EN: Record<IntentKey, string[]> = {
   greet: ["hello", "hi ", "hey", "help", "what can you"],
   thanks: ["thank", "thanks", "appreciate"],
@@ -53,6 +53,7 @@ const KW_EN: Record<IntentKey, string[]> = {
   summary: ["summary", "sum me", "tell me about", "describe me", "overview", "in a sentence", "tldr"],
   themes: ["theme", "thread", "pattern", "core"],
   consistency: ["consistent", "consisten", "agree", "disagree", "contradict", "conflict", "reliable", "accurate", "cross-check", "cross check", "line up", "match up", "the same"],
+  coach: ["work on", "growth edge", "practice", "where do i start", "where to start", "what now", "what should i do", "next step", "my plan", "coach me"],
 };
 const KW_ES: Record<IntentKey, string[]> = {
   greet: ["hola", "ayuda", "qué puedes", "que puedes"],
@@ -66,6 +67,7 @@ const KW_ES: Record<IntentKey, string[]> = {
   summary: ["resum", "descríbeme", "describeme", "visión general", "en una frase", "en pocas palabras"],
   themes: ["tema", "hilo", "patrón", "patron", "núcleo", "nucleo"],
   consistency: ["consisten", "coincid", "coheren", "contradic", "conflicto", "fiable", "precis", "se cruzan", "concuerd", "lo mismo", "de acuerdo"],
+  coach: ["trabajar en", "punto de crecimiento", "práctica", "practica", "por dónde empiezo", "por donde empiezo", "qué hago ahora", "que hago ahora", "siguiente paso", "mi plan"],
 };
 const KW_FR: Record<IntentKey, string[]> = {
   greet: ["bonjour", "salut", "aide", "que peux", "que pouvez"],
@@ -79,6 +81,7 @@ const KW_FR: Record<IntentKey, string[]> = {
   summary: ["résum", "resum", "décris-moi", "decris-moi", "aperçu", "apercu", "en une phrase", "en bref"],
   themes: ["thème", "theme", "fil", "motif", "noyau", "cœur", "coeur"],
   consistency: ["cohéren", "coheren", "concord", "contradic", "conflit", "fiable", "précis", "precis", "recoup", "pareil", "d'accord", "se croisent"],
+  coach: ["travailler sur", "axe de progrès", "axe de progres", "pratique", "par où commencer", "par ou commencer", "prochaine étape", "prochaine pratique", "mon plan"],
 };
 const KW: Record<Loc, Record<IntentKey, string[]>> = { en: KW_EN, es: KW_ES, fr: KW_FR };
 
@@ -152,6 +155,12 @@ export const CT = {
     if (loc === "es") return ` Cuidado con ${list(arr, loc)}.`;
     if (loc === "fr") return ` Attention à ${list(arr, loc)}.`;
     return ` Watch for ${list(arr, loc)}.`;
+  },
+  coachPlan: (who: string, focus: string, band: string, practices: string[], loc: Loc): string => {
+    const tag = band ? ` (${band})` : "";
+    if (loc === "es") return `${who}tu punto de crecimiento ahora mismo es ${focus}${tag}. Empieza por estas prácticas: ${list(practices, loc)}. Pequeño y repetido gana a grande y ocasional; tu coach de bienestar en el Perfil Integrado lo convierte en un calendario.`;
+    if (loc === "fr") return `${who}votre axe de progrès en ce moment est ${focus}${tag}. Commencez par ces pratiques : ${list(practices, loc)}. Petit et répété vaut mieux que grand et rare — votre coach de bien-être dans le Profil Intégré en fait un planning.`;
+    return `${who}your growth edge right now is ${focus}${tag}. Start with these practices: ${list(practices, loc)}. Small and repeated beats big and rare — your wellbeing coach in the Integrated Profile turns this into a schedule.`;
   },
   growthIntegrated: (who: string, arr: string[], loc: Loc): string => {
     if (loc === "es") return `${who}tu frontera de crecimiento más clara ahora mismo es ${list(arr, loc)}. Crecer no es un salto: es un comportamiento deliberado, repetido. Empieza por el que más importa esta temporada.`;

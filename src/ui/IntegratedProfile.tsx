@@ -71,7 +71,7 @@ export function IntegratedProfile({ ip, entries = [], onBack, onBrowse, cognitiv
         </section>
 
         <section className="panel">
-          <Companion knowledge={buildIntegratedKnowledge(ip)} />
+          <Companion knowledge={buildIntegratedKnowledge(ip, coach.state === "ready" && coach.practices.length ? { focus: coach.focusDimensionName, band: coach.focusBand, practices: coach.practices.map((p) => ({ title: p.title, cadence: p.cadence })) } : undefined)} />
         </section>
 
         {ip.themes.length > 0 && (

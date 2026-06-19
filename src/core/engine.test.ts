@@ -334,6 +334,27 @@ describe("Ask Atlas companion", () => {
     expect(ans.length).toBeGreaterThan(20);
     expect(ans.toLowerCase()).toContain("cross-check");
   });
+
+  it("answers 'what should I work on?' from the wellbeing coach program", () => {
+    const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
+    const e = (id: string, fn: (it: Item) => number) => ({ instrument: get(id), result: scoreAssessment(get(id), answerAll(get(id), fn)) });
+    const entries = [
+      e("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 1 : 5)), // harsh inner voice
+      e("brief-resilience", (it) => (it.keyed === 1 ? 1 : 5)),                            // low resilience
+    ];
+    const ip = buildIntegratedProfile(entries, { name: "Sam" });
+    const program = buildWellbeingProgram(entries, { locale: "en" });
+    const coach = { focus: program.focusDimensionName, band: program.focusBand, practices: program.practices.map((p) => ({ title: p.title, cadence: p.cadence })) };
+    const k = buildIntegratedKnowledge(ip, coach);
+    const ans = askCompanion(k, "what's my next practice?").text;
+    expect(ans.length).toBeGreaterThan(20);
+    expect(ans.toLowerCase()).toContain(program.focusDimensionName!.toLowerCase());
+    expect(ans.toLowerCase()).toContain("practice");
+    // the coach suggestion is offered
+    expect(suggestedQuestions(k).join(" ").toLowerCase()).toContain("practice");
+    // without coach data the same question still gives a useful growth answer
+    expect(askCompanion(buildIntegratedKnowledge(ip), "what should I work on?").text.length).toBeGreaterThan(10);
+  });
 });
 
 describe("integrated cross-test synthesis", () => {

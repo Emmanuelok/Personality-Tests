@@ -42,6 +42,8 @@ export interface CompanionKnowledge {
   growthEdges?: string[];
   operatingManual?: { label: string; text: string }[];
   convergence?: ConvergenceResult;
+  /** Wellbeing Coach summary — the growth edge and its keystone practices. */
+  coach?: { focus?: string; band?: string; practices: { title: string; cadence?: string }[] };
 }
 
 export function buildReportKnowledge(instrument: Instrument, result: AssessmentResult, report: PersonalityReport, name?: string): CompanionKnowledge {
@@ -77,7 +79,7 @@ export function buildReportKnowledge(instrument: Instrument, result: AssessmentR
   };
 }
 
-export function buildIntegratedKnowledge(ip: IntegratedProfile): CompanionKnowledge {
+export function buildIntegratedKnowledge(ip: IntegratedProfile, coach?: CompanionKnowledge["coach"]): CompanionKnowledge {
   return {
     kind: "integrated",
     name: ip.name,
@@ -89,6 +91,7 @@ export function buildIntegratedKnowledge(ip: IntegratedProfile): CompanionKnowle
     growthEdges: ip.growthEdges,
     operatingManual: ip.operatingManual,
     convergence: ip.convergence,
+    coach,
     sections: [],
   };
 }
@@ -154,6 +157,15 @@ export function askCompanion(k: CompanionKnowledge, question: string, seed?: num
     const lead = scale.narrative ?? CT.traitLead(w, scale.name, pctPhrase(scale.percentile, L), scale.level, L);
     const extra = scale.strengths?.length ? CT.upside(scale.strengths.map(lower), L) : "";
     return wrap(lead + extra);
+  }
+
+  // Wellbeing Coach — "what should I work on / my next practice?" Answers from the
+  // auto-built program when present, else falls through to the growth-edge answer.
+  if (hasIntent(q, L, "coach") && (k.coach?.practices.length || (k.kind === "integrated" && k.growthEdges?.length))) {
+    if (k.coach?.practices.length) {
+      return wrap(CT.coachPlan(w, k.coach.focus ?? "", k.coach.band ?? "", k.coach.practices.slice(0, 3).map((p) => lower(p.title)), L));
+    }
+    return wrap(CT.growthIntegrated(w, k.growthEdges!.slice(0, 3).map((s) => stripBuilding(s, L)), L));
   }
 
   // Strengths
