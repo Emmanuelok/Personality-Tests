@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import type { Instrument } from "@core/types";
 import { INSTRUMENTS, instrumentsByCategory, getInstrument } from "@core/instruments";
 import { ABILITY_TESTS, type AbilityTest } from "@core/ability";
@@ -60,6 +60,9 @@ export function Home({
   onStartIat,
   onStartCreativity,
   onBattery,
+  initialTopic,
+  initialQuery,
+  onInitialConsumed,
 }: {
   entries?: SynthEntry[];
   name?: string;
@@ -80,6 +83,12 @@ export function Home({
   onStartIat: () => void;
   onStartCreativity: () => void;
   onBattery?: () => void;
+  /** Deep-link: a topic-chip key (`?topic=`) to pre-select on open. */
+  initialTopic?: string;
+  /** Deep-link: a free-text catalog query (`?find=`) to pre-fill on open. */
+  initialQuery?: string;
+  /** Called once the initial deep-link has been applied (so it isn't re-applied on remount). */
+  onInitialConsumed?: () => void;
 }) {
   const { locale, t } = useI18n();
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
@@ -104,14 +113,35 @@ export function Home({
   }, [name, t]);
 
   // Catalog search — find a test by free text, or one-tap a topic chip. The two
-  // are mutually exclusive ways to drive the same ranked results.
-  const [catalogQuery, setCatalogQuery] = useState("");
-  const [topic, setTopic] = useState("");
+  // are mutually exclusive ways to drive the same ranked results. Both can be
+  // deep-linked (?topic= / ?find=) so a search is shareable and survives reload.
+  const validTopic = initialTopic && TOPICS.some((tp) => tp.key === initialTopic) ? initialTopic : "";
+  const [catalogQuery, setCatalogQuery] = useState(validTopic ? "" : (initialQuery ?? ""));
+  const [topic, setTopic] = useState(validTopic);
   const activeTopic = TOPICS.find((tp) => tp.key === topic) ?? null;
   const q = activeTopic ? activeTopic.q : catalogQuery.trim();
   const queryLabel = activeTopic ? activeTopic.label[toLoc(locale)] : q;
   const clearSearch = () => { setCatalogQuery(""); setTopic(""); };
   const results = useMemo(() => (q ? searchInstruments(q, { locale }) : null), [q, locale]);
+
+  // Keep the URL in sync so any search/topic is shareable and survives reload.
+  useEffect(() => {
+    const base = window.location.pathname;
+    const url = topic ? `${base}?topic=${encodeURIComponent(topic)}`
+      : catalogQuery.trim() ? `${base}?find=${encodeURIComponent(catalogQuery.trim())}`
+      : base;
+    window.history.replaceState({}, "", url);
+  }, [topic, catalogQuery]);
+
+  // Arriving via a shared search link: drop the user at the results, and mark the
+  // deep-link consumed so navigating away and back doesn't re-apply it.
+  useEffect(() => {
+    if (validTopic || initialQuery) {
+      document.getElementById("catalog")?.scrollIntoView();
+      onInitialConsumed?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // The cognition battery isn't in INSTRUMENTS, so give it lightweight searchable entries.
   const cognitionTests = [
     ...ABILITY_TESTS.map((at) => ({ id: at.id, name: at.name, short: at.shortName, tagline: at.tagline, kind: t("h.abilityKind"), kw: ["iq", "intelligence", "reasoning", "cognitive", "ability", "matrices", "icar"], run: () => onStartAbility(at) })),

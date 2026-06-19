@@ -79,6 +79,14 @@ export default function App() {
   const [skipOnb, setSkipOnb] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
+  // Shared discovery link (?topic= / ?find=) — read once, synchronously, so the
+  // catalog opens pre-filtered on the very first render (even for returning users).
+  const [initialFind, setInitialFind] = useState<{ topic?: string; query?: string } | null>(() => {
+    const p = new URLSearchParams(window.location.search);
+    const topic = p.get("topic");
+    const find = p.get("find");
+    return topic ? { topic } : find ? { query: find } : null;
+  });
   const [autopilot, setAutopilot] = useState<{ active: boolean; total: number; done: number; plan?: string[] }>({ active: false, total: 0, done: 0 });
   const [view, setView] = useState<View>("home");
   const [instrument, setInstrument] = useState<Instrument | null>(null);
@@ -180,6 +188,12 @@ export default function App() {
     const room = decodeRoom(code);
     if (room) { setJoinRoom(room); setSkipOnb(true); setView("study"); }
     window.history.replaceState({}, "", window.location.pathname);
+  }, []);
+
+  // A shared discovery link skips onboarding so it lands straight on the catalog.
+  useEffect(() => {
+    if (initialFind) { setSkipOnb(true); setView("home"); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Keep the daily-visit streak current whenever a returning user opens the app.
@@ -604,6 +618,9 @@ export default function App() {
           onStartIat={startIat}
           onStartCreativity={startCreativity}
           onBattery={battery ? goBattery : undefined}
+          initialTopic={initialFind?.topic}
+          initialQuery={initialFind?.query}
+          onInitialConsumed={() => setInitialFind(null)}
         />
       )}
 
