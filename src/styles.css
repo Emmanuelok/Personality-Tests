@@ -1318,6 +1318,17 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .gp-scale { margin: 9px 0; }
 .gp-scale.wide .gp-scale-name { color: var(--accent-warm); font-weight: 600; }
 .gp-scale-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; font-size: 13px; margin-bottom: 3px; }
+
+/* Wellbeing Coach — the auto-built plan panel */
+.coach-panel { position: relative; }
+.coach-edge { display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 12px; font-family: var(--serif); font-size: 17px; }
+.coach-edge-tag { font-family: var(--sans); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px; }
+.coach-line { margin: 0 0 8px; line-height: 1.55; }
+.coach-steps { list-style: none; padding: 0; margin: 14px 0 4px; display: flex; flex-direction: column; gap: 12px; }
+.coach-steps li { border: 1px solid var(--border-soft); border-radius: 12px; padding: 12px 14px; background: var(--surface-2); }
+.coach-steps li b { font-size: 15px; }
+.coach-cadence { color: var(--accent-2); font-size: 12.5px; }
+.coach-ev { display: block; margin-top: 4px; color: var(--text-faint); font-size: 12px; font-style: italic; }
 .gp-scale-name { color: var(--text-dim); }
 .gp-range { color: var(--text-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 

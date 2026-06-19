@@ -1,7 +1,10 @@
-import type { IntegratedProfile as IP } from "@core/synthesis";
+import { useMemo } from "react";
+import type { IntegratedProfile as IP, SynthEntry } from "@core/synthesis";
 import { buildIntegratedKnowledge } from "@core/companion";
 import { reasoningLink, reasoningAnchor, synthLoc } from "@core/synthesis.i18n";
+import { buildWellbeingProgram } from "@core/wellbeingagent";
 import { downloadIntegratedMarkdown } from "./exports";
+import { downloadICS, nextEveningSlot, eveningSeries, type CalEvent } from "./calendar";
 import { getInstrument } from "@core/instruments";
 import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
@@ -11,10 +14,22 @@ import { pctLabel } from "./fmt";
 import { useI18n } from "../i18n";
 import type { CognitiveTake } from "../profile";
 
-export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP; onBack: () => void; onBrowse: () => void; cognitive?: CognitiveTake[] }) {
+export function IntegratedProfile({ ip, entries = [], onBack, onBrowse, cognitive }: { ip: IP; entries?: SynthEntry[]; onBack: () => void; onBrowse: () => void; cognitive?: CognitiveTake[] }) {
   const { t, locale } = useI18n();
   const loc = synthLoc(locale);
   const anchor = reasoningAnchor(ip.themes[0]?.name, ip.strengths.length > 0, loc);
+  // Wellbeing Coach — an auto-built, focused plan for the portrait's growth edge.
+  const coach = useMemo(() => buildWellbeingProgram(entries, { locale }), [entries, locale]);
+  const scheduleCoach = () => {
+    const slots = eveningSeries(nextEveningSlot(), coach.practices.length, 2);
+    const events: CalEvent[] = coach.practices.map((p, i) => ({
+      title: `${t("iep.coach")}: ${p.title}`,
+      description: `${coach.focusDimensionName ?? ""}${p.cadence ? ` · ${p.cadence}` : ""}${p.evidence ? `\n${p.evidence}` : ""}`,
+      start: slots[i] ?? nextEveningSlot(),
+      durationMin: 20,
+    }));
+    if (events.length) downloadICS("wellbeing-coach.ics", events);
+  };
   return (
     <div className="container view-enter">
       <div className="iep-hero">
@@ -162,6 +177,33 @@ export function IntegratedProfile({ ip, onBack, onBrowse, cognitive }: { ip: IP;
               </div>
             ))}
             <p className="xc-insight">{ip.wellbeing.insight}</p>
+          </section>
+        )}
+
+        {coach.state === "ready" && coach.practices.length > 0 && (
+          <section className="panel coach-panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 24 }}>{t("iep.coach")}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{t("iep.coachSub")}</p>
+            {coach.focusDimensionName && (
+              <div className="coach-edge">
+                <span className="coach-edge-tag">{t("iep.coachEdge")}</span>
+                <span>{coach.focusDimensionName}{coach.focusBand ? ` · ${coach.focusBand}` : ""}</span>
+              </div>
+            )}
+            {coach.narrative.map((line, i) => (
+              <p className="coach-line" key={i}>{line}</p>
+            ))}
+            <ul className="coach-steps">
+              {coach.practices.map((p, i) => (
+                <li key={i}>
+                  <b>{p.title}</b>{p.cadence ? <span className="coach-cadence"> · {p.cadence}</span> : null}
+                  {p.evidence ? <span className="coach-ev">{p.evidence}</span> : null}
+                </li>
+              ))}
+            </ul>
+            <div className="row-actions">
+              <button className="btn" onClick={scheduleCoach}>{t("iep.coachSchedule")}</button>
+            </div>
           </section>
         )}
 

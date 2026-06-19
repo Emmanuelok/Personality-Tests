@@ -716,7 +716,7 @@ export default function App() {
         )
       )}
 
-      {view === "integrated" && integrated && <IntegratedProfile ip={integrated} onBack={goHome} onBrowse={goHome} cognitive={profile?.cognitiveHistory} />}
+      {view === "integrated" && integrated && <IntegratedProfile ip={integrated} entries={entries} onBack={goHome} onBrowse={goHome} cognitive={profile?.cognitiveHistory} />}
 
       {view === "compatibility" && (
         <Compatibility instrument={instrument} result={result} onStart={start} onBack={goHome} />
