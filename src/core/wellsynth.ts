@@ -29,7 +29,7 @@ export const WELLBEING_INSTRUMENT_IDS = [
   "self-compassion-scs", "self-esteem-rses", "brief-resilience", "emotion-regulation-erq",
   "perceived-stress", "worry-checkin", "time-perspective-ztpi", "panas-affect", "mood-checkin",
   "optimism-lotr", "gratitude-gq6", "perma-flourishing", "hope-scale", "life-satisfaction-swls",
-  "self-efficacy-gse", "ryff-wellbeing", "curiosity-cei", "emotional-intelligence", "meaning-mlq",
+  "self-efficacy-gse", "ryff-wellbeing", "curiosity-cei", "emotional-intelligence", "meaning-mlq", "mindfulness-ffmq",
 ] as const;
 
 export interface WellThemeSource {
@@ -80,6 +80,7 @@ const THEMES: ThemeDef[] = [
       { inst: "self-compassion-scs", scale: "IS", dir: -1, w: 0.6 },
       { inst: "self-compassion-scs", scale: "OI", dir: -1, w: 0.6 },
       { inst: "self-esteem-rses", scale: "EST", dir: 1, w: 0.5 },
+      { inst: "mindfulness-ffmq", scale: "NJ", dir: 1, w: 0.5 },
     ],
   },
   {
@@ -95,6 +96,8 @@ const THEMES: ThemeDef[] = [
       { inst: "worry-checkin", scale: "STDY", dir: 1, w: 0.5 },
       { inst: "time-perspective-ztpi", scale: "PN", dir: -1, w: 0.4 },
       { inst: "panas-affect", scale: "NA", dir: -1, w: 0.4 },
+      { inst: "mindfulness-ffmq", scale: "NR", dir: 1, w: 0.6 },
+      { inst: "mindfulness-ffmq", scale: "AWA", dir: 1, w: 0.3 },
     ],
   },
   {

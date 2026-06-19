@@ -442,6 +442,15 @@ const GLYPHS: Record<string, EmblemFn> = {
       <circle className="gold" cx="35" cy="14" r="0.9" />
     </>
   ),
+  // Mindfulness — concentric ripples of present-moment awareness.
+  "mindfulness-ffmq": () => (
+    <>
+      <circle className="gold gold-fill" cx="24" cy="24" r="3" />
+      <circle cx="24" cy="24" r="9" />
+      <circle cx="24" cy="24" r="15" />
+      <circle className="gold" cx="24" cy="24" r="20.5" />
+    </>
+  ),
   // VIA character strengths — a medal of virtue.
   "via-24": () => (
     <>

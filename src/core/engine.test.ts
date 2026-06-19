@@ -1026,7 +1026,7 @@ describe("new focused instruments", () => {
 describe("procrastination / perfectionism / gratitude", () => {
   const get = (id: string) => INSTRUMENTS.find((i) => i.id === id)!;
   it("are fully localized into es/fr (taglines, scales, and items)", () => {
-    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs", "time-perspective-ztpi", "meaning-mlq"]) {
+    for (const id of ["procrastination-pps", "perfectionism-2f", "gratitude-gq6", "self-efficacy-gse", "emotion-regulation-erq", "self-control-bscs", "eysenck-pen", "perceived-stress", "worry-checkin", "zkpq-alt5", "tci-cloninger", "sensation-seeking", "panas-affect", "ryff-wellbeing", "burnout-mbi", "locus-of-control", "self-monitoring", "moral-foundations", "big-five-aspects", "career-derailers", "pid5-maladaptive", "rokeach-values", "schwartz-values", "sixteen-pf", "attachment-styles", "love-languages", "conflict-style", "kolb-learning", "vark-learning", "chronotype", "four-temperaments", "color-styles", "keirsey-temperaments", "leadership-styles", "mcclelland-needs", "career-anchors", "coping-styles", "adhd-traits", "autism-traits", "dark-tetrad-18", "socionics-16", "via-24", "couple-communication", "team-communication", "communication-style", "money-scripts", "self-compassion-scs", "time-perspective-ztpi", "meaning-mlq", "mindfulness-ffmq"]) {
       const inst = get(id);
       const es = localizeInstrument(inst, "es");
       const fr = localizeInstrument(inst, "fr");
@@ -1205,6 +1205,48 @@ describe("meaning in life (Steger)", () => {
     const reading = analyzeConvergence([stableBf, meaningful], {}).readings.find((r) => r.id === "stability")!;
     expect(reading).toBeTruthy();
     expect(reading.sources.some((s) => s.instrumentId === "meaning-mlq")).toBe(true);
+  });
+});
+
+describe("five facet mindfulness (FFMQ)", () => {
+  const ffmq = INSTRUMENTS.find((i) => i.id === "mindfulness-ffmq")!;
+
+  it("scores five facets and bands overall mindfulness (reverse-keyed facets included)", () => {
+    expect(Object.keys(scoreAssessment(ffmq, allHigh(ffmq)).scales).sort()).toEqual(["AWA", "DES", "NJ", "NR", "OBS"]);
+    // allHigh drives every facet to its mindful pole regardless of keying.
+    const hi = scoreAssessment(ffmq, allHigh(ffmq)).type!;
+    expect(hi.code).toBe("Highly Mindful");
+    expect(hi.components.find((c) => c.label === "Overall mindfulness")!.value).toBe("100/100");
+    // allLow drives every facet to its non-mindful pole → on autopilot.
+    expect(scoreAssessment(ffmq, allLow(ffmq)).type!.code).toBe("Often on Autopilot");
+  });
+
+  it("reverse-keys the autopilot and judging items so high = more mindful", () => {
+    // Agreeing with every item: the +keyed facets go high, the reverse-keyed (AWA, NJ) go low.
+    const agreeAll = answerAll(ffmq, () => ffmq.responseFormat.max);
+    const res = scoreAssessment(ffmq, agreeAll);
+    expect(res.scales.OBS.normalized).toBe(100); // observing is +keyed
+    expect(res.scales.AWA.normalized).toBe(0);   // acting-with-awareness is reverse-keyed
+    expect(res.scales.NJ.normalized).toBe(0);    // non-judging is reverse-keyed
+  });
+
+  it("keeps the canonical band code while localizing the card (es/fr)", () => {
+    const ans = allHigh(ffmq);
+    const es = scoreAssessment(localizeInstrument(ffmq, "es"), ans).type!;
+    expect(es.code).toBe("Highly Mindful"); // canonical
+    expect(es.title).toBe("El Presente");
+    expect(es.components.some((c) => c.label === "Atención plena global")).toBe(true);
+    const fr = scoreAssessment(localizeInstrument(ffmq, "fr"), ans).type!;
+    expect(fr.code).toBe("Highly Mindful");
+    expect(fr.title).toBe("Le Présent");
+  });
+
+  it("lets non-reactivity triangulate emotional stability", () => {
+    const stableBf = { instrument: bigFive, result: scoreAssessment(bigFive, answerAll(bigFive, (it) => (it.scale === "N" ? (it.keyed === 1 ? 1 : 5) : 3))) };
+    const mindful = { instrument: ffmq, result: scoreAssessment(ffmq, allHigh(ffmq)) };
+    const reading = analyzeConvergence([stableBf, mindful], {}).readings.find((r) => r.id === "stability")!;
+    expect(reading).toBeTruthy();
+    expect(reading.sources.some((s) => s.instrumentId === "mindfulness-ffmq")).toBe(true);
   });
 });
 

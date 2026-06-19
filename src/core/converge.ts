@@ -132,6 +132,9 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "time-perspective-ztpi", scale: "PN", dir: -1, w: 0.6 },
       { inst: "time-perspective-ztpi", scale: "PF", dir: -1, w: 0.4 },
       { inst: "meaning-mlq", scale: "PRES", dir: 1, w: 0.4 },
+      { inst: "mindfulness-ffmq", scale: "NR", dir: 1, w: 0.5 },
+      { inst: "mindfulness-ffmq", scale: "AWA", dir: 1, w: 0.3 },
+      { inst: "mindfulness-ffmq", scale: "NJ", dir: 1, w: 0.3 },
     ],
   },
   {
@@ -147,6 +150,7 @@ const CONSTRUCTS: ConstructDef[] = [
       { inst: "curiosity-cei", scale: "STRETCH", dir: 1, w: 0.7 },
       { inst: "curiosity-cei", scale: "EMBRACE", dir: 1, w: 0.6 },
       { inst: "sensation-seeking", scale: "TAS", dir: 1, w: 0.3 },
+      { inst: "mindfulness-ffmq", scale: "OBS", dir: 1, w: 0.3 },
     ],
   },
 ];

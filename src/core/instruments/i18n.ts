@@ -2846,6 +2846,44 @@ const MEANING_FR: InstrumentTranslation = {
     S1: "Je cherche quelque chose qui rende ma vie significative.", S2: "Je cherche un but ou une mission pour ma vie.", S3: "J'essaie toujours de comprendre de quoi parle ma vie.", S4: "Je cherche un sens plus profond à ma vie.", S5: "Je reste attentif(ve) à ce qui compte vraiment pour moi.",
   },
 };
+const MINDFUL_ES: InstrumentTranslation = {
+  name: "Atención plena (cinco facetas)", shortName: "Atención plena",
+  tagline: "La conciencia del momento presente, en sus cinco facetas distintas.",
+  description: "La atención plena —prestar atención al presente, a propósito y sin juzgar— no es una sola cosa. Este perfilador, basado en el Cuestionario de las Cinco Facetas de la Atención Plena, mapea cinco: Observar (notar la experiencia interna y externa), Describir (ponerla en palabras), Actuar con conciencia (estar presente en vez de en piloto automático), No juzgar (una actitud amable y no evaluativa hacia tu mundo interior) y No reactividad (dejar que pensamientos y emociones vayan y vengan). Muestra dónde tu atención es fuerte, dónde se dispersa y la faceta donde la práctica rinde más rápido. La atención plena se entrena: esto es un punto de partida, no un veredicto.",
+  scales: {
+    OBS: { name: "Observar", description: "Notar y atender la experiencia interna y externa.", poles: { low: "Desconectado", high: "Sintonizado" }, highDescriptor: "atento/a a sensaciones, imágenes, sonidos y señales internas", lowDescriptor: "menos sintonizado/a con la experiencia momento a momento" },
+    DES: { name: "Describir", description: "Poner en palabras la experiencia interior.", poles: { low: "Sin palabras", high: "Articulado" }, highDescriptor: "capaz de nombrar y articular lo que piensas y sientes", lowDescriptor: "con dificultad para poner los sentimientos en palabras" },
+    AWA: { name: "Actuar con conciencia", description: "Estar presente en lo que haces en lugar de en piloto automático.", poles: { low: "Piloto automático", high: "Presente" }, highDescriptor: "presente y atento/a en lo que haces", lowDescriptor: "a menudo en piloto automático, con la atención en otra parte" },
+    NJ: { name: "No juzgar", description: "Adoptar una actitud no evaluativa hacia pensamientos y emociones.", poles: { low: "Juzgador", high: "Aceptante" }, highDescriptor: "que acepta tu experiencia interior sin juicios duros", lowDescriptor: "rápido/a en juzgar tus propios pensamientos y emociones" },
+    NR: { name: "No reactividad", description: "Dejar que pensamientos y emociones vayan y vengan sin arrastrarte.", poles: { low: "Arrastrado", high: "Sereno" }, highDescriptor: "capaz de notar emociones difíciles sin dejarte llevar", lowDescriptor: "que se deja atrapar y arrastrar fácilmente por la experiencia interior" },
+  },
+  items: {
+    OB1: "Noto los olores y aromas de las cosas.", OB2: "Presto atención a sensaciones físicas: el viento en el pelo, el sol en la cara.", OB3: "Noto cómo la comida y la bebida afectan a mis pensamientos, mi cuerpo y mi ánimo.", OB4: "Noto detalles visuales en el arte o la naturaleza: colores, formas y luz.",
+    DE1: "Se me da bien encontrar palabras para describir mis sentimientos.", DE2: "Normalmente puedo poner en palabras mis creencias y expectativas.", DE3: "Incluso cuando estoy muy alterado/a, encuentro la manera de ponerlo en palabras.", DE4: "Puedo describir con detalle, y con facilidad, lo que estoy pensando.",
+    AW1: "Hago las actividades a toda prisa, sin estar realmente atento/a a ellas.", AW2: "Hago tareas de forma automática, sin ser consciente de lo que hago.", AW3: "Me descubro haciendo cosas sin prestar atención.", AW4: "Me enredo tanto en pensamientos sobre el pasado o el futuro que me pierdo el presente.",
+    NJ1: "Me critico por tener emociones irracionales o inapropiadas.", NJ2: "Me digo que no debería sentir lo que siento.", NJ3: "Pienso que algunos sentimientos son malos o incorrectos y que no debería tenerlos.", NJ4: "Hago juicios duros sobre si mis pensamientos son buenos o malos.",
+    NR1: "Observo mis sentimientos sin dejarme llevar por ellos.", NR2: "Cuando tengo pensamientos angustiosos, puedo notarlos sin reaccionar.", NR3: "En momentos difíciles, puedo hacer una pausa antes de responder.", NR4: "Puedo observar pensamientos y emociones desagradables y dejarlos pasar.",
+  },
+};
+const MINDFUL_FR: InstrumentTranslation = {
+  name: "Pleine conscience (cinq facettes)", shortName: "Pleine conscience",
+  tagline: "La conscience de l'instant présent, à travers ses cinq facettes.",
+  description: "La pleine conscience — prêter attention au présent, volontairement et sans juger — n'est pas une seule chose. Ce profileur, fondé sur le Questionnaire des Cinq Facettes de la Pleine Conscience, en cartographie cinq : Observer (remarquer l'expérience interne et externe), Décrire (la mettre en mots), Agir en conscience (être présent plutôt qu'en pilote automatique), Non-jugement (une posture bienveillante et non évaluative envers votre monde intérieur) et Non-réactivité (laisser pensées et émotions aller et venir). Il montre où votre attention est forte, où elle se disperse, et la facette où la pratique paie le plus vite. La pleine conscience s'entraîne : c'est un point de départ, pas un verdict.",
+  scales: {
+    OBS: { name: "Observer", description: "Remarquer et accueillir l'expérience interne et externe.", poles: { low: "Déconnecté", high: "À l'écoute" }, highDescriptor: "attentif(ve) aux sensations, images, sons et signaux internes", lowDescriptor: "moins à l'écoute de l'expérience instant après instant" },
+    DES: { name: "Décrire", description: "Mettre en mots l'expérience intérieure.", poles: { low: "Sans mots", high: "Éloquent" }, highDescriptor: "capable de nommer et d'exprimer ce que vous pensez et ressentez", lowDescriptor: "ayant du mal à mettre vos émotions en mots" },
+    AWA: { name: "Agir en conscience", description: "Être présent dans vos activités plutôt qu'en pilote automatique.", poles: { low: "Pilote automatique", high: "Présent" }, highDescriptor: "présent(e) et attentif(ve) à ce que vous faites", lowDescriptor: "souvent en pilote automatique, l'attention ailleurs" },
+    NJ: { name: "Non-jugement", description: "Adopter une posture non évaluative envers pensées et émotions.", poles: { low: "Jugeant", high: "Accueillant" }, highDescriptor: "accueillant votre vie intérieure sans jugement dur", lowDescriptor: "prompt(e) à juger vos propres pensées et émotions" },
+    NR: { name: "Non-réactivité", description: "Laisser pensées et émotions aller et venir sans se laisser emporter.", poles: { low: "Emporté", high: "Posé" }, highDescriptor: "capable de remarquer des émotions difficiles sans vous laisser emporter", lowDescriptor: "facilement happé(e) et emporté(e) par l'expérience intérieure" },
+  },
+  items: {
+    OB1: "Je remarque les odeurs et les arômes des choses.", OB2: "Je prête attention aux sensations physiques — le vent dans les cheveux, le soleil sur le visage.", OB3: "Je remarque comment ce que je mange et bois affecte mes pensées, mon corps et mon humeur.", OB4: "Je remarque les détails visuels dans l'art ou la nature — couleurs, formes et lumière.",
+    DE1: "Je trouve facilement les mots pour décrire mes émotions.", DE2: "Je peux d'ordinaire mettre en mots mes convictions et mes attentes.", DE3: "Même très bouleversé(e), je trouve un moyen de le mettre en mots.", DE4: "Je peux décrire en détail, et facilement, ce que je pense.",
+    AW1: "Je fais les activités à toute vitesse, sans y être vraiment attentif(ve).", AW2: "Je fais des tâches automatiquement, sans être conscient(e) de ce que je fais.", AW3: "Je me surprends à faire des choses sans y prêter attention.", AW4: "Je me perds tellement dans des pensées sur le passé ou l'avenir que je rate le présent.",
+    NJ1: "Je me critique d'avoir des émotions irrationnelles ou inappropriées.", NJ2: "Je me dis que je ne devrais pas ressentir ce que je ressens.", NJ3: "Je pense que certaines émotions sont mauvaises ou déplacées et que je ne devrais pas les avoir.", NJ4: "Je porte des jugements durs sur le fait que mes pensées soient bonnes ou mauvaises.",
+    NR1: "J'observe mes émotions sans me laisser emporter par elles.", NR2: "Quand j'ai des pensées pénibles, je peux les remarquer sans réagir.", NR3: "Dans les moments difficiles, je peux faire une pause avant de répondre.", NR4: "Je peux observer des pensées et émotions désagréables et les laisser passer.",
+  },
+};
 
 export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
   es: {
@@ -2866,7 +2904,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
     "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
     "couple-communication": COUPLECOMM_ES, "team-communication": TEAMCOMM_ES, "communication-style": COMMSTYLE_ES,
-    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES, "time-perspective-ztpi": TIME_ES, "meaning-mlq": MEANING_ES,
+    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES, "time-perspective-ztpi": TIME_ES, "meaning-mlq": MEANING_ES, "mindfulness-ffmq": MINDFUL_ES,
   },
   fr: {
     "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
@@ -2886,7 +2924,7 @@ export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>>
     "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
     "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
     "couple-communication": COUPLECOMM_FR, "team-communication": TEAMCOMM_FR, "communication-style": COMMSTYLE_FR,
-    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR, "time-perspective-ztpi": TIME_FR, "meaning-mlq": MEANING_FR,
+    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR, "time-perspective-ztpi": TIME_FR, "meaning-mlq": MEANING_FR, "mindfulness-ffmq": MINDFUL_FR,
   },
 };
 
@@ -3623,6 +3661,37 @@ const MEANING_TYPE_FR: MeaningTypeBundle = {
 };
 export function meaningTypeStrings(locale?: string): MeaningTypeBundle | undefined {
   return locale === "es" ? MEANING_TYPE_ES : locale === "fr" ? MEANING_TYPE_FR : undefined;
+}
+
+/** Five Facet Mindfulness type card (the mindful / growing / autopilot bands + facets). */
+export interface MindfulnessTypeBundle {
+  bands: Record<"mindful" | "growing" | "autopilot", { title: string; summary: string }>;
+  labels: { overall: string; strength: string; growth: string; everyday: string };
+  facets: Record<"OBS" | "DES" | "AWA" | "NJ" | "NR", string>;
+  levels: { high: string; mid: string; low: string };
+}
+const MINDFUL_TYPE_ES: MindfulnessTypeBundle = {
+  bands: {
+    mindful: { title: "El Presente", summary: "Afrontas la vida con bastante conciencia del momento presente: notas lo que hay, lo nombras, te quedas en lo que haces y dejas pasar pensamientos y emociones sin que te arrastren. Esta actitud atenta es uno de los apoyos con más respaldo para la calma, el foco y el equilibrio emocional. Mantenla viva con una práctica pequeña y regular." },
+    growing: { title: "El que se Asienta", summary: "Eres consciente en algunos momentos y vas en piloto automático en otros, que es donde vive la mayoría. Algunas facetas te salen con facilidad; otras se escapan cuando hay prisa o estrés. Reforzar tu faceta más débil con un poco de práctica diaria es la vía más rápida hacia una atención más estable y reacciones más serenas." },
+    autopilot: { title: "En Piloto Automático", summary: "Buena parte de tu vida va ahora en piloto automático: la atención dispersa, el crítico interior alto o emociones que te arrastran enseguida. Es muy común y muy trabajable: la atención plena es una habilidad que se entrena, y unos minutos al día de práctica del presente la construyen de forma fiable. Tu faceta más débil es el punto de partida." },
+  },
+  labels: { overall: "Atención plena global", strength: "Faceta más fuerte", growth: "Palanca de crecimiento", everyday: "Presencia cotidiana" },
+  facets: { OBS: "Observar", DES: "Describir", AWA: "Actuar con conciencia", NJ: "No juzgar", NR: "No reactividad" },
+  levels: { high: "fuerte", mid: "moderada", low: "en desarrollo" },
+};
+const MINDFUL_TYPE_FR: MindfulnessTypeBundle = {
+  bands: {
+    mindful: { title: "Le Présent", summary: "Vous abordez la vie avec une bonne conscience de l'instant présent : vous remarquez ce qui est là, vous le nommez, vous restez dans ce que vous faites et vous laissez passer pensées et émotions sans vous laisser emporter. Cette posture attentive est l'un des soutiens les mieux étayés pour le calme, la concentration et l'équilibre émotionnel. Entretenez-la par une petite pratique régulière." },
+    growing: { title: "Celui qui s'Ancre", summary: "Vous êtes attentif(ve) par moments et en pilote automatique à d'autres — là où vit la plupart des gens. Certaines facettes viennent facilement ; d'autres s'échappent quand vous êtes pressé(e) ou stressé(e). Renforcer votre facette la plus faible par un peu de pratique quotidienne est le chemin le plus rapide vers une attention plus stable et des réactions plus posées." },
+    autopilot: { title: "En Pilote Automatique", summary: "Une grande partie de votre vie tourne en pilote automatique en ce moment : attention dispersée, critique intérieur fort, ou émotions qui vous emportent vite. C'est très courant et tout à fait travaillable : la pleine conscience est une compétence qui s'entraîne, et quelques minutes par jour de pratique du présent la construisent de façon fiable. Votre facette la plus faible est le point de départ." },
+  },
+  labels: { overall: "Pleine conscience globale", strength: "Facette la plus forte", growth: "Levier de croissance", everyday: "Présence au quotidien" },
+  facets: { OBS: "Observer", DES: "Décrire", AWA: "Agir en conscience", NJ: "Non-jugement", NR: "Non-réactivité" },
+  levels: { high: "forte", mid: "modérée", low: "en développement" },
+};
+export function mindfulnessTypeStrings(locale?: string): MindfulnessTypeBundle | undefined {
+  return locale === "es" ? MINDFUL_TYPE_ES : locale === "fr" ? MINDFUL_TYPE_FR : undefined;
 }
 
 /* ── ADHD / Autism educational screeners (typological; type card localized) ── */

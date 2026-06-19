@@ -68,6 +68,7 @@ import { moneyScripts } from "./moneyscripts";
 import { selfCompassion } from "./selfcompassion";
 import { timePerspective } from "./timeperspective";
 import { meaning } from "./meaning";
+import { mindfulness } from "./mindfulness";
 
 /** All instruments available on the platform, grouped loosely by category. */
 export const INSTRUMENTS: Instrument[] = [
@@ -115,6 +116,7 @@ export const INSTRUMENTS: Instrument[] = [
   selfCompassion,
   timePerspective,
   meaning,
+  mindfulness,
   vark,
   kolb,
   adhd,
@@ -198,6 +200,7 @@ export {
   selfCompassion,
   timePerspective,
   meaning,
+  mindfulness,
   vark,
   kolb,
   adhd,
