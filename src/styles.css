@@ -914,6 +914,7 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
   background: radial-gradient(closest-side, rgba(199, 154, 62, 0.18), transparent);
   filter: blur(8px); pointer-events: none; z-index: 0;
 }
+.foryou-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 4px; }
 .foryou > * { position: relative; z-index: 1; }
 .foryou .eyebrow { color: var(--accent-2); }
 .foryou-title {

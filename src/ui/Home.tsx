@@ -228,6 +228,10 @@ export function Home({
               <span className="trait-chip muted">{t("home.takenCount").replace("{n}", String(entries.length))}</span>
             </div>
           )}
+          <div className="foryou-actions">
+            <button className="btn primary sm" onClick={onStartPack}>✨&nbsp;{t("h.startPack")}</button>
+            <button className="btn ghost sm" onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
+          </div>
           {roadmap.steps.length > 0 && (
             <div className="panel roadmap-panel">
               <div className="rm-head">
