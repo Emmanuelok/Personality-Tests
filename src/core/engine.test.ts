@@ -640,6 +640,17 @@ describe("growth planning", () => {
     expect(pn.direction).toBe("decrease");
     expect(pn.steps.some((s) => /reframe|memory|forgiv/i.test(s.title + s.detail))).toBe(true);
   });
+
+  it("turns mindfulness into a cited, facet-specific plan that grows every facet", () => {
+    const ffmq = INSTRUMENTS.find((i) => i.id === "mindfulness-ffmq")!;
+    const low = scoreAssessment(ffmq, allLow(ffmq)); // every facet low → grow them all
+    const plan = buildGrowthPlan(ffmq, low, suggestTargets(ffmq, low), { seed: 5 });
+    expect(plan.areas.length).toBeGreaterThan(0);
+    expect(plan.areas.every((a) => a.direction === "increase")).toBe(true);
+    const nr = plan.areas.find((a) => a.scaleId === "NR")!;
+    expect(nr.steps.some((s) => /urge|breath|cloud|sky/i.test(s.title + s.detail))).toBe(true);
+    expect(nr.steps.every((s) => Boolean(s.evidence))).toBe(true);
+  });
 });
 
 describe("multiple-choice (choice-format) scoring", () => {

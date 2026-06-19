@@ -42,7 +42,7 @@ export interface GrowthPlan {
 const GAP_THRESHOLD = 8;
 
 /** Wellbeing instruments grow toward flourishing rather than toward the midpoint. */
-const WELLBEING_IDS = new Set(["perma-flourishing", "brief-resilience", "self-esteem-rses", "mood-checkin", "life-satisfaction-swls"]);
+const WELLBEING_IDS = new Set(["perma-flourishing", "brief-resilience", "self-esteem-rses", "mood-checkin", "life-satisfaction-swls", "mindfulness-ffmq"]);
 
 /**
  * Suggest sensible default growth targets so a plan can be shown (and put into the
@@ -325,6 +325,33 @@ const STRATEGY_BANKS: Record<string, Record<string, DirSteps>> = {
       { title: "Make goals vivid and time-bound", detail: "Turn 'someday' into a specific, dated goal with a defined next step. Concrete future goals pull present behavior forward.", cadence: "Per goal", evidence: "Locke & Latham (2002)" },
       { title: "Meet your future self", detail: "Vividly picture — or even write a letter from — yourself years ahead. Feeling connected to your future self increases patience, saving, and planning.", cadence: "Monthly", evidence: "Hershfield (2011), future-self continuity" },
       { title: "Bind it with if-then plans", detail: "Pre-commit with 'When X happens, I will do Y' for the actions your future depends on. Implementation intentions roughly double follow-through.", cadence: "Ongoing", evidence: "Gollwitzer (1999)" },
+    ] },
+  },
+  "mindfulness-ffmq": {
+    OBS: { increase: [
+      { title: "Run a daily body scan", detail: "Spend a few minutes moving your attention slowly through the body, noticing sensations as they are without trying to change them. The classic way to train Observing.", cadence: "Daily, 5–10 min", evidence: "Kabat-Zinn (1990), MBSR" },
+      { title: "Do a 5-4-3-2-1 senses check", detail: "Deliberately name five things you see, four you hear, three you feel, two you smell, and one you taste. A fast way to drop into direct experience.", cadence: "Daily", evidence: "Sensory grounding (MBSR)" },
+      { title: "Take a one-sense minute", detail: "Once a day, give 60 seconds of full attention to a single sense — the taste of your coffee, the sounds in the room. Small, repeatable, real.", cadence: "Daily", evidence: "Informal mindfulness practice" },
+    ] },
+    DES: { increase: [
+      { title: "Name the feeling precisely", detail: "Put what you feel into specific words ('disappointed,' 'apprehensive') rather than 'bad.' Precise labeling — affect labeling — calms the brain's threat response.", cadence: "In the moment", evidence: "Lieberman et al. (2007); Barrett (2017)" },
+      { title: "Keep a two-line feelings log", detail: "Each evening, write the main feeling you had and the situation around it. Naming builds the vocabulary that makes inner life legible.", cadence: "Daily", evidence: "Expressive writing (Pennebaker, 1997)" },
+      { title: "Widen your emotion vocabulary", detail: "When you're stuck on 'fine' or 'stressed,' consult a feelings wheel to find the more exact word. Granularity is a learnable skill.", cadence: "As needed", evidence: "Emotional granularity research" },
+    ] },
+    AWA: { increase: [
+      { title: "Single-task on purpose", detail: "Do one thing at a time, fully — phone away, other tabs closed. Acting with awareness is mostly the absence of autopilot multitasking.", cadence: "Daily", evidence: "Attention research; MBSR" },
+      { title: "Three breaths at transitions", detail: "Between activities, take three conscious breaths before starting the next thing. It re-enters the present and breaks the autopilot chain.", cadence: "At transitions", evidence: "Informal MBSR practice" },
+      { title: "Choose one daily activity to do mindfully", detail: "Pick a routine — a shower, a walk, washing up — and do it with full attention to the senses each day. Everyday life becomes the practice.", cadence: "Daily", evidence: "Kabat-Zinn (1990)" },
+    ] },
+    NJ: { increase: [
+      { title: "Notice and name 'judging'", detail: "When you catch a verdict on your own thoughts or feelings, silently note 'judging' and return to the experience itself. Seeing the judge loosens it.", cadence: "Daily", evidence: "MBCT (Segal, Williams & Teasdale, 2002)" },
+      { title: "Add 'and that's okay'", detail: "When a hard feeling shows up, let it be there without ruling it wrong. Acceptance reduces the second layer of suffering judgment adds.", cadence: "In the moment", evidence: "Acceptance & Commitment Therapy (Hayes et al., 1999)" },
+      { title: "Speak to yourself as a friend", detail: "Swap the harsh inner verdict for what you'd say to someone you care about in the same spot. Kindness is a trainable default.", cadence: "Daily", evidence: "Neff (2003), self-compassion" },
+    ] },
+    NR: { increase: [
+      { title: "Surf the urge", detail: "When a strong feeling or impulse hits, watch it rise, peak, and fall like a wave instead of acting on it. Urges pass faster than they promise to.", cadence: "When triggered", evidence: "Urge surfing (Marlatt); DBT (Linehan)" },
+      { title: "Put a pause between trigger and response", detail: "Build a deliberate gap — three slow breaths — before you react. The gap is where choice lives.", cadence: "When triggered", evidence: "Emotion-regulation research" },
+      { title: "Watch thoughts like clouds", detail: "Picture difficult thoughts drifting across a wide sky — you are the sky, not the weather. Decentering keeps feelings from becoming facts.", cadence: "Daily, briefly", evidence: "Cognitive defusion (ACT); MBCT decentering" },
     ] },
   },
 };
