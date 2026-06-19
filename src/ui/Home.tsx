@@ -13,6 +13,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { searchInstruments, matchesQuery } from "@core/search";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
 import { dailyNudge } from "@core/daily";
+import { coachNextPractice } from "@core/wellbeingagent";
 import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
 import { analyzeConvergence } from "@core/converge";
@@ -82,6 +83,7 @@ export function Home({
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
   const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
   const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
+  const coachToday = useMemo(() => coachNextPractice(entries, { locale }), [entries, locale]);
   const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
   const milestones = useMemo(() => computeMilestones(entries, { streakDays, cognitiveCount, locale }), [entries, streakDays, cognitiveCount, locale]);
   const crossInsight = useMemo(() => {
@@ -290,6 +292,18 @@ export function Home({
               <div className="practice">
                 <b>{nudge.practiceLabel}:</b> {nudge.practice}
               </div>
+            </div>
+          )}
+          {coachToday && (
+            <div className="panel insight-card coach-today">
+              <div className="coach-today-head">
+                <span className="eyebrow2">{t("home.todayPractice")}</span>
+                <span className="coach-today-count">{coachToday.index}/{coachToday.total}</span>
+              </div>
+              <h3>{coachToday.practice.title}</h3>
+              {coachToday.practice.cadence && <p className="coach-today-cadence">{coachToday.practice.cadence}</p>}
+              <p className="coach-today-edge">{t("home.todayFocus").replace("{dim}", coachToday.focusDimensionName)}</p>
+              {onIntegrated && <button className="btn ghost sm" onClick={onIntegrated}>{t("home.todayOpen")}</button>}
             </div>
           )}
           {milestones.achievedCount > 0 && (

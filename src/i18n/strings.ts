@@ -52,6 +52,7 @@ export type StringKey =
   | "home.greetMorning" | "home.greetAfternoon" | "home.greetEvening"
   | "home.roadmap" | "home.roadmapProgress" | "home.streak" | "home.youAreHere" | "home.journeyStart" | "home.journeyLine"
   | "home.milestones" | "home.nextMilestone" | "home.tuneGoals" | "home.tuneGoalsHint" | "home.cancel" | "home.saveGoals" | "home.crossInsight" | "home.autopilot" | "home.schedule" | "agent.done" | "agent.doneSub" | "agent.seePortrait"
+  | "home.todayPractice" | "home.todayFocus" | "home.todayOpen"
   // Journey / Growth view
   | "jr.eyebrow" | "jr.title" | "jr.sub" | "jr.howChanged" | "jr.takes" | "jr.trackTitle" | "jr.trackBody" | "jr.retakeCta"
   | "jr.cognitive" | "jr.viewBattery" | "jr.timeline" | "jr.timelineEmpty" | "jr.backupTitle" | "jr.backupBody"
@@ -169,7 +170,7 @@ const en: Dict = {
   "home.roadmap": "Your roadmap", "home.roadmapProgress": "{d} of {t} steps complete", "home.streak": "day streak", "home.youAreHere": "You're here",
   "home.journeyStart": "Your journey starts here", "home.journeyLine": "Built from your goals — a personalized path through the science of you. Begin step one whenever you're ready.",
   "home.milestones": "Milestones", "home.nextMilestone": "Next",
-  "home.tuneGoals": "Tune goals", "home.tuneGoalsHint": "Update your goals and your roadmap re-tunes instantly.", "home.cancel": "Cancel", "home.saveGoals": "Save & re-tune", "home.crossInsight": "Cross-test insight", "home.autopilot": "✨ Let Atlas guide my journey", "home.schedule": "Schedule my journey", "agent.done": "Journey complete", "agent.doneSub": "I\u2019ve woven everything you just did into one integrated portrait of you.", "agent.seePortrait": "See your portrait →",
+  "home.tuneGoals": "Tune goals", "home.tuneGoalsHint": "Update your goals and your roadmap re-tunes instantly.", "home.cancel": "Cancel", "home.saveGoals": "Save & re-tune", "home.crossInsight": "Cross-test insight", "home.autopilot": "✨ Let Atlas guide my journey", "home.schedule": "Schedule my journey", "home.todayPractice": "Today's practice", "home.todayFocus": "Strengthening your {dim}", "home.todayOpen": "Open your coach →", "agent.done": "Journey complete", "agent.doneSub": "I\u2019ve woven everything you just did into one integrated portrait of you.", "agent.seePortrait": "See your portrait →",
   "jr.eyebrow": "Your Journey", "jr.title": "Growth over time",
   "jr.sub": "Personality is changeable. Retake any assessment later to see how far you've moved.",
   "jr.howChanged": "how you've changed", "jr.takes": "{n} takes",
@@ -346,7 +347,7 @@ const es: Dict = {
   "home.roadmap": "Tu itinerario", "home.roadmapProgress": "{d} de {t} pasos completados", "home.streak": "días seguidos", "home.youAreHere": "Estás aquí",
   "home.journeyStart": "Tu camino empieza aquí", "home.journeyLine": "Creado a partir de tus metas: un recorrido personalizado por la ciencia de quién eres. Empieza el primer paso cuando quieras.",
   "home.milestones": "Hitos", "home.nextMilestone": "Siguiente",
-  "home.tuneGoals": "Ajustar metas", "home.tuneGoalsHint": "Actualiza tus metas y tu itinerario se reajusta al instante.", "home.cancel": "Cancelar", "home.saveGoals": "Guardar y reajustar", "home.crossInsight": "Observación entre pruebas", "home.autopilot": "✨ Deja que Atlas guíe mi recorrido", "home.schedule": "Programar mi recorrido", "agent.done": "Recorrido completo", "agent.doneSub": "He tejido todo lo que acabas de hacer en un retrato integrado de ti.", "agent.seePortrait": "Ver tu retrato →",
+  "home.tuneGoals": "Ajustar metas", "home.tuneGoalsHint": "Actualiza tus metas y tu itinerario se reajusta al instante.", "home.cancel": "Cancelar", "home.saveGoals": "Guardar y reajustar", "home.crossInsight": "Observación entre pruebas", "home.autopilot": "✨ Deja que Atlas guíe mi recorrido", "home.schedule": "Programar mi recorrido", "home.todayPractice": "La práctica de hoy", "home.todayFocus": "Fortaleciendo tu {dim}", "home.todayOpen": "Abre tu coach →", "agent.done": "Recorrido completo", "agent.doneSub": "He tejido todo lo que acabas de hacer en un retrato integrado de ti.", "agent.seePortrait": "Ver tu retrato →",
   "jr.eyebrow": "Tu camino", "jr.title": "Crecimiento en el tiempo",
   "jr.sub": "La personalidad cambia. Repite cualquier evaluación más adelante para ver cuánto has avanzado.",
   "jr.howChanged": "cómo has cambiado", "jr.takes": "{n} intentos",
@@ -523,7 +524,7 @@ const fr: Dict = {
   "home.roadmap": "Votre feuille de route", "home.roadmapProgress": "{d} étapes sur {t} terminées", "home.streak": "jours d'affilée", "home.youAreHere": "Vous êtes ici",
   "home.journeyStart": "Votre parcours commence ici", "home.journeyLine": "Construit à partir de vos objectifs — un chemin personnalisé à travers la science de vous. Commencez la première étape quand vous voulez.",
   "home.milestones": "Jalons", "home.nextMilestone": "Prochain",
-  "home.tuneGoals": "Ajuster", "home.tuneGoalsHint": "Mettez à jour vos objectifs et votre feuille de route se réajuste aussitôt.", "home.cancel": "Annuler", "home.saveGoals": "Enregistrer et réajuster", "home.crossInsight": "Aperçu inter-tests", "home.autopilot": "✨ Laissez Atlas guider mon parcours", "home.schedule": "Planifier mon parcours", "agent.done": "Parcours terminé", "agent.doneSub": "J\u2019ai tissé tout ce que vous venez de faire en un portrait intégré de vous.", "agent.seePortrait": "Voir votre portrait →",
+  "home.tuneGoals": "Ajuster", "home.tuneGoalsHint": "Mettez à jour vos objectifs et votre feuille de route se réajuste aussitôt.", "home.cancel": "Annuler", "home.saveGoals": "Enregistrer et réajuster", "home.crossInsight": "Aperçu inter-tests", "home.autopilot": "✨ Laissez Atlas guider mon parcours", "home.schedule": "Planifier mon parcours", "home.todayPractice": "La pratique du jour", "home.todayFocus": "Renforcer votre {dim}", "home.todayOpen": "Ouvrir votre coach →", "agent.done": "Parcours terminé", "agent.doneSub": "J\u2019ai tissé tout ce que vous venez de faire en un portrait intégré de vous.", "agent.seePortrait": "Voir votre portrait →",
   "jr.eyebrow": "Votre parcours", "jr.title": "Évolution dans le temps",
   "jr.sub": "La personnalité évolue. Repassez une évaluation plus tard pour voir le chemin parcouru.",
   "jr.howChanged": "comment vous avez changé", "jr.takes": "{n} passations",

@@ -164,3 +164,38 @@ export function buildWellbeingProgram(
     practices,
   };
 }
+
+export interface CoachNudge {
+  focusDimensionName: string;
+  focusBand: string;
+  practice: CoachPractice;
+  /** 1-based position in today's rotation, and the total practices in the program. */
+  index: number;
+  total: number;
+}
+
+/**
+ * The proactive cadence: today's single practice from the Wellbeing Coach
+ * program, rotating deterministically through the keystone practices day by day
+ * (offset per person so two people aren't synced). Null until a portrait exists.
+ * Powers a "today's practice" surface on the dashboard.
+ */
+export function coachNextPractice(
+  entries: { instrument: Instrument; result: AssessmentResult }[],
+  opts: { locale?: string; date?: Date } = {},
+): CoachNudge | null {
+  const program = buildWellbeingProgram(entries, { locale: opts.locale });
+  if (program.state !== "ready" || !program.practices.length) return null;
+  const date = opts.date ?? new Date();
+  const dayNum = Math.floor(date.getTime() / 86400000);
+  const offset = seedFrom("coach-cadence", entries.map((e) => e.result.responseFingerprint).join("|"));
+  const total = program.practices.length;
+  const index = (((dayNum + offset) % total) + total) % total;
+  return {
+    focusDimensionName: program.focusDimensionName ?? "",
+    focusBand: program.focusBand ?? "",
+    practice: program.practices[index],
+    index: index + 1,
+    total,
+  };
+}

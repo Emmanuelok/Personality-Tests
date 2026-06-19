@@ -1329,6 +1329,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .coach-steps li b { font-size: 15px; }
 .coach-cadence { color: var(--accent-2); font-size: 12.5px; }
 .coach-ev { display: block; margin-top: 4px; color: var(--text-faint); font-size: 12px; font-style: italic; }
+/* Dashboard "today's practice" card */
+.coach-today .coach-today-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.coach-today-count { font-size: 12px; color: var(--text-faint); font-variant-numeric: tabular-nums; border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; }
+.coach-today h3 { margin: 6px 0 4px; }
+.coach-today-cadence { color: var(--accent-2); font-size: 13px; margin: 0 0 6px; }
+.coach-today-edge { color: var(--text-dim); font-size: 13px; margin: 0 0 12px; }
 .gp-scale-name { color: var(--text-dim); }
 .gp-range { color: var(--text-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 

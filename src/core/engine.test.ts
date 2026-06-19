@@ -13,7 +13,7 @@ import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeCommunication } from "./commsynth";
 import { analyzeWellbeing } from "./wellsynth";
 import { groupWellbeingPortrait, groupCommunicationPortrait } from "./groupsynth";
-import { buildWellbeingProgram } from "./wellbeingagent";
+import { buildWellbeingProgram, coachNextPractice } from "./wellbeingagent";
 import { searchInstruments, matchesQuery, tokenize } from "./search";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
@@ -1750,6 +1750,29 @@ describe("wellbeing coach agent", () => {
     expect(en1.plan!.areas.map((x) => x.scaleId)).toEqual(en2.plan!.areas.map((x) => x.scaleId));
     const fr = buildWellbeingProgram([a, b], { locale: "fr", seed: 7 });
     expect(fr.narrative[0]).not.toBe(en1.narrative[0]);
+  });
+
+  it("rotates a daily keystone practice (proactive cadence)", () => {
+    const a = ent("self-compassion-scs", (it) => (["SK", "CH", "MI"].includes(it.scale) ? 1 : 5));
+    const b = ent("brief-resilience", (it) => (it.keyed === 1 ? 1 : 5));
+    expect(coachNextPractice([], {})).toBeNull(); // no portrait yet
+    const d1 = new Date("2026-06-16T09:00:00Z");
+    const today = coachNextPractice([a, b], { date: d1 })!;
+    expect(today).toBeTruthy();
+    expect(today.practice.title.length).toBeGreaterThan(3);
+    expect(today.index).toBeGreaterThanOrEqual(1);
+    expect(today.index).toBeLessThanOrEqual(today.total);
+    expect(today.focusDimensionName.length).toBeGreaterThan(0);
+    // Stable within a day, and it advances across days when there are 2+ practices.
+    expect(coachNextPractice([a, b], { date: d1 })!.practice.title).toBe(today.practice.title);
+    if (today.total > 1) {
+      const titles = new Set<string>();
+      for (let i = 0; i < today.total; i++) {
+        const d = new Date(d1.getTime() + i * 86400000);
+        titles.add(coachNextPractice([a, b], { date: d })!.practice.title);
+      }
+      expect(titles.size).toBeGreaterThan(1);
+    }
   });
 });
 
