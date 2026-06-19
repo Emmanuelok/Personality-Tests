@@ -48,6 +48,7 @@ export function Home({
   initialTopic,
   initialQuery,
   onInitialConsumed,
+  onStudyTopic,
 }: {
   entries?: SynthEntry[];
   name?: string;
@@ -74,6 +75,8 @@ export function Home({
   initialQuery?: string;
   /** Called once the initial deep-link has been applied (so it isn't re-applied on remount). */
   onInitialConsumed?: () => void;
+  /** Start a Study Together room seeded from the active catalog topic/search. */
+  onStudyTopic?: (seed: { topic?: string; query?: string }) => void;
 }) {
   const { locale, t } = useI18n();
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
@@ -391,9 +394,16 @@ export function Home({
 
       {results !== null && (
         <div className="search-results view-enter">
-          <p className="search-count">
-            {t("h.searchCount").replace("{n}", String(matchCount)).replace("{total}", String(INSTRUMENTS.length + cognitionTests.length)).replace("{q}", queryLabel)}
-          </p>
+          <div className="search-head">
+            <p className="search-count">
+              {t("h.searchCount").replace("{n}", String(matchCount)).replace("{total}", String(INSTRUMENTS.length + cognitionTests.length)).replace("{q}", queryLabel)}
+            </p>
+            {matchCount > 0 && onStudyTopic && (
+              <button className="btn ghost sm" onClick={() => onStudyTopic({ topic: topic || undefined, query: topic ? undefined : catalogQuery.trim() })}>
+                {t("h.studyTogether")}
+              </button>
+            )}
+          </div>
           {matchCount === 0 ? (
             <p className="note">{t("h.searchNone").replace("{q}", queryLabel)}</p>
           ) : (

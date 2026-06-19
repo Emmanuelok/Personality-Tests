@@ -68,7 +68,7 @@ export type StringKey =
   | "h.eyebrow" | "h.h1a" | "h.h1grad" | "h.h1b" | "h.lead1" | "h.leadU" | "h.lead2"
   | "h.pill1" | "h.pill2" | "h.pill3" | "h.pill4"
   | "h.startPack" | "h.browseAll" | "h.themesLine" | "h.choose"
-  | "h.searchPlaceholder" | "h.searchClear" | "h.searchNone" | "h.searchCount" | "h.searchResults" | "h.topicsLabel"
+  | "h.searchPlaceholder" | "h.searchClear" | "h.searchNone" | "h.searchCount" | "h.searchResults" | "h.topicsLabel" | "h.studyTogether"
   | "h.typology" | "h.dimensional" | "h.minutes" | "h.items" | "h.axes" | "h.factors"
   | "h.grounded" | "h.source" | "h.sources"
   | "h.cogName" | "h.cogBlurb" | "h.batteryTitle" | "h.batteryBody" | "h.batteryBtn"
@@ -222,6 +222,7 @@ const en: Dict = {
   "h.searchNone": "No tests match “{q}”. Try a topic like anxiety, relationships, career, or self-esteem.",
   "h.searchCount": "{n} of {total} tests match “{q}”",
   "h.topicsLabel": "Or jump to a topic",
+  "h.studyTogether": "👥 Study these together",
   "h.typology": "Typology", "h.dimensional": "Dimensional",
   "h.minutes": "{m} min", "h.items": "{n} items", "h.axes": "{n} axes", "h.factors": "{n} factors",
   "h.grounded": "Grounded in {n} {s}, incl. {ref}.", "h.source": "source", "h.sources": "sources",
@@ -397,6 +398,7 @@ const es: Dict = {
   "h.searchNone": "Ningún test coincide con «{q}». Prueba un tema como ansiedad, relaciones, carrera o autoestima.",
   "h.searchCount": "{n} de {total} tests coinciden con «{q}»",
   "h.topicsLabel": "O salta a un tema",
+  "h.studyTogether": "👥 Estudiar esto en grupo",
   "h.typology": "Tipología", "h.dimensional": "Dimensional",
   "h.minutes": "{m} min", "h.items": "{n} ítems", "h.axes": "{n} ejes", "h.factors": "{n} factores",
   "h.grounded": "Fundamentada en {n} {s}, incl. {ref}.", "h.source": "fuente", "h.sources": "fuentes",
@@ -572,6 +574,7 @@ const fr: Dict = {
   "h.searchNone": "Aucun test ne correspond à « {q} ». Essayez un thème comme anxiété, relations, carrière ou estime de soi.",
   "h.searchCount": "{n} sur {total} tests correspondent à « {q} »",
   "h.topicsLabel": "Ou allez à un thème",
+  "h.studyTogether": "👥 Étudier cela en groupe",
   "h.typology": "Typologie", "h.dimensional": "Dimensionnel",
   "h.minutes": "{m} min", "h.items": "{n} items", "h.axes": "{n} axes", "h.factors": "{n} facteurs",
   "h.grounded": "Fondée sur {n} {s}, dont {ref}.", "h.source": "source", "h.sources": "sources",

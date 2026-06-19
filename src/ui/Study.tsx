@@ -68,7 +68,7 @@ const S: Record<Loc, Record<string, string>> = {
 };
 
 export function Study({
-  name, entries, onStart, onAutopilot, onBack, joinRoom,
+  name, entries, onStart, onAutopilot, onBack, joinRoom, seed,
 }: {
   name?: string;
   entries: SynthEntry[];
@@ -76,6 +76,8 @@ export function Study({
   onAutopilot?: (plan: string[]) => void;
   onBack: () => void;
   joinRoom?: StudyRoom | null;
+  /** Open the room builder pre-seeded from a discovery topic/search. */
+  seed?: { topic?: string; query?: string };
 }) {
   const { locale } = useI18n();
   const L = toLoc(locale);
@@ -94,7 +96,7 @@ export function Study({
 
   const [rooms, setRooms] = useState<StudyRoom[]>(() => loadRooms());
   const [selectedId, setSelectedId] = useState<string | null>(joinRoom ? joinRoom.id : (loadRooms()[0]?.id ?? null));
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState(!!(seed && (seed.topic || seed.query)));
   const [pendingJoin, setPendingJoin] = useState<StudyRoom | null>(joinRoom && !getRoom(joinRoom.id) ? joinRoom : null);
 
   const refresh = () => setRooms(loadRooms());
@@ -112,7 +114,7 @@ export function Study({
 
   /* ── create form ───────────────────────────────────────────────────── */
   if (creating) {
-    return <CreateRoom s={s} L={L} locale={locale} host={name} onCancel={() => setCreating(false)} onCreate={(room) => {
+    return <CreateRoom s={s} L={L} locale={locale} host={name} initialTopic={seed?.topic} initialQuery={seed?.query} onCancel={() => setCreating(false)} onCreate={(room) => {
       saveRoom(room); refresh(); setSelectedId(room.id); setCreating(false);
     }} />;
   }
@@ -190,11 +192,12 @@ function JoinPrompt({ s, room, initialName, onJoin, onSkip }: { s: Record<string
   );
 }
 
-function CreateRoom({ s, L, locale, host, onCancel, onCreate }: { s: Record<string, string>; L: Loc; locale: string; host?: string; onCancel: () => void; onCreate: (r: StudyRoom) => void }) {
+function CreateRoom({ s, L, locale, host, initialTopic, initialQuery, onCancel, onCreate }: { s: Record<string, string>; L: Loc; locale: string; host?: string; initialTopic?: string; initialQuery?: string; onCancel: () => void; onCreate: (r: StudyRoom) => void }) {
+  const seededTopic = initialTopic && TOPICS.some((tp) => tp.key === initialTopic) ? initialTopic : "";
   const [goal, setGoal] = useState<string>("self");
   const [title, setTitle] = useState("");
-  const [topicKey, setTopicKey] = useState("");
-  const [query, setQuery] = useState("");
+  const [topicKey, setTopicKey] = useState(seededTopic);
+  const [query, setQuery] = useState(seededTopic ? "" : (initialQuery ?? ""));
   // The plan is seeded from a topic/search (the discovery engine) or a goal —
   // whichever the host last touched wins, so it's "Study X together" in one tap.
   const activeTopic = TOPICS.find((tp) => tp.key === topicKey) ?? null;

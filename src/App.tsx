@@ -79,6 +79,7 @@ export default function App() {
   const [skipOnb, setSkipOnb] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
+  const [studySeed, setStudySeed] = useState<{ topic?: string; query?: string } | undefined>(undefined);
   // Shared discovery link (?topic= / ?find=) — read once, synchronously, so the
   // catalog opens pre-filtered on the very first render (even for returning users).
   const [initialFind, setInitialFind] = useState<{ topic?: string; query?: string } | null>(() => {
@@ -230,6 +231,12 @@ export default function App() {
     top();
   };
   const goStudy = () => {
+    setStudySeed(undefined);
+    setView("study");
+    top();
+  };
+  const goStudyTopic = (s: { topic?: string; query?: string }) => {
+    setStudySeed(s);
     setView("study");
     top();
   };
@@ -621,6 +628,7 @@ export default function App() {
           initialTopic={initialFind?.topic}
           initialQuery={initialFind?.query}
           onInitialConsumed={() => setInitialFind(null)}
+          onStudyTopic={goStudyTopic}
         />
       )}
 
@@ -708,6 +716,7 @@ export default function App() {
           onAutopilot={startAutopilot}
           onBack={goHome}
           joinRoom={joinRoom}
+          seed={studySeed}
         />
       )}
 
