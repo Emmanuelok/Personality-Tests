@@ -80,6 +80,20 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
   const [studySeed, setStudySeed] = useState<{ topic?: string; query?: string } | undefined>(undefined);
+  // Shared "study this together" link (?study-topic= / ?study-find=): open the
+  // room builder pre-seeded from a topic/search. A full ?study= room invite wins.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("study")) return;
+    const st = p.get("study-topic");
+    const sf = p.get("study-find");
+    if (!st && !sf) return;
+    setStudySeed(st ? { topic: st } : { query: sf ?? "" });
+    setSkipOnb(true);
+    setView("study");
+    window.history.replaceState({}, "", window.location.pathname);
+  }, []);
+
   // Shared discovery link (?topic= / ?find=) — read once, synchronously, so the
   // catalog opens pre-filtered on the very first render (even for returning users).
   const [initialFind, setInitialFind] = useState<{ topic?: string; query?: string } | null>(() => {

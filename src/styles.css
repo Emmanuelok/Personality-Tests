@@ -298,6 +298,8 @@ h1, h2, h3, h4 { font-family: var(--display); letter-spacing: -0.01em; font-weig
 
 /* Radar */
 .radar-wrap { display: grid; grid-template-columns: 1fr; gap: 8px; place-items: center; }
+/* Radar charts scale down on narrow screens instead of overflowing the panel. */
+svg.radar { max-width: 100%; height: auto; }
 .radar text { fill: var(--text-dim); font-size: 11px; }
 .radar .axis { stroke: var(--border); }
 .radar .ring { stroke: var(--border-soft); fill: none; }
@@ -1315,7 +1317,7 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .gp-inst-head span { color: var(--text-faint); font-size: 12.5px; }
 .gp-scale { margin: 9px 0; }
 .gp-scale.wide .gp-scale-name { color: var(--accent-warm); font-weight: 600; }
-.gp-scale-top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; margin-bottom: 3px; }
+.gp-scale-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; font-size: 13px; margin-bottom: 3px; }
 .gp-scale-name { color: var(--text-dim); }
 .gp-range { color: var(--text-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
