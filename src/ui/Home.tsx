@@ -185,6 +185,10 @@ export function Home({
   return (
     <div className="container">
       <HeroBackdrop />
+      {/* The marketing hero is for first-time visitors. Once someone has goals or
+          results, their personalized dashboard (below) leads instead — no
+          redundant pitch / empty band above it. */}
+      {!(spotlight || focus.length > 0) && (
       <section className="hero hero-stage">
         <div className="hero-aurora" aria-hidden="true" />
         <span className="eyebrow">{t("h.eyebrow")}</span>
@@ -208,6 +212,7 @@ export function Home({
           {t("h.themesLine").replace("{n}", String(INSTRUMENTS.length)).replace("{c}", String(CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length))}
         </p>
       </section>
+      )}
 
       {(spotlight || focus.length > 0) && (
         <section className="foryou view-enter" aria-label={t("home.forYou")}>
