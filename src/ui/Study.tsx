@@ -9,7 +9,8 @@ import {
   type StudyRoom, type MemberProgress,
 } from "@core/collab";
 import type { SynthEntry } from "@core/synthesis";
-import { ScaleBar } from "./charts";
+import { groupWellbeingPortrait, groupCommunicationPortrait, type GroupPortrait } from "@core/groupsynth";
+import { ScaleBar, RadarChart } from "./charts";
 import { loadRooms, saveRoom, getRoom, removeRoom, loadMembers, saveMember, loadOrg, saveOrg } from "../collabStore";
 import { GOALS, labelsFor, toLoc, type Loc } from "./goals";
 import { CategoryEmblem } from "./art";
@@ -27,6 +28,7 @@ const S: Record<Loc, Record<string, string>> = {
     groupNext: "Up next for the group", stillToGo: "Still to go", gnStart: "No one's started this yet — a great one to take on together.", gnRally: "Some teammates are already here — catch up and compare notes.", allDone: "🎉 Your group has finished the whole plan together.",
     teams: "By team", teamsSub: "Members from different teams or organizations, and how far each has carried the shared plan.", yourTeam: "Your team / organization", teamPh: "e.g., Lincoln High · Class 2B", independent: "Independent", teamCovered: "{c}/{t} covered",
     group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared",
+    collective: "Collective portrait", collectiveSub: "One shared picture woven across everyone\u2019s tests \u2014 the dimensions your group rises on together, and where you vary most.", cWell: "Wellbeing", cComm: "Communication",
     dynamics: "Who brings what", dynamicsSub: "Each teammate\u2019s signature strength, and the pairs who click \u2014 or stretch each other.", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
   },
@@ -40,6 +42,7 @@ const S: Record<Loc, Record<string, string>> = {
     groupNext: "A continuación para el grupo", stillToGo: "Aún les falta", gnStart: "Nadie lo ha empezado aún: ideal para hacerlo juntos.", gnRally: "Algunos compañeros ya van por aquí: ponte al día y comparen notas.", allDone: "🎉 Tu grupo ha terminado todo el plan en conjunto.",
     teams: "Por equipo", teamsSub: "Miembros de distintos equipos u organizaciones, y cuánto ha avanzado cada uno en el plan compartido.", yourTeam: "Tu equipo u organización", teamPh: "p. ej., Instituto Lincoln · Clase 2B", independent: "Independiente", teamCovered: "{c}/{t} cubiertas",
     group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos",
+    collective: "Retrato colectivo", collectiveSub: "Una imagen compartida entretejida a partir de las pruebas de todos: las dimensiones en las que el grupo crece junto y dónde más varía.", cWell: "Bienestar", cComm: "Comunicación",
     dynamics: "Quién aporta qué", dynamicsSub: "La fortaleza distintiva de cada compañero, y las parejas que encajan… o que se complementan.", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
   },
@@ -53,6 +56,7 @@ const S: Record<Loc, Record<string, string>> = {
     groupNext: "La suite pour le groupe", stillToGo: "Encore à faire", gnStart: "Personne ne l'a encore commencé — parfait à faire ensemble.", gnRally: "Des coéquipiers sont déjà là — rattrapez et comparez vos notes.", allDone: "🎉 Votre groupe a terminé tout le plan ensemble.",
     teams: "Par équipe", teamsSub: "Des membres de différentes équipes ou organisations, et jusqu'où chacune a mené le plan partagé.", yourTeam: "Votre équipe / organisation", teamPh: "ex. : Lycée Lincoln · Classe 2B", independent: "Indépendant", teamCovered: "{c}/{t} couvertes",
     group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés",
+    collective: "Portrait collectif", collectiveSub: "Une image partagée tissée à partir des tests de chacun — les dimensions où votre groupe s’élève ensemble, et où vous variez le plus.", cWell: "Bien-être", cComm: "Communication",
     dynamics: "Qui apporte quoi", dynamicsSub: "La force distinctive de chaque coéquipier, et les binômes qui s'accordent — ou se complètent.", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
   },
@@ -245,6 +249,9 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
   const roles = groupRoles(room.plan, allMembers, { locale: L });
   const pairing = pairingNotes(groupResonance(room.plan, allMembers), { locale: L });
   const groupNext = groupNextStep(room.plan, allMembers, { locale: L });
+  // Cross-context collective portraits (wellbeing / communication), woven across everyone's tests.
+  const collective = [groupWellbeingPortrait(allMembers, { locale: L }), groupCommunicationPortrait(allMembers, { locale: L })]
+    .filter((g): g is GroupPortrait => !!g);
   const orgOf = new Map(allMembers.map((m) => [m.name, (m.org ?? "").trim()]));
   const teams = teamStandings(room, allMembers, { ungrouped: s.independent });
   const showTeams = teamCount(allMembers) >= 2;
@@ -382,6 +389,35 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
                   <div className="ms-bar"><i style={{ width: `${t.pct}%` }} /></div>
                   <div className="rm-reason" style={{ marginTop: 4 }}>👥 {t.names.join(", ")}</div>
                 </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {collective.length > 0 && (
+          <section className="panel">
+            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.collective}</h3>
+            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.collectiveSub}</p>
+            {collective.map((gp) => (
+              <div className="gp-inst" key={gp.kind}>
+                <div className="gp-inst-head"><b>{gp.kind === "wellbeing" ? s.cWell : s.cComm}</b><span>{s.groupShared.replace("{n}", String(gp.members))}</span></div>
+                {gp.dimensions.length >= 3 && (
+                  <div className="radar-wrap" style={{ margin: "4px 0 10px" }}>
+                    <RadarChart data={gp.dimensions.map((d) => ({ label: d.highLabel, value: d.mean }))} size={280} />
+                  </div>
+                )}
+                {gp.dimensions.map((d) => (
+                  <div className={`gp-scale${gp.widest && d.id === gp.widest.id ? " wide" : ""}`} key={d.id}>
+                    <div className="gp-scale-top">
+                      <span className="gp-scale-name">{d.name}{gp.widest && d.id === gp.widest.id ? " ⚡" : ""}</span>
+                      <span className="gp-range">{d.lo.name} {d.lo.val} → {d.hi.name} {d.hi.val}</span>
+                    </div>
+                    <ScaleBar value={d.mean} leftLabel={d.lowLabel} rightLabel={d.highLabel} />
+                  </div>
+                ))}
+                {gp.insights.map((gi, i) => (
+                  <div className="gp-insight" key={i}><span aria-hidden="true">✦</span><p>{gi}</p></div>
+                ))}
               </div>
             ))}
           </section>

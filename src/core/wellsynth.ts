@@ -162,28 +162,26 @@ const INSIGHT: Record<Loc, (n: number, top: string, topBand: string, grow: strin
     `Tissée à partir de ${n} ${n === 1 ? "test" : "tests"} de bien-être, votre dimension la plus lumineuse est ${top} — ${topBand}. Celle avec le plus de marge de progression est ${grow}. Le bien-être se construit, il n'est pas figé : une pratique modeste et répétée sur votre axe de progrès élève tout le tableau.`,
 };
 
-/** Build the cross-context wellbeing portrait, or null if fewer than two
- *  wellbeing instruments have been taken (a single test is better read on its
- *  own report than synthesized). */
-export function analyzeWellbeing(
-  entries: { instrument: Instrument; result: AssessmentResult }[],
+/**
+ * Resolve the five wellbeing dimensions from a flat map of normalized scale
+ * scores (instrumentId → scaleId → 0..100). The shared core used by both the
+ * individual portrait (from one person's results) and the group portrait (from
+ * each member's shared scores). No "≥2 instruments" gate — that's a UX choice
+ * the callers apply. Per-instrument aggregation prevents a multi-scale test from
+ * double-counting; risk scales are direction-flipped so higher = healthier.
+ */
+export function wellbeingThemesFromScores(
+  scores: Record<string, Record<string, number>>,
   opts: { locale?: string } = {},
-): WellbeingPortrait | null {
+): WellTheme[] {
   const loc = cLoc(opts.locale);
-  const byId = new Map(entries.map((e) => [e.instrument.id, e] as const));
-  const present = WELLBEING_INSTRUMENT_IDS.filter((id) => byId.has(id));
-  if (present.length < 2) return null;
-
   const themes: WellTheme[] = [];
   for (const t of THEMES) {
-    // Aggregate each contributing instrument's scales into one per-instrument view,
-    // so an instrument with several relevant scales doesn't double-count.
     const perInst = new Map<string, { num: number; den: number }>();
     for (const s of t.sources) {
-      const e = byId.get(s.inst);
-      const sc = e?.result.scales[s.scale];
-      if (!sc) continue;
-      const pos = s.dir === 1 ? sc.normalized : 100 - sc.normalized;
+      const v = scores[s.inst]?.[s.scale];
+      if (typeof v !== "number") continue;
+      const pos = s.dir === 1 ? v : 100 - v;
       const cur = perInst.get(s.inst) ?? { num: 0, den: 0 };
       cur.num += pos * s.w;
       cur.den += s.w;
@@ -200,6 +198,28 @@ export function analyzeWellbeing(
     const score = Math.round(sum / perInst.size);
     themes.push({ id: t.id, name: t.name[loc], score, band: BAND[loc](score), lowLabel: t.low[loc], highLabel: t.high[loc], sources });
   }
+  return themes;
+}
+
+/** Build the cross-context wellbeing portrait, or null if fewer than two
+ *  wellbeing instruments have been taken (a single test is better read on its
+ *  own report than synthesized). */
+export function analyzeWellbeing(
+  entries: { instrument: Instrument; result: AssessmentResult }[],
+  opts: { locale?: string } = {},
+): WellbeingPortrait | null {
+  const loc = cLoc(opts.locale);
+  const byId = new Map(entries.map((e) => [e.instrument.id, e] as const));
+  const present = WELLBEING_INSTRUMENT_IDS.filter((id) => byId.has(id));
+  if (present.length < 2) return null;
+
+  const scores: Record<string, Record<string, number>> = {};
+  for (const e of entries) {
+    const row: Record<string, number> = {};
+    for (const [sid, sc] of Object.entries(e.result.scales)) row[sid] = sc.normalized;
+    scores[e.instrument.id] = row;
+  }
+  const themes = wellbeingThemesFromScores(scores, { locale: opts.locale });
   if (!themes.length) return null;
 
   const sorted = [...themes].sort((a, b) => b.score - a.score);

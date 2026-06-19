@@ -12,6 +12,7 @@ import { computeMilestones } from "./milestones";
 import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeCommunication } from "./commsynth";
 import { analyzeWellbeing } from "./wellsynth";
+import { groupWellbeingPortrait, groupCommunicationPortrait } from "./groupsynth";
 import { searchInstruments, matchesQuery, tokenize } from "./search";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
@@ -1557,6 +1558,62 @@ describe("wellbeing portrait", () => {
     const fr = analyzeWellbeing([a, b], { locale: "fr" })!;
     expect(en.themes[0].name).not.toBe(fr.themes[0].name);
     expect(en.insight).not.toBe(fr.insight);
+  });
+});
+
+describe("group portrait (cross-context)", () => {
+  const high: MemberProgress = { name: "Ada", done: [], at: "x", scores: {
+    "self-compassion-scs": { SK: 90, CH: 80, MI: 85, SJ: 10, IS: 15, OI: 20 },
+    "brief-resilience": { RES: 85 },
+    "perma-flourishing": { POS: 75, ENG: 70, REL: 80, MEA: 65, ACC: 72 },
+  } };
+  const low: MemberProgress = { name: "Bo", done: [], at: "y", scores: {
+    "self-compassion-scs": { SK: 40, CH: 50, MI: 45, SJ: 60, IS: 55, OI: 58 },
+    "brief-resilience": { RES: 40 },
+    "perma-flourishing": { POS: 45, ENG: 50, REL: 55, MEA: 48, ACC: 52 },
+  } };
+  const noScores: MemberProgress = { name: "Cy", done: ["self-compassion-scs"], at: "z" };
+
+  it("needs at least two members with shared scores", () => {
+    expect(groupWellbeingPortrait([high], {})).toBeNull();
+    expect(groupWellbeingPortrait([high, noScores], {})).toBeNull(); // only one has scores
+    expect(groupWellbeingPortrait([], {})).toBeNull();
+  });
+
+  it("averages each member's wellbeing dimensions into a collective picture", () => {
+    const gp = groupWellbeingPortrait([high, low], { locale: "en" })!;
+    expect(gp).toBeTruthy();
+    expect(gp.kind).toBe("wellbeing");
+    expect(gp.members).toBe(2);
+    expect(gp.dimensions.length).toBeGreaterThanOrEqual(4);
+    // every reported dimension has both members behind it
+    expect(gp.dimensions.every((d) => d.n === 2)).toBe(true);
+    // Ada (higher everywhere) tops Self-Kindness; Bo sits at the bottom
+    const kindness = gp.dimensions.find((d) => d.id === "kindness")!;
+    expect(kindness.hi.name).toBe("Ada");
+    expect(kindness.lo.name).toBe("Bo");
+    expect(kindness.mean).toBe(Math.round((kindness.hi.val + kindness.lo.val) / 2));
+    expect(kindness.spread).toBe(kindness.hi.val - kindness.lo.val);
+    expect(gp.topShared).toBeTruthy();
+    expect(gp.widest).toBeTruthy();
+    expect(gp.insights.length).toBeGreaterThan(0);
+  });
+
+  it("localizes dimension names and insights", () => {
+    const en = groupWellbeingPortrait([high, low], { locale: "en" })!;
+    const fr = groupWellbeingPortrait([high, low], { locale: "fr" })!;
+    expect(en.dimensions[0].name).not.toBe(fr.dimensions[0].name);
+    expect(en.insights[0]).not.toBe(fr.insights[0]);
+  });
+
+  it("builds a collective communication portrait from members' comm scores", () => {
+    const a: MemberProgress = { name: "Ada", done: [], at: "x", scores: { "communication-style": { ASSERT: 80, LISTEN: 85, EMPATH: 82, COLLAB: 78, ENGAGE: 75, REGUL: 88 } } };
+    const b: MemberProgress = { name: "Bo", done: [], at: "y", scores: { "communication-style": { ASSERT: 45, LISTEN: 50, EMPATH: 48, COLLAB: 52, ENGAGE: 47, REGUL: 55 } } };
+    const gp = groupCommunicationPortrait([a, b], { locale: "en" })!;
+    expect(gp.kind).toBe("communication");
+    expect(gp.dimensions.length).toBe(5); // communication-style feeds all five competencies
+    expect(gp.dimensions.every((d) => d.n === 2)).toBe(true);
+    expect(gp.insights.length).toBeGreaterThan(0);
   });
 });
 

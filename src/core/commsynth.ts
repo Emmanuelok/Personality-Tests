@@ -136,27 +136,25 @@ const INSIGHT: Record<Loc, (n: number, top: string, topBand: string, grow: strin
     `Tissé à partir de ${n} ${n === 1 ? "test" : "tests"} de communication, votre point fort est ${top} — ${topBand}. La compétence avec le plus de marge de progression est ${grow}. Les compétences de communication s'apprennent : une pratique modeste et délibérée sur votre axe de progrès se répercute sur chaque relation.`,
 };
 
-/** Build the cross-context communication portrait, or null if no comm instrument
- *  has been taken. */
-export function analyzeCommunication(
-  entries: { instrument: Instrument; result: AssessmentResult }[],
+/**
+ * Resolve the five communication competencies from a flat map of normalized
+ * scale scores (instrumentId → scaleId → 0..100). Shared core used by both the
+ * individual portrait and the group portrait. No "instrument present" gate — the
+ * callers apply that. Per-instrument aggregation avoids double-counting; risk
+ * scales are direction-flipped so higher = healthier communication.
+ */
+export function communicationThemesFromScores(
+  scores: Record<string, Record<string, number>>,
   opts: { locale?: string } = {},
-): CommunicationPortrait | null {
+): CommTheme[] {
   const loc = cLoc(opts.locale);
-  const byId = new Map(entries.map((e) => [e.instrument.id, e] as const));
-  const present = COMM_INSTRUMENT_IDS.filter((id) => byId.has(id));
-  if (!present.length) return null;
-
   const themes: CommTheme[] = [];
   for (const t of THEMES) {
-    // Aggregate each contributing instrument's scales into one per-instrument view,
-    // so an instrument with two relevant scales doesn't double-count.
     const perInst = new Map<string, { num: number; den: number }>();
     for (const s of t.sources) {
-      const e = byId.get(s.inst);
-      const sc = e?.result.scales[s.scale];
-      if (!sc) continue;
-      const pos = s.dir === 1 ? sc.normalized : 100 - sc.normalized;
+      const v = scores[s.inst]?.[s.scale];
+      if (typeof v !== "number") continue;
+      const pos = s.dir === 1 ? v : 100 - v;
       const cur = perInst.get(s.inst) ?? { num: 0, den: 0 };
       cur.num += pos * s.w;
       cur.den += s.w;
@@ -173,6 +171,27 @@ export function analyzeCommunication(
     const score = Math.round(sum / perInst.size);
     themes.push({ id: t.id, name: t.name[loc], score, band: BAND[loc](score), lowLabel: t.low[loc], highLabel: t.high[loc], sources });
   }
+  return themes;
+}
+
+/** Build the cross-context communication portrait, or null if no comm instrument
+ *  has been taken. */
+export function analyzeCommunication(
+  entries: { instrument: Instrument; result: AssessmentResult }[],
+  opts: { locale?: string } = {},
+): CommunicationPortrait | null {
+  const loc = cLoc(opts.locale);
+  const byId = new Map(entries.map((e) => [e.instrument.id, e] as const));
+  const present = COMM_INSTRUMENT_IDS.filter((id) => byId.has(id));
+  if (!present.length) return null;
+
+  const scores: Record<string, Record<string, number>> = {};
+  for (const e of entries) {
+    const row: Record<string, number> = {};
+    for (const [sid, sc] of Object.entries(e.result.scales)) row[sid] = sc.normalized;
+    scores[e.instrument.id] = row;
+  }
+  const themes = communicationThemesFromScores(scores, { locale: opts.locale });
   if (!themes.length) return null;
 
   const sorted = [...themes].sort((a, b) => b.score - a.score);
