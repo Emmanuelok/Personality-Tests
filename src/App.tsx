@@ -61,6 +61,7 @@ import {
   latestResult,
   loadProfile,
   recordCognitive,
+  recordPractice,
   recordResult,
   resetProfile,
   saveProfile,
@@ -248,6 +249,9 @@ export default function App() {
     setStudySeed(undefined);
     setView("study");
     top();
+  };
+  const completePractice = () => {
+    if (profile) setProfile(recordPractice(profile));
   };
   const goStudyTopic = (s: { topic?: string; query?: string }) => {
     setStudySeed(s);
@@ -643,6 +647,8 @@ export default function App() {
           initialQuery={initialFind?.query}
           onInitialConsumed={() => setInitialFind(null)}
           onStudyTopic={goStudyTopic}
+          practiceLog={profile?.practiceLog ?? []}
+          onCompletePractice={completePractice}
         />
       )}
 

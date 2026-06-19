@@ -1336,6 +1336,12 @@ textarea.code-input { width: 100%; min-height: 72px; background: var(--surface-2
 .coach-today h3 { margin: 6px 0 4px; }
 .coach-today-cadence { color: var(--accent-2); font-size: 13px; margin: 0 0 6px; }
 .coach-today-edge { color: var(--text-dim); font-size: 13px; margin: 0 0 12px; }
+.coach-today-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.coach-streak { font-size: 13px; color: var(--text-dim); }
+.coach-streak b { color: var(--accent); }
+.coach-done { font-size: 14px; font-weight: 600; color: var(--accent-2); }
+.coach-tomorrow { margin: 10px 0 0; font-size: 12.5px; color: var(--text-faint); font-style: italic; }
+.coach-today.done { border-color: rgba(154, 123, 46, 0.4); }
 .gp-scale-name { color: var(--text-dim); }
 .gp-range { color: var(--text-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 

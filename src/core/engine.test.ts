@@ -13,7 +13,7 @@ import { analyzeConvergence, triangulationTarget } from "./converge";
 import { analyzeCommunication } from "./commsynth";
 import { analyzeWellbeing } from "./wellsynth";
 import { groupWellbeingPortrait, groupCommunicationPortrait } from "./groupsynth";
-import { buildWellbeingProgram, coachNextPractice } from "./wellbeingagent";
+import { buildWellbeingProgram, coachNextPractice, practiceStreak } from "./wellbeingagent";
 import { searchInstruments, matchesQuery, tokenize } from "./search";
 import { analyzeResponseStyle } from "./responsestyle";
 import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
@@ -1794,6 +1794,17 @@ describe("wellbeing coach agent", () => {
       }
       expect(titles.size).toBeGreaterThan(1);
     }
+  });
+
+  it("counts a consecutive-day practice streak", () => {
+    const today = new Date("2026-06-16T09:00:00Z");
+    const d = (n: number) => new Date(today.getTime() - n * 86400000).toISOString().slice(0, 10);
+    expect(practiceStreak([], today)).toBe(0);
+    expect(practiceStreak([d(0)], today)).toBe(1);
+    expect(practiceStreak([d(0), d(1), d(2)], today)).toBe(3);
+    expect(practiceStreak([d(1), d(2)], today)).toBe(2);   // not done today, still alive from yesterday
+    expect(practiceStreak([d(0), d(2)], today)).toBe(1);   // a gap breaks it — only today counts
+    expect(practiceStreak([d(2), d(3)], today)).toBe(0);   // most recent was 2 days ago → dead
   });
 });
 

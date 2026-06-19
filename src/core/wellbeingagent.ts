@@ -165,6 +165,27 @@ export function buildWellbeingProgram(
   };
 }
 
+const dayIso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+/**
+ * Consecutive-day practice streak from a log of completion dates (YYYY-MM-DD).
+ * The streak stays "alive" if the most recent completion was today or yesterday;
+ * counts back over unbroken days. Pure and timezone-consistent with the log.
+ */
+export function practiceStreak(log: string[], today: Date = new Date()): number {
+  if (!log.length) return 0;
+  const set = new Set(log);
+  const dayMs = 86400000;
+  const t0 = Date.parse(today.toISOString().slice(0, 10) + "T00:00:00Z");
+  let cursor: number | null = null;
+  if (set.has(dayIso(t0))) cursor = t0;
+  else if (set.has(dayIso(t0 - dayMs))) cursor = t0 - dayMs;
+  if (cursor === null) return 0;
+  let streak = 0;
+  while (set.has(dayIso(cursor))) { streak++; cursor -= dayMs; }
+  return streak;
+}
+
 export interface CoachNudge {
   focusDimensionName: string;
   focusBand: string;

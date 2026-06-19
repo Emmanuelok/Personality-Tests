@@ -13,7 +13,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { searchInstruments, matchesQuery } from "@core/search";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
 import { dailyNudge } from "@core/daily";
-import { coachNextPractice } from "@core/wellbeingagent";
+import { coachNextPractice, practiceStreak } from "@core/wellbeingagent";
 import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
 import { analyzeConvergence } from "@core/converge";
@@ -50,6 +50,8 @@ export function Home({
   initialQuery,
   onInitialConsumed,
   onStudyTopic,
+  practiceLog = [],
+  onCompletePractice,
 }: {
   entries?: SynthEntry[];
   name?: string;
@@ -78,12 +80,18 @@ export function Home({
   onInitialConsumed?: () => void;
   /** Start a Study Together room seeded from the active catalog topic/search. */
   onStudyTopic?: (seed: { topic?: string; query?: string }) => void;
+  /** ISO dates the user has completed a coach practice (for the streak). */
+  practiceLog?: string[];
+  /** Mark today's coach practice complete. */
+  onCompletePractice?: () => void;
 }) {
   const { locale, t } = useI18n();
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
   const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
   const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
   const coachToday = useMemo(() => coachNextPractice(entries, { locale }), [entries, locale]);
+  const practiceDoneToday = practiceLog.includes(new Date().toISOString().slice(0, 10));
+  const pStreak = useMemo(() => practiceStreak(practiceLog), [practiceLog]);
   const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
   const milestones = useMemo(() => computeMilestones(entries, { streakDays, cognitiveCount, locale }), [entries, streakDays, cognitiveCount, locale]);
   const crossInsight = useMemo(() => {
@@ -293,7 +301,27 @@ export function Home({
               )}
             </div>
           )}
-          {nudge && (
+          {/* One proactive card: the coach practice when a wellbeing portrait exists
+              (the daily-habit anchor, with completion + streak), else the trait nudge. */}
+          {coachToday ? (
+            <div className={`panel insight-card coach-today${practiceDoneToday ? " done" : ""}`}>
+              <div className="coach-today-head">
+                <span className="eyebrow2">{t("home.todayPractice")}</span>
+                <span className="coach-today-count">{coachToday.index}/{coachToday.total}</span>
+              </div>
+              <h3>{coachToday.practice.title}</h3>
+              {coachToday.practice.cadence && <p className="coach-today-cadence">{coachToday.practice.cadence}</p>}
+              <p className="coach-today-edge">{t("home.todayFocus").replace("{dim}", coachToday.focusDimensionName)}</p>
+              <div className="coach-today-foot">
+                {practiceDoneToday
+                  ? <span className="coach-done">✓ {t("home.practiceDone")}</span>
+                  : onCompletePractice && <button className="btn primary sm" onClick={onCompletePractice}>{t("home.markDone")}</button>}
+                {pStreak > 0 && <span className="coach-streak">🔥 <b>{pStreak}</b> {t("home.streak")}</span>}
+                {onIntegrated && <button className="btn ghost sm" onClick={onIntegrated}>{t("home.todayOpen")}</button>}
+              </div>
+              {practiceDoneToday && <p className="coach-tomorrow">{t("home.practiceTomorrow")}</p>}
+            </div>
+          ) : nudge ? (
             <div className="panel insight-card foryou-today">
               <span className="eyebrow2">{nudge.eyebrow}</span>
               <h3>{nudge.title}</h3>
@@ -302,19 +330,7 @@ export function Home({
                 <b>{nudge.practiceLabel}:</b> {nudge.practice}
               </div>
             </div>
-          )}
-          {coachToday && (
-            <div className="panel insight-card coach-today">
-              <div className="coach-today-head">
-                <span className="eyebrow2">{t("home.todayPractice")}</span>
-                <span className="coach-today-count">{coachToday.index}/{coachToday.total}</span>
-              </div>
-              <h3>{coachToday.practice.title}</h3>
-              {coachToday.practice.cadence && <p className="coach-today-cadence">{coachToday.practice.cadence}</p>}
-              <p className="coach-today-edge">{t("home.todayFocus").replace("{dim}", coachToday.focusDimensionName)}</p>
-              {onIntegrated && <button className="btn ghost sm" onClick={onIntegrated}>{t("home.todayOpen")}</button>}
-            </div>
-          )}
+          ) : null}
           {milestones.achievedCount > 0 && (
             <div className="panel ms-panel">
               <div className="ms-panel-head">

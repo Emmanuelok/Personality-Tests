@@ -46,6 +46,8 @@ export interface Profile {
   cognitiveHistory?: CognitiveTake[];
   journal: JournalEntry[];
   streak: { last: string; days: number };
+  /** ISO dates (YYYY-MM-DD) on which the user completed a coach practice. */
+  practiceLog?: string[];
 }
 
 function read(): Profile | null {
@@ -132,6 +134,15 @@ export function completedInstrumentIds(p: Profile): string[] {
   return out;
 }
 
+/** Mark today's coach practice complete (idempotent per day). Feeds the practice streak. */
+export function recordPractice(p: Profile, date = new Date()): Profile {
+  const day = date.toISOString().slice(0, 10);
+  if (p.practiceLog?.includes(day)) return p;
+  const next = { ...p, practiceLog: [day, ...(p.practiceLog ?? [])].slice(0, 400) };
+  saveProfile(next);
+  return next;
+}
+
 export function addJournal(p: Profile, entry: JournalEntry): Profile {
   const next = { ...p, journal: [entry, ...p.journal].slice(0, 500) };
   saveProfile(next);
@@ -161,6 +172,7 @@ export function importProfileCode(code: string): Profile | null {
       obj.journal ??= [];
       obj.focus ??= [];
       obj.cognitiveHistory ??= [];
+      obj.practiceLog ??= [];
       obj.streak ??= { last: new Date().toISOString().slice(0, 10), days: 1 };
       return obj;
     }
