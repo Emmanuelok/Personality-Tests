@@ -1,7 +1,8 @@
-// Minimal offline-capable service worker: stale-while-revalidate for same-origin
-// GETs, skipping the API. App data lives in localStorage, so this just makes the
-// app shell load instantly and work offline after the first visit.
-const CACHE = "psyche-atlas-v1";
+// Cache only versioned, same-origin static assets. Navigation responses can carry
+// checkout or other private state, so documents and query-bearing URLs are never
+// inspected or stored here.
+const CACHE = "psyche-atlas-static-v3";
+const STATIC_DESTINATIONS = new Set(["script", "style", "image", "font", "manifest"]);
 
 self.addEventListener("install", () => self.skipWaiting());
 
@@ -18,19 +19,36 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
-  if (req.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api")) return;
+  if (
+    req.method !== "GET"
+    || url.origin !== self.location.origin
+    || url.search
+    || url.pathname.startsWith("/api")
+    || req.mode === "navigate"
+    || req.destination === "document"
+    || !STATIC_DESTINATIONS.has(req.destination)
+  ) return;
 
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
       const cached = await cache.match(req);
-      const network = fetch(req)
-        .then((res) => {
-          if (res && res.ok) cache.put(req, res.clone());
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
+      if (cached) {
+        event.waitUntil(
+          fetch(req)
+            .then((res) => {
+              if (res.ok && res.type === "basic") return cache.put(req, res.clone());
+              return undefined;
+            })
+            .catch(() => undefined),
+        );
+        return cached;
+      }
+      const response = await fetch(req);
+      if (response.ok && response.type === "basic") {
+        event.waitUntil(cache.put(req, response.clone()));
+      }
+      return response;
     })(),
   );
 });

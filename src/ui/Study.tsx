@@ -6,9 +6,10 @@ import { buildRoadmap } from "@core/roadmap";
 import { searchInstruments } from "@core/search";
 import {
   createRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights,
-  groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount,
+  groupNextStep, teamStandings, teamCount, sanitizeSharedScores, sharedOrganization, MIN_GROUP_AGGREGATE,
   type StudyRoom, type MemberProgress,
 } from "@core/collab";
+import { nonce } from "@core/prng";
 import type { SynthEntry } from "@core/synthesis";
 import { groupWellbeingPortrait, groupCommunicationPortrait, type GroupPortrait } from "@core/groupsynth";
 import { ScaleBar, RadarChart } from "./charts";
@@ -28,11 +29,15 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "you", host: "Host",
     invited: "invited you to study together", joinAs: "Join as", join: "Join the room", yourName: "Your first name",
     invite: "Invite link", copy: "Copy link", copied: "Copied!", share: "Share invite", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", schedulePlan: "🗓️ Schedule plan", plan: "Shared plan", autopilot: "✨ Run this plan on Autopilot", begin: "Begin", retake: "Done ✓",
+    shareHostIdentity: "Include my display name (“{name}”) in the invite",
+    roomShareDisclosure: "The invite will use “{host}” as its host label. Study links are encoded, not encrypted; anyone with the link can read the room title, plan, host label, and creation time.",
+    inviteLinkDisclosure: "This invite is encoded, not encrypted. Anyone with the link can read its room title, plan, host label, and creation time.",
     groupNext: "Up next for the group", stillToGo: "Still to go", gnStart: "No one's started this yet — a great one to take on together.", gnRally: "Some teammates are already here — catch up and compare notes.", allDone: "🎉 Your group has finished the whole plan together.",
     teams: "By team", teamsSub: "Members from different teams or organizations, and how far each has carried the shared plan.", yourTeam: "Your team / organization", teamPh: "e.g., Lincoln High · Class 2B", independent: "Independent", teamCovered: "{c}/{t} covered",
     group: "Group portrait", groupSub: "When teammates share results, here\u2019s your collective profile \u2014 where you align, and where you differ most.", groupShared: "{n} shared",
     collective: "Collective portrait", collectiveSub: "One shared picture woven across everyone\u2019s tests \u2014 the dimensions your group rises on together, and where you vary most.", cWell: "Wellbeing", cComm: "Communication",
-    dynamics: "Who brings what", dynamicsSub: "Each teammate\u2019s signature strength, and the pairs who click \u2014 or stretch each other.", standings: "Progress", shareMine: "Share my progress", yourCode: "Your progress code — send it to your group:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
+    dynamics: "Who brings what", dynamicsSub: "Each teammate\u2019s signature strength, and the pairs who click \u2014 or stretch each other.", standings: "Progress", shareMine: "Create progress code", yourCode: "Your progress code — send it only to people you choose:", addMate: "Add a teammate's progress", paste: "Paste a progress code…", add: "Add", added: "Added!", bad: "That code didn't look right.",
+    shareIdentity: "Include my display name and team", shareScores: "Include eligible scale snapshots", shareDisclosure: "Default: a random learner alias and completed activity IDs only. Optional scale sharing excludes sensitive check-ins and appears only in aggregates after at least {n} consenting contributors. Codes are encoded, not encrypted; anyone who receives one can read its payload.", aggregatePrivate: "Individual score owners are never named in aggregate ranges.",
     leave: "Leave room", leaveQ: "Leave and delete this room from this device?", back: "← Back", of: "{d}/{t}", done: "done",
   },
   es: {
@@ -43,11 +48,15 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "tú", host: "Anfitrión",
     invited: "te invitó a estudiar juntos", joinAs: "Únete como", join: "Unirte a la sala", yourName: "Tu nombre",
     invite: "Enlace de invitación", copy: "Copiar enlace", copied: "¡Copiado!", share: "Compartir invitación", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", schedulePlan: "🗓️ Programar plan", plan: "Plan compartido", autopilot: "✨ Ejecutar este plan en piloto automático", begin: "Empezar", retake: "Hecho ✓",
+    shareHostIdentity: "Incluir mi nombre visible («{name}») en la invitación",
+    roomShareDisclosure: "La invitación usará «{host}» como nombre del anfitrión. Los enlaces de estudio están codificados, no cifrados; cualquiera que tenga el enlace puede leer el nombre de la sala, el plan, el nombre del anfitrión y la fecha de creación.",
+    inviteLinkDisclosure: "Esta invitación está codificada, no cifrada. Cualquiera que tenga el enlace puede leer el nombre de la sala, el plan, el nombre del anfitrión y la fecha de creación.",
     groupNext: "A continuación para el grupo", stillToGo: "Aún les falta", gnStart: "Nadie lo ha empezado aún: ideal para hacerlo juntos.", gnRally: "Algunos compañeros ya van por aquí: ponte al día y comparen notas.", allDone: "🎉 Tu grupo ha terminado todo el plan en conjunto.",
     teams: "Por equipo", teamsSub: "Miembros de distintos equipos u organizaciones, y cuánto ha avanzado cada uno en el plan compartido.", yourTeam: "Tu equipo u organización", teamPh: "p. ej., Instituto Lincoln · Clase 2B", independent: "Independiente", teamCovered: "{c}/{t} cubiertas",
     group: "Retrato del grupo", groupSub: "Cuando los compañeros comparten resultados, este es su perfil colectivo: dónde coinciden y dónde más difieren.", groupShared: "{n} compartidos",
     collective: "Retrato colectivo", collectiveSub: "Una imagen compartida entretejida a partir de las pruebas de todos: las dimensiones en las que el grupo crece junto y dónde más varía.", cWell: "Bienestar", cComm: "Comunicación",
-    dynamics: "Quién aporta qué", dynamicsSub: "La fortaleza distintiva de cada compañero, y las parejas que encajan… o que se complementan.", standings: "Progreso", shareMine: "Compartir mi progreso", yourCode: "Tu código de progreso, envíalo a tu grupo:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
+    dynamics: "Quién aporta qué", dynamicsSub: "La fortaleza distintiva de cada compañero, y las parejas que encajan… o que se complementan.", standings: "Progreso", shareMine: "Crear código de progreso", yourCode: "Tu código de progreso: envíalo solo a quien elijas:", addMate: "Añadir el progreso de un compañero", paste: "Pega un código de progreso…", add: "Añadir", added: "¡Añadido!", bad: "Ese código no parece válido.",
+    shareIdentity: "Incluir mi nombre visible y equipo", shareScores: "Incluir instantáneas de escalas aptas", shareDisclosure: "Por defecto: un alias aleatorio y solo los identificadores de actividades completadas. Compartir escalas es opcional, excluye comprobaciones sensibles y solo aparece en agregados tras al menos {n} participantes con consentimiento. Los códigos están codificados, no cifrados; cualquier receptor puede leer el contenido.", aggregatePrivate: "Los rangos agregados nunca identifican a quien aportó cada puntuación.",
     leave: "Salir de la sala", leaveQ: "¿Salir y borrar esta sala de este dispositivo?", back: "← Atrás", of: "{d}/{t}", done: "hechas",
   },
   fr: {
@@ -58,11 +67,15 @@ const S: Record<Loc, Record<string, string>> = {
     joinedYou: "vous", host: "Hôte",
     invited: "vous a invité à étudier ensemble", joinAs: "Rejoindre en tant que", join: "Rejoindre la salle", yourName: "Votre prénom",
     invite: "Lien d'invitation", copy: "Copier le lien", copied: "Copié !", share: "Partager l'invitation", addCal: "📅 .ics", gcal: "Google", outlook: "Outlook", schedulePlan: "🗓️ Planifier le plan", plan: "Plan partagé", autopilot: "✨ Lancer ce plan en pilote automatique", begin: "Commencer", retake: "Fait ✓",
+    shareHostIdentity: "Inclure mon nom affiché (« {name} ») dans l’invitation",
+    roomShareDisclosure: "L’invitation utilisera « {host} » comme nom d’hôte. Les liens d’étude sont encodés, pas chiffrés ; toute personne qui possède le lien peut lire le nom de la salle, le programme, le nom d’hôte et la date de création.",
+    inviteLinkDisclosure: "Cette invitation est encodée, pas chiffrée. Toute personne qui possède le lien peut lire le nom de la salle, le programme, le nom d’hôte et la date de création.",
     groupNext: "La suite pour le groupe", stillToGo: "Encore à faire", gnStart: "Personne ne l'a encore commencé — parfait à faire ensemble.", gnRally: "Des coéquipiers sont déjà là — rattrapez et comparez vos notes.", allDone: "🎉 Votre groupe a terminé tout le plan ensemble.",
     teams: "Par équipe", teamsSub: "Des membres de différentes équipes ou organisations, et jusqu'où chacune a mené le plan partagé.", yourTeam: "Votre équipe / organisation", teamPh: "ex. : Lycée Lincoln · Classe 2B", independent: "Indépendant", teamCovered: "{c}/{t} couvertes",
     group: "Portrait du groupe", groupSub: "Quand les coéquipiers partagent leurs résultats, voici votre profil collectif \u2014 où vous vous rejoignez, et où vous différez le plus.", groupShared: "{n} partagés",
     collective: "Portrait collectif", collectiveSub: "Une image partagée tissée à partir des tests de chacun — les dimensions où votre groupe s’élève ensemble, et où vous variez le plus.", cWell: "Bien-être", cComm: "Communication",
-    dynamics: "Qui apporte quoi", dynamicsSub: "La force distinctive de chaque coéquipier, et les binômes qui s'accordent — ou se complètent.", standings: "Progression", shareMine: "Partager ma progression", yourCode: "Votre code de progression — envoyez-le à votre groupe :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
+    dynamics: "Qui apporte quoi", dynamicsSub: "La force distinctive de chaque coéquipier, et les binômes qui s'accordent — ou se complètent.", standings: "Progression", shareMine: "Créer un code de progression", yourCode: "Votre code de progression — envoyez-le uniquement aux personnes choisies :", addMate: "Ajouter la progression d'un coéquipier", paste: "Collez un code de progression…", add: "Ajouter", added: "Ajouté !", bad: "Ce code semble invalide.",
+    shareIdentity: "Inclure mon nom affiché et mon équipe", shareScores: "Inclure les instantanés d'échelles éligibles", shareDisclosure: "Par défaut : un alias aléatoire et uniquement les identifiants des activités terminées. Le partage d'échelles est facultatif, exclut les activités sensibles et n'apparaît qu'en agrégat après au moins {n} personnes consentantes. Les codes sont encodés, pas chiffrés ; tout destinataire peut lire leur contenu.", aggregatePrivate: "Les plages agrégées n'identifient jamais les personnes ayant fourni les scores.",
     leave: "Quitter la salle", leaveQ: "Quitter et supprimer cette salle de cet appareil ?", back: "← Retour", of: "{d}/{t}", done: "faites",
   },
 };
@@ -104,10 +117,9 @@ export function Study({
 
   /* ── join prompt (arrived via invite link) ─────────────────────────── */
   if (pendingJoin) {
-    return <JoinPrompt s={s} room={pendingJoin} initialName={name} onJoin={(nm, org) => {
+    return <JoinPrompt s={s} room={pendingJoin} initialName={name} onJoin={(_nm, org) => {
       saveRoom(pendingJoin);
       if (org) saveOrg(org);
-      if (nm) saveMember(pendingJoin.id, { name: nm, done: pendingJoin.plan.filter((id) => done.has(id)), at: new Date().toISOString(), scores: planScores(pendingJoin.plan), org: org || undefined });
       refresh(); setSelectedId(pendingJoin.id); setPendingJoin(null);
     }} onSkip={() => setPendingJoin(null)} />;
   }
@@ -198,6 +210,8 @@ function CreateRoom({ s, L, locale, host, initialTopic, initialQuery, onCancel, 
   const [title, setTitle] = useState("");
   const [topicKey, setTopicKey] = useState(seededTopic);
   const [query, setQuery] = useState(seededTopic ? "" : (initialQuery ?? ""));
+  const [shareHostIdentity, setShareHostIdentity] = useState(false);
+  const [hostAlias] = useState(() => `Learner-${nonce(2).toUpperCase()}`);
   // The plan is seeded from a topic/search (the discovery engine) or a goal —
   // whichever the host last touched wins, so it's "Study X together" in one tap.
   const activeTopic = TOPICS.find((tp) => tp.key === topicKey) ?? null;
@@ -208,9 +222,21 @@ function CreateRoom({ s, L, locale, host, initialTopic, initialQuery, onCancel, 
   const plan = usingTopic ? topicPlan : goalPlan;
   const suggested = usingTopic ? (activeTopic ? activeTopic.label[L] : query.trim()) : (GOALS.find((g) => g.key === goal)?.label[L] ?? "");
   const topicField = usingTopic ? (topicKey || "custom") : goal;
+  const displayName = host?.trim() ?? "";
+  const sharedHostLabel = shareHostIdentity && displayName ? displayName : hostAlias;
   const pickGoal = (k: string) => { setGoal(k); setTopicKey(""); setQuery(""); };
   const clearTopic = () => { setTopicKey(""); setQuery(""); };
-  const make = () => { if (plan.length) onCreate(createRoom({ title: title.trim() || suggested, plan, host: host ?? "", topic: topicField })); };
+  const make = () => {
+    if (!plan.length) return;
+    onCreate(createRoom({
+      title: title.trim() || suggested,
+      plan,
+      host,
+      shareHostIdentity,
+      hostAlias,
+      topic: topicField,
+    }));
+  };
   return (
     <div className="container view-enter">
       <div className="panel" style={{ maxWidth: 620, margin: "30px auto" }}>
@@ -264,6 +290,19 @@ function CreateRoom({ s, L, locale, host, initialTopic, initialQuery, onCancel, 
 
         <label className="onb-step-label" style={{ display: "block", margin: "16px 0 8px" }}>{s.roomName}</label>
         <input className="name-input" style={{ fontSize: 17, textAlign: "left" }} placeholder={s.roomNamePh} value={title} maxLength={70} onChange={(e) => setTitle(e.target.value)} />
+        {displayName && (
+          <label className="privacy-choice" style={{ marginTop: 16 }}>
+            <input
+              type="checkbox"
+              checked={shareHostIdentity}
+              onChange={(event) => setShareHostIdentity(event.target.checked)}
+            />
+            <span>{s.shareHostIdentity.replace("{name}", displayName)}</span>
+          </label>
+        )}
+        <p className="trust" style={{ margin: "12px 0 0" }}>
+          {s.roomShareDisclosure.replace("{host}", sharedHostLabel)}
+        </p>
         <div className="row-actions" style={{ marginTop: 18 }}>
           <button className="btn ghost" onClick={onCancel}>{s.cancel}</button>
           <button className="btn primary" onClick={make} disabled={!plan.length}>{s.make}</button>
@@ -279,23 +318,33 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
   const [status, setStatus] = useState("");
   const [myCode, setMyCode] = useState("");
   const [org, setOrg] = useState(() => loadOrg());
+  const [shareIdentity, setShareIdentity] = useState(false);
+  const [shareScores, setShareScores] = useState(false);
+  const [shareAlias] = useState(() => `Learner-${nonce(2).toUpperCase()}`);
 
   const meName = name || s.joinedYou;
   const myDone = room.plan.filter((id) => done.has(id));
   const imported = useMemo(() => loadMembers(room.id).filter((m) => m.name.toLowerCase() !== meName.toLowerCase()), [room.id, tick, meName]);
-  const me: MemberProgress = { name: meName, done: myDone, at: new Date().toISOString(), scores: myScores, org: org.trim() || undefined };
+  const now = new Date().toISOString();
+  const me: MemberProgress = {
+    name: meName,
+    done: myDone,
+    at: now,
+    scores: shareScores ? sanitizeSharedScores(myScores) : undefined,
+    scoreConsent: shareScores ? { scope: "non-sensitive-scales", at: now } : undefined,
+    identityShared: shareIdentity,
+    org: shareIdentity ? (org.trim() || undefined) : undefined,
+  };
   const allMembers = [me, ...imported];
   const standings = roomStandings(room, allMembers);
   const coverage = planCoverage(room, allMembers);
   const portrait = groupPortrait(room.plan, allMembers, { locale: L });
   const gInsights = groupInsights(portrait, { locale: L });
-  const roles = groupRoles(room.plan, allMembers, { locale: L });
-  const pairing = pairingNotes(groupResonance(room.plan, allMembers), { locale: L });
   const groupNext = groupNextStep(room.plan, allMembers, { locale: L });
   // Cross-context collective portraits (wellbeing / communication), woven across everyone's tests.
   const collective = [groupWellbeingPortrait(allMembers, { locale: L }), groupCommunicationPortrait(allMembers, { locale: L })]
     .filter((g): g is GroupPortrait => !!g);
-  const orgOf = new Map(allMembers.map((m) => [m.name, (m.org ?? "").trim()]));
+  const orgOf = new Map(allMembers.map((m) => [m.name, sharedOrganization(m) ?? ""]));
   const teams = teamStandings(room, allMembers, { ungrouped: s.independent });
   const showTeams = teamCount(allMembers) >= 2;
   const origin = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
@@ -337,6 +386,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
           <div style={{ flex: 1, minWidth: 240 }}>
             <h3 style={{ margin: "0 0 6px", fontSize: 18 }}>{s.invite}</h3>
             <input className="code-input" readOnly value={link} onFocus={(e) => e.currentTarget.select()} style={{ fontSize: 12.5 }} />
+            <p className="trust" style={{ margin: "10px 0 0" }}>{s.inviteLinkDisclosure}</p>
           </div>
           <div className="row-actions" style={{ justifyContent: "flex-start" }}>
             <button className="btn sm" onClick={() => copy(link, s.copied)}>{s.copy}</button>
@@ -407,7 +457,32 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
               onChange={(e) => setOrg(e.target.value)} onBlur={() => saveOrg(org)} />
           </div>
           <div style={{ marginTop: 16 }}>
-            <button className="btn sm" onClick={() => { saveOrg(org); const c = encodeProgress({ ...me, org: org.trim() || undefined }); setMyCode(c); copy(c, s.copied); }}>{s.shareMine}</button>
+            <label className="privacy-choice">
+              <input type="checkbox" checked={shareIdentity} onChange={(event) => setShareIdentity(event.target.checked)} />
+              <span>{s.shareIdentity}</span>
+            </label>
+            <label className="privacy-choice">
+              <input type="checkbox" checked={shareScores} onChange={(event) => setShareScores(event.target.checked)} />
+              <span>{s.shareScores}</span>
+            </label>
+            <p className="trust" style={{ margin: "10px 0" }}>
+              {s.shareDisclosure.replace("{n}", String(MIN_GROUP_AGGREGATE))}
+            </p>
+            <button className="btn sm" onClick={() => {
+              if (shareIdentity) saveOrg(org);
+              const now = new Date().toISOString();
+              const c = encodeProgress({
+                name: shareIdentity ? meName : shareAlias,
+                done: myDone,
+                at: now,
+                scores: shareScores ? sanitizeSharedScores(myScores) : undefined,
+                scoreConsent: shareScores ? { scope: "non-sensitive-scales", at: now } : undefined,
+                identityShared: shareIdentity,
+                org: shareIdentity ? (org.trim() || undefined) : undefined,
+              });
+              setMyCode(c);
+              copy(c, s.copied);
+            }}>{s.shareMine}</button>
             {myCode && <><p className="rm-reason" style={{ margin: "10px 0 4px" }}>{s.yourCode}</p><input className="code-input" readOnly value={myCode} onFocus={(e) => e.currentTarget.select()} /></>}
           </div>
           <div style={{ marginTop: 16 }}>
@@ -441,6 +516,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
           <section className="panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.collective}</h3>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.collectiveSub}</p>
+            <p className="trust">{s.aggregatePrivate}</p>
             {collective.map((gp) => (
               <div className="gp-inst" key={gp.kind}>
                 <div className="gp-inst-head"><b>{gp.kind === "wellbeing" ? s.cWell : s.cComm}</b><span>{s.groupShared.replace("{n}", String(gp.members))}</span></div>
@@ -453,7 +529,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
                   <div className={`gp-scale${gp.widest && d.id === gp.widest.id ? " wide" : ""}`} key={d.id}>
                     <div className="gp-scale-top">
                       <span className="gp-scale-name">{d.name}{gp.widest && d.id === gp.widest.id ? " ⚡" : ""}</span>
-                      <span className="gp-range">{d.lo.name} {d.lo.val} → {d.hi.name} {d.hi.val}</span>
+                      <span className="gp-range">{d.min} → {d.max}</span>
                     </div>
                     <ScaleBar value={d.mean} leftLabel={d.lowLabel} rightLabel={d.highLabel} />
                   </div>
@@ -470,6 +546,7 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
           <section className="panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.group}</h3>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.groupSub}</p>
+            <p className="trust">{s.aggregatePrivate}</p>
             {gInsights.map((gi, i) => (
               <div className="gp-insight" key={i}><span aria-hidden="true">✦</span><p>{gi}</p></div>
             ))}
@@ -480,30 +557,12 @@ function RoomDetail({ s, L, room, name, done, myScores, onStart, onAutopilot, on
                   <div className={`gp-scale${sc.id === gi.widestScaleId ? " wide" : ""}`} key={sc.id}>
                     <div className="gp-scale-top">
                       <span className="gp-scale-name">{sc.name}{sc.id === gi.widestScaleId ? " ⚡" : ""}</span>
-                      <span className="gp-range">{sc.lo.name} {sc.lo.val} → {sc.hi.name} {sc.hi.val}</span>
+                      <span className="gp-range">{sc.min} → {sc.max}</span>
                     </div>
                     <ScaleBar value={sc.mean} leftLabel={sc.low} rightLabel={sc.high} />
                   </div>
                 ))}
               </div>
-            ))}
-          </section>
-        )}
-
-        {roles.length > 0 && (
-          <section className="panel gp-dynamics">
-            <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{s.dynamics}</h3>
-            <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{s.dynamicsSub}</p>
-            <ul className="gp-roles">
-              {roles.map((r) => (
-                <li className="gp-role" key={r.name + r.instrumentId + r.scaleId}>
-                  <span className="gp-role-tag">{r.value}</span>
-                  <p>{roleLine(r, { locale: L })}</p>
-                </li>
-              ))}
-            </ul>
-            {pairing.map((p, i) => (
-              <div className="gp-insight" key={i}><span aria-hidden="true">⇄</span><p>{p}</p></div>
             ))}
           </section>
         )}

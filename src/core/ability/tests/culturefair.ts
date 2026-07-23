@@ -174,10 +174,10 @@ export const culturefair: AbilityTest = {
   itemProvenance:
     "Original, procedurally-generated items written for this platform, modeled on the figural reasoning of Raven's Progressive Matrices and the Cattell Culture-Fair Intelligence Test.",
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinically administered IQ test, and cannot replace a professional assessment.",
+    "This is an educational practice snapshot, not a clinical assessment.",
     "'Culture-fair' means it leans less on language and schooling than verbal tests — but no test is entirely free of culture or practice effects.",
-    "Your score is reported as a band and a percentile, never a single precise number.",
-    "Reasoning tests measure particular skills, not your worth, creativity, or potential. No real-life decision should rest on this.",
+    "The practice index describes performance on these items in this sitting; it is not a population rank.",
+    "Treat the domain observations as clues for practice, not as fixed traits or grounds for a life decision.",
   ],
   citations: [
     { ref: "Raven, J. (2000). The Raven's Progressive Matrices: Change and stability over culture and time. Cognitive Psychology, 41(1), 1–48." },

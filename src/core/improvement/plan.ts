@@ -1,6 +1,7 @@
 import type { AssessmentResult, Citation, Instrument, ScaleDef, ScaleScore } from "../types";
 import { Rng, nonce, seedFrom } from "../prng";
-import { clamp, ordinal, round1, sentence } from "../variation";
+import { resolveScaleStanding } from "../scoring";
+import { clamp, round1, sentence } from "../variation";
 
 export interface GrowthTarget {
   scaleId: string;
@@ -369,8 +370,8 @@ function strategiesFor(
 }
 
 /**
- * Build a personalized, evidence-based growth plan from current scores and the
- * user's targets (where they want to be on each scale). Deterministic per seed.
+ * Build a goal-linked practice plan from current observations and the user's
+ * targets (where they want to be on each scale). Deterministic per seed.
  */
 export function buildGrowthPlan(
   instrument: Instrument,
@@ -390,6 +391,7 @@ export function buildGrowthPlan(
     if (!score || !scaleDef) continue;
 
     const current = round1(score.normalized);
+    const standing = resolveScaleStanding(score, scaleDef, instrument.format);
     const target = round1(t.target);
     const gap = round1(target - current);
     const direction: GrowthDirection = gap > GAP_THRESHOLD ? "increase" : gap < -GAP_THRESHOLD ? "decrease" : "maintain";
@@ -405,7 +407,7 @@ export function buildGrowthPlan(
       direction === "maintain"
         ? sentence(
             rng.pick([
-              `You’re near your target on ${scaleDef.name} (currently ${ordinal(Math.round(score.percentile))} percentile). The work here is protection, not change — keep doing what keeps this steady.`,
+              `You’re near your target on ${scaleDef.name} (currently ${Math.round(standing.position)}/100 within this instrument’s response range). The work here is protection, not change — keep doing what keeps this steady.`,
               `Your ${scaleDef.name} already sits about where you want it. Treat this as a strength to maintain rather than a gap to close.`,
             ]),
           )

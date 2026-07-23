@@ -44,12 +44,19 @@ export function createClaudeProvider(opts: ClaudeProviderOptions = {}): LLMProvi
       const Anthropic = mod.default ?? mod.Anthropic;
       const client = new Anthropic({ apiKey });
 
-      // Only the prose travels to the model; numbers/levels/type stay authoritative.
+      // Only prose travels to the model; scored numbers, levels, and type remain the structured source.
       const prose = {
         title: structured.title,
         subtitle: structured.subtitle,
         overview: structured.overview,
-        traits: structured.traits.map((t) => ({ scaleId: t.scaleId, name: t.name, level: t.level, percentile: t.percentile, narrative: t.narrative })),
+        traits: structured.traits.map((t) => ({
+          scaleId: t.scaleId,
+          name: t.name,
+          level: t.level,
+          standing: t.standing,
+          standingLabel: t.standingLabel,
+          narrative: t.narrative,
+        })),
         dynamics: structured.dynamics,
         sections: structured.sections.map((s) => ({ id: s.id, heading: s.heading, paragraphs: s.paragraphs })),
         signatureResponses: structured.signatureResponses,

@@ -58,7 +58,7 @@ export const critical: AbilityTest = {
   caveats: [
     "This is an EDUCATIONAL estimate, not a clinically or professionally validated reasoning test.",
     "Critical thinking is highly trainable — it improves markedly with deliberate practice and good habits of mind.",
-    "Your score is reported as a band and a percentile, never a single precise number.",
+    "The practice index describes performance on these items in this sitting; it is not a population rank.",
     "It samples particular reasoning skills, not your knowledge, wisdom, or worth.",
   ],
   citations: [

@@ -38,12 +38,12 @@ export function reportToMarkdown(instrument: Instrument, report: PersonalityRepo
   }
 
   L.push("## Profile");
-  report.traits.forEach((t) => L.push(`- **${t.name}** — ${t.level} (${Math.round(t.percentile)}th percentile)`));
+  report.traits.forEach((t) => L.push(`- **${t.name}** — ${t.level} (${t.standingLabel})`));
   L.push("");
 
   L.push("## Trait by trait");
   report.traits.forEach((t) => {
-    L.push(`### ${t.name} — ${t.level} (${Math.round(t.percentile)}th pct)`);
+    L.push(`### ${t.name} — ${t.level} (${t.standingLabel})`);
     L.push(t.narrative);
     L.push(`**Strengths:** ${t.strengths.join("; ")}`);
     L.push(`**Watch-outs:** ${t.watchouts.join("; ")}\n`);
@@ -63,7 +63,7 @@ export function reportToMarkdown(instrument: Instrument, report: PersonalityRepo
   });
 
   if (report.signatureResponses.length) {
-    L.push("## What makes this uniquely yours");
+    L.push("## What this response pattern suggests");
     report.signatureResponses.forEach((sgn) => L.push(`- ${sgn}`));
     L.push("");
   }

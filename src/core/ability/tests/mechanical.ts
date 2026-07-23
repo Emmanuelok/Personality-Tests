@@ -51,7 +51,7 @@ export const mechanical: AbilityTest = {
   caveats: [
     "This is an EDUCATIONAL estimate, not a professionally validated aptitude test.",
     "Mechanical reasoning reflects exposure and practice as much as raw aptitude — it grows with hands-on experience.",
-    "Your score is reported as a band and a percentile, never a single precise number.",
+    "The practice index describes performance on these items in this sitting; it is not a population rank.",
     "It samples physical intuition, not your overall intelligence or worth.",
   ],
   citations: [

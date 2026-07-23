@@ -3,7 +3,14 @@ import { recommendNext, profileSpotlight } from "./recommend";
 import { buildRoadmap } from "./roadmap";
 import { analyzeConvergence, triangulationTarget } from "./converge";
 import { getInstrument } from "./instruments";
+import { isPublicJourneyEligibleInstrument } from "./catalogPolicy";
 import { localizeInstrument } from "./instruments/i18n";
+import {
+  NO_EVIDENCE_CONSENT,
+  autonomousEvidence,
+  type EvidenceConsent,
+  type EvidenceRecord,
+} from "./evidence";
 
 /**
  * Atlas Autopilot — an autonomous, agentic journey.
@@ -22,6 +29,17 @@ export interface AutopilotPick {
   instrumentId: string;
   /** Localized "why this next" line. */
   reason: string;
+  evidenceTier: "actionable";
+  /** Autopilot proposes; it never starts an assessment on the user's behalf. */
+  requiresConfirmation: true;
+  guardrail: string;
+}
+
+export interface AutopilotOptions {
+  locale?: string;
+  plan?: string[];
+  evidence?: readonly EvidenceRecord<SynthEntry>[];
+  consent?: EvidenceConsent;
 }
 
 const PLAN_REASON: Record<Loc, string> = {
@@ -29,6 +47,20 @@ const PLAN_REASON: Record<Loc, string> = {
   es: "Siguiente en tu plan de estudio compartido.",
   fr: "La prochaine de votre plan d'étude partagé.",
 };
+
+const AUTO_GUARDRAIL: Record<Loc, string> = {
+  en: "A proposed next step based only on consented actionable evidence; you choose whether to continue.",
+  es: "Un siguiente paso propuesto basado solo en evidencia accionable consentida; tú decides si continuar.",
+  fr: "Une prochaine étape proposée uniquement à partir d'éléments actionnables autorisés ; vous choisissez de continuer ou non.",
+};
+
+const pick = (instrumentId: string, reason: string, locale?: string): AutopilotPick => ({
+  instrumentId,
+  reason,
+  evidenceTier: "actionable",
+  requiresConfirmation: true,
+  guardrail: AUTO_GUARDRAIL[aLoc(locale)],
+});
 
 /** "Why" lines when the agent picks a cross-validating test on its own initiative. */
 const TRI_REASON: Record<Loc, { divergent: (c: string) => string; single: (c: string) => string }> = {
@@ -49,26 +81,57 @@ const TRI_REASON: Record<Loc, { divergent: (c: string) => string; single: (c: st
 /** The agent's next move. With an explicit `plan` (e.g. a study room's curriculum)
  *  it follows that; otherwise a goal-driven roadmap step, else the top
  *  recommendation; null when the journey is complete. */
-export function autopilotNext(entries: SynthEntry[], focus: string[], opts: { locale?: string; plan?: string[] } = {}): AutopilotPick | null {
+export function autopilotNext(
+  entries: SynthEntry[],
+  focus: string[],
+  opts: AutopilotOptions = {},
+): AutopilotPick | null {
   const locale = opts.locale;
-  const done = new Set(entries.map((e) => e.instrument.id));
+  // Autopilot is autonomous by definition and therefore fails closed. The
+  // legacy `entries` parameter remains for source compatibility but is not read
+  // unless represented as policy-filtered evidence.
+  void entries;
+  const routedEntries = autonomousEvidence(
+    opts.evidence ?? [],
+    opts.consent ?? NO_EVIDENCE_CONSENT,
+  ).allowed
+    .filter((record) => record.payload)
+    .map((record) => record.payload as SynthEntry);
+  const done = new Set(routedEntries.map((e) => e.instrument.id));
   if (opts.plan && opts.plan.length) {
-    const nextId = opts.plan.find((id) => !done.has(id) && getInstrument(id));
-    return nextId ? { instrumentId: nextId, reason: PLAN_REASON[aLoc(locale)] } : null;
+    const nextId = opts.plan.find((id) =>
+      !done.has(id) &&
+      isPublicJourneyEligibleInstrument(id) &&
+      getInstrument(id),
+    );
+    return nextId ? pick(nextId, PLAN_REASON[aLoc(locale)], locale) : null;
   }
-  const rm = buildRoadmap(entries, focus, { locale });
+  const rm = buildRoadmap(routedEntries, focus, { locale });
   if (rm.nextStep && !done.has(rm.nextStep.instrumentId)) {
-    return { instrumentId: rm.nextStep.instrumentId, reason: rm.nextStep.reason };
+    return pick(rm.nextStep.instrumentId, rm.nextStep.reason, locale);
   }
-  // Goal steps done — the agent now thinks for itself: shore up weak evidence by
-  // cross-validating a contradicted or single-source trait before anything generic.
-  const tri = triangulationTarget(entries, { locale });
-  if (tri && !done.has(tri.instrumentId)) {
-    return { instrumentId: tri.instrumentId, reason: TRI_REASON[aLoc(locale)][tri.kind](tri.constructName) };
+  // Goal steps done — offer a cross-check for a contradicted or single-source
+  // observation before a generic catalog choice.
+  const tri = triangulationTarget(routedEntries, { locale });
+  if (
+    tri &&
+    !done.has(tri.instrumentId) &&
+    isPublicJourneyEligibleInstrument(tri.instrumentId)
+  ) {
+    return pick(tri.instrumentId, TRI_REASON[aLoc(locale)][tri.kind](tri.constructName), locale);
   }
-  const rec = recommendNext(entries, { locale, limit: 5 }).find((r) => !done.has(r.instrument.id));
-  if (rec) return { instrumentId: rec.instrument.id, reason: rec.reason };
+  const rec = recommendNext(routedEntries, { locale, limit: 5 }).find((r) => !done.has(r.instrument.id));
+  if (rec) return pick(rec.instrument.id, rec.reason, locale);
   return null;
+}
+
+export function autopilotNextFromEvidence(
+  evidence: readonly EvidenceRecord<SynthEntry>[],
+  consent: EvidenceConsent,
+  focus: string[],
+  opts: Omit<AutopilotOptions, "evidence" | "consent"> = {},
+): AutopilotPick | null {
+  return autopilotNext([], focus, { ...opts, evidence, consent });
 }
 
 /** How many steps the agent commits to up front (kept light; it re-plans each step). */

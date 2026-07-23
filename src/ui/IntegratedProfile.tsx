@@ -10,7 +10,6 @@ import { Companion } from "./Companion";
 import { CountUp } from "./CountUp";
 import { InstrumentGlyph } from "./art";
 import { ScaleBar, RadarChart } from "./charts";
-import { pctLabel } from "./fmt";
 import { useI18n } from "../i18n";
 import type { CognitiveTake } from "../profile";
 
@@ -243,12 +242,16 @@ export function IntegratedProfile({ ip, entries = [], onBack, onBrowse, cognitiv
               <div className="cdim" key={i}>
                 <div className="top">
                   <b>{ct.name}</b>
-                  <span className="vals">{ct.headline} · {pctLabel(ct.percentile, locale)}</span>
+                  <span className="vals">{ct.headline}{ct.practiceIndex == null ? "" : ` · ${ct.practiceIndex}/100 practice index`}</span>
                 </div>
-                <ScaleBar value={ct.percentile} leftLabel="Lower" rightLabel="Higher" />
-                <div className="note" style={{ marginTop: 6 }}>
-                  {reasoningLink(ct.percentile, anchor, loc)}
-                </div>
+                {ct.practiceIndex != null && (
+                  <>
+                    <ScaleBar value={ct.practiceIndex} leftLabel="More to practice" rightLabel="More demonstrated" />
+                    <div className="note" style={{ marginTop: 6 }}>
+                      {reasoningLink(ct.practiceIndex, anchor, loc)}
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </section>

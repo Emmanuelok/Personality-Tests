@@ -1,6 +1,12 @@
 import type { SynthEntry } from "./synthesis";
 import { Rng, seedFrom } from "./prng";
 import { standoutTraits } from "./recommend";
+import {
+  NO_EVIDENCE_CONSENT,
+  autonomousEvidence,
+  type EvidenceConsent,
+  type EvidenceRecord,
+} from "./evidence";
 
 /**
  * Daily companion — a small, living coaching engine.
@@ -19,6 +25,8 @@ export interface DailyNudge {
   line: string;
   practiceLabel: string;
   practice: string;
+  evidenceTier: "actionable";
+  guardrail: string;
 }
 
 type Loc = "en" | "es" | "fr";
@@ -26,6 +34,11 @@ const loc = (l?: string): Loc => (l === "es" || l === "fr" ? l : "en");
 
 const TODAY: Record<Loc, string> = { en: "Today", es: "Hoy", fr: "Aujourd'hui" };
 const PRACTICE_LABEL: Record<Loc, string> = { en: "One tiny practice", es: "Una pequeña práctica", fr: "Une petite pratique" };
+const GUARDRAIL: Record<Loc, string> = {
+  en: "A current observation, not a fixed label; context, measurement noise, and change over time may shift it.",
+  es: "Una observación actual, no una etiqueta fija; el contexto, el ruido de medición y el cambio con el tiempo pueden modificarla.",
+  fr: "Une observation actuelle, pas une étiquette figée ; le contexte, le bruit de mesure et l'évolution peuvent la modifier.",
+};
 
 /** Trait-anchored templates; {trait} and {desc} are filled from the user's results.
  *  Arrays MUST stay the same length across locales (the day-seed picks an index). */
@@ -36,19 +49,19 @@ const TRAIT_TITLES: Record<Loc, string[]> = {
 };
 const TRAIT_LINES: Record<Loc, string[]> = {
   en: [
-    "Your results keep pointing the same way: {desc}. That's not an accident — it's a signature. Pick one moment today and use it deliberately.",
-    "Being {desc} is one of the clearest threads in your profile. Today, don't just be it — aim it at something that matters.",
-    "You read as {desc}. Qualities like that grow when they're used on purpose; give yours one real job today.",
+    "In your current results, {desc} has appeared more than once. Pick one moment today and try using that tendency deliberately.",
+    "One working observation in your current profile is {desc}. Try it as a strategy today, then notice whether the context fits.",
+    "This snapshot suggests {desc}. Give that observation one small, reversible job today and see what you learn.",
   ],
   es: [
-    "Tus resultados apuntan en la misma dirección: {desc}. No es casualidad, es una firma. Elige un momento de hoy y úsala a propósito.",
-    "Ser {desc} es uno de los hilos más claros de tu perfil. Hoy no te limites a serlo: apúntalo hacia algo que importe.",
-    "Se te lee como {desc}. Esas cualidades crecen cuando se usan a propósito; dale a la tuya un trabajo real hoy.",
+    "En tus resultados actuales, {desc} ha aparecido más de una vez. Elige un momento de hoy y prueba a usar esa tendencia a propósito.",
+    "Una observación provisional de tu perfil actual es {desc}. Pruébala hoy como estrategia y observa si encaja con el contexto.",
+    "Esta instantánea sugiere {desc}. Dale a esa observación un trabajo pequeño y reversible, y mira qué aprendes.",
   ],
   fr: [
-    "Vos résultats pointent dans la même direction : {desc}. Ce n'est pas un hasard — c'est une signature. Choisissez un moment aujourd'hui et utilisez-la délibérément.",
-    "Être {desc} est l'un des fils les plus nets de votre profil. Aujourd'hui, ne vous contentez pas de l'être : dirigez-le vers ce qui compte.",
-    "Vous apparaissez comme {desc}. Ces qualités grandissent quand on les emploie à dessein ; donnez à la vôtre une vraie mission aujourd'hui.",
+    "Dans vos résultats actuels, {desc} est apparu plusieurs fois. Choisissez un moment aujourd'hui et essayez d'utiliser cette tendance délibérément.",
+    "Une observation provisoire de votre profil actuel est {desc}. Essayez-la aujourd'hui comme stratégie et voyez si le contexte convient.",
+    "Cet instantané suggère {desc}. Donnez à cette observation une tâche petite et réversible, puis voyez ce que vous apprenez.",
   ],
 };
 
@@ -59,9 +72,9 @@ const STEADY_TITLE: Record<Loc, string> = {
   fr: "Votre centre stable",
 };
 const STEADY_LINE: Record<Loc, string> = {
-  en: "Your profile so far sits close to the middle on most dials — a flexible, situational style. Today, notice which side of you the moment calls for, and choose it on purpose.",
-  es: "Tu perfil hasta ahora se sitúa cerca del centro en casi todo: un estilo flexible y situacional. Hoy, fíjate en qué lado de ti pide el momento, y elígelo a propósito.",
-  fr: "Votre profil se tient pour l'instant près du centre sur la plupart des cadrans — un style souple, selon la situation. Aujourd'hui, remarquez quel côté de vous le moment appelle, et choisissez-le délibérément.",
+  en: "This snapshot sits near the middle on most dials. Today, notice what the situation calls for, choose deliberately, and treat what happens as new evidence.",
+  es: "Esta instantánea se sitúa cerca del centro en casi todo. Hoy, observa qué pide la situación, elige a propósito y trata lo que ocurra como nueva evidencia.",
+  fr: "Cet instantané se situe près du centre sur la plupart des cadrans. Aujourd'hui, observez ce que la situation demande, choisissez délibérément et traitez le résultat comme un nouvel indice.",
 };
 
 /** Micro-practices (same length across locales; day-seed picks an index). */
@@ -107,6 +120,23 @@ const PRACTICES: Record<Loc, string[]> = {
 const INTL_LOCALE: Record<Loc, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
 
 /**
+ * Build a canonical seed input from the observations the nudge can actually use.
+ * Result identifiers are intentionally random, so they must never influence a
+ * same-day choice. Sorting also makes equivalent history orderings converge.
+ */
+function normalizedObservationKey(entries: SynthEntry[]): string {
+  return entries
+    .map((entry) => {
+      const scales = Object.values(entry.result.scales)
+        .map((scale) => `${scale.scaleId}:${scale.normalized}`)
+        .sort();
+      return `${entry.instrument.id}[${scales.join(",")}]`;
+    })
+    .sort()
+    .join("|");
+}
+
+/**
  * Compose today's nudge from the user's results. Returns null when there's no
  * history yet (the home surface has its own first-run funnel).
  */
@@ -117,8 +147,8 @@ export function dailyNudge(entries: SynthEntry[], opts: { locale?: string; date?
   const day = date.toISOString().slice(0, 10);
 
   // Language must not change WHICH trait/template/practice is chosen — only its wording —
-  // so the seed deliberately excludes the locale.
-  const rng = new Rng(seedFrom("daily-nudge", day, entries.map((e) => e.result.responseFingerprint).join("|")));
+  // so the seed deliberately excludes the locale and opaque random result ids.
+  const rng = new Rng(seedFrom("daily-nudge", day, normalizedObservationKey(entries)));
 
   const dateLabel = new Intl.DateTimeFormat(INTL_LOCALE[L], { weekday: "long", month: "long", day: "numeric" }).format(date);
   const eyebrow = `${TODAY[L]} · ${dateLabel}`;
@@ -126,7 +156,15 @@ export function dailyNudge(entries: SynthEntry[], opts: { locale?: string; date?
 
   const top = standoutTraits(entries, { locale: L, limit: 3 });
   if (!top.length) {
-    return { eyebrow, title: STEADY_TITLE[L], line: STEADY_LINE[L], practiceLabel: PRACTICE_LABEL[L], practice };
+    return {
+      eyebrow,
+      title: STEADY_TITLE[L],
+      line: STEADY_LINE[L],
+      practiceLabel: PRACTICE_LABEL[L],
+      practice,
+      evidenceTier: "actionable",
+      guardrail: GUARDRAIL[L],
+    };
   }
 
   const pick = top[rng.int(top.length)];
@@ -134,5 +172,34 @@ export function dailyNudge(entries: SynthEntry[], opts: { locale?: string; date?
   const li = rng.int(TRAIT_LINES.en.length);
   const title = TRAIT_TITLES[L][ti].replace("{trait}", pick.name);
   const line = TRAIT_LINES[L][li].replace("{desc}", pick.desc);
-  return { eyebrow, title, line, practiceLabel: PRACTICE_LABEL[L], practice };
+  return {
+    eyebrow,
+    title,
+    line,
+    practiceLabel: PRACTICE_LABEL[L],
+    practice,
+    evidenceTier: "actionable",
+    guardrail: GUARDRAIL[L],
+  };
+}
+
+export interface DailyEvidenceOptions {
+  locale?: string;
+  date?: Date;
+  consent?: EvidenceConsent;
+}
+
+/** Autonomous daily copy can only use consented, non-sensitive actionable evidence. */
+export function dailyNudgeFromEvidence(
+  evidence: readonly EvidenceRecord<SynthEntry>[],
+  opts: DailyEvidenceOptions = {},
+): DailyNudge | null {
+  const selected = autonomousEvidence(evidence, opts.consent ?? NO_EVIDENCE_CONSENT);
+  const entries = selected.allowed
+    .filter((record) => record.payload)
+    .map((record) => record.payload as SynthEntry);
+  // Completion-only evidence intentionally contains no scale observations.
+  // Do not turn missing trait evidence into a fabricated "balanced" reading.
+  if (!entries.some((entry) => Object.keys(entry.result.scales).length > 0)) return null;
+  return dailyNudge(entries, { locale: opts.locale, date: opts.date });
 }

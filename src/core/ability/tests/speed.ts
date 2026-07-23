@@ -67,10 +67,10 @@ export const speed: AbilityTest = {
   items,
   itemProvenance: "Original items written for this platform, modeled on speeded aptitude tests such as the Wonderlic and on ICAR item types.",
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinically administered IQ test, and is not a hiring or selection tool.",
+    "This is an educational practice snapshot and is not a hiring or selection tool.",
     "Speeded tests reward fast, accurate work — a low score may reflect a careful, deliberate style as much as ability.",
-    "Your score is reported as a band and a percentile, never a single precise number.",
-    "It measures particular skills under time pressure, not your worth, creativity, or potential.",
+    "The practice index describes performance under this task's time pressure; it is not a population rank.",
+    "Treat the domain observations as clues for practice, not as fixed traits.",
   ],
   citations: [
     { ref: "Wonderlic, E. F. (1992). Wonderlic Personnel Test Manual. Wonderlic & Associates.", note: "Model for the speeded, mixed-aptitude format." },

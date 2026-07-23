@@ -2,6 +2,7 @@ import type { SynthEntry } from "./synthesis";
 import { getInstrument } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
 import { recommendNext } from "./recommend";
+import { isPublicJourneyEligibleInstrument } from "./catalogPolicy";
 
 /**
  * Personalized roadmap — turns a user's goals into an ordered journey.
@@ -127,7 +128,11 @@ export function buildRoadmap(
   const order: { id: string; reason: Record<Loc, string> | string }[] = [];
   const seen = new Set<string>();
   const push = (id: string, reason: Record<Loc, string> | string) => {
-    if (seen.has(id) || !getInstrument(id)) return;
+    if (
+      seen.has(id) ||
+      !isPublicJourneyEligibleInstrument(id) ||
+      !getInstrument(id)
+    ) return;
     seen.add(id);
     order.push({ id, reason });
   };

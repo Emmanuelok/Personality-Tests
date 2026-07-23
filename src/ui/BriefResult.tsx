@@ -1,9 +1,9 @@
 import type { AssessmentResult, Instrument } from "@core/types";
 import type { PersonalityReport } from "@core/report";
-import { PRODUCTS, formatPrice } from "@core/commerce";
+import { PERSONALITY_RESULT_PRODUCTS, formatPrice } from "@core/commerce";
 import { RadarChart } from "./charts";
 import { InstrumentGlyph, Crest, TraitIcon } from "./art";
-import { levelLabel, pctLabel } from "./fmt";
+import { levelLabel } from "./fmt";
 import { useI18n } from "../i18n";
 
 function shortLabel(name: string): string {
@@ -67,7 +67,7 @@ export function BriefResult({
               <div className="trait" key={t.scaleId} style={{ marginBottom: 10 }}>
                 <div className="thead">
                   <h4><TraitIcon seed={t.scaleId} />{t.name}</h4>
-                  <span className="level">{levelLabel(t.level, i18.locale)} · {pctLabel(t.percentile, i18.locale)}</span>
+                  <span className="level">{levelLabel(t.level, i18.locale)} · {t.standingLabel}</span>
                 </div>
               </div>
             ))}
@@ -80,7 +80,7 @@ export function BriefResult({
           <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{i18.t("paywall.lede")}</p>
 
           <div className="prod-grid">
-            {PRODUCTS.map((p) => (
+            {PERSONALITY_RESULT_PRODUCTS.map((p) => (
               <div className={`prod ${p.id === "report" ? "primary" : ""}`} key={p.id}>
                 {p.badge && <span className="prod-badge">{p.badge}</span>}
                 <div className="prod-name">{p.name}</div>

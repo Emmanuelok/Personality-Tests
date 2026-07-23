@@ -1,14 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { ABILITY_TESTS, scoreAbility } from "./index";
-import { makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } from "./memory";
+import { ABILITY_TESTS, scoreAbility, scoreAbilitySubmission } from "./index";
+import { CORSI_TEST, makeDigits, makeSequence, scoreMemory, scoreCorsi, type MemoryTrial } from "./memory";
 import { makeSpeedTrial, scoreProcessing } from "./processing";
 import { chcFromDomains, buildBattery } from "./chc";
-import { genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
+import { ADAPTIVE_TEST, genItem, scoreAdaptive, type AdaptiveTrial } from "./adaptive";
 import { IAT_BLOCKS, makeIatStimulus, scoreIat, type IatTrial } from "./iat";
 import { scoreCreativity } from "./creativity";
-import { localizeBand, localizeAbilityMeta, hasAbilityTranslation } from "./i18n";
+import { localizeObservation, localizeAbilityMeta, hasAbilityTranslation } from "./i18n";
 import { abilityGrowth } from "./improve";
 import type { AbilityResponses } from "./types";
+import { beginTimedAttempt } from "../timing";
+import { STRINGS, type Locale } from "../../i18n/strings";
 
 describe("cognitive improvement guidance", () => {
   it("gives honest, evidence-based tips per test plus brain-health basics", () => {
@@ -17,6 +19,9 @@ describe("cognitive improvement guidance", () => {
       expect(g.tips.length).toBeGreaterThanOrEqual(4); // domain tips + basics
       expect(g.headline.length).toBeGreaterThan(0);
       expect(g.caveat).toMatch(/transfer|brain training/i); // honesty about limited transfer
+      expect(g.unlockScope).toMatch(/standalone activity|actividad independiente|activité autonome/i);
+      expect(g.unlockScope).toMatch(/question|pregunta/);
+      expect(g.unlockScope).toMatch(/pdf/i);
     }
     const def = abilityGrowth("unknown");
     expect(def.tips.length).toBeGreaterThanOrEqual(3); // basics still present
@@ -28,6 +33,49 @@ describe("cognitive improvement guidance", () => {
     expect(abilityGrowth("memory-span", "fr").caveat).toMatch(/entraînement cérébral/);
     expect(abilityGrowth("memory-span", "es").headline).not.toBe(abilityGrowth("memory-span", "en").headline);
     expect(abilityGrowth("memory-span", "de").caveat).toBe(abilityGrowth("memory-span", "en").caveat); // unknown locale → English
+  });
+
+  it("frames adaptive reasoning as task-specific practice, not fixed ability", () => {
+    const locales: Locale[] = ["en", "es", "fr"];
+    for (const locale of locales) {
+      const meta = locale === "en" ? ADAPTIVE_TEST : localizeAbilityMeta("adaptive-reasoning", locale);
+      const copy = [
+        meta.tagline,
+        meta.description,
+        ...(meta.caveats ?? []),
+        STRINGS[locale]["cog.adp.how"],
+        STRINGS[locale]["cog.adp.narr"],
+        STRINGS[locale]["cog.adp.note"],
+        STRINGS[locale]["cog.adp.pathIntro"],
+        abilityGrowth("adaptive-reasoning", locale).headline,
+      ].join(" ");
+
+      expect(copy).not.toMatch(
+        /pins down.*ability|fluid reasoning is stable|razonamiento fluido es estable|raisonnement fluide est stable|capacidad de razonamiento|capacité de raisonnement|estimación más precisa|estimation plus fine|hacia tu nivel|vers votre niveau|toward your level/i,
+      );
+      expect(copy).toMatch(/practice|sitting|responses|task|práctica|sesión|respuestas|tarea|pratique|séance|réponses|tâche/i);
+    }
+  });
+
+  it("frames Corsi copy in en/es/fr as a session-specific task observation", () => {
+    const locales: Locale[] = ["en", "es", "fr"];
+    for (const locale of locales) {
+      const meta = locale === "en" ? CORSI_TEST : localizeAbilityMeta("corsi-blocks", locale);
+      const copy = [
+        meta.tagline,
+        meta.description,
+        ...(meta.caveats ?? []),
+        STRINGS[locale]["cog.corsi.title"],
+        STRINGS[locale]["cog.corsi.super"],
+        STRINGS[locale]["cog.corsi.narr"],
+        STRINGS[locale]["cog.corsi.note"],
+      ].join(" ");
+
+      expect(copy).not.toMatch(
+        /distinct skill|quite separate|stronger at one|estimated profile|capacidad bastante distinta|habilidad distinta|notablemente mejor|perfil estimado|capacité bien distincte|aptitude distincte|nettement plus forts?|profil estimé/i,
+      );
+      expect(copy).toMatch(/practice|sitting|session|task|práctica|sesión|tarea|pratique|séance|tâche/i);
+    }
   });
 });
 
@@ -64,16 +112,25 @@ describe("ability scoring", () => {
   it("scores a perfect set at the top of the range", () => {
     const r = scoreAbility(test, allCorrect);
     expect(r.correct).toBe(test.items.length);
-    expect(r.percentile).toBeGreaterThanOrEqual(90);
-    expect(r.iqHigh).toBeGreaterThan(r.iqLow);
-    expect(r.iqLow).toBeGreaterThan(115);
+    expect(r.practiceIndex).toBe(100);
+    expect(r.observation).toContain("Strong performance");
+    expect(Object.keys(r).sort()).toEqual([
+      "correct",
+      "fingerprint",
+      "observation",
+      "perDomain",
+      "practiceIndex",
+      "responses",
+      "testId",
+      "total",
+    ]);
   });
 
   it("scores an all-wrong set at the bottom", () => {
     const r = scoreAbility(test, allWrong);
     expect(r.correct).toBe(0);
-    expect(r.percentile).toBeLessThanOrEqual(10);
-    expect(r.iqHigh).toBeLessThan(90);
+    expect(r.practiceIndex).toBe(0);
+    expect(r.observation).toContain("Limited evidence");
   });
 
   it("per-domain correct counts sum to the overall correct count", () => {
@@ -84,8 +141,34 @@ describe("ability scoring", () => {
     expect(totals).toBe(r.total);
   });
 
-  it("produces a stable fingerprint for identical responses", () => {
-    expect(scoreAbility(test, allCorrect).fingerprint).toBe(scoreAbility(test, allCorrect).fingerprint);
+  it("produces opaque, random result ids even for identical responses", () => {
+    const first = scoreAbility(test, allCorrect).fingerprint;
+    const second = scoreAbility(test, allCorrect).fingerprint;
+    expect(first).toMatch(/^rid1_[0-9a-f]{64}$/);
+    expect(second).toMatch(/^rid1_[0-9a-f]{64}$/);
+    expect(first).not.toBe(second);
+  });
+
+  it("rejects stale and repeated ability submissions", () => {
+    const attempt = beginTimedAttempt({ attemptId: "live", startedAtMs: 1_000 });
+    expect(scoreAbilitySubmission(test, allCorrect, attempt, {
+      attemptId: "old",
+      submissionId: "stale",
+      observedAtMs: 2_000,
+    })).toMatchObject({ accepted: false, reason: "stale-attempt" });
+    const first = scoreAbilitySubmission(test, allCorrect, attempt, {
+      attemptId: "live",
+      submissionId: "first",
+      observedAtMs: 2_000,
+    });
+    expect(first.accepted).toBe(true);
+    if (first.accepted) {
+      expect(scoreAbilitySubmission(test, allCorrect, first.attempt, {
+        attemptId: "live",
+        submissionId: "again",
+        observedAtMs: 2_100,
+      })).toMatchObject({ accepted: false, reason: "already-submitted" });
+    }
   });
 });
 
@@ -105,7 +188,7 @@ describe("working-memory scoring", () => {
     const r = scoreMemory(trials);
     expect(r.maxForward).toBe(8);
     expect(r.maxBackward).toBe(6);
-    expect(r.percentile).toBeGreaterThan(80);
+    expect(r.practiceIndex).toBeGreaterThan(80);
   });
 
   it("scores all-incorrect at the bottom", () => {
@@ -116,7 +199,7 @@ describe("working-memory scoring", () => {
     const r = scoreMemory(trials);
     expect(r.maxForward).toBe(0);
     expect(r.maxBackward).toBe(0);
-    expect(r.percentile).toBeLessThan(15);
+    expect(r.practiceIndex).toBe(0);
   });
 });
 
@@ -137,7 +220,7 @@ describe("Corsi spatial span", () => {
     const r = scoreCorsi(trials);
     expect(r.maxForward).toBe(6);
     expect(r.maxBackward).toBe(5);
-    expect(r.percentile).toBeGreaterThan(50);
+    expect(r.practiceIndex).toBeGreaterThan(50);
   });
 });
 
@@ -155,19 +238,26 @@ describe("processing speed", () => {
   it("rewards fast, accurate work and penalizes errors", () => {
     const fast = scoreProcessing(50, 1, 51, 90);
     const slow = scoreProcessing(8, 6, 14, 90);
-    expect(fast.percentile).toBeGreaterThan(slow.percentile);
-    expect(fast.percentile).toBeGreaterThan(80);
-    expect(slow.percentile).toBeLessThan(30);
+    expect(fast.practiceIndex).toBeGreaterThan(slow.practiceIndex);
+    expect(fast.practiceIndex).toBeGreaterThan(80);
+    expect(slow.practiceIndex).toBeLessThan(30);
+  });
+
+  it("does not reward implausibly short caller-reported elapsed time", () => {
+    const short = scoreProcessing(5, 0, 5, 1);
+    const honest = scoreProcessing(5, 0, 5, 45);
+    expect(short.durationSec).toBe(45);
+    expect(short.practiceIndex).toBe(honest.practiceIndex);
   });
 });
 
 describe("CHC battery aggregation", () => {
   it("maps domains onto CHC factors", () => {
     const chc = chcFromDomains([
-      { domain: "verbal", percentile: 80 },
-      { domain: "abstract", percentile: 60 },
-      { domain: "numerical", percentile: 70 },
-      { domain: "spatial", percentile: 50 },
+      { domain: "verbal", practiceIndex: 80 },
+      { domain: "abstract", practiceIndex: 60 },
+      { domain: "numerical", practiceIndex: 70 },
+      { domain: "spatial", practiceIndex: 50 },
     ]);
     expect(chc).toEqual({ Gc: 80, Gf: 60, Gq: 70, Gv: 50 });
   });
@@ -177,8 +267,14 @@ describe("CHC battery aggregation", () => {
     expect(b).not.toBeNull();
     expect(b!.tests).toBe(2);
     expect(b!.factors.map((f) => f.id).sort()).toEqual(["Gc", "Gf", "Gv"]);
-    expect(b!.overall).toBe(70);
-    expect(b!.iqHigh).toBeGreaterThan(b!.iqLow);
+    expect(b!.practiceIndex).toBe(70);
+    expect(b!.observation.length).toBeGreaterThan(0);
+    expect(Object.keys(b!).sort()).toEqual([
+      "factors",
+      "observation",
+      "practiceIndex",
+      "tests",
+    ]);
   });
 
   it("returns null with no CHC data", () => {
@@ -186,7 +282,10 @@ describe("CHC battery aggregation", () => {
   });
 
   it("keeps judgment/creativity domains out of the battery (no CHC mapping)", () => {
-    expect(chcFromDomains([{ domain: "interpersonal", percentile: 80 }, { domain: "integrity", percentile: 70 }])).toEqual({});
+    expect(chcFromDomains([
+      { domain: "interpersonal", practiceIndex: 80 },
+      { domain: "integrity", practiceIndex: 70 },
+    ])).toEqual({});
   });
 });
 
@@ -198,7 +297,7 @@ describe("creative thinking (fluency)", () => {
     ]);
     const few = scoreCreativity([{ prompt: "a brick", uses: ["build"] }, { prompt: "a paperclip", uses: [] }]);
     expect(many.fluency).toBe(13);
-    expect(many.percentile).toBeGreaterThan(few.percentile);
+    expect(many.practiceIndex).toBeGreaterThan(few.practiceIndex);
   });
 
   it("de-duplicates repeated uses within an object", () => {
@@ -227,9 +326,9 @@ describe("adaptive reasoning", () => {
   it("estimates higher ability when the staircase settles high", () => {
     const high: AdaptiveTrial[] = Array.from({ length: 16 }, () => ({ level: 6, correct: true }));
     const low: AdaptiveTrial[] = Array.from({ length: 16 }, () => ({ level: 1, correct: false }));
-    expect(scoreAdaptive(high).percentile).toBeGreaterThan(scoreAdaptive(low).percentile);
-    expect(scoreAdaptive(high).percentile).toBeGreaterThan(60);
-    expect(scoreAdaptive(low).percentile).toBeLessThan(20);
+    expect(scoreAdaptive(high).practiceIndex).toBeGreaterThan(scoreAdaptive(low).practiceIndex);
+    expect(scoreAdaptive(high).practiceIndex).toBeGreaterThan(60);
+    expect(scoreAdaptive(low).practiceIndex).toBeLessThan(20);
   });
 });
 
@@ -263,24 +362,29 @@ describe("Implicit Association Test", () => {
 });
 
 describe("ability localization", () => {
-  const RANGE = ["Very high range", "Above-average range", "Average range", "Below-average range", "Well-below-average range"];
-  const FLUENCY = ["Highly fluent", "Above-average fluency", "Average fluency", "Below-average fluency", "Low fluency"];
+  const OBSERVATIONS = [
+    "Strong performance on this practice set",
+    "Mostly consistent performance on this practice set",
+    "Mixed performance on this practice set",
+    "Developing familiarity with this practice set",
+    "Limited evidence from this attempt",
+  ];
   const COG_IDS = ["memory-span", "corsi-blocks", "processing-speed", "alternative-uses", "iat-demo", "adaptive-reasoning"];
 
-  it("translates every band the scorers can emit, in es and fr", () => {
-    for (const band of [...RANGE, ...FLUENCY]) {
+  it("translates every observation the scorers can emit, in es and fr", () => {
+    for (const observation of OBSERVATIONS) {
       for (const loc of ["es", "fr"]) {
-        const out = localizeBand(band, loc);
-        expect(out).not.toBe(band); // actually translated
+        const out = localizeObservation(observation, loc);
+        expect(out).not.toBe(observation);
         expect(out.length).toBeGreaterThan(0);
       }
-      expect(localizeBand(band, "en")).toBe(band); // English passes through
+      expect(localizeObservation(observation, "en")).toBe(observation);
     }
   });
 
-  it("passes unknown bands and locales through unchanged", () => {
-    expect(localizeBand("Wizard tier", "es")).toBe("Wizard tier");
-    expect(localizeBand("Average range", "de")).toBe("Average range");
+  it("passes unknown observations and locales through unchanged", () => {
+    expect(localizeObservation("Unknown observation", "es")).toBe("Unknown observation");
+    expect(localizeObservation(OBSERVATIONS[0], "de")).toBe(OBSERVATIONS[0]);
   });
 
   it("provides es/fr meta (name, description, caveats) for every standalone cognition test", () => {

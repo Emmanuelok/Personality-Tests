@@ -71,7 +71,7 @@ export const hexaco: Instrument = {
   items,
   caveats: [
     "Estimates from self-report, not a clinical or hiring assessment.",
-    "Percentiles are approximate. Honesty-Humility especially can be affected by how candidly one answers.",
+    "Scale positions describe this instrument's response range, not a population ranking. Honesty-Humility especially can be affected by how candidly one answers.",
   ],
   citations: [
     { ref: "Lee, K., & Ashton, M. C. (2004). Psychometric properties of the HEXACO Personality Inventory. Multivariate Behavioral Research, 39(2), 329–358." },

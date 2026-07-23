@@ -99,7 +99,7 @@ export function downloadShareCard(instrument: Instrument, _result: AssessmentRes
   }, "image/png");
 }
 
-/** Render a 1200×630 cognitive-result share card (band + domain profile) and download it. */
+/** Render a 1200×630 reasoning-practice share card and download it. */
 export function downloadCognitiveShareCard(test: AbilityTest, result: AbilityResult, name?: string) {
   const W = 1200;
   const H = 630;
@@ -134,18 +134,18 @@ export function downloadCognitiveShareCard(test: AbilityTest, result: AbilityRes
   ctx.fillText((name ? `${name.toUpperCase()}'S ` : "") + test.name.toUpperCase(), PAD, 150);
 
   ctx.fillStyle = "#2b2418";
-  ctx.font = `600 70px ${DISPLAY}`;
+  ctx.font = `600 62px ${DISPLAY}`;
   let y = 232;
-  for (const line of wrap(ctx, result.band, W - PAD * 2).slice(0, 2)) {
+  for (const line of wrap(ctx, result.observation, W - PAD * 2).slice(0, 2)) {
     ctx.fillText(line, PAD, y);
-    y += 78;
+    y += 68;
   }
 
   ctx.fillStyle = "#6c5d44";
   ctx.font = `500 27px ${BODY}`;
-  ctx.fillText(`Estimated ${result.iqLow}–${result.iqHigh} · ~${Math.round(result.percentile)}th percentile`, PAD, y + 6);
+  ctx.fillText(`Practice index ${result.practiceIndex}/100 · ${result.correct}/${result.total} correct in this sitting`, PAD, y + 6);
 
-  const ranked = [...result.perDomain].sort((a, b) => b.percentile - a.percentile).slice(0, 4);
+  const ranked = [...result.perDomain].sort((a, b) => b.practiceIndex - a.practiceIndex).slice(0, 4);
   let by = 432;
   for (const d of ranked) {
     ctx.fillStyle = "#6c5d44";
@@ -160,14 +160,14 @@ export function downloadCognitiveShareCard(test: AbilityTest, result: AbilityRes
     grad.addColorStop(0, "#9a7b2e");
     grad.addColorStop(1, "#27776f");
     ctx.fillStyle = grad;
-    roundRect(ctx, barX, by, Math.max(16, (barW * d.percentile) / 100), 14, 7);
+    roundRect(ctx, barX, by, Math.max(16, (barW * d.practiceIndex) / 100), 14, 7);
     ctx.fill();
     by += 48;
   }
 
   ctx.fillStyle = "#8a7a5e";
   ctx.font = `500 22px ${BODY}`;
-  ctx.fillText("Test your reasoning — free at Psyche Atlas ✦", PAD, H - 44);
+  ctx.fillText("A session-specific learning snapshot · Psyche Atlas ✦", PAD, H - 44);
 
   canvas.toBlob((blob) => {
     if (!blob) return;
@@ -180,7 +180,7 @@ export function downloadCognitiveShareCard(test: AbilityTest, result: AbilityRes
   }, "image/png");
 }
 
-/** Render a 1200×630 cognitive-battery share card (overall band + CHC factor bars). */
+/** Render a 1200×630 learning-practice overview share card. */
 export function downloadBatteryShareCard(battery: Battery, name?: string) {
   const W = 1200;
   const H = 630;
@@ -212,17 +212,17 @@ export function downloadBatteryShareCard(battery: Battery, name?: string) {
 
   ctx.fillStyle = "#27776f";
   ctx.font = `600 22px ${BODY}`;
-  ctx.fillText((name ? `${name.toUpperCase()}'S ` : "") + "COGNITIVE BATTERY", PAD, 146);
+  ctx.fillText((name ? `${name.toUpperCase()}'S ` : "") + "LEARNING PRACTICE", PAD, 146);
 
   ctx.fillStyle = "#2b2418";
-  ctx.font = `600 66px ${DISPLAY}`;
-  ctx.fillText(battery.band, PAD, 222);
+  ctx.font = `600 58px ${DISPLAY}`;
+  ctx.fillText(battery.observation, PAD, 222);
 
   ctx.fillStyle = "#6c5d44";
   ctx.font = `500 26px ${BODY}`;
-  ctx.fillText(`Overall ${battery.iqLow}–${battery.iqHigh} · ~${Math.round(battery.overall)}th percentile · ${battery.tests} tests`, PAD, 262);
+  ctx.fillText(`Combined practice index ${battery.practiceIndex}/100 · ${battery.tests} activities`, PAD, 262);
 
-  const factors = [...battery.factors].sort((a, b) => b.percentile - a.percentile).slice(0, 6);
+  const factors = [...battery.factors].sort((a, b) => b.practiceIndex - a.practiceIndex).slice(0, 6);
   let by = 340;
   const rowH = Math.min(46, (H - 100 - by) / Math.max(factors.length, 1));
   for (const f of factors) {
@@ -238,14 +238,14 @@ export function downloadBatteryShareCard(battery: Battery, name?: string) {
     grad.addColorStop(0, "#9a7b2e");
     grad.addColorStop(1, "#27776f");
     ctx.fillStyle = grad;
-    roundRect(ctx, barX, by, Math.max(14, (barW * f.percentile) / 100), 12, 6);
+    roundRect(ctx, barX, by, Math.max(14, (barW * f.practiceIndex) / 100), 12, 6);
     ctx.fill();
     by += rowH;
   }
 
   ctx.fillStyle = "#8a7a5e";
   ctx.font = `500 22px ${BODY}`;
-  ctx.fillText("Build your profile — free at Psyche Atlas ✦", PAD, H - 40);
+  ctx.fillText("A changing, activity-based learning snapshot · Psyche Atlas ✦", PAD, H - 40);
 
   canvas.toBlob((blob) => {
     if (!blob) return;

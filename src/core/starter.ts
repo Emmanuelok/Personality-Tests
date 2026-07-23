@@ -1,6 +1,7 @@
 import type { SynthEntry } from "./synthesis";
 import { recommendNext } from "./recommend";
 import { INSTRUMENTS } from "./instruments";
+import { isPublicJourneyEligibleInstrument } from "./catalogPolicy";
 
 /**
  * A guided "starter pack" — three complementary assessments tailored to a new
@@ -9,12 +10,30 @@ import { INSTRUMENTS } from "./instruments";
  */
 export function starterPack(focus: string[]): string[] {
   const f = focus.join(" ").toLowerCase();
-  if (f.includes("relationship")) return ["attachment-styles", "love-languages", "big-five-ipip50"];
-  if (f.includes("career") || f.includes("work")) return ["riasec-careers", "disc-4", "big-five-ipip50"];
-  if (f.includes("emotional") || f.includes("wellbeing")) return ["emotional-intelligence", "chronotype", "via-24"];
-  if (f.includes("grow") || f.includes("improve")) return ["big-five-ipip50", "grit-resilience", "emotional-intelligence"];
-  // Understand myself / curious / default — the classic trio.
-  return ["big-five-ipip50", "enneagram-9", "via-24"];
+  const requested = f.includes("relationship")
+    ? ["attachment-styles", "love-languages", "big-five-ipip50"]
+    : f.includes("career") || f.includes("work")
+      ? ["riasec-careers", "disc-4", "big-five-ipip50"]
+      : f.includes("emotional") || f.includes("wellbeing")
+        ? ["emotional-intelligence", "chronotype", "via-24"]
+        : f.includes("grow") || f.includes("improve")
+          ? ["big-five-ipip50", "grit-resilience", "emotional-intelligence"]
+          : ["big-five-ipip50", "enneagram-9", "via-24"];
+  const safe: string[] = [];
+  for (const id of [
+    ...requested,
+    "big-five-ipip50",
+    "enneagram-9",
+    "via-24",
+    "emotional-intelligence",
+  ]) {
+    if (
+      safe.length < 3 &&
+      !safe.includes(id) &&
+      isPublicJourneyEligibleInstrument(id)
+    ) safe.push(id);
+  }
+  return safe;
 }
 
 /**
@@ -28,7 +47,12 @@ export function adaptivePack(entries: SynthEntry[], focus: string[]): string[] {
   const done = new Set(entries.map((e) => e.instrument.id));
   const ids: string[] = [];
   const push = (id: string) => {
-    if (!done.has(id) && !ids.includes(id) && ids.length < 3) ids.push(id);
+    if (
+      isPublicJourneyEligibleInstrument(id) &&
+      !done.has(id) &&
+      !ids.includes(id) &&
+      ids.length < 3
+    ) ids.push(id);
   };
   for (const r of recommendNext(entries, { limit: 6 })) push(r.instrument.id);
   if (ids.length < 3) for (const id of starterPack(focus)) push(id);

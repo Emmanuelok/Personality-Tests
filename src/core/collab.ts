@@ -21,6 +21,7 @@ export interface StudyRoom {
   topic: string;
   /** Ordered instrument ids that form the shared curriculum. */
   plan: string[];
+  /** Invite-visible host label: an alias by default, or a display name shared with explicit consent. */
   host: string;
   createdAt: string;
 }
@@ -32,11 +33,54 @@ export interface MemberProgress {
   at: string;
   /** Optional scale snapshots (instrumentId → scaleId → 0..100) for the group portrait. */
   scores?: Record<string, Record<string, number>>;
+  /** Required proof that score sharing was a separate, informed action. */
+  scoreConsent?: {
+    scope: "non-sensitive-scales";
+    at: string;
+  };
+  /** True only when the sender deliberately included their display name/team. */
+  identityShared?: boolean;
   /** Optional team / organization the member belongs to (for cross-org collaboration). */
   org?: string;
 }
 
 const VER = 1;
+const PROGRESS_VER = 2;
+export const MIN_GROUP_AGGREGATE = 4;
+const MAX_PROGRESS_CODE_LENGTH = 24_000;
+
+/** Direct aggregation callers must enforce the same informed score-sharing gate as serialization. */
+export function hasScoreSharingConsent(member: MemberProgress): boolean {
+  return member.scoreConsent?.scope === "non-sensitive-scales"
+    && typeof member.scoreConsent.at === "string"
+    && member.scoreConsent.at.trim().length > 0;
+}
+
+/** Return an organization only when the member explicitly chose to share identity details. */
+export function sharedOrganization(member: MemberProgress): string | undefined {
+  if (member.identityShared !== true) return undefined;
+  const org = (member.org ?? "").trim();
+  return org || undefined;
+}
+
+/**
+ * Scores from these reflection activities are never eligible for group sharing.
+ * Completion can still be shared, but the result itself remains local/private.
+ */
+export const SENSITIVE_STUDY_INSTRUMENTS = new Set([
+  "adhd-traits",
+  "autism-traits",
+  "pid5-maladaptive",
+  "mood-checkin",
+  "worry-checkin",
+  "perceived-stress",
+  "burnout-mbi",
+  "dark-triad-18",
+  "dark-tetrad-18",
+  "attachment-styles",
+  "couple-communication",
+  "self-esteem-rses",
+]);
 
 function b64urlEncode(str: string): string {
   const bytes = new TextEncoder().encode(str);
@@ -52,13 +96,28 @@ function b64urlDecode(s: string): string {
   return new TextDecoder().decode(bytes);
 }
 
-export function createRoom(opts: { title: string; plan: string[]; host: string; topic?: string }): StudyRoom {
+export function createRoom(opts: {
+  title: string;
+  plan: string[];
+  /** Profile display name; used only when shareHostIdentity is explicitly true. */
+  host?: string;
+  /** Explicit consent to serialize the profile display name into the invite. */
+  shareHostIdentity?: boolean;
+  /** Caller-provided random alias, primarily so the creator UI can disclose it before creation. */
+  hostAlias?: string;
+  topic?: string;
+}): StudyRoom {
+  const displayName = (opts.host ?? "").trim().slice(0, 40);
+  const proposedAlias = (opts.hostAlias ?? "").trim().slice(0, 40);
+  const fallbackAlias = /^Learner-[A-F0-9]{4,16}$/.test(proposedAlias)
+    ? proposedAlias
+    : `Learner-${nonce(2).toUpperCase()}`;
   return {
     id: nonce(6),
     title: opts.title.trim().slice(0, 70) || "Study room",
     topic: opts.topic ?? "custom",
     plan: [...new Set(opts.plan)].slice(0, 12),
-    host: opts.host.trim().slice(0, 40) || "A friend",
+    host: opts.shareHostIdentity === true && displayName ? displayName : fallbackAlias,
     createdAt: new Date().toISOString(),
   };
 }
@@ -90,20 +149,74 @@ export function roomLink(r: StudyRoom, origin: string): string {
   return `${base}/?study=${encodeRoom(r)}`;
 }
 
+export function sanitizeSharedScores(
+  scores: MemberProgress["scores"],
+): Record<string, Record<string, number>> | undefined {
+  if (!scores || typeof scores !== "object") return undefined;
+  const output: Record<string, Record<string, number>> = {};
+  for (const [instrumentId, row] of Object.entries(scores).slice(0, 12)) {
+    if (SENSITIVE_STUDY_INSTRUMENTS.has(instrumentId)) continue;
+    const instrument = getInstrument(instrumentId);
+    if (!instrument || !row || typeof row !== "object") continue;
+    const allowedScales = new Set(instrument.scales.map((scale) => scale.id));
+    const clean: Record<string, number> = {};
+    for (const [scaleId, value] of Object.entries(row).slice(0, 40)) {
+      if (!allowedScales.has(scaleId) || !Number.isFinite(value) || value < 0 || value > 100) continue;
+      clean[scaleId] = Math.round(value * 100) / 100;
+    }
+    if (Object.keys(clean).length) output[instrumentId] = clean;
+  }
+  return Object.keys(output).length ? output : undefined;
+}
+
+/** Consent-gated, policy-sanitized scores for direct aggregation APIs. */
+export function consentedSharedScores(
+  member: MemberProgress,
+): Record<string, Record<string, number>> | undefined {
+  return hasScoreSharingConsent(member)
+    ? sanitizeSharedScores(member.scores)
+    : undefined;
+}
+
 export function encodeProgress(p: MemberProgress): string {
-  return b64urlEncode(JSON.stringify({ n: p.name, d: p.done, a: p.at, s: p.scores, o: p.org }));
+  const rawScoreConsent = p.scoreConsent;
+  const scoreConsent = rawScoreConsent && hasScoreSharingConsent(p)
+    ? { scope: "non-sensitive-scales" as const, at: String(rawScoreConsent.at).slice(0, 40) }
+    : undefined;
+  const scores = scoreConsent ? sanitizeSharedScores(p.scores) : undefined;
+  const identityShared = p.identityShared === true;
+  return b64urlEncode(JSON.stringify({
+    v: PROGRESS_VER,
+    n: String(p.name || "Learner").slice(0, 40),
+    d: [...new Set(p.done.filter((id) => !!getInstrument(id)))].slice(0, 12),
+    a: String(p.at).slice(0, 40),
+    s: scores,
+    c: scoreConsent,
+    i: identityShared,
+    o: identityShared && p.org ? String(p.org).slice(0, 50) : undefined,
+  }));
 }
 
 export function decodeProgress(code: string): MemberProgress | null {
   try {
+    if (!code.trim() || code.length > MAX_PROGRESS_CODE_LENGTH) return null;
     const o = JSON.parse(b64urlDecode(code.trim()));
-    if (!o || !Array.isArray(o.d)) return null;
+    if (!o || o.v !== PROGRESS_VER || !Array.isArray(o.d)) return null;
+    const identityShared = o.i === true;
+    const scoreConsent = o.c?.scope === "non-sensitive-scales" && typeof o.c?.at === "string"
+      ? { scope: "non-sensitive-scales" as const, at: o.c.at.slice(0, 40) }
+      : undefined;
+    const done = [...new Set<string>(
+      (o.d as unknown[]).filter((x: unknown): x is string => typeof x === "string" && !!getInstrument(x)),
+    )].slice(0, 12);
     return {
-      name: String(o.n || "A friend").slice(0, 40),
-      done: o.d.filter((x: unknown) => typeof x === "string"),
+      name: String(o.n || "Learner").slice(0, 40),
+      done,
       at: String(o.a || new Date().toISOString()),
-      scores: o.s && typeof o.s === "object" ? (o.s as Record<string, Record<string, number>>) : undefined,
-      org: o.o ? String(o.o).slice(0, 50) : undefined,
+      scores: scoreConsent ? sanitizeSharedScores(o.s) : undefined,
+      scoreConsent,
+      identityShared,
+      org: identityShared && o.o ? String(o.o).slice(0, 50) : undefined,
     };
   } catch {
     return null;
@@ -159,7 +272,7 @@ export function teamStandings(room: StudyRoom, members: MemberProgress[], opts: 
   const fallback = opts.ungrouped ?? "Independent";
   const byOrg = new Map<string, MemberProgress[]>();
   for (const m of members) {
-    const org = (m.org ?? "").trim() || fallback;
+    const org = sharedOrganization(m) ?? fallback;
     const list = byOrg.get(org);
     if (list) list.push(m);
     else byOrg.set(org, [m]);
@@ -175,7 +288,7 @@ export function teamStandings(room: StudyRoom, members: MemberProgress[], opts: 
 
 /** How many distinct teams/orgs are represented (named orgs only). */
 export function teamCount(members: MemberProgress[]): number {
-  return new Set(members.map((m) => (m.org ?? "").trim()).filter(Boolean)).size;
+  return new Set(members.map(sharedOrganization).filter((org): org is string => Boolean(org))).size;
 }
 
 /* ── group portrait — the collective profile when teammates share results ── */
@@ -188,8 +301,9 @@ export interface GroupScaleStat {
   high?: string;
   /** Group mean of normalized scores, 0..100. */
   mean: number;
-  lo: { name: string; val: number };
-  hi: { name: string; val: number };
+  /** Aggregate bounds; contributor identities are deliberately not retained. */
+  min: number;
+  max: number;
   spread: number;
 }
 export interface GroupInstrumentStat {
@@ -204,27 +318,30 @@ export interface GroupInstrumentStat {
   widestScaleId: string;
 }
 
-/** Aggregate members' shared scale snapshots into a per-instrument group portrait.
- *  Only instruments ≥2 members have shared are included. */
+/** Aggregate score snapshots only after the minimum privacy cohort is met. */
 export function groupPortrait(plan: string[], members: MemberProgress[], opts: { locale?: string } = {}): GroupInstrumentStat[] {
   const out: GroupInstrumentStat[] = [];
   for (const instId of plan) {
     const inst = getInstrument(instId);
     if (!inst) continue;
-    const have = members.filter((m) => m.scores?.[instId]);
-    if (have.length < 2) continue;
+    const have = members
+      .map((member) => consentedSharedScores(member))
+      .filter((scores): scores is Record<string, Record<string, number>> =>
+        Boolean(scores?.[instId])
+      );
+    if (have.length < MIN_GROUP_AGGREGATE) continue;
     const li = localizeInstrument(inst, opts.locale ?? "en");
     const scales: GroupScaleStat[] = [];
     for (const sc of li.scales) {
       const vals = have
-        .map((m) => ({ name: m.name, val: m.scores![instId][sc.id] }))
-        .filter((v) => typeof v.val === "number");
-      if (vals.length < 2) continue;
-      const mean = Math.round(vals.reduce((a, v) => a + v.val, 0) / vals.length);
-      const sorted = [...vals].sort((a, b) => a.val - b.val);
-      const lo = sorted[0];
-      const hi = sorted[sorted.length - 1];
-      scales.push({ id: sc.id, name: sc.name, low: sc.poles?.low, high: sc.poles?.high, mean, lo, hi, spread: hi.val - lo.val });
+        .map((scores) => scores[instId][sc.id])
+        .filter((value): value is number => Number.isFinite(value));
+      if (vals.length < MIN_GROUP_AGGREGATE) continue;
+      const mean = Math.round(vals.reduce((sum, value) => sum + value, 0) / vals.length);
+      const sorted = [...vals].sort((a, b) => a - b);
+      const min = sorted[0];
+      const max = sorted[sorted.length - 1];
+      scales.push({ id: sc.id, name: sc.name, low: sc.poles?.low, high: sc.poles?.high, mean, min, max, spread: max - min });
     }
     if (!scales.length) continue;
     const topScaleId = [...scales].sort((a, b) => b.mean - a.mean)[0].id;
@@ -241,19 +358,19 @@ const gpLoc = (l?: string): GLoc => (l === "es" || l === "fr" ? l : "en");
 
 const GP_STR: Record<GLoc, {
   align: (inst: string, pole: string, scale: string, mean: number) => string;
-  differ: (scale: string, loN: string, loV: number, hiN: string, hiV: number) => string;
+  differ: (scale: string, loV: number, hiV: number) => string;
 }> = {
   en: {
     align: (inst, pole, scale, mean) => `On ${inst}, your group leans collectively toward ${pole} (${scale}, group avg ${mean}) — a shared trait to build on together.`,
-    differ: (scale, loN, loV, hiN, hiV) => `You differ most on ${scale} — from ${loN} (${loV}) to ${hiN} (${hiV}). That range is diverse perspective to learn from each other.`,
+    differ: (scale, loV, hiV) => `Your widest aggregate range is on ${scale} (${loV}–${hiV}). Individual contributors stay private.`,
   },
   es: {
     align: (inst, pole, scale, mean) => `En ${inst}, el grupo se inclina de forma colectiva hacia ${pole} (${scale}, media ${mean}): un rasgo compartido para construir juntos.`,
-    differ: (scale, loN, loV, hiN, hiV) => `Donde más difieren es en ${scale}: de ${loN} (${loV}) a ${hiN} (${hiV}). Ese rango es perspectiva diversa para aprender unos de otros.`,
+    differ: (scale, loV, hiV) => `El rango agregado más amplio está en ${scale} (${loV}–${hiV}). Las contribuciones individuales siguen siendo privadas.`,
   },
   fr: {
     align: (inst, pole, scale, mean) => `Sur ${inst}, votre groupe penche collectivement vers ${pole} (${scale}, moyenne ${mean}) — un trait partagé sur lequel bâtir ensemble.`,
-    differ: (scale, loN, loV, hiN, hiV) => `C'est sur ${scale} que vous différez le plus — de ${loN} (${loV}) à ${hiN} (${hiV}). Cet écart est une diversité de perspectives pour apprendre les uns des autres.`,
+    differ: (scale, loV, hiV) => `La plage agrégée la plus large concerne ${scale} (${loV}–${hiV}). Les contributions individuelles restent privées.`,
   },
 };
 
@@ -271,7 +388,7 @@ export function groupInsights(portrait: GroupInstrumentStat[], opts: { locale?: 
     out.push(s.align(gi.instrumentName, pole, top.name, top.mean));
   }
   if (wide && wide.id !== gi.topScaleId && wide.spread >= 18) {
-    out.push(s.differ(wide.name, wide.lo.name, wide.lo.val, wide.hi.name, wide.hi.val));
+    out.push(s.differ(wide.name, wide.min, wide.max));
   }
   return out;
 }
@@ -296,17 +413,21 @@ export interface MemberRole {
 }
 
 /** Each member's single most distinctive scale across the shared plan — "what they
- *  uniquely bring." One signature per member, strongest deviation first. Needs 2+
- *  members with shared scores; only deviations of ≥6 points count as a signature. */
+ *  uniquely bring." One signature per member, strongest deviation first. Requires
+ *  a consented privacy cohort for every scale; only deviations of ≥6 points count. */
 export function groupRoles(plan: string[], members: MemberProgress[], opts: { locale?: string } = {}): MemberRole[] {
-  const have = members.filter((m) => m.scores);
-  if (have.length < 2) return [];
+  const have = members
+    .map((member) => ({ member, scores: consentedSharedScores(member) }))
+    .filter((entry): entry is { member: MemberProgress; scores: Record<string, Record<string, number>> } =>
+      entry.member.identityShared === true && Boolean(entry.scores)
+    );
+  if (have.length < MIN_GROUP_AGGREGATE) return [];
   // Group means per instrument → scale.
   const means: Record<string, Record<string, { sum: number; n: number }>> = {};
   for (const instId of plan) {
     const acc: Record<string, { sum: number; n: number }> = {};
-    for (const m of have) {
-      const row = m.scores?.[instId];
+    for (const entry of have) {
+      const row = entry.scores[instId];
       if (!row) continue;
       for (const [k, v] of Object.entries(row)) {
         if (typeof v !== "number") continue;
@@ -318,10 +439,10 @@ export function groupRoles(plan: string[], members: MemberProgress[], opts: { lo
     means[instId] = acc;
   }
   const roles: MemberRole[] = [];
-  for (const m of have) {
+  for (const { member, scores } of have) {
     let best: MemberRole | null = null;
     for (const instId of plan) {
-      const row = m.scores?.[instId];
+      const row = scores[instId];
       if (!row) continue;
       const inst = getInstrument(instId);
       if (!inst) continue;
@@ -329,12 +450,12 @@ export function groupRoles(plan: string[], members: MemberProgress[], opts: { lo
       for (const sc of li.scales) {
         const v = row[sc.id];
         const agg = means[instId]?.[sc.id];
-        if (typeof v !== "number" || !agg || agg.n < 2) continue;
+        if (typeof v !== "number" || !agg || agg.n < MIN_GROUP_AGGREGATE) continue;
         const mean = agg.sum / agg.n;
         const delta = v - mean;
         if (!best || Math.abs(delta) > Math.abs(best.delta)) {
           const pole = delta >= 0 ? (sc.poles?.high ?? sc.name) : (sc.poles?.low ?? sc.name);
-          best = { name: m.name, instrumentId: instId, instrumentName: li.name, scaleId: sc.id, scaleName: sc.name, pole, value: Math.round(v), mean: Math.round(mean), delta: Math.round(delta) };
+          best = { name: member.name, instrumentId: instId, instrumentName: li.name, scaleId: sc.id, scaleName: sc.name, pole, value: Math.round(v), mean: Math.round(mean), delta: Math.round(delta) };
         }
       }
     }
@@ -360,18 +481,25 @@ export interface GroupResonance {
 
 /** Pairwise resonance across the group's shared scale snapshots. Two members are
  *  "comparable" when they share ≥3 scales; similarity is 100 minus their mean
- *  per-scale gap. Surfaces the natural study pair and the perspective-stretching one. */
+ *  per-scale gap. The analysis stays suppressed until a consented privacy cohort
+ *  exists. */
 export function groupResonance(plan: string[], members: MemberProgress[]): GroupResonance {
-  const flat = (m: MemberProgress): Record<string, number> => {
+  const flat = (scores: Record<string, Record<string, number>>): Record<string, number> => {
     const out: Record<string, number> = {};
     for (const instId of plan) {
-      const row = m.scores?.[instId];
+      const row = scores[instId];
       if (!row) continue;
       for (const [k, v] of Object.entries(row)) if (typeof v === "number") out[`${instId}:${k}`] = v;
     }
     return out;
   };
-  const vs = members.filter((m) => m.scores).map((m) => ({ name: m.name, v: flat(m) }));
+  const withScores = members
+    .map((member) => ({ member, scores: consentedSharedScores(member) }))
+    .filter((entry): entry is { member: MemberProgress; scores: Record<string, Record<string, number>> } =>
+      entry.member.identityShared === true && Boolean(entry.scores)
+    );
+  if (withScores.length < MIN_GROUP_AGGREGATE) return { pairs: [] };
+  const vs = withScores.map(({ member, scores }) => ({ name: member.name, v: flat(scores) }));
   const pairs: MemberPair[] = [];
   for (let i = 0; i < vs.length; i++) {
     for (let j = i + 1; j < vs.length; j++) {

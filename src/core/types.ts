@@ -61,9 +61,15 @@ export interface ScaleDef {
   poles?: { low: string; high: string };
   /** Optional facets that roll up into this scale. */
   facets?: FacetDef[];
-  /** Approximate population mean of the item-mean (1..max), used for norming when no table exists. */
+  /**
+   * Legacy approximate mean retained with instrument metadata for compatibility.
+   * It is not provenance-qualified and must not be used for population ranking.
+   */
   normMean?: number;
-  /** Approximate population SD of the item-mean, used for norming when no table exists. */
+  /**
+   * Legacy approximate SD retained with instrument metadata for compatibility.
+   * It is not provenance-qualified and must not be used for population ranking.
+   */
   normSd?: number;
 }
 
@@ -130,6 +136,24 @@ export interface FacetScore {
   itemCount: number;
 }
 
+/**
+ * What a 0..100 score means.
+ *
+ * A response-range position is purely within this instrument's answer scale:
+ * 0 is the low-keyed end and 100 is the high-keyed end. It says nothing about
+ * how the person compares with a population.
+ *
+ * Local scoring always uses this response-range meaning. Population or
+ * community comparisons require a separately sourced, thresholded reference
+ * and are never embedded in the local score.
+ */
+export type ScaleStanding = {
+  kind: "response-range";
+  value: number;
+  position: number;
+  basis: "instrument-response-range";
+};
+
 export interface ScaleScore {
   scaleId: string;
   name: string;
@@ -139,8 +163,8 @@ export interface ScaleScore {
   mean: number;
   /** 0..100 position within the raw response range (range-relative). */
   normalized: number;
-  /** 0..100 percentile vs. an approximate population norm (when norm params exist). */
-  percentile: number;
+  /** Explicit interpretation of the score's standing. */
+  standing: ScaleStanding;
   level: Level;
   itemCount: number;
   facets: Record<string, FacetScore>;

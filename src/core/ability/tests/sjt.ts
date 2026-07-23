@@ -63,7 +63,7 @@ export const sjt: AbilityTest = {
   description:
     "Situational Judgment Tests put you in realistic dilemmas — a tense meeting, a missed deadline, an ethical gray " +
     "zone — and ask for the most effective response. Widely used in hiring and admissions (like CASPer for medical " +
-    "school), they probe practical judgment across interpersonal skill, leadership, and integrity — not raw IQ.",
+    "school), they probe practical judgment across interpersonal skill, leadership, and integrity.",
   estMinutes: 8,
   domains: [
     { id: "interpersonal", name: "Interpersonal", chc: "Practical judgment", description: "Handling people, feedback, and friction well." },
@@ -76,7 +76,7 @@ export const sjt: AbilityTest = {
     "This measures practical JUDGMENT, not intelligence — so it doesn't feed the cognitive battery.",
     "'Best' answers reflect widely-taught effectiveness principles; real situations are messier and context matters.",
     "An educational self-reflection, not a validated hiring instrument — don't use it for real selection decisions.",
-    "Your score is reported as a band and percentile, never a single precise number.",
+    "The practice index describes choices on these scenarios; it is not a population rank.",
   ],
   citations: [
     { ref: "Lievens, F., & Sackett, P. R. (2017). Situational judgment tests: From measures of situational judgment to measures of general domain knowledge. Industrial and Organizational Psychology, 10(1), 3–22." },

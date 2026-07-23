@@ -12,14 +12,19 @@ import { localizeCategory } from "@core/categories.i18n";
 import { localizeInstrument } from "@core/instruments/i18n";
 import { searchInstruments, matchesQuery } from "@core/search";
 import { recommendNext, profileSpotlight, type RecKind } from "@core/recommend";
-import { dailyNudge } from "@core/daily";
+import { dailyNudgeFromEvidence } from "@core/daily";
 import { coachNextPractice, practiceStreak } from "@core/wellbeingagent";
 import { buildRoadmap } from "@core/roadmap";
 import { computeMilestones } from "@core/milestones";
 import { analyzeConvergence } from "@core/converge";
+import {
+  autonomousEntries,
+  type EvidenceConsent,
+  type EvidenceRecord,
+} from "@core/evidence";
 import { downloadICS } from "./calendar";
 import type { SynthEntry } from "@core/synthesis";
-import { GOALS, labelsFor, keysFromFocus, toLoc } from "./goals";
+import { GOALS, labelsFor, keysFromFocus, toLoc, type Loc } from "./goals";
 import { TOPICS } from "./topics";
 import { HeroBackdrop, CategoryEmblem, InstrumentGlyph, Flourish } from "./art";
 import { Gauge } from "./charts";
@@ -27,6 +32,7 @@ import { Reveal } from "./Reveal";
 import { useI18n } from "../i18n";
 
 export function Home({
+  mode = "today",
   entries = [],
   name,
   focus = [],
@@ -52,7 +58,11 @@ export function Home({
   onStudyTopic,
   practiceLog = [],
   onCompletePractice,
+  onExplore,
+  recommendationEvidence,
+  recommendationConsent,
 }: {
+  mode?: "today" | "explore";
   entries?: SynthEntry[];
   name?: string;
   focus?: string[];
@@ -84,15 +94,41 @@ export function Home({
   practiceLog?: string[];
   /** Mark today's coach practice complete. */
   onCompletePractice?: () => void;
+  /** Open the dedicated Explore workspace. */
+  onExplore?: () => void;
+  /** Completion-only evidence available to autonomous/recommendation surfaces. */
+  recommendationEvidence: readonly EvidenceRecord<SynthEntry>[];
+  recommendationConsent: EvidenceConsent;
 }) {
   const { locale, t } = useI18n();
+  const routedEntries = useMemo(
+    () => autonomousEntries(recommendationEvidence, recommendationConsent),
+    [recommendationConsent, recommendationEvidence],
+  );
+  // Spotlight and convergence are user-led reflections. Actions below use only
+  // policy-filtered completion evidence, never raw assessment answers/scores.
   const spotlight = useMemo(() => profileSpotlight(entries, { locale }), [entries, locale]);
-  const recs = useMemo(() => recommendNext(entries, { locale, limit: 3 }), [entries, locale]);
-  const nudge = useMemo(() => dailyNudge(entries, { locale }), [entries, locale]);
-  const coachToday = useMemo(() => coachNextPractice(entries, { locale }), [entries, locale]);
+  const recs = useMemo(
+    () => recommendNext([], {
+      locale,
+      limit: 3,
+      evidence: recommendationEvidence,
+      consent: recommendationConsent,
+      mode: "autonomous",
+    }),
+    [locale, recommendationConsent, recommendationEvidence],
+  );
+  const nudge = useMemo(
+    () => dailyNudgeFromEvidence(recommendationEvidence, {
+      locale,
+      consent: recommendationConsent,
+    }),
+    [locale, recommendationConsent, recommendationEvidence],
+  );
+  const coachToday = useMemo(() => coachNextPractice(routedEntries, { locale }), [locale, routedEntries]);
   const practiceDoneToday = practiceLog.includes(new Date().toISOString().slice(0, 10));
   const pStreak = useMemo(() => practiceStreak(practiceLog), [practiceLog]);
-  const roadmap = useMemo(() => buildRoadmap(entries, focus, { locale }), [entries, focus, locale]);
+  const roadmap = useMemo(() => buildRoadmap(routedEntries, focus, { locale }), [focus, locale, routedEntries]);
   const milestones = useMemo(() => computeMilestones(entries, { streakDays, cognitiveCount, locale }), [entries, streakDays, cognitiveCount, locale]);
   const crossInsight = useMemo(() => {
     if (entries.length < 2) return null;
@@ -125,9 +161,10 @@ export function Home({
   // Keep the URL in sync so any search/topic is shareable and survives reload.
   useEffect(() => {
     const base = window.location.pathname;
-    const url = topic ? `${base}?topic=${encodeURIComponent(topic)}`
-      : catalogQuery.trim() ? `${base}?find=${encodeURIComponent(catalogQuery.trim())}`
-      : base;
+    const hash = window.location.hash;
+    const url = topic ? `${base}?topic=${encodeURIComponent(topic)}${hash}`
+      : catalogQuery.trim() ? `${base}?find=${encodeURIComponent(catalogQuery.trim())}${hash}`
+      : `${base}${hash}`;
     window.history.replaceState({}, "", url);
   }, [topic, catalogQuery]);
 
@@ -152,6 +189,7 @@ export function Home({
   ];
   const cogResults = q ? cognitionTests.filter((c) => matchesQuery(q, c.name, c.tagline, c.kw)) : [];
   const matchCount = (results?.length ?? 0) + cogResults.length;
+  const workspaceCopy = HOME_WORKSPACE[toLoc(locale)];
 
   const renderInstrumentCard = (inst: Instrument) => {
     const li = localizeInstrument(inst, locale);
@@ -191,7 +229,9 @@ export function Home({
   );
 
   return (
-    <div className="container">
+    <div className={`container home-workspace home-workspace-${mode}`}>
+      {mode === "today" && (
+      <div className="today-surface">
       <HeroBackdrop />
       {/* The marketing hero is for first-time visitors. Once someone has goals or
           results, their personalized dashboard (below) leads instead — no
@@ -199,6 +239,16 @@ export function Home({
       {!(spotlight || focus.length > 0) && (
       <section className="hero hero-stage">
         <div className="hero-aurora" aria-hidden="true" />
+        <img
+          className="hero-learning-image"
+          src="/images/atlas-learning-hero.webp"
+          width="1672"
+          height="941"
+          loading="eager"
+          decoding="async"
+          alt=""
+          aria-hidden="true"
+        />
         <span className="eyebrow">{t("h.eyebrow")}</span>
         <h1 className="hero-title">
           {t("h.h1a")} <em className="grad">{t("h.h1grad")}</em>.
@@ -214,7 +264,7 @@ export function Home({
         </div>
         <div className="row-actions">
           <button className="glass-btn primary" onClick={onStartPack}>✨&nbsp;{t("h.startPack")}&nbsp;→</button>
-          <button className="glass-btn ghost liquid-glass" onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
+          <button className="glass-btn ghost liquid-glass" onClick={onExplore}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
         </div>
         <p className="hero-fine">
           {t("h.themesLine").replace("{n}", String(INSTRUMENTS.length)).replace("{c}", String(CATEGORIES.filter((c) => instrumentsByCategory(c.id).length).length))}
@@ -225,6 +275,16 @@ export function Home({
       {(spotlight || focus.length > 0) && (
         <section className="foryou view-enter" aria-label={t("home.forYou")}>
           <div className="foryou-aura" aria-hidden="true" />
+          <img
+            className="foryou-image"
+            src="/images/atlas-learning-hero.webp"
+            width="1672"
+            height="941"
+            loading="eager"
+            decoding="async"
+            alt=""
+            aria-hidden="true"
+          />
           <span className="eyebrow">{greeting}</span>
           <h2 className="foryou-title">{spotlight ? spotlight.headline : t("home.journeyStart")}</h2>
           <p className="foryou-line">{spotlight ? (spotlight.complete && !spotlight.chips.length ? t("home.completedAll") : spotlight.line) : t("home.journeyLine")}</p>
@@ -238,8 +298,26 @@ export function Home({
           )}
           <div className="foryou-actions">
             <button className="btn primary sm" onClick={onStartPack}>✨&nbsp;{t("h.startPack")}</button>
-            <button className="btn ghost sm" onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
+            <button className="btn ghost sm" onClick={onExplore}>{t("h.browseAll").replace("{n}", String(INSTRUMENTS.length))}</button>
           </div>
+          <dl className="today-evidence" aria-label={workspaceCopy.evidenceState}>
+            <div>
+              <dt>{workspaceCopy.evidence}</dt>
+              <dd>{entries.length
+                ? workspaceCopy.completed.replace("{n}", String(entries.length))
+                : workspaceCopy.gettingStarted}</dd>
+            </div>
+            <div>
+              <dt>{workspaceCopy.progress}</dt>
+              <dd>{roadmap.total
+                ? workspaceCopy.progressValue.replace("{pct}", String(roadmap.pct))
+                : workspaceCopy.pathReady}</dd>
+            </div>
+            <div>
+              <dt>{workspaceCopy.nextAction}</dt>
+              <dd>{roadmap.steps.find((step) => step.current)?.name ?? recs[0]?.instrument.name ?? workspaceCopy.chooseActivity}</dd>
+            </div>
+          </dl>
           {roadmap.steps.length > 0 && (
             <div className="panel roadmap-panel">
               <div className="rm-head">
@@ -258,7 +336,12 @@ export function Home({
                   <p className="rm-goals-label">{t("home.tuneGoalsHint")}</p>
                   <div className="chips">
                     {GOALS.map((g) => (
-                      <button key={g.key} className={`chip-toggle ${goalSel.includes(g.key) ? "on" : ""}`} onClick={() => toggleGoal(g.key)}>
+                      <button
+                        key={g.key}
+                        className={`chip-toggle ${goalSel.includes(g.key) ? "on" : ""}`}
+                        aria-pressed={goalSel.includes(g.key)}
+                        onClick={() => toggleGoal(g.key)}
+                      >
                         <span aria-hidden="true" style={{ marginRight: 6 }}>{g.icon}</span>{g.label[toLoc(locale)]}
                       </button>
                     ))}
@@ -397,27 +480,50 @@ export function Home({
           )}
         </section>
       )}
+      </div>
+      )}
 
+      {mode === "explore" && (
+      <div className="explore-surface">
+      <section className="workspace-hero explore-hero">
+        <div className="workspace-hero-copy">
+          <span className="eyebrow2">{workspaceCopy.exploreEyebrow}</span>
+          <h1>{workspaceCopy.exploreTitle}</h1>
+          <p>{workspaceCopy.exploreBody}</p>
+        </div>
+        <img
+          src="/images/atlas-pathways.webp"
+          width="1536"
+          height="1024"
+          loading="eager"
+          decoding="async"
+          alt=""
+          aria-hidden="true"
+        />
+      </section>
       <Flourish />
 
       <h2 className="section-title" id="catalog">{t("h.choose")}</h2>
 
       <div className="catalog-search">
         <span className="catalog-search-icon" aria-hidden="true">🔍</span>
+        <label className="sr-only" htmlFor="atlas-catalog-search">{t("h.searchPlaceholder")}</label>
         <input
+          id="atlas-catalog-search"
           type="search"
           className="catalog-search-input"
           value={catalogQuery}
           onChange={(e) => { setCatalogQuery(e.target.value); setTopic(""); }}
           placeholder={t("h.searchPlaceholder")}
-          aria-label={t("h.searchPlaceholder")}
+          aria-controls="catalog-results"
         />
         {(catalogQuery || topic) && (
           <button className="btn ghost sm catalog-search-clear" onClick={clearSearch}>{t("h.searchClear")}</button>
         )}
       </div>
 
-      <div className="topic-chips" role="group" aria-label={t("h.topicsLabel")}>
+      <p className="horizontal-hint">{workspaceCopy.scrollHint}</p>
+      <div className="topic-chips" role="group" aria-label={t("h.topicsLabel")} aria-controls="catalog-results">
         <span className="topic-chips-label">{t("h.topicsLabel")}</span>
         {TOPICS.map((tp) => (
           <button
@@ -432,9 +538,9 @@ export function Home({
       </div>
 
       {results !== null && (
-        <div className="search-results view-enter">
+        <div className="search-results view-enter" id="catalog-results">
           <div className="search-head">
-            <p className="search-count">
+            <p className="search-count" role="status" aria-live="polite" aria-atomic="true">
               {t("h.searchCount").replace("{n}", String(matchCount)).replace("{total}", String(INSTRUMENTS.length + cognitionTests.length)).replace("{q}", queryLabel)}
             </p>
             {matchCount > 0 && onStudyTopic && (
@@ -641,9 +747,73 @@ export function Home({
         {t("h.footer1")}
         <br /> {t("h.footer2")}
       </div>
+      </div>
+      )}
     </div>
   );
 }
+
+const HOME_WORKSPACE: Record<Loc, {
+  evidenceState: string;
+  evidence: string;
+  completed: string;
+  gettingStarted: string;
+  progress: string;
+  progressValue: string;
+  pathReady: string;
+  nextAction: string;
+  chooseActivity: string;
+  exploreEyebrow: string;
+  exploreTitle: string;
+  exploreBody: string;
+  scrollHint: string;
+}> = {
+  en: {
+    evidenceState: "Journey snapshot",
+    evidence: "Evidence",
+    completed: "{n} completed reflection activities",
+    gettingStarted: "Getting started",
+    progress: "Path progress",
+    progressValue: "{pct}% complete",
+    pathReady: "Ready to shape",
+    nextAction: "Next best action",
+    chooseActivity: "Choose an activity",
+    exploreEyebrow: "Browse by question, not by label",
+    exploreTitle: "Explore",
+    exploreBody: "Find a reflection or learning activity by topic. Each result shows its evidence and limits, and feeds the same Atlas journey.",
+    scrollHint: "On a small screen, swipe the topic row sideways to see more.",
+  },
+  es: {
+    evidenceState: "Resumen del camino",
+    evidence: "Evidencia",
+    completed: "{n} actividades de reflexión terminadas",
+    gettingStarted: "Primeros pasos",
+    progress: "Progreso del camino",
+    progressValue: "{pct}% completado",
+    pathReady: "Listo para adaptar",
+    nextAction: "Mejor siguiente paso",
+    chooseActivity: "Elige una actividad",
+    exploreEyebrow: "Explora por pregunta, no por etiqueta",
+    exploreTitle: "Explorar",
+    exploreBody: "Encuentra una actividad de reflexión o aprendizaje por tema. Cada resultado muestra su evidencia y sus límites, y alimenta el mismo camino Atlas.",
+    scrollHint: "En pantallas pequeñas, desliza la fila de temas hacia un lado para ver más.",
+  },
+  fr: {
+    evidenceState: "Aperçu du parcours",
+    evidence: "Indices",
+    completed: "{n} activités de réflexion terminées",
+    gettingStarted: "Premiers pas",
+    progress: "Progression du parcours",
+    progressValue: "{pct} % terminé",
+    pathReady: "Prêt à être adapté",
+    nextAction: "Prochaine action conseillée",
+    chooseActivity: "Choisissez une activité",
+    exploreEyebrow: "Explorez par question, pas par étiquette",
+    exploreTitle: "Explorer",
+    exploreBody: "Trouvez une activité de réflexion ou d’apprentissage par thème. Chaque résultat montre ses indices et ses limites, au sein du même parcours Atlas.",
+    scrollHint: "Sur petit écran, balayez la rangée de thèmes horizontalement pour en voir plus.",
+  },
+};
 
 /** Renders **bold** spans inside a translated string. */
 function Bold({ text }: { text: string }) {

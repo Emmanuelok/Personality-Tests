@@ -1,6 +1,7 @@
 import type { AssessmentResult, Instrument } from "./types";
 import { getInstrument } from "./instruments";
 import { localizeInstrument } from "./instruments/i18n";
+import { isPublicJourneyEligibleInstrument } from "./catalogPolicy";
 
 /**
  * Wellbeing Portrait — a cross-context meta-synthesis.
@@ -269,7 +270,9 @@ export function wellbeingGrowthNudge(
     .find((id) => {
       if (seen.has(id)) return false;
       seen.add(id);
-      return !done.has(id) && Boolean(getInstrument(id));
+      return !done.has(id)
+        && Boolean(getInstrument(id))
+        && isPublicJourneyEligibleInstrument(id);
     });
   if (!candidate) return null;
   return { dimensionId: portrait.topGrowth.id, dimensionName: portrait.topGrowth.name, instrumentId: candidate };

@@ -1,10 +1,11 @@
-import type { AssessmentResult, Instrument, TypeResolution } from "./types";
+import type { AssessmentResult, Instrument, ScaleStanding, TypeResolution } from "./types";
 import type { PersonalityReport, ReportSection, TraitInsight } from "./report/types";
 import type { IntegratedProfile } from "./synthesis";
 import type { ConvergenceResult } from "./converge";
 import { Rng, nonce, seedFrom } from "./prng";
+import { resolveScaleStanding } from "./scoring";
 import { sentence } from "./variation";
-import { cLoc, cSuggest, hasIntent, pctPhrase, CT, type Loc } from "./companion.i18n";
+import { cLoc, cSuggest, hasIntent, CT, type Loc } from "./companion.i18n";
 
 /**
  * "Ask Atlas" — a conversational companion that answers questions about a
@@ -18,7 +19,8 @@ export interface KnowledgeScale {
   id: string;
   name: string;
   normalized: number;
-  percentile: number;
+  standing: ScaleStanding;
+  standingLabel: string;
   level: string;
   poleLow?: string;
   poleHigh?: string;
@@ -53,11 +55,15 @@ export function buildReportKnowledge(instrument: Instrument, result: AssessmentR
     .map((s) => {
       const sc = result.scales[s.id];
       const ti = byId.get(s.id);
+      const standing = ti?.standing ?? resolveScaleStanding(sc, s, instrument.format);
       return {
         id: s.id,
         name: s.name,
         normalized: sc.normalized,
-        percentile: sc.percentile,
+        standing,
+        standingLabel: ti?.standingLabel ?? (
+          `${Math.round(standing.position)}/100 within the instrument response range`
+        ),
         level: sc.level,
         poleLow: s.poles?.low,
         poleHigh: s.poles?.high,
@@ -154,7 +160,7 @@ export function askCompanion(k: CompanionKnowledge, question: string, seed?: num
   // Trait lookup (report)
   const scale = k.kind === "report" ? matchScale(k, q) : undefined;
   if (scale && !hasIntent(q, L, "improve")) {
-    const lead = scale.narrative ?? CT.traitLead(w, scale.name, pctPhrase(scale.percentile, L), scale.level, L);
+    const lead = scale.narrative ?? CT.traitLead(w, scale.name, scale.standingLabel, scale.level, L);
     const extra = scale.strengths?.length ? CT.upside(scale.strengths.map(lower), L) : "";
     return wrap(lead + extra);
   }

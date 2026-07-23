@@ -8,6 +8,11 @@ import { Figure } from "./Figure";
 
 const COG = PRODUCTS.find((p) => p.id === "cognitive")!;
 const ALL = PRODUCTS.find((p) => p.id === "allaccess")!;
+const FULL_REASONING_SET_INCLUDES = [
+  "Every question reviewed — what you missed and why",
+  "A domain-by-domain review of this sitting",
+  "A designed, shareable practice report PDF",
+] as const;
 
 export function AbilityResult({
   test,
@@ -30,7 +35,7 @@ export function AbilityResult({
   onRestart: () => void;
   onExit: () => void;
 }) {
-  const radar = result.perDomain.map((d) => ({ label: d.name.split(" ")[0], value: d.percentile }));
+  const radar = result.perDomain.map((d) => ({ label: d.name.split(" ")[0], value: d.practiceIndex }));
   const [pdfBusy, setPdfBusy] = useState(false);
 
   const exportPdf = async () => {
@@ -52,25 +57,25 @@ export function AbilityResult({
           <CategoryEmblem id="cognition" />
         </span>
         <div className="supertitle">{test.name} · {unlocked ? "Full Profile" : "Free Snapshot"}</div>
-        <h1>{name ? `${name}, here's` : "Here's"} your reasoning profile</h1>
+        <h1>{name ? `${name}, here's` : "Here's"} your reasoning practice</h1>
         <div className="subtitle">You answered {result.correct} of {result.total} correctly across {result.perDomain.length} domains.</div>
       </div>
 
       <div className="report-grid stagger">
-        {/* Headline estimate (free) */}
+        {/* Session-specific practice observation (free) */}
         <section className="panel iq-card">
           <div className="iq-figure">
-            <div className="iq-band">Estimated range</div>
-            <div className="iq-range">{result.iqLow}<span>–</span>{result.iqHigh}</div>
-            <div className="iq-sub">{result.band} · about the {ordinal(result.percentile)} percentile</div>
+            <div className="iq-band">Practice index</div>
+            <div className="iq-range">{result.practiceIndex}<span>/100</span></div>
+            <div className="iq-sub">{result.observation}</div>
           </div>
           <div className="iq-note">
             <p style={{ marginTop: 0 }}>
-              On a scale where 100 is average (and roughly two-thirds of people fall between 85 and 115), your answers
-              put you in the <b>{result.band.toLowerCase()}</b>. We show a <b>range</b>, not a single number, on purpose.
+              This index summarizes accuracy and item difficulty for <b>this exact practice set</b>. It helps you review
+              this sitting and compare your own future attempts; it is not a population rank or a fixed ability label.
             </p>
             <p className="note" style={{ margin: 0 }}>
-              An <b>educational estimate</b> from a short, self-administered test — <b>not</b> a clinical IQ score.
+              An <b>educational practice observation</b> from a short, self-administered activity—not a clinical assessment.
             </p>
           </div>
         </section>
@@ -84,9 +89,10 @@ export function AbilityResult({
               <div className="trait" key={d.domain} style={{ marginBottom: 10 }}>
                 <div className="thead">
                   <h4>{d.name}</h4>
-                  <span className="level">{d.correct}/{d.total} · {ordinal(d.percentile)} pct</span>
+                  <span className="level">{d.correct}/{d.total} · practice {d.practiceIndex}/100</span>
                 </div>
-                <ScaleBar value={d.percentile} leftLabel="Lower" rightLabel="Higher" />
+                <ScaleBar value={d.practiceIndex} leftLabel="More to practice" rightLabel="More demonstrated" />
+                <p className="narr" style={{ marginTop: 8 }}>{d.observation}</p>
               </div>
             ))}
           </div>
@@ -136,9 +142,9 @@ export function AbilityResult({
         ) : (
           /* Paywall (locked) */
           <section className="panel paywall">
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: 26, margin: "0 0 4px" }}>Unlock your full cognitive report</h2>
+            <h2 style={{ fontFamily: "var(--serif)", fontSize: 26, margin: "0 0 4px" }}>Unlock the full reasoning-set review</h2>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>
-              You've seen your band and domain profile. Go deeper: every question reviewed and explained, a domain-by-domain
+              You've seen your session observation and domain pattern. Go deeper: every question reviewed and explained, a domain-by-domain
               read, and a designed PDF to keep.
             </p>
             <div className="prod-grid">
@@ -146,8 +152,8 @@ export function AbilityResult({
                 <span className="prod-badge">Best for this test</span>
                 <div className="prod-name">{COG.name}</div>
                 <div className="prod-price">{formatPrice(COG.priceCents, COG.currency)}</div>
-                <div className="prod-blurb">{COG.blurb}</div>
-                <ul className="prod-includes">{COG.includes.map((inc, i) => <li key={i}>{inc}</li>)}</ul>
+                <div className="prod-blurb">For this full reasoning set: question review, domain detail, and a PDF.</div>
+                <ul className="prod-includes">{FULL_REASONING_SET_INCLUDES.map((inc) => <li key={inc}>{inc}</li>)}</ul>
                 <button className="btn primary" disabled={busy} onClick={() => onPurchase("cognitive")}>
                   {busy ? "…" : `Unlock — ${formatPrice(COG.priceCents, COG.currency)}`}
                 </button>
@@ -185,13 +191,7 @@ export function AbilityResult({
         </div>
       </div>
 
-      <div className="footer">An estimate for curiosity and growth — never a verdict on your worth or potential.</div>
+      <div className="footer">A session-specific practice observation for learning—not a verdict about you.</div>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const v = n % 100;
-  const s = ["th", "st", "nd", "rd"];
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

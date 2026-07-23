@@ -80,11 +80,11 @@ export const cognitive: AbilityTest = {
   itemProvenance:
     "Original items written for this platform, modeled on the public-domain ICAR (International Cognitive Ability Resource) item types and CHC broad abilities.",
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinically administered IQ test. A real IQ assessment (e.g., the WAIS or Stanford-Binet) is given one-to-one by a trained psychologist under standardized conditions — this cannot replace it.",
-    "The score is reported as a wide band and a percentile, never a single precise number, because a short self-administered test simply cannot support that precision.",
+    "This is an educational practice snapshot, not a clinical assessment.",
+    "The practice index describes performance on this item set in this sitting; it is not a population rank.",
     "Many things move a score that have nothing to do with ability: sleep, stress, distractions, practice, language background, and test conditions. Treat one sitting as a rough snapshot.",
-    "Intelligence tests measure particular reasoning skills — they do not measure your worth, creativity, character, wisdom, or potential. No life decision should rest on this.",
-    "If you need a valid score for school, work, or clinical reasons, seek a professionally administered assessment.",
+    "Treat the domain observations as clues for practice, not as fixed traits or grounds for a life decision.",
+    "If you need a formal assessment for school, work, or health reasons, use an appropriately qualified service.",
   ],
   citations: [
     { ref: "Condon, D. M., & Revelle, W. (2014). The International Cognitive Ability Resource (ICAR): Development and initial validation of a public-domain measure. Intelligence, 43, 52–64.", note: "Open framework these item types are modeled on." },

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ADAPTIVE_TEST, genItem, scoreAdaptive, type AdaptiveItem, type AdaptiveTrial, type AdaptiveResult } from "@core/ability/adaptive";
-import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
+import { localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
 import { Calculating } from "../Calculating";
 import { Figure } from "./Figure";
@@ -9,15 +9,14 @@ import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "quiz" | "calc" | "result";
 
-export function AdaptiveFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: AdaptiveResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
-  const [phase, setPhase] = useState<Phase>("intro");
+export function AdaptiveFlow({ name, onExit, onComplete, unlocked, onPurchase, busy, initialResult }: { name?: string; onExit: () => void; onComplete?: (r: AdaptiveResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean; initialResult?: AdaptiveResult }) {
+  const [phase, setPhase] = useState<Phase>(initialResult ? "result" : "intro");
   const [level, setLevel] = useState<number>(ADAPTIVE_TEST.startLevel);
   const [item, setItem] = useState<AdaptiveItem | null>(null);
   const [administered, setAdministered] = useState<AdaptiveTrial[]>([]);
-  const [result, setResult] = useState<AdaptiveResult | null>(null);
+  const [result, setResult] = useState<AdaptiveResult | null>(initialResult ?? null);
   const i18 = useI18n();
   const meta = localizeAbilityMeta("adaptive-reasoning", i18.locale);
-  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
   const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const begin = () => {
@@ -82,8 +81,8 @@ export function AdaptiveFlow({ name, onExit, onComplete, unlocked, onPurchase, b
           <section className="panel iq-card">
             <div className="iq-figure">
               <div className="iq-band">{i18.t("cog.adp.estRange")}</div>
-              <div className="iq-range">{result.iqLow}<span>–</span>{result.iqHigh}</div>
-              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
+              <div className="iq-range">{result.practiceIndex}<span>/100</span></div>
+              <div className="iq-sub">{result.observation}</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
@@ -145,10 +144,4 @@ export function AdaptiveFlow({ name, onExit, onComplete, unlocked, onPurchase, b
       </div>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const v = n % 100;
-  const s = ["th", "st", "nd", "rd"];
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

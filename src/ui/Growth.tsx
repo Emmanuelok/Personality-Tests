@@ -6,20 +6,19 @@ import { computeMilestones } from "@core/milestones";
 import type { SynthEntry } from "@core/synthesis";
 import { InstrumentGlyph } from "./art";
 import { localizeInstrument } from "@core/instruments/i18n";
-import { pctLabel } from "./fmt";
 import { calibConsent, setCalibConsent } from "../calibration";
-import { exportProfileCode, importProfileCode, latestResult, completedInstrumentIds, type Profile, type SavedResult } from "../profile";
+import { exportEncryptedProfileCode, importEncryptedProfileCode, latestResult, completedInstrumentIds, type Profile, type SavedResult } from "../profile";
 import { useI18n } from "../i18n";
 
-export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void; onImport?: (p: Profile) => void }) {
+export function Growth({ profile, onBrowse, onBack, onBattery, onImport, onOpenResult, onOpenCognitive }: { profile: Profile; onBrowse: () => void; onBack: () => void; onBattery?: () => void; onImport?: (p: Profile) => void; onOpenResult?: (resultId: string) => void; onOpenCognitive?: (resultId: string) => void }) {
   const { t, locale } = useI18n();
   const timeline = useMemo(() => {
-    const rows: { at: string; name: string; type?: string; id: string; category: string }[] = [];
+    const rows: { at: string; name: string; type?: string; id: string; category: string; resultId: string }[] = [];
     for (const h of profile.history) {
       const inst = getInstrument(h.instrumentId);
       if (!inst) continue;
-      const res = scoreAssessment(inst, h.responses);
-      rows.push({ at: h.takenAt, name: localizeInstrument(inst, locale).name, type: res.type?.code, id: inst.id, category: inst.category });
+      const res = scoreAssessment(inst, h.responses, { resultId: h.resultId });
+      rows.push({ at: h.takenAt, name: localizeInstrument(inst, locale).name, type: res.type?.code, id: inst.id, category: inst.category, resultId: h.resultId });
     }
     return rows;
   }, [profile, locale]);
@@ -29,7 +28,7 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
     for (const id of completedInstrumentIds(profile)) {
       const inst = getInstrument(id);
       const saved = latestResult(profile, id);
-      if (inst && saved) out.push({ instrument: inst, result: scoreAssessment(inst, saved.responses) });
+      if (inst && saved) out.push({ instrument: inst, result: scoreAssessment(inst, saved.responses, { resultId: saved.resultId }) });
     }
     return out;
   }, [profile]);
@@ -49,9 +48,9 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
         compareTakes(
           inst,
           earliest.takenAt,
-          scoreAssessment(inst, earliest.responses),
+          scoreAssessment(inst, earliest.responses, { resultId: earliest.resultId }),
           latest.takenAt,
-          scoreAssessment(inst, latest.responses),
+          scoreAssessment(inst, latest.responses, { resultId: latest.resultId }),
           takes.length,
         ),
       );
@@ -65,6 +64,8 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
   const [importText, setImportText] = useState("");
   const [status, setStatus] = useState("");
   const [consent, setConsent] = useState(calibConsent());
+  const [backupPassphrase, setBackupPassphrase] = useState("");
+  const [backupBusy, setBackupBusy] = useState(false);
 
   return (
     <div className="container view-enter">
@@ -139,9 +140,12 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
                   <span className="jicon cat-cognition"><span className="tl-ico"><InstrumentGlyph id={ct.id} category="cognition" /></span></span>
                   <div className="jbody">
                     <div className="jname">{ct.name}</div>
-                    <div className="jmeta">{new Date(ct.takenAt).toLocaleDateString(locale)} · {pctLabel(ct.percentile, locale)}</div>
+                    <div className="jmeta">{new Date(ct.takenAt).toLocaleDateString(locale)}{ct.practiceIndex == null ? "" : ` · ${ct.practiceIndex}/100 practice index`}</div>
                   </div>
                   <span className="jtype">{ct.headline}</span>
+                  {ct.resultId && ct.stored && onOpenCognitive && (
+                    <button className="btn sm ghost" onClick={() => onOpenCognitive(ct.resultId!)}>Open</button>
+                  )}
                 </div>
               ))}
             </div>
@@ -157,6 +161,7 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
               <span className="tl-date">{new Date(row.at).toLocaleDateString(locale)}</span>
               <span className="tl-name">{row.name}</span>
               {row.type && <span className="jtype">{row.type}</span>}
+              {onOpenResult && <button className="btn sm ghost" onClick={() => onOpenResult(row.resultId)}>Open</button>}
             </div>
           ))}
         </section>
@@ -164,18 +169,43 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport }: { pro
         <section className="panel">
           <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 22 }}>{t("jr.backupTitle")}</h3>
           <p style={{ color: "var(--text-dim)", marginTop: 0, fontSize: 14.5 }}>{t("jr.backupBody")}</p>
+          <p className="trust">
+            This encrypted backup contains your display name, goals, raw assessment answers, journal entries, and local result snapshots.
+            Anyone with both the code and passphrase can read it. Send them separately and only to someone you choose.
+          </p>
+          <label className="onb-step-label" htmlFor="backup-passphrase">Backup passphrase (10+ characters)</label>
+          <input
+            id="backup-passphrase"
+            className="name-input"
+            type="password"
+            autoComplete="new-password"
+            value={backupPassphrase}
+            onChange={(event) => setBackupPassphrase(event.target.value)}
+          />
           <div className="row-actions" style={{ justifyContent: "flex-start" }}>
-            <button className="btn sm" onClick={() => { setCode(exportProfileCode(profile)); setStatus(""); }}>{t("jr.genCode")}</button>
+            <button className="btn sm" disabled={backupPassphrase.trim().length < 10 || backupBusy} onClick={async () => {
+              setBackupBusy(true);
+              setStatus("");
+              try {
+                setCode(await exportEncryptedProfileCode(profile, backupPassphrase));
+              } catch {
+                setStatus("Encrypted backup could not be created in this browser.");
+              } finally {
+                setBackupBusy(false);
+              }
+            }}>{backupBusy ? "…" : t("jr.genCode")}</button>
             {code && <button className="btn sm ghost" onClick={() => { navigator.clipboard?.writeText(code); setStatus(t("jr.copied")); }}>{t("jr.copy")}</button>}
           </div>
           {code && <textarea className="code-input" readOnly value={code} style={{ marginTop: 10 }} onFocus={(e) => e.currentTarget.select()} />}
           <div style={{ marginTop: 16 }}>
             <textarea className="code-input" placeholder={t("jr.pastePh")} value={importText} onChange={(e) => setImportText(e.target.value)} />
             <div className="row-actions" style={{ justifyContent: "flex-start", marginTop: 8 }}>
-              <button className="btn sm" disabled={!importText.trim()} onClick={() => {
-                const p = importProfileCode(importText);
+              <button className="btn sm" disabled={!importText.trim() || backupPassphrase.trim().length < 10 || backupBusy} onClick={async () => {
+                setBackupBusy(true);
+                const p = await importEncryptedProfileCode(importText, backupPassphrase);
                 if (p && onImport) { onImport(p); setStatus(t("jr.restored")); setImportText(""); }
                 else setStatus(t("jr.invalidCode"));
+                setBackupBusy(false);
               }}>{t("jr.restore")}</button>
             </div>
           </div>

@@ -1,23 +1,22 @@
 import { useEffect, useState } from "react";
 import { CREATIVITY_TEST, scoreCreativity, type CreativityPromptResult, type CreativityResult } from "@core/ability/creativity";
-import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
+import { localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
 import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
 
 type Phase = "intro" | "prompt" | "result";
 
-export function CreativityFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: CreativityResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
-  const [phase, setPhase] = useState<Phase>("intro");
+export function CreativityFlow({ name, onExit, onComplete, unlocked, onPurchase, busy, initialResult }: { name?: string; onExit: () => void; onComplete?: (r: CreativityResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean; initialResult?: CreativityResult }) {
+  const [phase, setPhase] = useState<Phase>(initialResult ? "result" : "intro");
   const [pi, setPi] = useState(0);
   const [uses, setUses] = useState<string[]>([]);
   const [entry, setEntry] = useState("");
   const [done, setDone] = useState<CreativityPromptResult[]>([]);
   const [timeLeft, setTimeLeft] = useState<number>(CREATIVITY_TEST.secondsPerPrompt);
-  const [result, setResult] = useState<CreativityResult | null>(null);
+  const [result, setResult] = useState<CreativityResult | null>(initialResult ?? null);
   const i18 = useI18n();
   const meta = localizeAbilityMeta("alternative-uses", i18.locale);
-  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
   const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const prompt = CREATIVITY_TEST.prompts[pi];
@@ -90,7 +89,7 @@ export function CreativityFlow({ name, onExit, onComplete, unlocked, onPurchase,
             <div className="iq-figure">
               <div className="iq-band">{i18.t("cog.cre.fluency")}</div>
               <div className="iq-range" style={{ fontSize: "clamp(2.6rem,8vw,3.8rem)" }}>{result.fluency}</div>
-              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
+              <div className="iq-sub">{result.observation} · {result.practiceIndex}/100</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
@@ -163,10 +162,4 @@ export function CreativityFlow({ name, onExit, onComplete, unlocked, onPurchase,
       </div>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const v = n % 100;
-  const s = ["th", "st", "nd", "rd"];
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

@@ -18,10 +18,11 @@ You will receive a fully scored, structured personality report as JSON. Rewrite 
 insightful, highly individualized letter to this specific person.
 
 Hard rules:
-- Never change any number, percentile, level, type code, or factual claim.
+- Never change any number, standing kind, level, type code, or factual claim.
+- Describe every local scale value only as a response-range position; never turn it into a population rank or percentile.
 - Do not invent scores or traits that aren't in the data.
 - Preserve the JSON shape exactly; only replace string contents of prose fields.
-- Vary sentence rhythm and vocabulary so no two reports read alike.
+- Vary sentence rhythm and vocabulary while keeping repeated runs internally consistent.
 - Be honest and non-flattering where the data warrants; avoid horoscope vagueness.`;
 
 /**

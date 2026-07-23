@@ -160,7 +160,7 @@ export const enneagram: Instrument = {
   resolveType,
   caveats: [
     "The Enneagram is a framework for self-understanding and growth, not a validated diagnostic test.",
-    "Your type is defined by your inner motivation, not just behavior — read the top two or three and notice which fear and desire feel truest.",
+    "This framework focuses on motivations as well as behavior. Read the top two or three patterns and notice what feels useful, without treating a label as fixed.",
     "It is common to relate to several types; the wing and nearby types color the core type rather than contradict it.",
   ],
   citations: [

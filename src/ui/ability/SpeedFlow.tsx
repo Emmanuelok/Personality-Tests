@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PROCESSING_TEST, makeSpeedTrial, scoreProcessing, type SpeedResult } from "@core/ability/processing";
-import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
+import { localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
 import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
@@ -8,19 +8,18 @@ import { useI18n } from "../../i18n";
 type Phase = "intro" | "run" | "result";
 type Trial = ReturnType<typeof makeSpeedTrial>;
 
-export function SpeedFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: SpeedResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
-  const [phase, setPhase] = useState<Phase>("intro");
+export function SpeedFlow({ name, onExit, onComplete, unlocked, onPurchase, busy, initialResult }: { name?: string; onExit: () => void; onComplete?: (r: SpeedResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean; initialResult?: SpeedResult }) {
+  const [phase, setPhase] = useState<Phase>(initialResult ? "result" : "intro");
   const [timeLeft, setTimeLeft] = useState<number>(PROCESSING_TEST.durationSec);
   const [trial, setTrial] = useState<Trial>(makeSpeedTrial());
   const [correct, setCorrect] = useState(0);
   const [errors, setErrors] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [flash, setFlash] = useState<"ok" | "no" | null>(null);
-  const [result, setResult] = useState<SpeedResult | null>(null);
+  const [result, setResult] = useState<SpeedResult | null>(initialResult ?? null);
   const flashT = useRef<number | null>(null);
   const i18 = useI18n();
   const meta = localizeAbilityMeta("processing-speed", i18.locale);
-  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
   const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const start = () => {
@@ -109,7 +108,7 @@ export function SpeedFlow({ name, onExit, onComplete, unlocked, onPurchase, busy
             <div className="iq-figure">
               <div className="iq-band">{i18.t("cog.estimated")}</div>
               <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.rate}<span>{i18.t("cog.speed.perMin")}</span></div>
-              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
+              <div className="iq-sub">{result.observation} · {result.practiceIndex}/100</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
@@ -166,10 +165,4 @@ export function SpeedFlow({ name, onExit, onComplete, unlocked, onPurchase, busy
       </div>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const v = n % 100;
-  const s = ["th", "st", "nd", "rd"];
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

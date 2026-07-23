@@ -6,10 +6,10 @@ import { CategoryEmblem } from "../art";
 import { downloadBatteryShareCard } from "../shareCard";
 
 const CAVEATS = [
-  "This battery is an aggregate of separate self-administered tests, often taken on different days and under different conditions — treat it as a rough composite, not a clinical IQ.",
+  "This view combines separate self-administered practice activities, often completed on different days and under different conditions.",
   "Each broad ability is estimated from whatever tests you've completed; the more tests you take, the fuller and steadier the picture.",
-  "The overall figure is a simple average of the measured factors, shown as a band — real 'g' estimation is far more involved.",
-  "Cognitive ability is one slice of a person. This says nothing about your worth, creativity, character, or potential.",
+  "The combined practice index is a simple average of the measured factors, not a population rank or fixed personal label.",
+  "Use the dimension pattern to plan practice and reflection; context and repeat attempts can change it.",
 ];
 
 export function BatteryView({
@@ -23,7 +23,7 @@ export function BatteryView({
   name?: string;
   onExit: () => void;
 }) {
-  const radar = battery.factors.map((f) => ({ label: f.id, value: f.percentile }));
+  const radar = battery.factors.map((f) => ({ label: f.id, value: f.practiceIndex }));
   const [pdfBusy, setPdfBusy] = useState(false);
   const withChc = takes.filter((t) => t.chc && Object.keys(t.chc).length);
 
@@ -43,38 +43,38 @@ export function BatteryView({
     <div className="container view-enter">
       <div className="report-head">
         <span className="report-seal cat-cognition" aria-hidden="true"><CategoryEmblem id="cognition" /></span>
-        <div className="supertitle">Full Cognitive Battery</div>
-        <h1>{name ? `${name}'s` : "Your"} cognitive profile</h1>
-        <div className="subtitle">Woven from {battery.tests} {battery.tests === 1 ? "test" : "tests"} across {battery.factors.length} broad abilities.</div>
+        <div className="supertitle">Learning Practice Overview</div>
+        <h1>{name ? `${name}'s` : "Your"} learning practice profile</h1>
+        <div className="subtitle">Combined from {battery.tests} {battery.tests === 1 ? "activity" : "activities"} across {battery.factors.length} practice dimensions.</div>
       </div>
 
       <div className="report-grid stagger">
         <section className="panel iq-card">
           <div className="iq-figure">
-            <div className="iq-band">Overall estimate</div>
-            <div className="iq-range">{battery.iqLow}<span>–</span>{battery.iqHigh}</div>
-            <div className="iq-sub">{battery.band} · about the {ordinal(battery.overall)} percentile</div>
+            <div className="iq-band">Combined practice index</div>
+            <div className="iq-range">{battery.practiceIndex}<span>/100</span></div>
+            <div className="iq-sub">{battery.observation}</div>
           </div>
           <div className="iq-note">
             <p style={{ marginTop: 0 }}>
-              Averaged across the abilities you've measured, your composite lands in the <b>{battery.band.toLowerCase()}</b>.
-              The shape below — where you peak and dip — usually says more than the single number.
+              This combined index averages the task-specific practice observations currently available.
+              The shape below—where the activities showed more or less mastery in this sitting—is more useful than the average alone.
             </p>
-            <p className="note" style={{ margin: 0 }}>A rough cross-test composite, not a clinical IQ.</p>
+            <p className="note" style={{ margin: 0 }}>A learning snapshot, not a diagnosis, population rank, or fixed ability statement.</p>
           </div>
         </section>
 
         <section className="panel">
-          <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 22, margin: "0 0 6px" }}>Your CHC broad-ability profile</h3>
+          <h3 className="sec" style={{ fontFamily: "var(--serif)", fontSize: 22, margin: "0 0 6px" }}>Your practice pattern by dimension</h3>
           <div className="radar-wrap"><RadarChart data={radar} /></div>
           <div style={{ marginTop: 10 }}>
             {battery.factors.map((f) => (
               <div className="trait" key={f.id} style={{ marginBottom: 10 }}>
                 <div className="thead">
                   <h4>{f.name} <small style={{ color: "var(--text-faint)", fontWeight: 400 }}>· {f.id}</small></h4>
-                  <span className="level">{ordinal(f.percentile)} pct{f.n > 1 ? ` · ${f.n} tests` : ""}</span>
+                  <span className="level">{f.practiceIndex}/100{f.n > 1 ? ` · ${f.n} activities` : ""}</span>
                 </div>
-                <ScaleBar value={f.percentile} leftLabel="Lower" rightLabel="Higher" />
+                <ScaleBar value={f.practiceIndex} leftLabel="More to practice" rightLabel="More demonstrated" />
                 <p className="narr" style={{ marginTop: 8 }}>{f.blurb}</p>
               </div>
             ))}
@@ -110,13 +110,7 @@ export function BatteryView({
           <button className="btn ghost" onClick={onExit}>↩ Back</button>
         </div>
       </div>
-      <div className="footer">A composite for curiosity and growth — never a verdict on your worth or potential.</div>
+      <div className="footer">A changing, session-specific learning snapshot—not a verdict about you.</div>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const v = n % 100;
-  const s = ["th", "st", "nd", "rd"];
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

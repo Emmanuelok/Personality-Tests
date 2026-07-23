@@ -6,6 +6,17 @@ import { constructGaps } from "./converge";
 import { COMM_INSTRUMENT_IDS } from "./commsynth";
 import { wellbeingGrowthNudge } from "./wellsynth";
 import { Rng, seedFrom } from "./prng";
+import {
+  PUBLIC_JOURNEY_INSTRUMENT_COUNT,
+  isPublicJourneyEligibleInstrument,
+} from "./catalogPolicy";
+import {
+  NO_EVIDENCE_CONSENT,
+  selectEvidence,
+  type AutonomyMode,
+  type EvidenceConsent,
+  type EvidenceRecord,
+} from "./evidence";
 
 /**
  * Personalized recommendation engine — the platform's "what should I do next?" brain.
@@ -31,6 +42,10 @@ export interface Recommendation {
   reason: string;
   /** Short chip label for the card (localized). */
   badge: string;
+  /** Only actionable evidence may drive ordering or personalization. */
+  evidenceTier: "actionable";
+  /** Calibration shown alongside personalized language. */
+  contextNote: string;
 }
 
 export interface Spotlight {
@@ -46,6 +61,16 @@ export interface Spotlight {
 
 type Loc = "en" | "es" | "fr";
 const loc = (l?: string): Loc => (l === "es" || l === "fr" ? l : "en");
+
+export interface RecommendationOptions {
+  locale?: string;
+  seed?: number;
+  limit?: number;
+  /** When supplied, legacy entries are replaced by policy-filtered evidence payloads. */
+  evidence?: readonly EvidenceRecord<SynthEntry>[];
+  consent?: EvidenceConsent;
+  mode?: AutonomyMode;
+}
 
 /* ── localized scaffolding ──────────────────────────────────────────────── */
 
@@ -93,6 +118,12 @@ const FOUNDATION_REASON: Record<Loc, string> = {
   en: "The cornerstone of the whole atlas. It maps the full landscape of your personality — the ideal place to begin.",
   es: "La piedra angular de todo el atlas. Mapea el paisaje completo de tu personalidad: el lugar ideal para empezar.",
   fr: "La pierre angulaire de tout l'atlas. Elle cartographie l'ensemble de votre personnalité — l'endroit idéal pour commencer.",
+};
+
+const CONTEXT_NOTE: Record<Loc, string> = {
+  en: "Based on current self-report observations; context, measurement noise, practice, and change over time can shift the picture.",
+  es: "Se basa en observaciones actuales de autoinforme; el contexto, el ruido de medición, la práctica y el cambio con el tiempo pueden modificar el retrato.",
+  fr: "Fondé sur des observations actuelles auto-déclarées ; le contexte, le bruit de mesure, l'entraînement et l'évolution dans le temps peuvent modifier le portrait.",
 };
 
 const EXPLORE_REASON: Record<Loc, string[]> = {
@@ -253,7 +284,7 @@ const TRAIT_RULES: TraitRule[] = [
   { inst: "big-five-ipip50", scale: "O", dir: "high", target: "curiosity-cei", arch: "open_curio", kind: "deepen", threshold: 0.32, weight: 0.9 },
   { inst: "big-five-ipip50", scale: "C", dir: "low", target: "self-control-bscs", arch: "consc_selfcontrol", kind: "deepen", threshold: 0.3, weight: 1 },
   { inst: "big-five-ipip50", scale: "C", dir: "high", target: "grit-resilience", arch: "consc_grit", kind: "deepen", threshold: 0.32, weight: 0.9 },
-  { inst: "big-five-ipip50", scale: "N", dir: "high", target: "perceived-stress", arch: "neuro_stress", kind: "support", threshold: 0.3, weight: 1 },
+  { inst: "big-five-ipip50", scale: "N", dir: "high", target: "brief-resilience", arch: "neuro_stress", kind: "support", threshold: 0.3, weight: 1 },
   { inst: "big-five-ipip50", scale: "N", dir: "high", target: "self-esteem-rses", arch: "neuro_esteem", kind: "support", threshold: 0.34, weight: 0.85 },
   { inst: "big-five-ipip50", scale: "E", dir: "high", target: "disc-4", arch: "extra_disc", kind: "deepen", threshold: 0.34, weight: 0.8 },
   { inst: "big-five-ipip50", scale: "A", dir: "high", target: "empathy-iri", arch: "agree_empathy", kind: "deepen", threshold: 0.34, weight: 0.85 },
@@ -299,9 +330,6 @@ const CATEGORY_FLAGSHIP: Record<string, string> = {
   emotional: "emotional-intelligence",
   wellbeing: "perma-flourishing",
   learning: "vark-learning",
-  mind: "adhd-traits",
-  focused: "self-esteem-rses",
-  shadow: "dark-triad-18",
 };
 
 /** A welcoming first-run order for brand-new visitors. */
@@ -318,20 +346,39 @@ function lookup(entries: SynthEntry[]) {
   };
 }
 
+function entriesForRecommendation(
+  entries: SynthEntry[],
+  opts: Pick<RecommendationOptions, "evidence" | "consent" | "mode">,
+): SynthEntry[] {
+  const routed = !opts.evidence
+    ? entries
+    : selectEvidence(
+      opts.evidence,
+      "recommend",
+      opts.consent ?? NO_EVIDENCE_CONSENT,
+      opts.mode ?? "user-led",
+    ).allowed
+      .filter((record) => record.tier === "actionable" && record.payload)
+      .map((record) => record.payload as SynthEntry);
+  return routed.filter((entry) => isPublicJourneyEligibleInstrument(entry.instrument.id));
+}
+
 export function recommendNext(
   entries: SynthEntry[],
-  opts: { locale?: string; seed?: number; limit?: number } = {},
+  opts: RecommendationOptions = {},
 ): Recommendation[] {
+  const routedEntries = entriesForRecommendation(entries, opts);
   const L = loc(opts.locale);
   const limit = opts.limit ?? 4;
-  const doneIds = new Set(entries.map((e) => e.instrument.id));
-  const doneCats = new Set(entries.map((e) => e.instrument.category));
-  const rng = new Rng(opts.seed ?? seedFrom("recommend", L, entries.map((e) => e.result.responseFingerprint).join("|")));
+  const doneIds = new Set(routedEntries.map((e) => e.instrument.id));
+  const doneCats = new Set(routedEntries.map((e) => e.instrument.category));
+  const rng = new Rng(opts.seed ?? seedFrom("recommend", L, routedEntries.map((e) => e.result.responseFingerprint).join("|")));
 
   // First run: a curated welcome funnel.
-  if (entries.length === 0) {
+  if (routedEntries.length === 0) {
     const out: Recommendation[] = [];
     for (const id of FOUNDATION_ORDER) {
+      if (!isPublicJourneyEligibleInstrument(id)) continue;
       const inst = getInstrument(id);
       if (!inst) continue;
       const li = localizeInstrument(inst, L);
@@ -341,6 +388,8 @@ export function recommendNext(
         kind: id === "big-five-ipip50" ? "foundation" : "explore",
         reason: id === "big-five-ipip50" ? FOUNDATION_REASON[L] : li.tagline,
         badge: BADGE[id === "big-five-ipip50" ? "foundation" : "explore"][L],
+        evidenceTier: "actionable",
+        contextNote: CONTEXT_NOTE[L],
       });
     }
     return out.slice(0, limit);
@@ -348,14 +397,18 @@ export function recommendNext(
 
   const cand = new Map<string, { score: number; kind: RecKind; reason: string }>();
   const add = (targetId: string, score: number, kind: RecKind, reason: string) => {
-    if (doneIds.has(targetId) || !getInstrument(targetId)) return;
+    if (
+      doneIds.has(targetId) ||
+      !isPublicJourneyEligibleInstrument(targetId) ||
+      !getInstrument(targetId)
+    ) return;
     const prev = cand.get(targetId);
     if (!prev) cand.set(targetId, { score, kind, reason });
     else if (score > prev.score) cand.set(targetId, { score, kind, reason });
     else prev.score = Math.min(99, prev.score + 7); // corroborating signal
   };
 
-  const g = lookup(entries);
+  const g = lookup(routedEntries);
 
   // 1. Trait-driven deepening & support.
   for (const r of TRAIT_RULES) {
@@ -369,7 +422,7 @@ export function recommendNext(
   }
 
   // 2. Flagship pairings.
-  for (const e of entries) {
+  for (const e of routedEntries) {
     for (const p of PAIRINGS[e.instrument.id] ?? []) add(p.target, 56, "pairing", ARCH[p.arch][L]);
   }
 
@@ -381,10 +434,11 @@ export function recommendNext(
 
   // 3b. Convergence-aware triangulation — add a fresh angle on a trait measured
   //     only once, or one where the tests currently disagree.
-  for (const gap of constructGaps(entries, { locale: L })) {
-    if (!gap.candidates.length) continue;
-    if (gap.divergent) add(gap.candidates[0], 62, "triangulate", TRI[L].diverge(gap.name.toLowerCase()));
-    else if (gap.sources === 1) add(gap.candidates[0], 50, "triangulate", TRI[L].single(gap.name.toLowerCase()));
+  for (const gap of constructGaps(routedEntries, { locale: L })) {
+    const candidate = gap.candidates.find(isPublicJourneyEligibleInstrument);
+    if (!candidate) continue;
+    if (gap.divergent) add(candidate, 62, "triangulate", TRI[L].diverge(gap.name.toLowerCase()));
+    else if (gap.sources === 1) add(candidate, 50, "triangulate", TRI[L].single(gap.name.toLowerCase()));
   }
 
   // 3c. Complete the communication portrait — once a person has started the four
@@ -400,7 +454,7 @@ export function recommendNext(
   // 3d. Strengthen the wellbeing portrait — once 2+ wellbeing tests are in, point a
   //     fresh lens at the weakest covered dimension (the growth edge), rather than
   //     blanket-nudging every remaining wellbeing test.
-  const wn = wellbeingGrowthNudge(entries, { locale: L });
+  const wn = wellbeingGrowthNudge(routedEntries, { locale: L });
   if (wn) add(wn.instrumentId, 58, "portrait", WELL_PORTRAIT[L](wn.dimensionName));
 
   // 4. Always have a fallback so the surface is never empty while tests remain.
@@ -412,7 +466,15 @@ export function recommendNext(
   }
 
   const ranked = [...cand.entries()]
-    .map(([id, v]) => ({ instrument: localizeInstrument(getInstrument(id)!, L), score: v.score, kind: v.kind, reason: v.reason, badge: BADGE[v.kind][L] }))
+    .map(([id, v]) => ({
+      instrument: localizeInstrument(getInstrument(id)!, L),
+      score: v.score,
+      kind: v.kind,
+      reason: v.reason,
+      badge: BADGE[v.kind][L],
+      evidenceTier: "actionable" as const,
+      contextNote: CONTEXT_NOTE[L],
+    }))
     .sort((a, b) => b.score - a.score || a.instrument.name.localeCompare(b.instrument.name));
 
   // Light category de-duplication so the shortlist feels varied.
@@ -429,6 +491,14 @@ export function recommendNext(
   return out;
 }
 
+export function recommendNextFromEvidence(
+  evidence: readonly EvidenceRecord<SynthEntry>[],
+  consent: EvidenceConsent,
+  opts: Omit<RecommendationOptions, "evidence" | "consent"> = {},
+): Recommendation[] {
+  return recommendNext([], { ...opts, evidence, consent });
+}
+
 /* ── per-instrument relevance (personalized intro copy) ─────────────────── */
 
 const GENERIC_RELEVANCE: Record<Loc, string> = {
@@ -443,11 +513,14 @@ const GENERIC_RELEVANCE: Record<Loc, string> = {
  * Returns null for first-time visitors (nothing to personalize against yet).
  */
 export function relevanceNote(target: Instrument, entries: SynthEntry[], opts: { locale?: string } = {}): string | null {
-  if (!entries.length) return null;
+  const routedEntries = entries.filter((entry) =>
+    isPublicJourneyEligibleInstrument(entry.instrument.id)
+  );
+  if (!routedEntries.length || !isPublicJourneyEligibleInstrument(target.id)) return null;
   const L = loc(opts.locale);
-  if (entries.some((e) => e.instrument.id === target.id)) return null;
+  if (routedEntries.some((e) => e.instrument.id === target.id)) return null;
 
-  const g = lookup(entries);
+  const g = lookup(routedEntries);
   let best: { score: number; arch: ArchKey } | null = null;
   for (const r of TRAIT_RULES) {
     if (r.target !== target.id) continue;
@@ -460,7 +533,7 @@ export function relevanceNote(target: Instrument, entries: SynthEntry[], opts: {
   }
   if (best) return ARCH[best.arch][L];
 
-  for (const e of entries) {
+  for (const e of routedEntries) {
     for (const p of PAIRINGS[e.instrument.id] ?? []) {
       if (p.target === target.id) return ARCH[p.arch][L];
     }
@@ -541,7 +614,12 @@ export function profileSpotlight(entries: SynthEntry[], opts: { name?: string; l
   if (!entries.length) return null;
   const L = loc(opts.locale);
   const s = SPOT[L];
-  const complete = entries.length >= INSTRUMENTS.length - 2;
+  const completedPublic = new Set(
+    entries
+      .map((entry) => entry.instrument.id)
+      .filter(isPublicJourneyEligibleInstrument),
+  ).size;
+  const complete = completedPublic >= PUBLIC_JOURNEY_INSTRUMENT_COUNT - 2;
   const top = standoutTraits(entries, { locale: L, limit: 3 });
 
   const line = top.length ? s.line(oxfordLite(top.map((p) => p.desc), L)) : (complete ? s.all : s.head(opts.name));
