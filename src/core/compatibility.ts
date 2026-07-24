@@ -1,15 +1,14 @@
 import type { AssessmentResult, Instrument } from "./types";
-import { Rng, nonce, seedFrom } from "./prng";
-import { clamp } from "./variation";
+import { Rng, hashHex, seedFrom } from "./prng";
 
 /**
- * Relationship compatibility — compare two people's results on the same instrument.
+ * Relationship connection map — compare two people's observations on the same
+ * instrument without collapsing a relationship into one score.
  *
  * Privacy by design: a result is shared as a compact, encoded "code" containing
- * only the scale positions (0–100) and type — never the raw answers. Compatibility
- * is computed from those positions, with construct-aware adjustments for the
- * relational instruments (attachment, love languages, couple communication, the
- * broad trait models). Locale-aware: every line reads naturally in en/es/fr.
+ * only the scale positions (0–100) and type — never the raw answers. Differences
+ * are described dimension by dimension, with construct-aware conversation prompts.
+ * Similarity is not treated as relationship quality, destiny, or a ranking.
  */
 
 export interface ResultSummary {
@@ -64,37 +63,28 @@ export interface CompatDimension {
   you: number;
   them: number;
   gap: number;
+  comparison: "closely-aligned" | "some-difference" | "wide-difference";
   note: string;
+  guardrail: string;
 }
 
 export interface CompatibilityReport {
   instrumentId: string;
   instrumentName: string;
   reportId: string;
-  overall: number; // 0..100
-  band: string;
   headline: string;
   summary: string[];
   dimensions: CompatDimension[];
-  strengths: string[];
-  frictions: string[];
-  tips: string[];
+  sharedGround: string[];
+  differences: string[];
+  conversationStarters: string[];
+  guardrails: string[];
 }
 
 type Loc = "en" | "es" | "fr";
 const cLoc = (l?: string): Loc => (l === "es" || l === "fr" ? l : "en");
 
 /* ── localized scaffolding ──────────────────────────────────────────────── */
-
-const BANDS: Record<Loc, [number, string][]> = {
-  en: [[80, "Highly compatible"], [64, "Strongly compatible"], [48, "Workably compatible"], [32, "Challenging but workable"], [0, "Very different"]],
-  es: [[80, "Muy compatibles"], [64, "Bastante compatibles"], [48, "Compatibles con esfuerzo"], [32, "Difícil pero viable"], [0, "Muy diferentes"]],
-  fr: [[80, "Très compatibles"], [64, "Fortement compatibles"], [48, "Compatibles avec des efforts"], [32, "Difficile mais viable"], [0, "Très différents"]],
-};
-function bandFor(n: number, loc: Loc): string {
-  for (const [t, label] of BANDS[loc]) if (n >= t) return label;
-  return BANDS[loc][BANDS[loc].length - 1][1];
-}
 
 const DIMNOTE: Record<Loc, { close: (n: string) => string[]; wide: (n: string) => string[]; mid: (n: string) => string[] }> = {
   en: {
@@ -178,9 +168,9 @@ const CONSTRUCT: Record<Loc, ConstructStrings> = {
 };
 
 const GEN: Record<Loc, { strength: (n: string) => string; friction: (n: string) => string }> = {
-  en: { strength: (n) => `Shared ground on ${n}.`, friction: (n) => `Different wiring on ${n} — a place to practice curiosity over judgment.` },
-  es: { strength: (n) => `Terreno común en ${n}.`, friction: (n) => `Forma de ser distinta en ${n}: un lugar para practicar la curiosidad antes que el juicio.` },
-  fr: { strength: (n) => `Terrain d'entente sur ${n}.`, friction: (n) => `Un fonctionnement différent sur ${n} — un endroit pour cultiver la curiosité plutôt que le jugement.` },
+  en: { strength: (n) => `Shared ground on ${n}.`, friction: (n) => `A different current observation on ${n} — a place to practice curiosity over judgment.` },
+  es: { strength: (n) => `Terreno común en ${n}.`, friction: (n) => `Una observación actual distinta en ${n}: un lugar para practicar la curiosidad antes que el juicio.` },
+  fr: { strength: (n) => `Terrain d'entente sur ${n}.`, friction: (n) => `Une observation actuelle différente sur ${n} — un endroit pour cultiver la curiosité plutôt que le jugement.` },
 };
 
 const TIPS: Record<Loc, string[]> = {
@@ -201,41 +191,50 @@ const TIPS: Record<Loc, string[]> = {
   ],
 };
 
-const SUMMARY: Record<Loc, { lead: (band: string, overall: number, n: number) => string[]; tail: string[] }> = {
+const MAP_COPY: Record<Loc, {
+  headline: string;
+  lead: (n: number, close: number, mid: number, wide: number) => string;
+  tail: string;
+  dimensionGuardrail: string;
+  guardrails: string[];
+}> = {
   en: {
-    lead: (band, overall, n) => [
-      `Across ${n} dimensions, you and your match come out ${band.toLowerCase()} (${overall}%).`,
-      `Your two profiles land at ${overall}% — ${band.toLowerCase()}.`,
-      `Overall, this pairing reads as ${band.toLowerCase()} (${overall}%).`,
-    ],
-    tail: [
-      "Compatibility isn't about being identical — it's about understanding where you align, where you differ, and turning both into closeness.",
-      "Remember: high similarity makes things easy, but well-handled differences are what make a pairing grow. Use the notes below as conversation starters.",
-      "No score is destiny here. The most compatible pairs are simply the ones who get curious about their differences.",
+    headline: "Your connection map",
+    lead: (n, close, mid, wide) =>
+      `Across ${n} shared dimensions: ${close} closely aligned, ${mid} showing some difference, and ${wide} showing a wider difference.`,
+    tail: "Use each dimension as a conversation prompt, then compare it with lived experience.",
+    dimensionGuardrail: "Similarity or difference on one dimension does not measure relationship quality.",
+    guardrails: [
+      "This map describes current self-report observations; it does not score the relationship.",
+      "Similarity is not automatically good, and difference is not automatically a problem.",
+      "Context, mood, interpretation, and measurement noise can move either person's result.",
+      "No dimension predicts safety, commitment, or the future of a relationship.",
     ],
   },
   es: {
-    lead: (band, overall, n) => [
-      `En ${n} dimensiones, tú y tu match resultáis ${band.toLowerCase()} (${overall}%).`,
-      `Vuestros dos perfiles quedan en ${overall}%: ${band.toLowerCase()}.`,
-      `En conjunto, esta pareja resulta ${band.toLowerCase()} (${overall}%).`,
-    ],
-    tail: [
-      "La compatibilidad no consiste en ser idénticos, sino en entender dónde coincidís, dónde diferís y convertir ambas cosas en cercanía.",
-      "Recuerda: mucha similitud lo hace fácil, pero las diferencias bien gestionadas son las que hacen crecer a una pareja. Usad las notas de abajo como punto de partida.",
-      "Ningún puntaje es un destino. Las parejas más compatibles son simplemente las que sienten curiosidad por sus diferencias.",
+    headline: "Vuestro mapa de conexión",
+    lead: (n, close, mid, wide) =>
+      `En ${n} dimensiones compartidas: ${close} muy alineadas, ${mid} con alguna diferencia y ${wide} con una diferencia más amplia.`,
+    tail: "Usad cada dimensión como punto de conversación y contrastadla con vuestra experiencia real.",
+    dimensionGuardrail: "La similitud o diferencia en una dimensión no mide la calidad de la relación.",
+    guardrails: [
+      "Este mapa describe observaciones actuales de autoinforme; no puntúa la relación.",
+      "La similitud no es automáticamente buena y la diferencia no es automáticamente un problema.",
+      "El contexto, el estado de ánimo, la interpretación y el ruido de medición pueden mover ambos resultados.",
+      "Ninguna dimensión predice la seguridad, el compromiso o el futuro de una relación.",
     ],
   },
   fr: {
-    lead: (band, overall, n) => [
-      `Sur ${n} dimensions, vous et votre match ressortez ${band.toLowerCase()} (${overall}%).`,
-      `Vos deux profils se situent à ${overall}% — ${band.toLowerCase()}.`,
-      `Globalement, ce duo apparaît ${band.toLowerCase()} (${overall}%).`,
-    ],
-    tail: [
-      "La compatibilité ne consiste pas à être identiques — mais à comprendre où vous vous rejoignez, où vous différez, et à transformer les deux en proximité.",
-      "Rappelez-vous : une grande similarité facilite les choses, mais ce sont les différences bien gérées qui font grandir un duo. Utilisez les notes ci-dessous comme points de départ.",
-      "Aucun score n'est une fatalité. Les couples les plus compatibles sont simplement ceux qui se montrent curieux de leurs différences.",
+    headline: "Votre carte de connexion",
+    lead: (n, close, mid, wide) =>
+      `Sur ${n} dimensions partagées : ${close} très proches, ${mid} avec un certain écart et ${wide} avec un écart plus large.`,
+    tail: "Utilisez chaque dimension comme point de discussion, puis confrontez-la à votre vécu.",
+    dimensionGuardrail: "La similarité ou la différence sur une dimension ne mesure pas la qualité de la relation.",
+    guardrails: [
+      "Cette carte décrit des observations actuelles auto-déclarées ; elle ne note pas la relation.",
+      "La similarité n'est pas automatiquement bonne et la différence n'est pas automatiquement un problème.",
+      "Le contexte, l'humeur, l'interprétation et le bruit de mesure peuvent modifier les deux résultats.",
+      "Aucune dimension ne prédit la sécurité, l'engagement ou l'avenir d'une relation.",
     ],
   },
 };
@@ -260,9 +259,14 @@ export function computeCompatibility(
   opts: { seed?: number; now?: Date; locale?: string } = {},
 ): CompatibilityReport {
   const L = cLoc(opts.locale);
-  const reportId = nonce(6);
-  const seed = opts.seed ?? seedFrom(instrument.id, JSON.stringify(you.scales), JSON.stringify(them.scales), (opts.now ?? new Date()).getTime(), reportId);
+  const stableScales = (summary: ResultSummary): string => Object.keys(summary.scales)
+    .sort()
+    .map((id) => `${id}:${summary.scales[id]}`)
+    .join("|");
+  const reportId = `map-${hashHex(`${instrument.id}|${stableScales(you)}|${stableScales(them)}`)}`;
+  const seed = opts.seed ?? seedFrom("connection-map", reportId);
   const rng = new Rng(seed);
+  const copy = MAP_COPY[L];
 
   const dimensions: CompatDimension[] = instrument.scales
     .filter((s) => you.scales[s.id] != null && them.scales[s.id] != null)
@@ -271,77 +275,111 @@ export function computeCompatibility(
       const b = them.scales[s.id];
       const gap = Math.abs(a - b);
       const dn = DIMNOTE[L];
-      const note = gap <= 15 ? rng.pick(dn.close(s.name)) : gap >= 40 ? rng.pick(dn.wide(s.name)) : rng.pick(dn.mid(s.name));
-      return { id: s.id, name: s.name, you: a, them: b, gap, note };
+      const comparison = gap <= 15
+        ? "closely-aligned" as const
+        : gap >= 40
+          ? "wide-difference" as const
+          : "some-difference" as const;
+      const note = comparison === "closely-aligned"
+        ? rng.pick(dn.close(s.name))
+        : comparison === "wide-difference"
+          ? rng.pick(dn.wide(s.name))
+          : rng.pick(dn.mid(s.name));
+      return {
+        id: s.id,
+        name: s.name,
+        you: a,
+        them: b,
+        gap,
+        comparison,
+        note,
+        guardrail: copy.dimensionGuardrail,
+      };
     });
 
-  const meanGap = dimensions.length ? dimensions.reduce((x, d) => x + d.gap, 0) / dimensions.length : 50;
-  let overall = 100 - meanGap; // base: similarity
-
-  const strengths: string[] = [];
-  const frictions: string[] = [];
-  const tips: string[] = [];
+  const sharedGround: string[] = [];
+  const differences: string[] = [];
+  const conversationStarters: string[] = [];
   const C = CONSTRUCT[L];
 
-  // Construct-aware adjustments.
+  // Construct-aware descriptions. These add context; they never alter or imply
+  // an overall relationship score.
   if (instrument.id === "attachment-styles") {
-    const sec = 100 - (you.scales.ANX + you.scales.AV + them.scales.ANX + them.scales.AV) / 4;
-    overall = 0.6 * sec + 0.4 * (100 - meanGap);
-    const trap = (you.scales.ANX >= 55 && them.scales.AV >= 55) || (them.scales.ANX >= 55 && you.scales.AV >= 55);
-    if (trap) {
-      overall -= 12;
-      frictions.unshift(C.attTrap);
-    }
-    if (sec >= 65) strengths.unshift(C.attSecure);
-    tips.push(C.attTip);
+    const sec = 100 - (
+      (you.scales.ANX ?? 50) +
+      (you.scales.AV ?? 50) +
+      (them.scales.ANX ?? 50) +
+      (them.scales.AV ?? 50)
+    ) / 4;
+    const trap =
+      ((you.scales.ANX ?? 0) >= 55 && (them.scales.AV ?? 0) >= 55) ||
+      ((them.scales.ANX ?? 0) >= 55 && (you.scales.AV ?? 0) >= 55);
+    if (trap) differences.unshift(C.attTrap);
+    if (sec >= 65) sharedGround.unshift(C.attSecure);
+    conversationStarters.push(C.attTip);
   } else if (instrument.id === "love-languages") {
     const youTop = topScale(you.scales, instrument);
     const themTop = topScale(them.scales, instrument);
-    tips.push(C.llTip(themTop, youTop));
-    if (youTop === themTop) strengths.unshift(C.llShared(youTop));
-    else frictions.push(C.llDiffer(youTop, themTop));
+    conversationStarters.push(C.llTip(themTop, youTop));
+    if (youTop === themTop) sharedGround.unshift(C.llShared(youTop));
+    else differences.push(C.llDiffer(youTop, themTop));
   } else if (instrument.id === "couple-communication") {
-    const pos = (s: Record<string, number>) => ((s.GENTLE ?? 50) + (s.CONSTR ?? 50) + (s.REPAIR ?? 50) + (s.RESPOND ?? 50)) / 4;
-    const risk = (s: Record<string, number>) => ((s.HORSE ?? 50) + (s.DEMWD ?? 50)) / 2;
-    const health = ((pos(you.scales) + pos(them.scales)) / 2) * 0.6 + (100 - (risk(you.scales) + risk(them.scales)) / 2) * 0.4;
-    overall = 0.55 * health + 0.45 * (100 - meanGap);
-    if ((you.scales.HORSE ?? 0) >= 55 && (them.scales.HORSE ?? 0) >= 55) { overall -= 10; frictions.unshift(C.ccBothHorse); tips.push(C.ccHorseTip); }
-    if ((you.scales.HORSE ?? 100) <= 40 && (them.scales.HORSE ?? 100) <= 40 && (you.scales.REPAIR ?? 0) >= 55 && (them.scales.REPAIR ?? 0) >= 55) { overall += 6; strengths.unshift(C.ccBothRepair); }
-    if (Math.abs((you.scales.GENTLE ?? 50) - (them.scales.GENTLE ?? 50)) >= 30) frictions.push(C.ccGentleMismatch);
-    if ((you.scales.DEMWD ?? 0) >= 55 || (them.scales.DEMWD ?? 0) >= 55) frictions.push(C.ccDemandWithdraw);
-    if ((you.scales.RESPOND ?? 0) >= 60 && (them.scales.RESPOND ?? 0) >= 60) { overall += 4; strengths.push(C.ccBothResponsive); }
-    tips.push(C.ccAntidotes);
+    if ((you.scales.HORSE ?? 0) >= 55 && (them.scales.HORSE ?? 0) >= 55) {
+      differences.unshift(C.ccBothHorse);
+      conversationStarters.push(C.ccHorseTip);
+    }
+    if (
+      (you.scales.HORSE ?? 100) <= 40 &&
+      (them.scales.HORSE ?? 100) <= 40 &&
+      (you.scales.REPAIR ?? 0) >= 55 &&
+      (them.scales.REPAIR ?? 0) >= 55
+    ) sharedGround.unshift(C.ccBothRepair);
+    if (Math.abs((you.scales.GENTLE ?? 50) - (them.scales.GENTLE ?? 50)) >= 30) {
+      differences.push(C.ccGentleMismatch);
+    }
+    if ((you.scales.DEMWD ?? 0) >= 55 || (them.scales.DEMWD ?? 0) >= 55) {
+      differences.push(C.ccDemandWithdraw);
+    }
+    if ((you.scales.RESPOND ?? 0) >= 60 && (them.scales.RESPOND ?? 0) >= 60) {
+      sharedGround.push(C.ccBothResponsive);
+    }
+    conversationStarters.push(C.ccAntidotes);
   } else if (instrument.id === "big-five-ipip50") {
-    if ((you.scales.A ?? 0) >= 60 && (them.scales.A ?? 0) >= 60) { overall += 5; strengths.push(C.bfAgree); }
-    if ((you.scales.N ?? 50) <= 45 && (them.scales.N ?? 50) <= 45) { overall += 5; strengths.push(C.bfSteady); }
+    if ((you.scales.A ?? 0) >= 60 && (them.scales.A ?? 0) >= 60) sharedGround.push(C.bfAgree);
+    if ((you.scales.N ?? 50) <= 45 && (them.scales.N ?? 50) <= 45) sharedGround.push(C.bfSteady);
   } else if (instrument.id === "hexaco-24") {
-    if ((you.scales.H ?? 0) >= 55 && (them.scales.H ?? 0) >= 55) { overall += 5; strengths.push(C.hxHonesty); }
+    if ((you.scales.H ?? 0) >= 55 && (them.scales.H ?? 0) >= 55) sharedGround.push(C.hxHonesty);
   }
 
-  overall = Math.round(clamp(overall, 5, 99));
-  const band = bandFor(overall, L);
-
-  // Generic strengths/frictions from the closest and widest dimensions.
+  // Generic shared ground/differences from the closest and widest dimensions.
   const sorted = [...dimensions].sort((a, b) => a.gap - b.gap);
-  for (const d of sorted.slice(0, 2)) if (d.gap <= 22) strengths.push(GEN[L].strength(d.name));
-  for (const d of [...sorted].reverse().slice(0, 2)) if (d.gap >= 28) frictions.push(GEN[L].friction(d.name));
+  for (const dimension of sorted.slice(0, 2)) {
+    if (dimension.gap <= 22) sharedGround.push(GEN[L].strength(dimension.name));
+  }
+  for (const dimension of [...sorted].reverse().slice(0, 2)) {
+    if (dimension.gap >= 28) differences.push(GEN[L].friction(dimension.name));
+  }
 
-  tips.push(rng.pick(TIPS[L]));
+  conversationStarters.push(rng.pick(TIPS[L]));
 
-  const headline = `${overall}% — ${band}`;
-  const summary = [rng.pick(SUMMARY[L].lead(band, overall, dimensions.length)), rng.pick(SUMMARY[L].tail)];
+  const closeCount = dimensions.filter((dimension) => dimension.comparison === "closely-aligned").length;
+  const midCount = dimensions.filter((dimension) => dimension.comparison === "some-difference").length;
+  const wideCount = dimensions.filter((dimension) => dimension.comparison === "wide-difference").length;
+  const summary = [
+    copy.lead(dimensions.length, closeCount, midCount, wideCount),
+    copy.tail,
+  ];
 
   return {
     instrumentId: instrument.id,
     instrumentName: instrument.name,
     reportId,
-    overall,
-    band,
-    headline,
+    headline: copy.headline,
     summary,
     dimensions,
-    strengths: Array.from(new Set(strengths)).slice(0, 5),
-    frictions: Array.from(new Set(frictions)).slice(0, 5),
-    tips: Array.from(new Set(tips)).slice(0, 5),
+    sharedGround: Array.from(new Set(sharedGround)).slice(0, 5),
+    differences: Array.from(new Set(differences)).slice(0, 5),
+    conversationStarters: Array.from(new Set(conversationStarters)).slice(0, 5),
+    guardrails: copy.guardrails,
   };
 }

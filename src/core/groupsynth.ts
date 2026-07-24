@@ -1,4 +1,8 @@
-import type { MemberProgress } from "./collab";
+import {
+  MIN_GROUP_AGGREGATE,
+  consentedSharedScores,
+  type MemberProgress,
+} from "./collab";
 import { wellbeingThemesFromScores } from "./wellsynth";
 import { communicationThemesFromScores } from "./commsynth";
 
@@ -11,8 +15,8 @@ import { communicationThemesFromScores } from "./commsynth";
  * shared scale snapshots (the same engine the solo portrait uses), so the group
  * reading and the personal reading speak the same language.
  *
- * Pure, deterministic, locale-aware. Needs ≥2 members who have shared scores,
- * and reports a dimension only when ≥2 members contribute to it.
+ * Pure, deterministic, locale-aware. Aggregate output is suppressed until the
+ * privacy cohort threshold is met.
  */
 
 type GLoc = "en" | "es" | "fr";
@@ -27,10 +31,10 @@ export interface GroupDimension {
   highLabel: string;
   /** Group mean across contributing members, 0..100. */
   mean: number;
-  /** The member sitting lowest / highest on this dimension. */
-  lo: { name: string; val: number };
-  hi: { name: string; val: number };
-  /** hi − lo: how widely the group varies here. */
+  /** Aggregate bounds; contributor identities are deliberately not retained. */
+  min: number;
+  max: number;
+  /** max − min: how widely the group varies here. */
   spread: number;
   /** Members who contributed a score to this dimension. */
   n: number;
@@ -51,19 +55,19 @@ export interface GroupPortrait {
 
 const GS: Record<GLoc, {
   shared: (dim: string, mean: number) => string;
-  differ: (dim: string, loN: string, loV: number, hiN: string, hiV: number) => string;
+  differ: (dim: string, loV: number, hiV: number) => string;
 }> = {
   en: {
     shared: (dim, mean) => `As a group, your strongest shared dimension is ${dim} (group average ${mean}/100) — a collective strength to build on together.`,
-    differ: (dim, loN, loV, hiN, hiV) => `You vary most on ${dim} — from ${loN} (${loV}) to ${hiN} (${hiV}). That range is a chance to learn from one another.`,
+    differ: (dim, loV, hiV) => `Your widest aggregate range is on ${dim} (${loV}–${hiV}). Individual contributors stay private.`,
   },
   es: {
     shared: (dim, mean) => `Como grupo, vuestra dimensión compartida más fuerte es ${dim} (media del grupo ${mean}/100): una fortaleza colectiva sobre la que construir juntos.`,
-    differ: (dim, loN, loV, hiN, hiV) => `Donde más variáis es en ${dim}: de ${loN} (${loV}) a ${hiN} (${hiV}). Ese rango es una oportunidad para aprender unos de otros.`,
+    differ: (dim, loV, hiV) => `El rango agregado más amplio está en ${dim} (${loV}–${hiV}). Las contribuciones individuales siguen siendo privadas.`,
   },
   fr: {
     shared: (dim, mean) => `En tant que groupe, votre dimension partagée la plus forte est ${dim} (moyenne du groupe ${mean}/100) — une force collective sur laquelle bâtir ensemble.`,
-    differ: (dim, loN, loV, hiN, hiV) => `C'est sur ${dim} que vous variez le plus — de ${loN} (${loV}) à ${hiN} (${hiV}). Cet écart est une occasion d'apprendre les uns des autres.`,
+    differ: (dim, loV, hiV) => `La plage agrégée la plus large concerne ${dim} (${loV}–${hiV}). Les contributions individuelles restent privées.`,
   },
 };
 
@@ -72,23 +76,23 @@ interface MemberDims { name: string; dims: { id: string; name: string; lowLabel:
 function build(kind: GroupPortraitKind, perMember: MemberDims[], loc: GLoc): GroupPortrait | null {
   // Collect each dimension's per-member values, preserving first-seen order.
   const order: string[] = [];
-  const map = new Map<string, { name: string; lowLabel: string; highLabel: string; vals: { name: string; val: number }[] }>();
+  const map = new Map<string, { name: string; lowLabel: string; highLabel: string; vals: number[] }>();
   for (const m of perMember) {
     for (const d of m.dims) {
       let agg = map.get(d.id);
       if (!agg) { agg = { name: d.name, lowLabel: d.lowLabel, highLabel: d.highLabel, vals: [] }; map.set(d.id, agg); order.push(d.id); }
-      agg.vals.push({ name: m.name, val: d.score });
+      agg.vals.push(d.score);
     }
   }
   const dimensions: GroupDimension[] = [];
   for (const id of order) {
     const a = map.get(id)!;
-    if (a.vals.length < 2) continue; // a group reading needs ≥2 members on the dimension
-    const mean = Math.round(a.vals.reduce((s, v) => s + v.val, 0) / a.vals.length);
-    const sorted = [...a.vals].sort((x, y) => x.val - y.val);
-    const lo = sorted[0];
-    const hi = sorted[sorted.length - 1];
-    dimensions.push({ id, name: a.name, lowLabel: a.lowLabel, highLabel: a.highLabel, mean, lo, hi, spread: hi.val - lo.val, n: a.vals.length });
+    if (a.vals.length < MIN_GROUP_AGGREGATE) continue;
+    const mean = Math.round(a.vals.reduce((sum, value) => sum + value, 0) / a.vals.length);
+    const sorted = [...a.vals].sort((a, b) => a - b);
+    const min = sorted[0];
+    const max = sorted[sorted.length - 1];
+    dimensions.push({ id, name: a.name, lowLabel: a.lowLabel, highLabel: a.highLabel, mean, min, max, spread: max - min, n: a.vals.length });
   }
   if (!dimensions.length) return null;
 
@@ -98,32 +102,33 @@ function build(kind: GroupPortraitKind, perMember: MemberDims[], loc: GLoc): Gro
   const insights: string[] = [];
   insights.push(s.shared(topShared.name, topShared.mean));
   if (widest && widest.id !== topShared.id && widest.spread >= 18) {
-    insights.push(s.differ(widest.name, widest.lo.name, widest.lo.val, widest.hi.name, widest.hi.val));
+    insights.push(s.differ(widest.name, widest.min, widest.max));
   }
   return { kind, dimensions, topShared, widest, insights, members: perMember.length };
 }
 
 /** The group's collective wellbeing portrait (five flourishing dimensions),
- *  averaged across members who have shared scores. Null when fewer than two
- *  members contribute. */
+ *  averaged across members who have shared scores. */
 export function groupWellbeingPortrait(members: MemberProgress[], opts: { locale?: string } = {}): GroupPortrait | null {
   const loc = gLoc(opts.locale);
   const perMember = members
-    .filter((m) => m.scores)
-    .map((m) => ({ name: m.name, dims: wellbeingThemesFromScores(m.scores!, { locale: loc }).map((t) => ({ id: t.id, name: t.name, lowLabel: t.lowLabel, highLabel: t.highLabel, score: t.score })) }))
+    .map((member) => ({ member, scores: consentedSharedScores(member) }))
+    .filter((entry): entry is { member: MemberProgress; scores: Record<string, Record<string, number>> } => Boolean(entry.scores))
+    .map(({ member, scores }) => ({ name: member.name, dims: wellbeingThemesFromScores(scores, { locale: loc }).map((t) => ({ id: t.id, name: t.name, lowLabel: t.lowLabel, highLabel: t.highLabel, score: t.score })) }))
     .filter((pm) => pm.dims.length);
-  if (perMember.length < 2) return null;
+  if (perMember.length < MIN_GROUP_AGGREGATE) return null;
   return build("wellbeing", perMember, loc);
 }
 
 /** The group's collective communication portrait (five competencies), averaged
- *  across members who have shared scores. Null when fewer than two contribute. */
+ *  across members who have shared scores. */
 export function groupCommunicationPortrait(members: MemberProgress[], opts: { locale?: string } = {}): GroupPortrait | null {
   const loc = gLoc(opts.locale);
   const perMember = members
-    .filter((m) => m.scores)
-    .map((m) => ({ name: m.name, dims: communicationThemesFromScores(m.scores!, { locale: loc }).map((t) => ({ id: t.id, name: t.name, lowLabel: t.lowLabel, highLabel: t.highLabel, score: t.score })) }))
+    .map((member) => ({ member, scores: consentedSharedScores(member) }))
+    .filter((entry): entry is { member: MemberProgress; scores: Record<string, Record<string, number>> } => Boolean(entry.scores))
+    .map(({ member, scores }) => ({ name: member.name, dims: communicationThemesFromScores(scores, { locale: loc }).map((t) => ({ id: t.id, name: t.name, lowLabel: t.lowLabel, highLabel: t.highLabel, score: t.score })) }))
     .filter((pm) => pm.dims.length);
-  if (perMember.length < 2) return null;
+  if (perMember.length < MIN_GROUP_AGGREGATE) return null;
   return build("communication", perMember, loc);
 }

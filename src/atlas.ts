@@ -1,40 +1,52 @@
 import type { CompanionKnowledge } from "@core/companion";
 
+export interface ExternalAtlasOptions {
+  /** Must be set by a direct, informed user action for this request. */
+  consented: true;
+  locale: "en" | "es" | "fr";
+  /** Only user-approved, actionable observations may leave the device. */
+  actionableEvidence?: string[];
+}
+
 /**
- * Try the optional server-side LLM ("Ask Atlas"). Returns the model's answer, or
- * null when unavailable (no API key, local dev without functions, or an error) —
- * in which case the caller falls back to the deterministic companion.
+ * Try the optional external-AI mode. The rich local knowledge object is accepted
+ * for API compatibility but is intentionally never transmitted. Without explicit
+ * per-request consent this function performs no network request.
  */
-export async function askAtlasRemote(knowledge: CompanionKnowledge, question: string): Promise<string | null> {
+export async function askAtlasRemote(
+  _knowledge: CompanionKnowledge,
+  question: string,
+  options?: ExternalAtlasOptions,
+): Promise<string | null> {
+  const cleanQuestion = question.trim().slice(0, 1_000);
+  if (!options?.consented || !cleanQuestion) return null;
+  const actionableEvidence = (options.actionableEvidence ?? [])
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim().replace(/\s+/g, " ").slice(0, 240))
+    .filter(Boolean)
+    .slice(0, 12);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 12_000);
   try {
     const res = await fetch("/api/ask", {
       method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ question, knowledge: trim(knowledge) }),
+      signal: controller.signal,
+      body: JSON.stringify({
+        question: cleanQuestion,
+        locale: options.locale,
+        consent: { externalAI: true },
+        actionableEvidence,
+      }),
     });
     if (!res.ok) return null;
-    const data = await res.json();
+    const data = (await res.json()) as { answer?: unknown };
     return typeof data.answer === "string" && data.answer.trim() ? data.answer.trim() : null;
   } catch {
     return null;
+  } finally {
+    window.clearTimeout(timeout);
   }
-}
-
-/** Trim the knowledge payload to the essentials before sending. */
-function trim(k: CompanionKnowledge) {
-  return {
-    kind: k.kind,
-    name: k.name,
-    title: k.title,
-    instrumentName: k.instrumentName,
-    type: k.type ? { code: k.type.code, title: k.type.title, summary: k.type.summary } : undefined,
-    overview: k.overview,
-    scales: k.scales.map((s) => ({ name: s.name, level: s.level, percentile: Math.round(s.percentile), low: s.poleLow, high: s.poleHigh })),
-    dynamics: k.dynamics,
-    themes: k.themes,
-    strengths: k.strengths,
-    growthEdges: k.growthEdges,
-    operatingManual: k.operatingManual,
-    sections: k.sections?.map((s) => ({ heading: s.heading, paragraphs: s.paragraphs })),
-  };
 }

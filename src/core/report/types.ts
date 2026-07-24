@@ -1,4 +1,4 @@
-import type { Level, TypeResolution } from "../types";
+import type { Level, ScaleStanding, TypeResolution } from "../types";
 
 export interface ReportSection {
   id: string;
@@ -10,7 +10,10 @@ export interface ReportSection {
 export interface TraitInsight {
   scaleId: string;
   name: string;
-  percentile: number;
+  /** Local position within the instrument's response range. */
+  standing: ScaleStanding;
+  /** Localized, user-facing description of `standing`. */
+  standingLabel: string;
   normalized: number;
   mean: number;
   level: Level;

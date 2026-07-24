@@ -1,4 +1,5 @@
 import type { ResponseMap } from "@core/types";
+import type { CognitiveStoredResult } from "./profile";
 
 /**
  * Client-side commerce state. No accounts, no server database: entitlements live
@@ -7,13 +8,18 @@ import type { ResponseMap } from "@core/types";
  */
 
 const ENT_KEY = "psyche.entitlements.v1";
+const REVOCATION_KEY = "psyche.entitlement-revocations.v1";
 const PENDING_KEY = "psyche.pending.v1";
+const PRODUCT_IDS = new Set(["report", "cognitive", "poster", "allaccess"]);
+const REVOCATION_MARKER_PATTERN = /^[a-f0-9]{40}$/;
 
 export interface PendingResult {
   instrumentId: string;
   responses: ResponseMap;
   fingerprint: string;
   productId: string;
+  /** Versioned local snapshot needed to restore standalone cognitive reports. */
+  cognitive?: CognitiveStoredResult;
 }
 
 function read<T>(storage: Storage, key: string, fallback: T): T {
@@ -28,20 +34,38 @@ function read<T>(storage: Storage, key: string, fallback: T): T {
 /* ── Entitlements ───────────────────────────────────────────────────────── */
 
 export function getEntitlements(): string[] {
-  return read<string[]>(localStorage, ENT_KEY, []);
+  const stored = read<unknown>(localStorage, ENT_KEY, []);
+  return Array.isArray(stored)
+    ? stored.filter((value): value is string => typeof value === "string")
+    : [];
 }
 
-function grant(entitlement: string): void {
+function writeEntitlements(entitlements: readonly string[]): boolean {
+  try {
+    localStorage.setItem(ENT_KEY, JSON.stringify(entitlements));
+    return true;
+  } catch {
+    /* storage unavailable */
+    return false;
+  }
+}
+
+function grant(entitlement: string): boolean {
   const set = new Set(getEntitlements());
+  const previousSize = set.size;
   set.add(entitlement);
-  localStorage.setItem(ENT_KEY, JSON.stringify([...set]));
+  return set.size !== previousSize && writeEntitlements([...set]);
 }
 
 /** Record a successful purchase as an entitlement. */
-export function grantProduct(productId: string, fingerprint: string): void {
-  if (productId === "allaccess") grant("pass:allaccess");
-  else grant(`report:${fingerprint}`);
-  if (productId === "poster") grant(`poster:${fingerprint}`);
+export function grantProduct(productId: string, fingerprint: string): boolean {
+  if (!PRODUCT_IDS.has(productId)) return false;
+  if (productId === "allaccess") return grant("pass:allaccess");
+  const reportGranted = grant(`report:${fingerprint}`);
+  const posterGranted = productId === "poster"
+    ? grant(`poster:${fingerprint}`)
+    : false;
+  return reportGranted || posterGranted;
 }
 
 /** Is the full report for this set of answers unlocked on this device? */
@@ -53,6 +77,44 @@ export function isUnlocked(fingerprint: string): boolean {
 export function hasPoster(fingerprint: string): boolean {
   const ents = getEntitlements();
   return ents.includes("pass:allaccess") || ents.includes(`poster:${fingerprint}`);
+}
+
+function applyConfirmedRevocation(
+  fingerprint: string,
+  revocationMarker: unknown,
+): boolean {
+  const marker =
+    typeof revocationMarker === "string" &&
+    REVOCATION_MARKER_PATTERN.test(revocationMarker)
+      ? revocationMarker
+      : null;
+  const acknowledged = read<unknown>(localStorage, REVOCATION_KEY, {});
+  const acknowledgements =
+    acknowledged && typeof acknowledged === "object" && !Array.isArray(acknowledged)
+      ? acknowledged as Record<string, unknown>
+      : {};
+  if (marker && acknowledgements[fingerprint] === marker) return false;
+
+  const entitlements = getEntitlements();
+  const report = `report:${fingerprint}`;
+  const poster = `poster:${fingerprint}`;
+  const retained = entitlements.filter(
+    (entitlement) => entitlement !== report && entitlement !== poster,
+  );
+  const changed = retained.length !== entitlements.length;
+  if (changed && !writeEntitlements(retained)) return false;
+
+  if (marker) {
+    try {
+      localStorage.setItem(
+        REVOCATION_KEY,
+        JSON.stringify({ ...acknowledgements, [fingerprint]: marker }),
+      );
+    } catch {
+      /* retry reconciliation on the next successful status check */
+    }
+  }
+  return changed;
 }
 
 /* ── Pending result (survives the Stripe redirect) ──────────────────────── */
@@ -69,14 +131,39 @@ export function loadPending(): PendingResult | null {
   return read<PendingResult | null>(sessionStorage, PENDING_KEY, null);
 }
 
+export function clearPending(): void {
+  try {
+    sessionStorage.removeItem(PENDING_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 /* ── Checkout ───────────────────────────────────────────────────────────── */
 
 export type CheckoutOutcome = { redirected: true } | { demo: true } | { error: string };
 
+function localDemoEnabled(): boolean {
+  if (import.meta.env.PROD) return false;
+  if (import.meta.env.VITE_ENABLE_DEMO_CHECKOUT === "true") return true;
+  if (!import.meta.env.DEV || typeof window === "undefined") return false;
+  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+}
+
+function safeCheckoutUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "checkout.stripe.com" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Start a purchase. Redirects to Stripe Checkout when configured; otherwise (no
- * Stripe key on the server, or running locally without serverless functions)
- * resolves to `{ demo: true }` so the caller can do a clearly-labeled demo unlock.
+ * Start a purchase. Production fails closed when checkout is unavailable. A
+ * clearly-labelled demo unlock is possible only in local development or when
+ * explicitly enabled at build time.
  */
 export async function startCheckout(productId: string, pending: PendingResult): Promise<CheckoutOutcome> {
   savePending(pending);
@@ -86,17 +173,20 @@ export async function startCheckout(productId: string, pending: PendingResult): 
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ productId, fingerprint: pending.fingerprint }),
     });
-    if (res.status === 404) return { demo: true }; // local dev: no serverless functions
+    if (res.status === 404 && localDemoEnabled()) return { demo: true };
     if (!res.ok) return { error: `Checkout failed (${res.status}). Please try again.` };
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url as string;
+    const data = (await res.json()) as { url?: unknown; devMode?: unknown };
+    const checkoutUrl = safeCheckoutUrl(data.url);
+    if (checkoutUrl) {
+      window.location.assign(checkoutUrl);
       return { redirected: true };
     }
-    if (data.devMode) return { demo: true };
+    if (data.devMode === true && localDemoEnabled()) return { demo: true };
     return { error: "Checkout is not configured." };
   } catch {
-    return { demo: true }; // network/offline → demo unlock
+    return localDemoEnabled()
+      ? { demo: true }
+      : { error: "Checkout is temporarily unavailable. Please try again." };
   }
 }
 
@@ -109,27 +199,57 @@ export interface VerifyResult {
 
 /**
  * Recover entitlements for a result from the server (set by the Stripe webhook).
- * Lets a purchase survive a closed tab or a second device. No-ops without KV.
- * Returns true if anything was recovered.
+ * Lets an eligible purchase recover in the same browser while its signed,
+ * HttpOnly recovery authorization remains valid. No-ops without durable storage.
+ * Returns true if the visible local entitlement state changed.
  */
 export async function recoverEntitlements(fingerprint: string): Promise<boolean> {
+  if (!fingerprint || fingerprint.length > 256) return false;
   try {
-    const res = await fetch(`/api/entitlement-status?fp=${encodeURIComponent(fingerprint)}`);
+    const res = await fetch("/api/entitlement-status", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ fingerprint }),
+    });
     if (!res.ok) return false;
-    const data = await res.json();
-    if (data.paid && Array.isArray(data.products) && data.products.length) {
-      for (const p of data.products) grantProduct(p, fingerprint);
-      return true;
+    const data = (await res.json()) as {
+      paid?: unknown;
+      products?: unknown;
+      revoked?: unknown;
+      revocationMarker?: unknown;
+    };
+    let changed = false;
+    if (data.revoked === true) {
+      changed =
+        applyConfirmedRevocation(fingerprint, data.revocationMarker) || changed;
     }
+    if (data.paid && Array.isArray(data.products) && data.products.length) {
+      for (const product of data.products) {
+        if (typeof product === "string") {
+          changed = grantProduct(product, fingerprint) || changed;
+        }
+      }
+    }
+    return changed;
   } catch {
-    /* offline or no functions — ignore */
+    // Browser storage cannot receive webhook changes while offline. Preserve
+    // cached access until a successful online status check confirms revocation.
   }
   return false;
 }
 
 export async function verifyCheckout(sessionId: string): Promise<VerifyResult> {
+  if (!sessionId || sessionId.length > 256) return { paid: false };
   try {
-    const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
+    const res = await fetch("/api/verify-session", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId }),
+    });
     if (!res.ok) return { paid: false };
     return (await res.json()) as VerifyResult;
   } catch {

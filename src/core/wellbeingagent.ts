@@ -7,6 +7,7 @@ import {
   WELLBEING_INSTRUMENT_IDS, type WellbeingPortrait,
 } from "./wellsynth";
 import { buildGrowthPlan, type GrowthPlan, type GrowthTarget } from "./improvement/plan";
+import { isPublicJourneyEligibleInstrument } from "./catalogPolicy";
 
 /**
  * Wellbeing Coach — an agentic flow that turns the cross-test Wellbeing Portrait
@@ -94,7 +95,14 @@ export function buildWellbeingProgram(
 
   // Not enough wellbeing data yet → route to a couple of foundational check-ins.
   if (!portrait || !portrait.topGrowth) {
-    const pick = [...PRIORITY, ...WELLBEING_INSTRUMENT_IDS].filter((id, i, a) => a.indexOf(id) === i && !taken.has(id) && getInstrument(id)).slice(0, 3);
+    const pick = [...PRIORITY, ...WELLBEING_INSTRUMENT_IDS]
+      .filter((id, i, all) =>
+        all.indexOf(id) === i &&
+        !taken.has(id) &&
+        isPublicJourneyEligibleInstrument(id) &&
+        getInstrument(id),
+      )
+      .slice(0, 3);
     const recommended = pick.map((id) => ({ id, name: localizeInstrument(getInstrument(id)!, loc).name }));
     const names = recommended.map((r) => r.name).join(loc === "fr" ? " ou " : loc === "es" ? " o " : " or ");
     return { state: "needs-data", narrative: [s.needsData(names), s.needsData2], recommended, practices: [] };
@@ -114,7 +122,9 @@ export function buildWellbeingProgram(
   }
 
   const freshNudge = wellbeingGrowthNudge(entries, { locale: opts.locale });
-  const freshLens = freshNudge ? { id: freshNudge.instrumentId, name: localizeInstrument(getInstrument(freshNudge.instrumentId)!, loc).name } : null;
+  const freshLens = freshNudge && isPublicJourneyEligibleInstrument(freshNudge.instrumentId)
+    ? { id: freshNudge.instrumentId, name: localizeInstrument(getInstrument(freshNudge.instrumentId)!, loc).name }
+    : null;
 
   // No taken instrument drives this dimension (rare) → portrait-only program.
   if (!instrumentId || !def) {

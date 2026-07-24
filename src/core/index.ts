@@ -6,7 +6,23 @@
 
 export * from "./types";
 export { Rng, cyrb53, hashHex, nonce, seedFrom } from "./prng";
-export { scoreAssessment } from "./scoring";
+export {
+  resolveScaleStanding,
+  responseRangePosition,
+  scoreAssessment,
+  scoreAssessmentSubmission,
+} from "./scoring";
+export type { AssessmentSubmission, ScoreAssessmentOptions } from "./scoring";
+export * from "./timing";
+export * from "./evidence";
+export * from "./learner";
+export * from "./catalogPolicy";
+export { recommendNext, recommendNextFromEvidence } from "./recommend";
+export type { Recommendation, RecommendationOptions } from "./recommend";
+export { dailyNudge, dailyNudgeFromEvidence } from "./daily";
+export type { DailyEvidenceOptions, DailyNudge } from "./daily";
+export { autopilotNext, autopilotNextFromEvidence } from "./autopilot";
+export type { AutopilotOptions, AutopilotPick } from "./autopilot";
 
 export { INSTRUMENTS, getInstrument, instrumentsByCategory } from "./instruments";
 export { CATEGORIES, getCategory } from "./categories";

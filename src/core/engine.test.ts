@@ -16,7 +16,7 @@ import { groupWellbeingPortrait, groupCommunicationPortrait } from "./groupsynth
 import { buildWellbeingProgram, coachNextPractice, practiceStreak } from "./wellbeingagent";
 import { searchInstruments, matchesQuery, tokenize } from "./search";
 import { analyzeResponseStyle } from "./responsestyle";
-import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, type MemberProgress } from "./collab";
+import { createRoom, encodeRoom, decodeRoom, roomLink, encodeProgress, decodeProgress, roomStandings, planCoverage, groupPortrait, groupInsights, groupRoles, groupResonance, roleLine, pairingNotes, groupNextStep, teamStandings, teamCount, MIN_GROUP_AGGREGATE, type MemberProgress } from "./collab";
 import { autopilotNext, agentBrief, autopilotLength } from "./autopilot";
 import { compareTakes, changeNarrative } from "./growth";
 import { askCompanion, buildReportKnowledge, buildIntegratedKnowledge, suggestedQuestions } from "./companion";
@@ -24,6 +24,8 @@ import { scoreAssessment } from "./scoring";
 import { composeReport } from "./report/composer";
 import { generateReport } from "./report";
 import { buildGrowthPlan, suggestTargets } from "./improvement/plan";
+import { completionEvidence, evidenceConsent } from "./evidence";
+import { isPublicJourneyEligibleInstrument } from "./catalogPolicy";
 
 /** Answer every item via a function of the item (lets us drive a scale to a pole). */
 function answerAll(instrument: Instrument, fn: (item: Item) => number): ResponseMap {
@@ -36,14 +38,20 @@ function answerAll(instrument: Instrument, fn: (item: Item) => number): Response
 const allHigh = (i: Instrument) => answerAll(i, (it) => (it.keyed === 1 ? i.responseFormat.max : i.responseFormat.min));
 /** Drive every scale toward its LOW pole. */
 const allLow = (i: Instrument) => answerAll(i, (it) => (it.keyed === 1 ? i.responseFormat.min : i.responseFormat.max));
+const SCORE_CONSENT: NonNullable<MemberProgress["scoreConsent"]> = {
+  scope: "non-sensitive-scales",
+  at: "2026-06-14T12:00:00.000Z",
+};
 
-describe("scoring: keying and norming", () => {
+describe("scoring: keying and response-range standing", () => {
   it("drives all Big Five factors to the top when answered toward the high pole", () => {
     const res = scoreAssessment(bigFive, allHigh(bigFive));
     for (const s of Object.values(res.scales)) {
       expect(s.mean).toBeCloseTo(5, 5);
       expect(s.level).toBe("very high");
-      expect(s.percentile).toBeGreaterThan(90);
+      expect(s.standing.kind).toBe("response-range");
+      expect(s.standing.position).toBe(s.normalized);
+      expect(s).not.toHaveProperty("percentile");
     }
   });
 
@@ -63,10 +71,12 @@ describe("scoring: keying and norming", () => {
     expect(res.scales.A.mean).toBeCloseTo(3, 5);
   });
 
-  it("produces a stable response fingerprint for identical answers", () => {
+  it("produces opaque, random result ids even for identical answers", () => {
     const a = scoreAssessment(bigFive, allHigh(bigFive));
     const b = scoreAssessment(bigFive, allHigh(bigFive));
-    expect(a.responseFingerprint).toBe(b.responseFingerprint);
+    expect(a.responseFingerprint).toMatch(/^rid1_[0-9a-f]{64}$/);
+    expect(b.responseFingerprint).toMatch(/^rid1_[0-9a-f]{64}$/);
+    expect(a.responseFingerprint).not.toBe(b.responseFingerprint);
   });
 });
 
@@ -191,11 +201,14 @@ describe("compatibility engine", () => {
     expect(Object.keys(back?.scales ?? {})).toHaveLength(5);
   });
 
-  it("scores identical Big Five profiles as highly compatible", () => {
+  it("maps identical Big Five observations dimension by dimension without a relationship score", () => {
     const sum = toSummary(bigFive, scoreAssessment(bigFive, allHigh(bigFive)));
     const rep = computeCompatibility(bigFive, sum, sum, { seed: 1 });
-    expect(rep.overall).toBeGreaterThanOrEqual(80);
     expect(rep.dimensions).toHaveLength(5);
+    expect(rep.dimensions.every((d) => d.comparison === "closely-aligned")).toBe(true);
+    expect(rep.sharedGround.length).toBeGreaterThan(0);
+    expect("overall" in rep || "band" in rep).toBe(false);
+    expect(rep.guardrails.join(" ")).toMatch(/does not score|not automatically/i);
   });
 
   it("flags an anxious–avoidant attachment pairing", () => {
@@ -204,7 +217,7 @@ describe("compatibility engine", () => {
     const a = toSummary(attachment, scoreAssessment(attachment, anxious));
     const b = toSummary(attachment, scoreAssessment(attachment, avoidant));
     const rep = computeCompatibility(attachment, a, b, { seed: 2 });
-    expect(rep.frictions.join(" ").toLowerCase()).toContain("anxious");
+    expect(rep.differences.join(" ").toLowerCase()).toContain("anxious");
   });
 
   it("reads couple communication compatibility through a Gottman lens", () => {
@@ -212,26 +225,25 @@ describe("compatibility engine", () => {
     const healthy = answerAll(couple, (it) => (it.scale === "HORSE" || it.scale === "DEMWD" ? (it.keyed === 1 ? 1 : 5) : it.keyed === 1 ? 5 : 1));
     const hsum = toSummary(couple, scoreAssessment(couple, healthy));
     const good = computeCompatibility(couple, hsum, hsum, { seed: 3 });
-    expect(good.overall).toBeGreaterThanOrEqual(70); // both healthy → strong
-    expect(good.strengths.length).toBeGreaterThan(0);
+    expect(good.sharedGround.length).toBeGreaterThan(0);
 
     const horsey = answerAll(couple, (it) => (it.scale === "HORSE" || it.scale === "DEMWD" ? (it.keyed === 1 ? 5 : 1) : it.keyed === 1 ? 1 : 5));
     const ssum = toSummary(couple, scoreAssessment(couple, horsey));
     const rough = computeCompatibility(couple, ssum, ssum, { seed: 4 });
-    expect(rough.frictions.join(" ").toLowerCase()).toContain("horsemen");
-    expect(rough.overall).toBeLessThan(good.overall);
+    expect(rough.differences.join(" ").toLowerCase()).toContain("horsemen");
+    expect(rough.conversationStarters.length).toBeGreaterThan(0);
   });
 
-  it("localizes the compatibility report (band + summary) by locale", () => {
+  it("localizes the descriptive connection map without changing comparisons", () => {
     const big = toSummary(bigFive, scoreAssessment(bigFive, allHigh(bigFive)));
     const en = computeCompatibility(bigFive, big, big, { seed: 1, locale: "en" });
     const es = computeCompatibility(bigFive, big, big, { seed: 1, locale: "es" });
     const fr = computeCompatibility(bigFive, big, big, { seed: 1, locale: "fr" });
-    expect(en.band).toBe("Highly compatible");
-    expect(es.band).toBe("Muy compatibles");
-    expect(fr.band).toBe("Très compatibles");
+    expect(en.headline).toBe("Your connection map");
+    expect(es.headline).toBe("Vuestro mapa de conexión");
+    expect(fr.headline).toBe("Votre carte de connexion");
     expect(es.summary.join(" ")).not.toBe(en.summary.join(" "));
-    expect(en.overall).toBe(es.overall); // scoring is language-agnostic
+    expect(en.dimensions.map((d) => d.comparison)).toEqual(es.dimensions.map((d) => d.comparison));
   });
 });
 
@@ -292,7 +304,9 @@ describe("conflict, chronotype, moral foundations & starter pack", () => {
   });
 
   it("tailors the starter pack to a goal", () => {
-    expect(starterPack(["Better relationships"])).toContain("attachment-styles");
+    const pack = starterPack(["Better relationships"]);
+    expect(pack).toContain("love-languages");
+    expect(pack.every(isPublicJourneyEligibleInstrument)).toBe(true);
     expect(starterPack([]).length).toBe(3);
   });
 });
@@ -556,10 +570,10 @@ describe("report localization", () => {
     const esInst = localizeInstrument(disc, "es");
     const rEs = composeReport(esInst, scoreAssessment(esInst, ans), { seed: 7, locale: "es" });
     const rEn = composeReport(disc, scoreAssessment(disc, ans), { seed: 7, locale: "en" });
-    // localized uniqueness note + a localized trait opener (percentile phrasing)
+    // Localized uniqueness note + a localized response-range trait opener.
     expect(rEs.uniqueness.note).toContain("semilla");
     expect(rEn.uniqueness.note).toContain("generation seed");
-    expect(rEs.traits.some((t) => /percentil/.test(t.narrative))).toBe(true);
+    expect(rEs.traits.some((t) => /rango de respuesta/.test(t.narrative))).toBe(true);
     // the prose genuinely differs from English
     expect(rEs.overview.join(" ")).not.toBe(rEn.overview.join(" "));
     // deterministic: same seed + locale reproduces byte-for-byte
@@ -572,7 +586,7 @@ describe("report localization", () => {
     const frInst = localizeInstrument(perma, "fr");
     const r = composeReport(frInst, scoreAssessment(frInst, allHigh(perma)), { seed: 3, locale: "fr" });
     expect(r.uniqueness.note).toContain("graine");
-    expect(r.traits.some((t) => /centile/.test(t.narrative))).toBe(true);
+    expect(r.traits.some((t) => /étendue de réponse/.test(t.narrative))).toBe(true);
     // generic headline is localized ("Votre portrait de …")
     expect(/portrait/i.test(r.title)).toBe(true);
   });
@@ -580,7 +594,7 @@ describe("report localization", () => {
   it("leaves English reports unchanged when no locale is given", () => {
     const r = composeReport(disc, scoreAssessment(disc, allHigh(disc)), { seed: 1 });
     expect(r.uniqueness.note).toContain("generation seed");
-    expect(r.traits.some((t) => /percentile/.test(t.narrative))).toBe(true);
+    expect(r.traits.some((t) => /response range/.test(t.narrative))).toBe(true);
   });
 
   it("localizes the Big Five concrete color and dynamics banks (es/fr)", () => {
@@ -752,8 +766,9 @@ describe("every catalog instrument is structurally sound", () => {
       for (const s of Object.values(res.scales)) {
         expect(s.normalized).toBeGreaterThanOrEqual(0);
         expect(s.normalized).toBeLessThanOrEqual(100);
-        expect(s.percentile).toBeGreaterThanOrEqual(0);
-        expect(s.percentile).toBeLessThanOrEqual(100);
+        expect(s.standing.kind).toBe("response-range");
+        expect(s.standing.position).toBe(s.normalized);
+        expect(s).not.toHaveProperty("percentile");
       }
 
       // typological instruments resolve a valid, well-formed type
@@ -771,6 +786,11 @@ describe("every catalog instrument is structurally sound", () => {
       expect(rep.traits.length).toBeGreaterThan(0);
       expect(rep.traits.length).toBeLessThanOrEqual(inst.scales.length);
       expect(rep.overview.length).toBeGreaterThan(0);
+      for (const trait of rep.traits) {
+        expect(trait.standing.kind).toBe("response-range");
+        expect(trait.standingLabel).toMatch(/response-range|rango de respuesta|étendue de réponse/i);
+        expect(trait).not.toHaveProperty("percentile");
+      }
     });
   }
 });
@@ -923,9 +943,12 @@ describe("daily nudge engine", () => {
     expect(n.line).not.toContain("{desc}");
   });
 
-  it("is stable within a day and changes across days", () => {
-    const a = dailyNudge(vivid(), { date: day })!;
-    const b = dailyNudge(vivid(), { date: day })!;
+  it("is stable within a day despite random result ids and changes across days", () => {
+    const first = vivid();
+    const second = vivid();
+    expect(first[0].result.responseFingerprint).not.toBe(second[0].result.responseFingerprint);
+    const a = dailyNudge(first, { date: day })!;
+    const b = dailyNudge(second, { date: day })!;
     expect(a).toEqual(b);
     const days = new Set<string>();
     for (let i = 0; i < 8; i++) {
@@ -996,7 +1019,8 @@ describe("personalized roadmap", () => {
 
   it("includes goal-relevant instruments for the chosen focus", () => {
     const ids = buildRoadmap([], ["Better relationships"], {}).steps.map((s) => s.instrumentId);
-    expect(ids).toContain("attachment-styles");
+    expect(ids).toContain("love-languages");
+    expect(ids.every(isPublicJourneyEligibleInstrument)).toBe(true);
   });
 
   it("tracks progress and advances the current step as tests complete", () => {
@@ -1405,14 +1429,15 @@ describe("longitudinal change narrative", () => {
     const en = changeNarrative(cmp(), "en");
     const es = changeNarrative(cmp(), "es");
     expect(en.length).toBeGreaterThan(30);
-    expect(en).toMatch(/rose|eased/);
+    expect(en).toMatch(/higher|lower/);
+    expect(en).toMatch(/not proof|context/i);
     expect(es).not.toBe(en);
   });
 
   it("reports a steady profile when nothing moved much", () => {
     const same = scoreAssessment(bigFive, answerAll(bigFive, () => 3));
     const c = compareTakes(bigFive, "2026-01-01", same, "2026-06-01", same, 2);
-    expect(changeNarrative(c, "en").toLowerCase()).toContain("steady");
+    expect(changeNarrative(c, "en").toLowerCase()).toContain("measurement noise");
   });
 });
 
@@ -1421,7 +1446,10 @@ describe("Atlas Autopilot agent", () => {
     const first = autopilotNext([], ["Understand myself"], {});
     expect(first?.instrumentId).toBe("big-five-ipip50");
     const e = [{ instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) }];
-    const second = autopilotNext(e, ["Understand myself"], {});
+    const second = autopilotNext([], ["Understand myself"], {
+      evidence: completionEvidence(e),
+      consent: evidenceConsent({ actionable: true }),
+    });
     expect(second).toBeTruthy();
     expect(second!.instrumentId).not.toBe("big-five-ipip50");
     expect(second!.reason.length).toBeGreaterThan(8);
@@ -1432,7 +1460,11 @@ describe("Atlas Autopilot agent", () => {
       { instrument: bigFive, result: scoreAssessment(bigFive, allHigh(bigFive)) },
       { instrument: hexaco, result: scoreAssessment(hexaco, allHigh(hexaco)) },
     ];
-    const next = autopilotNext(e, [], { locale: "fr" })!;
+    const next = autopilotNext([], [], {
+      locale: "fr",
+      evidence: completionEvidence(e),
+      consent: evidenceConsent({ actionable: true }),
+    })!;
     const b = agentBrief(e, next, 3, 5, { locale: "fr" });
     expect(b.eyebrow).toContain("3/5");
     expect(b.nextName.length).toBeGreaterThan(1);
@@ -1442,7 +1474,12 @@ describe("Atlas Autopilot agent", () => {
 });
 
 describe("Study Together collaboration", () => {
-  const room = () => createRoom({ title: "Big Five study group", plan: ["big-five-ipip50", "hexaco-24", "jung-16-types"], host: "Ada" });
+  const room = () => createRoom({
+    title: "Big Five study group",
+    plan: ["big-five-ipip50", "hexaco-24", "jung-16-types"],
+    host: "Ada",
+    shareHostIdentity: true,
+  });
 
   it("round-trips a room through an invite link", () => {
     const r = room();
@@ -1460,6 +1497,26 @@ describe("Study Together collaboration", () => {
     expect(decodeRoom("not-a-real-code")).toBeNull();
   });
 
+  it("uses an anonymous host label unless display-name sharing is explicit", () => {
+    const privateRoom = createRoom({
+      title: "Private host",
+      plan: ["big-five-ipip50"],
+      host: "Ada",
+      hostAlias: "Learner-AB12",
+    });
+    expect(privateRoom.host).toBe("Learner-AB12");
+    expect(decodeRoom(encodeRoom(privateRoom))?.host).toBe("Learner-AB12");
+
+    const namedRoom = createRoom({
+      title: "Named host",
+      plan: ["big-five-ipip50"],
+      host: "Ada",
+      shareHostIdentity: true,
+      hostAlias: "Learner-AB12",
+    });
+    expect(namedRoom.host).toBe("Ada");
+  });
+
   it("round-trips member progress codes", () => {
     const back = decodeProgress(encodeProgress({ name: "Béa", done: ["big-five-ipip50"], at: "2026-06-14" }));
     expect(back?.name).toBe("Béa");
@@ -1467,19 +1524,57 @@ describe("Study Together collaboration", () => {
   });
 
   it("round-trips shared scores and builds a group portrait", () => {
-    const back = decodeProgress(encodeProgress({ name: "A", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 75 } } }));
-    expect(back?.scores?.["big-five-ipip50"].O).toBe(75);
+    const withoutConsent = decodeProgress(encodeProgress({
+      name: "Private",
+      done: ["big-five-ipip50"],
+      at: "x",
+      scores: { "big-five-ipip50": { O: 75 } },
+    }));
+    expect(withoutConsent?.scores).toBeUndefined();
 
-    const members = [
-      { name: "Ada", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 80, C: 50, E: 70, A: 60, N: 30 } } },
-      { name: "Bo", done: ["big-five-ipip50"], at: "y", scores: { "big-five-ipip50": { O: 60, C: 90, E: 20, A: 60, N: 40 } } },
+    const back = decodeProgress(encodeProgress({
+      name: "A",
+      done: ["big-five-ipip50"],
+      at: "x",
+      scores: { "big-five-ipip50": { O: 75 } },
+      scoreConsent: SCORE_CONSENT,
+    }));
+    expect(back?.scores?.["big-five-ipip50"].O).toBe(75);
+    expect(back?.scoreConsent).toEqual(SCORE_CONSENT);
+
+    const members: MemberProgress[] = [
+      { name: "Ada", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 80, C: 50, E: 70, A: 60, N: 30 } }, scoreConsent: SCORE_CONSENT },
+      { name: "Bo", done: ["big-five-ipip50"], at: "y", scores: { "big-five-ipip50": { O: 60, C: 90, E: 20, A: 60, N: 40 } }, scoreConsent: SCORE_CONSENT },
+      { name: "Cy", done: ["big-five-ipip50"], at: "z", scores: { "big-five-ipip50": { O: 70, C: 65, E: 50, A: 55, N: 35 } }, scoreConsent: SCORE_CONSENT },
+      { name: "Di", done: ["big-five-ipip50"], at: "w", scores: { "big-five-ipip50": { O: 70, C: 75, E: 40, A: 65, N: 45 } }, scoreConsent: SCORE_CONSENT },
     ];
+    expect(MIN_GROUP_AGGREGATE).toBe(4);
+    expect(groupPortrait(
+      ["big-five-ipip50"],
+      members.map((member) => ({ ...member, scoreConsent: undefined })),
+      {},
+    )).toHaveLength(0);
+    const sensitiveMembers: MemberProgress[] = Array.from(
+      { length: MIN_GROUP_AGGREGATE },
+      (_, index) => ({
+        name: `Private ${index}`,
+        done: ["mood-checkin"],
+        at: String(index),
+        scores: { "mood-checkin": { MOOD: 50 } },
+        scoreConsent: SCORE_CONSENT,
+      }),
+    );
+    expect(groupPortrait(["mood-checkin"], sensitiveMembers, {})).toHaveLength(0);
     const gp = groupPortrait(["big-five-ipip50"], members, {});
     expect(gp).toHaveLength(1);
-    expect(gp[0].n).toBe(2);
+    expect(gp[0].n).toBe(MIN_GROUP_AGGREGATE);
     expect(gp[0].scales.find((s) => s.id === "O")!.mean).toBe(70);
     expect(gp[0].widestScaleId).toBe("E"); // 70 vs 20 is the widest gap
-    expect(groupPortrait(["big-five-ipip50"], [members[0]], {})).toHaveLength(0); // needs 2+
+    expect(groupPortrait(
+      ["big-five-ipip50"],
+      members.slice(0, MIN_GROUP_AGGREGATE - 1),
+      {},
+    )).toHaveLength(0);
     const ins = groupInsights(gp, { locale: "fr" });
     expect(ins.length).toBeGreaterThan(0);
     expect(ins[0].length).toBeGreaterThan(15);
@@ -1502,9 +1597,10 @@ describe("Study Together collaboration", () => {
 
   it("reads group dynamics — each member's signature role and pairwise resonance", () => {
     const members: MemberProgress[] = [
-      { name: "Ada", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 90, C: 50, E: 50, A: 55, N: 30 } } },
-      { name: "Bo", done: ["big-five-ipip50"], at: "y", scores: { "big-five-ipip50": { O: 52, C: 95, E: 48, A: 55, N: 32 } } },
-      { name: "Cy", done: ["big-five-ipip50"], at: "z", scores: { "big-five-ipip50": { O: 50, C: 52, E: 50, A: 56, N: 31 } } },
+      { name: "Ada", done: ["big-five-ipip50"], at: "x", scores: { "big-five-ipip50": { O: 90, C: 50, E: 50, A: 55, N: 30 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+      { name: "Bo", done: ["big-five-ipip50"], at: "y", scores: { "big-five-ipip50": { O: 52, C: 95, E: 48, A: 55, N: 32 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+      { name: "Cy", done: ["big-five-ipip50"], at: "z", scores: { "big-five-ipip50": { O: 50, C: 52, E: 50, A: 56, N: 31 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+      { name: "Di", done: ["big-five-ipip50"], at: "w", scores: { "big-five-ipip50": { O: 51, C: 51, E: 49, A: 55, N: 31 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
     ];
     const roles = groupRoles(["big-five-ipip50"], members, { locale: "en" });
     // Ada's signature is Openness (far above the group mean); Bo's is Conscientiousness.
@@ -1526,9 +1622,23 @@ describe("Study Together collaboration", () => {
     expect(notes.length).toBe(2);
     expect(notes[0]).toMatch(/afinidad/);
 
-    // A single sharer yields no roles and no comparable pairs.
-    expect(groupRoles(["big-five-ipip50"], [members[0]], {})).toHaveLength(0);
-    expect(groupResonance(["big-five-ipip50"], [members[0]]).pairs).toHaveLength(0);
+    // A cohort below the privacy threshold yields no roles or comparable pairs.
+    const belowThreshold = members.slice(0, MIN_GROUP_AGGREGATE - 1);
+    expect(groupRoles(["big-five-ipip50"], belowThreshold, {})).toHaveLength(0);
+    expect(groupResonance(["big-five-ipip50"], belowThreshold).pairs).toHaveLength(0);
+    const withoutConsent = members.map((member) => ({ ...member, scoreConsent: undefined }));
+    expect(groupRoles(["big-five-ipip50"], withoutConsent, {})).toHaveLength(0);
+    expect(groupResonance(["big-five-ipip50"], withoutConsent).pairs).toHaveLength(0);
+    const withoutIdentity = members.map((member) => ({ ...member, identityShared: false }));
+    expect(groupRoles(["big-five-ipip50"], withoutIdentity, {})).toHaveLength(0);
+    expect(groupResonance(["big-five-ipip50"], withoutIdentity).pairs).toHaveLength(0);
+    const sparseScale: MemberProgress[] = [
+      { name: "A", done: [], at: "1", scores: { "big-five-ipip50": { O: 100 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+      { name: "B", done: [], at: "2", scores: { "big-five-ipip50": { O: 0 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+      { name: "C", done: [], at: "3", scores: { "big-five-ipip50": { O: 50 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+      { name: "D", done: [], at: "4", scores: { "big-five-ipip50": { C: 50 } }, scoreConsent: SCORE_CONSENT, identityShared: true },
+    ];
+    expect(groupRoles(["big-five-ipip50"], sparseScale, {})).toHaveLength(0);
   });
 
   it("nudges the group toward the earliest step it hasn't all converged on", () => {
@@ -1571,9 +1681,9 @@ describe("Study Together collaboration", () => {
   it("groups members by team/org and reports each team's plan coverage", () => {
     const r = createRoom({ title: "Cross-org study", plan: ["big-five-ipip50", "hexaco-24", "jung-16-types"], host: "Ada" });
     const members: MemberProgress[] = [
-      { name: "Ada", done: ["big-five-ipip50", "hexaco-24"], at: "x", org: "Lincoln High" },
-      { name: "Bo", done: ["jung-16-types"], at: "y", org: "Lincoln High" },
-      { name: "Cy", done: ["big-five-ipip50"], at: "z", org: "Globe Academy" },
+      { name: "Ada", done: ["big-five-ipip50", "hexaco-24"], at: "x", org: "Lincoln High", identityShared: true },
+      { name: "Bo", done: ["jung-16-types"], at: "y", org: "Lincoln High", identityShared: true },
+      { name: "Cy", done: ["big-five-ipip50"], at: "z", org: "Globe Academy", identityShared: true },
       { name: "Di", done: [], at: "w" }, // no org → ungrouped
     ];
     expect(teamCount(members)).toBe(2);
@@ -1586,10 +1696,16 @@ describe("Study Together collaboration", () => {
     const globe = teams.find((t) => t.org === "Globe Academy")!;
     expect(globe.covered).toBe(1);
     expect(teams.some((t) => t.org === "Independent")).toBe(true);
+    const privateMembers = members.map((member) => ({ ...member, identityShared: false }));
+    expect(teamCount(privateMembers)).toBe(0);
+    expect(teamStandings(r, privateMembers, { ungrouped: "Independent" }))
+      .toHaveLength(1);
 
     // org survives the progress round-trip.
     const back = decodeProgress(encodeProgress(members[0]));
     expect(back?.org).toBe("Lincoln High");
+    const privateBack = decodeProgress(encodeProgress({ ...members[0], identityShared: false }));
+    expect(privateBack?.org).toBeUndefined();
   });
 });
 
@@ -1679,53 +1795,70 @@ describe("group portrait (cross-context)", () => {
     "self-compassion-scs": { SK: 90, CH: 80, MI: 85, SJ: 10, IS: 15, OI: 20 },
     "brief-resilience": { RES: 85 },
     "perma-flourishing": { POS: 75, ENG: 70, REL: 80, MEA: 65, ACC: 72 },
-  } };
+  }, scoreConsent: SCORE_CONSENT };
   const low: MemberProgress = { name: "Bo", done: [], at: "y", scores: {
     "self-compassion-scs": { SK: 40, CH: 50, MI: 45, SJ: 60, IS: 55, OI: 58 },
     "brief-resilience": { RES: 40 },
     "perma-flourishing": { POS: 45, ENG: 50, REL: 55, MEA: 48, ACC: 52 },
-  } };
+  }, scoreConsent: SCORE_CONSENT };
+  const highClone: MemberProgress = { ...high, name: "Cy", at: "z" };
+  const lowClone: MemberProgress = { ...low, name: "Di", at: "w" };
+  const cohort = [low, lowClone, highClone, high];
   const noScores: MemberProgress = { name: "Cy", done: ["self-compassion-scs"], at: "z" };
 
-  it("needs at least two members with shared scores", () => {
+  it("needs the minimum privacy cohort with shared scores", () => {
     expect(groupWellbeingPortrait([high], {})).toBeNull();
-    expect(groupWellbeingPortrait([high, noScores], {})).toBeNull(); // only one has scores
+    expect(groupWellbeingPortrait([high, low, highClone], {})).toBeNull();
+    expect(groupWellbeingPortrait([high, low, highClone, noScores], {})).toBeNull();
+    expect(groupWellbeingPortrait(
+      cohort.map((member) => ({ ...member, scoreConsent: undefined })),
+      {},
+    )).toBeNull();
     expect(groupWellbeingPortrait([], {})).toBeNull();
   });
 
   it("averages each member's wellbeing dimensions into a collective picture", () => {
-    const gp = groupWellbeingPortrait([high, low], { locale: "en" })!;
+    const gp = groupWellbeingPortrait(cohort, { locale: "en" })!;
     expect(gp).toBeTruthy();
     expect(gp.kind).toBe("wellbeing");
-    expect(gp.members).toBe(2);
+    expect(gp.members).toBe(MIN_GROUP_AGGREGATE);
     expect(gp.dimensions.length).toBeGreaterThanOrEqual(4);
-    // every reported dimension has both members behind it
-    expect(gp.dimensions.every((d) => d.n === 2)).toBe(true);
-    // Ada (higher everywhere) tops Self-Kindness; Bo sits at the bottom
+    // Every reported dimension has the full privacy cohort behind it.
+    expect(gp.dimensions.every((d) => d.n === MIN_GROUP_AGGREGATE)).toBe(true);
     const kindness = gp.dimensions.find((d) => d.id === "kindness")!;
-    expect(kindness.hi.name).toBe("Ada");
-    expect(kindness.lo.name).toBe("Bo");
-    expect(kindness.mean).toBe(Math.round((kindness.hi.val + kindness.lo.val) / 2));
-    expect(kindness.spread).toBe(kindness.hi.val - kindness.lo.val);
+    expect(kindness.mean).toBe(Math.round((kindness.max + kindness.min) / 2));
+    expect(kindness.spread).toBe(kindness.max - kindness.min);
+    expect(kindness).not.toHaveProperty("lo");
+    expect(kindness).not.toHaveProperty("hi");
     expect(gp.topShared).toBeTruthy();
     expect(gp.widest).toBeTruthy();
     expect(gp.insights.length).toBeGreaterThan(0);
   });
 
   it("localizes dimension names and insights", () => {
-    const en = groupWellbeingPortrait([high, low], { locale: "en" })!;
-    const fr = groupWellbeingPortrait([high, low], { locale: "fr" })!;
+    const en = groupWellbeingPortrait(cohort, { locale: "en" })!;
+    const fr = groupWellbeingPortrait(cohort, { locale: "fr" })!;
     expect(en.dimensions[0].name).not.toBe(fr.dimensions[0].name);
     expect(en.insights[0]).not.toBe(fr.insights[0]);
   });
 
   it("builds a collective communication portrait from members' comm scores", () => {
-    const a: MemberProgress = { name: "Ada", done: [], at: "x", scores: { "communication-style": { ASSERT: 80, LISTEN: 85, EMPATH: 82, COLLAB: 78, ENGAGE: 75, REGUL: 88 } } };
-    const b: MemberProgress = { name: "Bo", done: [], at: "y", scores: { "communication-style": { ASSERT: 45, LISTEN: 50, EMPATH: 48, COLLAB: 52, ENGAGE: 47, REGUL: 55 } } };
-    const gp = groupCommunicationPortrait([a, b], { locale: "en" })!;
+    const a: MemberProgress = { name: "Ada", done: [], at: "x", scores: { "communication-style": { ASSERT: 80, LISTEN: 85, EMPATH: 82, COLLAB: 78, ENGAGE: 75, REGUL: 88 } }, scoreConsent: SCORE_CONSENT };
+    const b: MemberProgress = { name: "Bo", done: [], at: "y", scores: { "communication-style": { ASSERT: 45, LISTEN: 50, EMPATH: 48, COLLAB: 52, ENGAGE: 47, REGUL: 55 } }, scoreConsent: SCORE_CONSENT };
+    const communicationCohort = [
+      a,
+      b,
+      { ...a, name: "Cy", at: "z" },
+      { ...b, name: "Di", at: "w" },
+    ];
+    expect(groupCommunicationPortrait(
+      communicationCohort.map((member) => ({ ...member, scoreConsent: undefined })),
+      { locale: "en" },
+    )).toBeNull();
+    const gp = groupCommunicationPortrait(communicationCohort, { locale: "en" })!;
     expect(gp.kind).toBe("communication");
     expect(gp.dimensions.length).toBe(5); // communication-style feeds all five competencies
-    expect(gp.dimensions.every((d) => d.n === 2)).toBe(true);
+    expect(gp.dimensions.every((d) => d.n === MIN_GROUP_AGGREGATE)).toBe(true);
     expect(gp.insights.length).toBeGreaterThan(0);
   });
 });
@@ -1862,7 +1995,7 @@ describe("catalog search", () => {
 
   it("matchesQuery covers non-instrument tests (the cognition battery)", () => {
     expect(matchesQuery("memory", "Memory Span", "hold a sequence in mind", ["working memory", "recall"])).toBe(true);
-    expect(matchesQuery("iq", "Adaptive Reasoning", "fluid intelligence", ["reasoning", "iq"])).toBe(true);
+    expect(matchesQuery("reasoning", "Adaptive Reasoning", "fluid problem solving", ["practice", "reasoning"])).toBe(true);
     expect(matchesQuery("zzqx", "Memory Span", "recall", ["working memory"])).toBe(false);
     expect(matchesQuery("", "Memory Span")).toBe(false);
   });

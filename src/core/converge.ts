@@ -8,9 +8,9 @@ import { localizeInstrument } from "./instruments/i18n";
  * Most tools score each assessment in isolation. This reads across everything a
  * person has taken and cross-validates the deep traits that many instruments
  * measure in their own language: it aggregates each instrument's view of, say,
- * Extraversion, then asks whether the tests AGREE (a high-confidence read) or
- * DISAGREE (a genuine nuance worth reflecting on). Pure, deterministic, locale
- * aware, and decoupled from the synthesis layer to avoid import cycles.
+ * Extraversion, then describes whether the observations align or vary across
+ * measurement lenses. Alignment is not treated as proof of a fixed trait.
+ * Pure, deterministic, locale aware, and decoupled from the synthesis layer.
  *
  * Only Likert/dimensional scales contribute — categorical "vote-share" formats
  * (DISC, VARK, Love Languages…) aren't on a comparable continuous trait axis.
@@ -172,18 +172,18 @@ function bandPhrase(pos: number, low: string, high: string, loc: Loc): string {
 
 const INSIGHT = {
   en: {
-    convExtreme: (n: number, band: string) => `${n} different tests agree — you come out ${band}. That's a high-confidence read.`,
-    convMid: (n: number, name: string) => `Across ${n} tests you land near the middle on ${name} — a consistent, balanced read.`,
+    convExtreme: (n: number, band: string) => `${n} different activities align around ${band}. Treat that as a repeated observation, not a fixed verdict.`,
+    convMid: (n: number, name: string) => `Across ${n} activities, your responses land near the middle on ${name} — a repeated observation that may still shift with context.`,
     diverge: (name: string, hi: string, hiInst: string, lo: string, loInst: string) => `Your ${name} reads differently depending on the lens: ${hiInst} sees you more ${hi.toLowerCase()}, while ${loInst} sees you more ${lo.toLowerCase()}. A nuance worth sitting with.`,
   },
   es: {
-    convExtreme: (n: number, band: string) => `${n} pruebas distintas coinciden: resultas ${band}. Es una lectura de alta confianza.`,
-    convMid: (n: number, name: string) => `En ${n} pruebas te sitúas cerca del centro en ${name}: una lectura coherente y equilibrada.`,
+    convExtreme: (n: number, band: string) => `${n} actividades distintas se alinean en torno a ${band}. Tómalo como una observación repetida, no como un veredicto fijo.`,
+    convMid: (n: number, name: string) => `En ${n} actividades, tus respuestas se sitúan cerca del centro en ${name}: una observación repetida que aún puede cambiar según el contexto.`,
     diverge: (name: string, hi: string, hiInst: string, lo: string, loInst: string) => `Tu ${name} se lee distinto según la mirada: ${hiInst} te ve más ${hi.toLowerCase()}, mientras que ${loInst} te ve más ${lo.toLowerCase()}. Un matiz que vale la pena observar.`,
   },
   fr: {
-    convExtreme: (n: number, band: string) => `${n} tests différents concordent — vous ressortez ${band}. Une lecture à haute confiance.`,
-    convMid: (n: number, name: string) => `Sur ${n} tests, vous vous situez près du centre sur ${name} — une lecture cohérente et équilibrée.`,
+    convExtreme: (n: number, band: string) => `${n} activités différentes s'alignent autour de ${band}. Considérez cela comme une observation répétée, pas comme un verdict figé.`,
+    convMid: (n: number, name: string) => `Sur ${n} activités, vos réponses se situent près du centre sur ${name} — une observation répétée qui peut encore varier selon le contexte.`,
     diverge: (name: string, hi: string, hiInst: string, lo: string, loInst: string) => `Votre ${name} se lit différemment selon l'angle : ${hiInst} vous voit plus ${hi.toLowerCase()}, tandis que ${loInst} vous voit plus ${lo.toLowerCase()}. Une nuance à méditer.`,
   },
 };

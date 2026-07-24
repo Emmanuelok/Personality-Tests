@@ -1,5 +1,6 @@
-import { cyrb53 } from "../prng";
-import { normalCdf } from "./score";
+import { newResultId } from "../prng";
+import { elapsedSeconds, type SubmissionReceipt } from "../timing";
+import { practiceObservation } from "./score";
 
 /**
  * Processing speed (Gs) — a timed, rapid-decision test in the spirit of the WAIS
@@ -14,8 +15,8 @@ export interface SpeedResult {
   durationSec: number;
   /** Net-correct per minute. */
   rate: number;
-  percentile: number;
-  band: string;
+  practiceIndex: number;
+  observation: string;
   fingerprint: string;
 }
 
@@ -38,32 +39,57 @@ export const PROCESSING_TEST = {
     { ref: "Salthouse, T. A. (1996). The processing-speed theory of adult age differences in cognition. Psychological Review, 103(3), 403–428." },
   ],
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinical assessment, and cannot replace a professionally administered test.",
+    "This is an educational practice snapshot, not a clinical assessment.",
     "Input device, screen, and distractions all affect speed — a touchscreen and a mouse won't score the same.",
-    "Processing speed is just one capacity; it naturally declines with age and varies with sleep and focus.",
-    "It measures speed on a simple task, not intelligence, worth, or potential.",
+    "Performance on this task varies with sleep, focus, familiarity, prior practice, and context.",
+    "Read the practice index as an observation about this task and sitting, not as a fixed personal trait.",
   ],
 } as const;
 
-function band(percentile: number): string {
-  if (percentile >= 91) return "Very high range";
-  if (percentile >= 75) return "Above-average range";
-  if (percentile >= 25) return "Average range";
-  if (percentile >= 9) return "Below-average range";
-  return "Well-below-average range";
-}
+type ProcessingTiming = number | Pick<SubmissionReceipt, "elapsedMs">;
 
-export function scoreProcessing(correct: number, errors: number, attempted: number, durationSec: number): SpeedResult {
-  const net = Math.max(0, correct - errors);
-  // Rough norm: ~30 net-correct in 90s (sd ~9), scaled to the actual duration.
-  const scale = durationSec / 90;
-  const mean = 30 * scale;
-  const sd = 9 * Math.sqrt(Math.max(scale, 0.1));
-  const z = (net - mean) / sd;
-  const percentile = Math.max(1, Math.min(99, Math.round(normalCdf(z) * 100)));
-  const rate = Math.round((net / Math.max(durationSec, 1)) * 600) / 10; // net per minute, 1 dp
-  const fp = cyrb53(`speed|${correct}|${errors}|${attempted}|${durationSec}`).toString(36);
-  return { correct, errors, attempted, durationSec, rate, percentile, band: band(percentile), fingerprint: fp };
+/**
+ * Score one processing-speed sitting.
+ *
+ * A wall-clock receipt is preferred. A numeric duration remains accepted for
+ * local callers, but durations shorter than half the designed window are scored
+ * as half a window so rapid early submission cannot inflate the result.
+ */
+export function scoreProcessing(
+  correct: number,
+  errors: number,
+  attempted: number,
+  timing: ProcessingTiming,
+  resultId?: string,
+): SpeedResult {
+  const safeAttempted = Math.max(0, Math.floor(Number.isFinite(attempted) ? attempted : 0));
+  const safeCorrect = Math.max(0, Math.min(safeAttempted, Math.floor(Number.isFinite(correct) ? correct : 0)));
+  const safeErrors = Math.max(
+    0,
+    Math.min(safeAttempted - safeCorrect, Math.floor(Number.isFinite(errors) ? errors : 0)),
+  );
+  const reportedSeconds = typeof timing === "number" ? timing : elapsedSeconds(timing);
+  const durationSec = Math.max(
+    PROCESSING_TEST.durationSec / 2,
+    Math.min(PROCESSING_TEST.durationSec, Number.isFinite(reportedSeconds) ? reportedSeconds : 0),
+  );
+  const net = Math.max(0, safeCorrect - safeErrors);
+  const accuracy = safeAttempted ? safeCorrect / safeAttempted : 0;
+  const targetForWindow = 45 * (durationSec / PROCESSING_TEST.durationSec);
+  const pace = Math.min(1, net / Math.max(1, targetForWindow));
+  const practiceIndex = Math.round((accuracy * 0.4 + pace * 0.6) * 100);
+  const rate = Math.round((net / durationSec) * 600) / 10;
+  const fp = resultId ?? newResultId();
+  return {
+    correct: safeCorrect,
+    errors: safeErrors,
+    attempted: safeAttempted,
+    durationSec,
+    rate,
+    practiceIndex,
+    observation: practiceObservation(practiceIndex),
+    fingerprint: fp,
+  };
 }
 
 /** Build one trial: a set of targets, a search set, and whether a target is present. */

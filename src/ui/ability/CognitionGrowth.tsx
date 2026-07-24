@@ -8,7 +8,7 @@ const COG = PRODUCTS.find((p) => p.id === "cognitive");
  * "How to strengthen this" report for a cognition result — the paid extra. The score
  * and interpretation stay free on the result screen; this evidence-based plan (task
  * strategies, brain-health basics, and the honest limited-transfer caveat) sits behind
- * the Full Cognitive Report. Localized via the active locale.
+ * an activity-specific growth-guide unlock. Localized via the active locale.
  */
 export function CognitionGrowth({
   testId,
@@ -42,6 +42,7 @@ export function CognitionGrowth({
       ) : (
         <div style={{ textAlign: "center", padding: "6px 0" }}>
           <p style={{ color: "var(--text-dim)", maxWidth: 520, margin: "0 auto 16px" }}>{g.teaser}</p>
+          <p className="trust" style={{ maxWidth: 560, margin: "0 auto 16px" }}>{g.unlockScope}</p>
           <button className="btn" disabled={busy} onClick={onPurchase}>
             {busy ? "…" : `${g.unlockCta} — ${price}`}
           </button>

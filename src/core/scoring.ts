@@ -4,34 +4,68 @@ import type {
   Instrument,
   Level,
   ResponseMap,
+  ScaleDef,
   ScaleScore,
+  ScaleStanding,
 } from "./types";
-import { hashHex } from "./prng";
+import { newResultId } from "./prng";
 import { clamp } from "./variation";
+import {
+  submitTimedAttempt,
+  type SubmissionPolicy,
+  type SubmissionReceipt,
+  type SubmissionRequest,
+  type TimedAttempt,
+} from "./timing";
 
-/** Abramowitz & Stegun 7.1.26 approximation of the error function. */
-function erf(x: number): number {
-  const t = 1 / (1 + 0.3275911 * Math.abs(x));
-  const y =
-    1 -
-    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) *
-      t *
-      Math.exp(-x * x);
-  return x >= 0 ? y : -y;
+export interface ScoreAssessmentOptions {
+  /** Injected for deterministic tests/replays; defaults to the current wall clock. */
+  takenAt?: string | Date;
+  /** Persisted opaque id for restoring an existing result without changing access. */
+  resultId?: string;
 }
 
-/** Standard normal CDF for value `x` under N(mean, sd). */
-function normalCdf(x: number, mean: number, sd: number): number {
-  if (sd <= 0) return x >= mean ? 1 : 0;
-  return 0.5 * (1 + erf((x - mean) / (sd * Math.SQRT2)));
-}
+const takenAtIso = (value?: string | Date): string => {
+  if (value == null) return new Date().toISOString();
+  const date = value instanceof Date ? value : new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new Error("takenAt must be a valid date.");
+  return date.toISOString();
+};
 
-function levelFromPercentile(p: number): Level {
-  if (p < 10) return "very low";
-  if (p < 30) return "low";
-  if (p <= 70) return "moderate";
-  if (p <= 90) return "high";
+function levelFromStandingValue(value: number): Level {
+  if (value < 10) return "very low";
+  if (value < 30) return "low";
+  if (value <= 70) return "moderate";
+  if (value <= 90) return "high";
   return "very high";
+}
+
+export function responseRangePosition(score: ScaleScore): number {
+  return score.normalized;
+}
+
+/**
+ * Resolve current and legacy persisted scores into the only supported local
+ * standing: position within the instrument's response range. Older percentile-
+ * shaped fields and approximate norm metadata are deliberately ignored because
+ * they do not carry population, sample, locale, age, or version provenance.
+ */
+export function resolveScaleStanding(
+  score: {
+    normalized: number;
+    percentile?: number;
+    standing?: unknown;
+  },
+  _scale?: Pick<ScaleDef, "normMean" | "normSd">,
+  _format: Instrument["format"] = "likert",
+): ScaleStanding {
+  const position = clamp(score.normalized, 0, 100);
+  return {
+    kind: "response-range",
+    value: position,
+    position,
+    basis: "instrument-response-range",
+  };
 }
 
 /** Apply keying so that a high keyed value always means "more of the scale's high pole." */
@@ -48,7 +82,11 @@ function keyedValue(raw: number, keyed: 1 | -1, min: number, max: number): numbe
  *    so the scale's standing is the proportion of high-pole picks, p / (p + n).
  * The dominant channel/type or the axis position then falls out naturally.
  */
-function scoreChoice(instrument: Instrument, responses: ResponseMap): AssessmentResult {
+function scoreChoice(
+  instrument: Instrument,
+  responses: ResponseMap,
+  options: ScoreAssessmentOptions,
+): AssessmentResult {
   const choiceItems = instrument.items.filter((i) => i.options && i.options.length);
   // A scale is bipolar if any of its options is keyed to the low pole.
   const bipolar: Record<string, boolean> = {};
@@ -74,14 +112,20 @@ function scoreChoice(instrument: Instrument, responses: ResponseMap): Assessment
     const normalized = bipolar[scale.id]
       ? clamp(p + n > 0 ? (p / (p + n)) * 100 : 50, 0, 100) // axis position toward the high pole
       : clamp(total > 0 ? (p / total) * 100 : 0, 0, 100); // share of all choices
+    const standing: ScaleStanding = {
+      kind: "response-range",
+      value: normalized,
+      position: normalized,
+      basis: "instrument-response-range",
+    };
     scales[scale.id] = {
       scaleId: scale.id,
       name: scale.name,
       raw: p + n,
       mean: normalized,
       normalized,
-      percentile: normalized, // no parametric norm for choice formats
-      level: levelFromPercentile(normalized),
+      standing,
+      level: levelFromStandingValue(normalized),
       itemCount: p + n,
       facets: {},
     };
@@ -92,18 +136,31 @@ function scoreChoice(instrument: Instrument, responses: ResponseMap): Assessment
     .sort()
     .map((k) => `${k}=${responses[k]}`)
     .join("|");
-  const responseFingerprint = hashHex(`${instrument.id}::${canonical}`);
-  return { instrumentId: instrument.id, takenAt: new Date().toISOString(), responses, scales, type, responseFingerprint };
+  void canonical;
+  const responseFingerprint = options.resultId ?? newResultId();
+  return {
+    instrumentId: instrument.id,
+    takenAt: takenAtIso(options.takenAt),
+    responses,
+    scales,
+    type,
+    responseFingerprint,
+  };
 }
 
 /**
  * Score a completed (or partially completed) assessment into continuous scale
- * scores, percentiles, levels, optional facets, and — for typological
- * instruments — a resolved type. Missing responses are simply omitted from the
- * means rather than imputed.
+ * scores, response-range standing, levels, optional facets, and — for
+ * typological instruments — a resolved type. Local scoring makes no population
+ * rank claim. Missing responses are simply omitted from the means rather than
+ * imputed.
  */
-export function scoreAssessment(instrument: Instrument, responses: ResponseMap): AssessmentResult {
-  if (instrument.format === "choice") return scoreChoice(instrument, responses);
+export function scoreAssessment(
+  instrument: Instrument,
+  responses: ResponseMap,
+  options: ScoreAssessmentOptions = {},
+): AssessmentResult {
+  if (instrument.format === "choice") return scoreChoice(instrument, responses, options);
   const { min, max } = instrument.responseFormat;
   const midpoint = (min + max) / 2;
 
@@ -131,10 +188,12 @@ export function scoreAssessment(instrument: Instrument, responses: ResponseMap):
 
     const mean = count > 0 ? sum / count : midpoint;
     const normalized = clamp(((mean - min) / (max - min)) * 100, 0, 100);
-    const percentile =
-      scale.normMean != null && scale.normSd != null
-        ? clamp(normalCdf(mean, scale.normMean, scale.normSd) * 100, 0.5, 99.5)
-        : normalized;
+    const standing: ScaleStanding = {
+      kind: "response-range",
+      value: normalized,
+      position: normalized,
+      basis: "instrument-response-range",
+    };
 
     const facets: Record<string, FacetScore> = {};
     if (scale.facets) {
@@ -147,7 +206,7 @@ export function scoreAssessment(instrument: Instrument, responses: ResponseMap):
           name: f.name,
           mean: fmean,
           normalized: fnorm,
-          level: levelFromPercentile(fnorm),
+          level: levelFromStandingValue(fnorm),
           itemCount: agg?.count ?? 0,
         };
       }
@@ -159,8 +218,8 @@ export function scoreAssessment(instrument: Instrument, responses: ResponseMap):
       raw: sum,
       mean,
       normalized,
-      percentile,
-      level: levelFromPercentile(percentile),
+      standing,
+      level: levelFromStandingValue(normalized),
       itemCount: count,
       facets,
     };
@@ -173,14 +232,52 @@ export function scoreAssessment(instrument: Instrument, responses: ResponseMap):
     .sort()
     .map((k) => `${k}=${responses[k]}`)
     .join("|");
-  const responseFingerprint = hashHex(`${instrument.id}::${canonical}`);
+  void canonical;
+  const responseFingerprint = options.resultId ?? newResultId();
 
   return {
     instrumentId: instrument.id,
-    takenAt: new Date().toISOString(),
+    takenAt: takenAtIso(options.takenAt),
     responses,
     scales,
     type,
     responseFingerprint,
+  };
+}
+
+export type AssessmentSubmission =
+  | {
+    accepted: true;
+    attempt: TimedAttempt;
+    receipt: SubmissionReceipt;
+    result: AssessmentResult;
+  }
+  | {
+    accepted: false;
+    attempt: TimedAttempt;
+    reason: "invalid-request" | "stale-attempt" | "already-submitted" | "clock-reversed" | "expired";
+  };
+
+/**
+ * Integrity-preserving scoring transition for interactive flows.
+ *
+ * Persist the returned attempt before accepting another submit. That makes
+ * double clicks idempotent and prevents an old screen from overwriting a newer
+ * attempt. The result timestamp comes from the accepted wall-clock receipt.
+ */
+export function scoreAssessmentSubmission(
+  instrument: Instrument,
+  responses: ResponseMap,
+  attempt: TimedAttempt,
+  request: SubmissionRequest,
+  policy: SubmissionPolicy = {},
+): AssessmentSubmission {
+  const transition = submitTimedAttempt(attempt, request, policy);
+  if (!transition.accepted) return transition;
+  return {
+    ...transition,
+    result: scoreAssessment(instrument, responses, {
+      takenAt: new Date(transition.receipt.submittedAtMs),
+    }),
   };
 }

@@ -91,16 +91,6 @@ export function hasIntent(q: string, loc: Loc, intent: IntentKey): boolean {
   return words.some((w) => q.includes(w));
 }
 
-/* ── localized percentile phrasing ──────────────────────────────────────── */
-export function pctPhrase(n: number, loc: Loc): string {
-  const r = Math.round(n);
-  if (loc === "es") return `percentil ${r}`;
-  if (loc === "fr") return `${r}e centile`;
-  const s = ["th", "st", "nd", "rd"];
-  const v = r % 100;
-  return `${r + (s[(v - 20) % 10] || s[v] || s[0])} percentile`;
-}
-
 const conjOf = (loc: Loc) => (loc === "es" ? "y" : loc === "fr" ? "et" : "and");
 const list = (arr: string[], loc: Loc) => oxford(arr, conjOf(loc));
 
@@ -122,10 +112,10 @@ export const CT = {
     if (loc === "fr") return pickSecond ? `Je vous en prie${n}. Demandez-moi autre chose.` : `Quand vous voulez${n}. Je suis là dès que vous voulez approfondir.`;
     return pickSecond ? `You're welcome${n}. Ask me anything else.` : `Anytime${n}. I'm here whenever you want to go deeper.`;
   },
-  traitLead: (who: string, name: string, pct: string, level: string, loc: Loc): string => {
-    if (loc === "es") return `${who}tu ${name} se sitúa en el ${pct} (${level}).`;
-    if (loc === "fr") return `${who}votre ${name} se situe au ${pct} (${level}).`;
-    return `${who}your ${name} sits at the ${pct} (${level}).`;
+  traitLead: (who: string, name: string, standing: string, level: string, loc: Loc): string => {
+    if (loc === "es") return `${who}tu resultado en ${name} es ${standing} (${level}).`;
+    if (loc === "fr") return `${who}votre résultat en ${name} est ${standing} (${level}).`;
+    return `${who}your ${name} result is ${standing} (${level}).`;
   },
   upside: (arr: string[], loc: Loc): string => {
     if (loc === "es") return ` A favor: ${list(arr, loc)}.`;
@@ -170,7 +160,7 @@ export const CT = {
   growthReport: (who: string, arr: string[], loc: Loc): string => {
     if (loc === "es") return `${who}tus márgenes de crecimiento son ${list(arr, loc)}. Ninguno es un defecto: son el coste de tu forma particular de ser. El Plan de Crecimiento de tu informe traza pasos concretos y con base científica.`;
     if (loc === "fr") return `${who}vos axes de progrès sont ${list(arr, loc)}. Aucun n'est un défaut : c'est le prix de votre câblage particulier. Le Plan de croissance de votre rapport trace des étapes concrètes et fondées.`;
-    return `${who}your growth edges are ${list(arr, loc)}. None are flaws — they're the cost of your particular wiring. Your report's Growth Plan maps concrete, evidence-based steps.`;
+    return `${who}your current growth observations are ${list(arr, loc)}. None are flaws — they are context-sensitive patterns worth exploring. Your report's Growth Plan maps concrete, evidence-based steps.`;
   },
   relFallback: (who: string, loc: Loc): string => {
     if (loc === "es") return `${who}tu perfil influye en cómo te vinculas: prueba la herramienta de Compatibilidad para compararte con alguien, y mira la sección «En las relaciones» de tu informe.`;

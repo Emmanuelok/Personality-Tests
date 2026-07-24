@@ -1,13 +1,13 @@
 {
   "name": "Psyche Atlas",
   "short_name": "Psyche Atlas",
-  "description": "Take authoritative personality assessments and receive a uniquely tailored, growth-oriented report — a platform that knows you.",
-  "start_url": "/",
+  "description": "A private learning workspace for evidence-aware reflection, practice activities, integrated insights, and group discussion.",
+  "start_url": "/#/today",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f5f3ff",
-  "theme_color": "#f5f3ff",
-  "categories": ["education", "lifestyle", "health"],
+  "background_color": "#f3ead6",
+  "theme_color": "#f3ead6",
+  "categories": ["education", "productivity", "lifestyle"],
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }

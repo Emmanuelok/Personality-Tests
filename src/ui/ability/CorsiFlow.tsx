@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CORSI_TEST, makeSequence, scoreCorsi, type MemoryTrial, type MemoryResult, type SpanMode } from "@core/ability/memory";
-import { localizeBand, localizeAbilityMeta } from "@core/ability/i18n";
+import { localizeAbilityMeta } from "@core/ability/i18n";
 import { InstrumentGlyph } from "../art";
 import { CognitionGrowth } from "./CognitionGrowth";
 import { useI18n } from "../../i18n";
@@ -14,18 +14,17 @@ const pretty = (s: string) => (s ? s.split("-").map((n) => +n + 1).join("·") : 
 
 type Phase = "intro" | "show" | "recall" | "result";
 
-export function CorsiFlow({ name, onExit, onComplete, unlocked, onPurchase, busy }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean }) {
-  const [phase, setPhase] = useState<Phase>("intro");
+export function CorsiFlow({ name, onExit, onComplete, unlocked, onPurchase, busy, initialResult }: { name?: string; onExit: () => void; onComplete?: (r: MemoryResult) => void; unlocked?: boolean; onPurchase?: () => void; busy?: boolean; initialResult?: MemoryResult }) {
+  const [phase, setPhase] = useState<Phase>(initialResult ? "result" : "intro");
   const [trialIdx, setTrialIdx] = useState(0);
   const [seq, setSeq] = useState<number[]>([]);
   const [lit, setLit] = useState<number | null>(null);
   const [clicks, setClicks] = useState<number[]>([]);
   const [results, setResults] = useState<MemoryTrial[]>([]);
-  const [result, setResult] = useState<MemoryResult | null>(null);
+  const [result, setResult] = useState<MemoryResult | null>(initialResult ?? null);
   const timers = useRef<number[]>([]);
   const i18 = useI18n();
   const meta = localizeAbilityMeta("corsi-blocks", i18.locale);
-  const pct = (n: number) => i18.t("cog.pct").replace("{p}", i18.locale === "en" ? ordinal(n) : String(n));
   const poss = name ? i18.t("cog.possNamed").replace("{name}", name) : i18.t("cog.poss");
 
   const clearTimers = () => { timers.current.forEach((t) => clearTimeout(t)); timers.current = []; };
@@ -120,8 +119,8 @@ export function CorsiFlow({ name, onExit, onComplete, unlocked, onPurchase, busy
           <section className="panel iq-card">
             <div className="iq-figure">
               <div className="iq-band">{i18.t("cog.estimated")}</div>
-              <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.maxForward}<span>/</span>{result.maxBackward}</div>
-              <div className="iq-sub">{localizeBand(result.band, i18.locale)} · {pct(result.percentile)}</div>
+              <div className="iq-range" style={{ fontSize: "clamp(2.4rem,7vw,3.4rem)" }}>{result.practiceIndex}<span>/100</span></div>
+              <div className="iq-sub">{result.observation}</div>
             </div>
             <div className="iq-note">
               <p style={{ marginTop: 0 }}>
@@ -184,10 +183,4 @@ export function CorsiFlow({ name, onExit, onComplete, unlocked, onPurchase, busy
       </div>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const v = n % 100;
-  const s = ["th", "st", "nd", "rd"];
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

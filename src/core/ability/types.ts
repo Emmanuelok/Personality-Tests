@@ -1,9 +1,9 @@
 /**
  * Cognitive ABILITY testing — a maximal-performance subsystem, distinct from the
  * self-report (Likert) instruments. Items have right and wrong answers; scoring
- * counts correct responses and maps them to an estimated, heavily-caveated ability
- * band. Grounded in the public-domain ICAR framework and Cattell-Horn-Carroll (CHC)
- * theory — the model behind the WAIS, Stanford-Binet, Woodcock-Johnson, and Raven's.
+ * counts correct responses and maps them to a task-specific practice index and
+ * observation. The result describes this attempt under these conditions; it is
+ * not a diagnosis, rank, or claim about fixed potential.
  */
 
 /** A reasoning domain id (e.g., "verbal", "numerical", "matrices", "rotation"). */
@@ -63,8 +63,10 @@ export interface DomainScore {
   total: number;
   /** Percent correct, 0..100. */
   pct: number;
-  /** Estimated percentile vs. a rough adult norm, 1..99. */
-  percentile: number;
+  /** Criterion-referenced index for this item set, 0..100. */
+  practiceIndex: number;
+  /** Plain-language observation about this attempt, never a rank. */
+  observation: string;
 }
 
 export interface AbilityResult {
@@ -73,13 +75,10 @@ export interface AbilityResult {
   correct: number;
   total: number;
   perDomain: DomainScore[];
-  /** Overall estimated percentile (1..99). */
-  percentile: number;
-  /** Estimated IQ-equivalent range (deliberately a band, never a single false-precise number). */
-  iqLow: number;
-  iqHigh: number;
-  /** Qualitative descriptor of the band. */
-  band: string;
-  /** Stable hash of the response vector. */
+  /** Criterion-referenced index for this exact practice set, 0..100. */
+  practiceIndex: number;
+  /** Plain-language observation about performance in this attempt. */
+  observation: string;
+  /** Opaque random identifier for reopening this exact result and its entitlement. */
   fingerprint: string;
 }

@@ -171,7 +171,7 @@ function ReportDoc({
             <Text style={s.lead} key={i}>{p}</Text>
           ))}
           <Text style={[s.small, { marginTop: 16 }]}>
-            This report was composed from your full response pattern plus a unique seed — no two reports are ever identical.
+            This report was composed from your response pattern. Generated wording may vary while the scored results remain unchanged.
           </Text>
         </View>
         <Footer report={report} />
@@ -186,7 +186,7 @@ function ReportDoc({
             <View key={t.scaleId} style={{ marginBottom: 9 }}>
               <View style={s.rowBetween}>
                 <Text style={{ fontFamily: "Helvetica-Bold", color: C.ink }}>{t.name}</Text>
-                <Text style={s.small}>{t.level} · {Math.round(t.percentile)}th pct</Text>
+                <Text style={s.small}>{t.level} · {t.standingLabel}</Text>
               </View>
               <Bar value={t.normalized} />
               {sd?.poles && (
@@ -255,7 +255,7 @@ function ReportDoc({
 
         {report.signatureResponses.length > 0 && (
           <View wrap={false}>
-            <Text style={s.h2}>What makes this uniquely yours</Text>
+            <Text style={s.h2}>What this response pattern suggests</Text>
             <Bullets items={report.signatureResponses} color={C.accent2} />
           </View>
         )}
@@ -317,7 +317,7 @@ function PosterDoc({ instrument, report }: { instrument: Instrument; report: Per
               <View key={t.scaleId} style={{ marginBottom: 14 }}>
                 <View style={s.rowBetween}>
                   <Text style={{ color: C.ink, fontFamily: "Helvetica-Bold", fontSize: 13 }}>{t.name}</Text>
-                  <Text style={{ color: C.faint, fontSize: 11 }}>{Math.round(t.percentile)}th</Text>
+                  <Text style={{ color: C.faint, fontSize: 11 }}>{t.standingLabel}</Text>
                 </View>
                 <View style={{ height: 9, backgroundColor: C.chip, borderRadius: 5, marginTop: 6 }}>
                   <View style={{ height: 9, width: `${t.normalized}%`, backgroundColor: C.accent, borderRadius: 5 }} />
@@ -334,38 +334,28 @@ function PosterDoc({ instrument, report }: { instrument: Instrument; report: Per
   );
 }
 
-function pctWord(p: number): string {
-  if (p >= 84) return "a relative strength";
-  if (p >= 60) return "above the typical range";
-  if (p >= 40) return "around the typical range";
-  if (p >= 16) return "below the typical range";
-  return "a relative growth area";
-}
-
 function CognitiveDoc({ test, result }: { test: AbilityTest; result: AbilityResult }) {
   return (
-    <Document title={`Psyche Atlas — Cognitive Profile`} author="Psyche Atlas">
+    <Document title="Psyche Atlas — Reasoning Practice" author="Psyche Atlas">
       <Page size="A4" style={s.cover}>
         <View style={s.band}>
           <CoverSeal size={128} />
           <Text style={[s.brand, { marginTop: 16 }]}>PSYCHE ATLAS</Text>
-          <Text style={s.coverTitle}>Cognitive Profile</Text>
+          <Text style={s.coverTitle}>Reasoning Practice</Text>
           <Text style={s.coverSub}>{test.name}</Text>
           <View style={s.accentRule} />
           <Text style={s.coverMeta}>
-            Estimated range {result.iqLow}–{result.iqHigh} · {result.band} · ~{Math.round(result.percentile)}th percentile · {result.correct}/{result.total} correct
+            Practice index {result.practiceIndex}/100 · {result.observation} · {result.correct}/{result.total} correct
           </Text>
         </View>
         <View style={s.coverBody}>
           <Text style={s.lead}>
-            On a scale where 100 is average and most people fall between 85 and 115, your answers place you in the
-            {" "}{result.band.toLowerCase()}. This is shown as a band, not a single number — a short self-administered
-            test cannot support that precision.
+            This practice index summarizes accuracy and item difficulty for this exact activity. Use it to review this
+            sitting and to compare your own future attempts under similar conditions.
           </Text>
           <Text style={[s.small, { marginTop: 12 }]}>
-            This is an educational estimate, not a clinically administered IQ test. A valid assessment is given
-            one-to-one by a trained psychologist under standardized conditions. It measures particular reasoning
-            skills — not your worth, creativity, or potential.
+            This is an educational practice observation, not a diagnosis, population rank, or fixed statement about
+            a person. Sleep, familiarity, timing, device, and context can all change a result.
           </Text>
         </View>
         <Footer report={{ reportId: result.fingerprint } as unknown as PersonalityReport} />
@@ -377,18 +367,17 @@ function CognitiveDoc({ test, result }: { test: AbilityTest; result: AbilityResu
           <View key={d.domain} style={{ marginBottom: 11 }}>
             <View style={s.rowBetween}>
               <Text style={{ fontFamily: "Helvetica-Bold", color: C.ink }}>{d.name}</Text>
-              <Text style={s.small}>{d.correct}/{d.total} · {Math.round(d.percentile)}th pct</Text>
+              <Text style={s.small}>{d.correct}/{d.total} · practice {d.practiceIndex}/100</Text>
             </View>
-            <Bar value={d.percentile} />
-            <Text style={[s.small, { marginTop: 3 }]}>This domain is {pctWord(d.percentile)} for you.</Text>
+            <Bar value={d.practiceIndex} />
+            <Text style={[s.small, { marginTop: 3 }]}>{d.observation}</Text>
           </View>
         ))}
 
         <Text style={s.h2}>Reading your result</Text>
         <Text style={s.p}>
-          Reasoning ability has several fairly distinct facets, and most people are stronger in some than others. The
-          shape of your profile — where you peak and where you dip — is often more useful than the single overall band:
-          it hints at the kinds of problems that come easily to you and the ones worth slowing down for.
+          This task samples several kinds of reasoning. The pattern shows what was more or less demonstrated in this
+          sitting, which can help you decide what to review and practice next. It should not be read as fixed.
         </Text>
 
         <Text style={s.h3}>Read responsibly</Text>
@@ -411,48 +400,47 @@ export async function downloadCognitivePdf(test: AbilityTest, result: AbilityRes
 
 function BatteryDoc({ battery }: { battery: Battery }) {
   return (
-    <Document title="Psyche Atlas — Cognitive Battery" author="Psyche Atlas">
+    <Document title="Psyche Atlas — Learning Practice Overview" author="Psyche Atlas">
       <Page size="A4" style={s.cover}>
         <View style={s.band}>
           <CoverSeal size={128} />
           <Text style={[s.brand, { marginTop: 16 }]}>PSYCHE ATLAS</Text>
-          <Text style={s.coverTitle}>Cognitive Battery</Text>
-          <Text style={s.coverSub}>A cross-test profile of your broad abilities</Text>
+          <Text style={s.coverTitle}>Learning Practice Overview</Text>
+          <Text style={s.coverSub}>A cross-activity view of practice dimensions</Text>
           <View style={s.accentRule} />
           <Text style={s.coverMeta}>
-            Overall {battery.iqLow}–{battery.iqHigh} · {battery.band} · ~{Math.round(battery.overall)}th percentile · {battery.tests} tests · {battery.factors.length} abilities
+            Combined practice index {battery.practiceIndex}/100 · {battery.observation} · {battery.tests} activities · {battery.factors.length} dimensions
           </Text>
         </View>
         <View style={s.coverBody}>
           <Text style={s.lead}>
-            This battery averages every cognitive test you've taken into one Cattell-Horn-Carroll profile. The shape —
-            where you peak and where you dip across the broad abilities — usually tells you more than the single overall figure.
+            This view averages the task-specific practice indices available across completed learning activities. The
+            dimension pattern is intended for review and practice planning, not ranking.
           </Text>
           <Text style={[s.small, { marginTop: 12 }]}>
-            A rough composite of separate self-administered tests, not a clinically administered IQ. It measures
-            particular abilities — not your worth, creativity, or potential.
+            A session-dependent educational snapshot. Different conditions, strategies, and later practice can change it.
           </Text>
         </View>
         <Footer report={{ reportId: "battery" } as unknown as PersonalityReport} />
       </Page>
 
       <Page size="A4" style={s.page}>
-        <Text style={s.h2}>Broad-ability profile</Text>
+        <Text style={s.h2}>Practice pattern by dimension</Text>
         {battery.factors.map((f) => (
           <View key={f.id} style={{ marginBottom: 11 }}>
             <View style={s.rowBetween}>
               <Text style={{ fontFamily: "Helvetica-Bold", color: C.ink }}>{f.name} ({f.id})</Text>
-              <Text style={s.small}>{Math.round(f.percentile)}th pct{f.n > 1 ? ` · ${f.n} tests` : ""}</Text>
+              <Text style={s.small}>{f.practiceIndex}/100{f.n > 1 ? ` · ${f.n} activities` : ""}</Text>
             </View>
-            <Bar value={f.percentile} />
+            <Bar value={f.practiceIndex} />
             <Text style={[s.small, { marginTop: 3 }]}>{f.blurb}</Text>
           </View>
         ))}
         <Text style={s.h3}>Read responsibly</Text>
         <Bullets items={[
-          "An aggregate of separate self-administered tests — a rough composite, not a clinical IQ.",
-          "Each ability reflects whatever tests you've completed; more tests give a fuller picture.",
-          "Cognitive ability is one slice of a person and says nothing about your worth or potential.",
+          "An aggregate of separate self-administered practice activities completed under changing conditions.",
+          "Each dimension reflects only the activities completed so far; more evidence can change the pattern.",
+          "Use this as a learning aid, not a diagnosis, population rank, or fixed personal label.",
         ]} />
         <Footer report={{ reportId: "battery" } as unknown as PersonalityReport} />
       </Page>

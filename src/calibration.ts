@@ -1,9 +1,11 @@
 import type { ScaleScore } from "@core/types";
+import { isNormsEligibleInstrument } from "@core/catalogPolicy";
 
 /**
- * Opt-in, privacy-safe percentile calibration. With consent, the app sends only
- * coarse 0–9 histogram buckets (no answers, no identity) so percentiles can be
- * calibrated against real takers. Everything no-ops gracefully without a backend.
+ * Opt-in, privacy-safe community reference. With consent, the app sends only
+ * coarse 0–9 response-position buckets (no answers, no identity). This
+ * self-selected reference stays separate from local scoring and is not a
+ * population norm. Everything no-ops gracefully without a backend.
  */
 
 const CONSENT = "psyche.calib.consent";
@@ -19,7 +21,7 @@ const bucketOf = (pct: number) => Math.max(0, Math.min(9, Math.floor(pct / 10)))
 
 /** Fire-and-forget: contribute this result's scale buckets (only with consent). */
 export async function submitNorms(instrumentId: string, scales: Record<string, ScaleScore>): Promise<void> {
-  if (!calibConsent()) return;
+  if (!calibConsent() || !isNormsEligibleInstrument(instrumentId)) return;
   const buckets: Record<string, number> = {};
   for (const [scaleId, s] of Object.entries(scales)) buckets[scaleId] = bucketOf(s.normalized);
   try {
@@ -35,6 +37,7 @@ export async function submitNorms(instrumentId: string, scales: Record<string, S
 
 /** Fetch accumulated histograms for an instrument (scaleId → 10 counts), or null. */
 export async function fetchNorms(instrumentId: string): Promise<Record<string, number[]> | null> {
+  if (!isNormsEligibleInstrument(instrumentId)) return null;
   try {
     const r = await fetch(`/api/norms?instrumentId=${encodeURIComponent(instrumentId)}`);
     if (!r.ok) return null;
@@ -45,7 +48,7 @@ export async function fetchNorms(instrumentId: string): Promise<Record<string, n
   }
 }
 
-/** Community percentile for a normalized (0–100) value, or null if too little data. */
+/** Position within the opt-in community reference, or null below the sample threshold. */
 export function communityPercentile(hist: number[] | undefined, normalized: number): number | null {
   if (!hist) return null;
   const total = hist.reduce((a, b) => a + b, 0);

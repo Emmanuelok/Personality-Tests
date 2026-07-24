@@ -1,12 +1,12 @@
-import { cyrb53 } from "../prng";
-import { percentileToIq, chcBand } from "./chc";
+import { newResultId } from "../prng";
+import { practiceObservation } from "./score";
 import { cellCount, cellSize, cellRot, cellMarks, grid, option, type Shape } from "./matrix";
 
 /**
  * Adaptive Reasoning — a lightweight computer-adaptive matrix test. Difficulty
  * climbs when you're right and eases when you're wrong (a 1-up/1-down staircase),
- * homing in on your level for a tighter estimate in fewer items. Every item is
- * generated from an explicit rule, so the key is correct by construction.
+ * keeping practice near the current response pattern in fewer items. Every item
+ * is generated from an explicit rule, so the key is correct by construction.
  */
 
 export interface AdaptiveItem {
@@ -22,10 +22,8 @@ export interface AdaptiveResult {
   abilityLevel: number;
   correct: number;
   total: number;
-  percentile: number;
-  band: string;
-  iqLow: number;
-  iqHigh: number;
+  practiceIndex: number;
+  observation: string;
   fingerprint: string;
 }
 
@@ -34,10 +32,10 @@ export const ADAPTIVE_TEST = {
   name: "Adaptive Reasoning",
   shortName: "Adaptive",
   category: "cognition",
-  tagline: "Difficulty adapts to you — a sharper estimate in fewer questions.",
+  tagline: "Difficulty adapts to your responses — focused practice in fewer questions.",
   description:
     "A computer-adaptive matrix test: get one right and the next is harder; miss one and it eases off. By honing in on " +
-    "the level where you hover, it pins down your fluid-reasoning ability (Gf) in fewer items than a fixed test. Every " +
+    "the challenge level reached in this sitting, it keeps the activity focused without claiming a fixed ability. Every " +
     "puzzle is generated fresh, so no two runs are quite the same.",
   startLevel: 3,
   minLevel: 1,
@@ -49,10 +47,10 @@ export const ADAPTIVE_TEST = {
     { ref: "Raven, J. (2000). The Raven's Progressive Matrices. Cognitive Psychology, 41(1), 1–48." },
   ],
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinically administered IQ test.",
-    "Adaptive scoring is approximate here — a true item-response-theory engine calibrates every item on real data; this uses rule-based difficulty levels.",
-    "Your result is shown as a band and a percentile, never a single precise number.",
-    "It measures fluid reasoning, not your worth, creativity, or potential.",
+    "This is an educational practice snapshot, not a clinical assessment.",
+    "Adaptive scoring is approximate here — a calibrated item-response engine would require representative data; this uses rule-based difficulty levels.",
+    "The practice index describes performance on these generated puzzles in this sitting.",
+    "Sleep, familiarity, input device, distraction, and prior practice can all change the observation.",
   ],
 } as const;
 
@@ -130,16 +128,20 @@ function buildOverlay(rows: [string[], string[]][]): (string | null)[] {
   ];
 }
 
-export function scoreAdaptive(trials: AdaptiveTrial[]): AdaptiveResult {
+export function scoreAdaptive(trials: AdaptiveTrial[], resultId?: string): AdaptiveResult {
   const tail = trials.slice(ADAPTIVE_TEST.burnIn);
   const pool = tail.length ? tail : trials;
-  const abilityLevel = pool.reduce((s, t) => s + t.level, 0) / pool.length;
-  const percentile = Math.max(1, Math.min(99, Math.round(((abilityLevel - 1) / 6) * 88 + 6)));
-  const iqMid = percentileToIq(percentile);
+  const abilityLevel = pool.length
+    ? pool.reduce((sum, trial) => sum + trial.level, 0) / pool.length
+    : ADAPTIVE_TEST.minLevel;
   const correct = trials.filter((t) => t.correct).length;
-  const fp = cyrb53("adapt|" + trials.map((t) => `${t.level}${t.correct ? "+" : "-"}`).join("")).toString(36);
+  const levelIndex = ((abilityLevel - ADAPTIVE_TEST.minLevel) /
+    (ADAPTIVE_TEST.maxLevel - ADAPTIVE_TEST.minLevel)) * 75;
+  const accuracyIndex = trials.length ? (correct / trials.length) * 25 : 0;
+  const practiceIndex = Math.max(0, Math.min(100, Math.round(levelIndex + accuracyIndex)));
+  const fp = resultId ?? newResultId();
   return {
     trials, abilityLevel: Math.round(abilityLevel * 10) / 10, correct, total: trials.length,
-    percentile, band: chcBand(percentile), iqLow: Math.max(50, iqMid - 6), iqHigh: Math.min(150, iqMid + 6), fingerprint: fp,
+    practiceIndex, observation: practiceObservation(practiceIndex), fingerprint: fp,
   };
 }

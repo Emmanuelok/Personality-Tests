@@ -27,8 +27,8 @@ const BIG_FIVE_ES: InstrumentTranslation = {
   tagline: "El estándar científico: cinco grandes dimensiones de la personalidad.",
   description:
     "El Modelo de los Cinco Factores es el marco más validado empíricamente en la ciencia de la personalidad. Esta " +
-    "versión emplea los marcadores IPIP de dominio público (50 ítems) para estimar tu posición en Apertura, " +
-    "Responsabilidad, Extraversión, Amabilidad y Neuroticismo, comparada con normas poblacionales aproximadas.",
+    "versión emplea los marcadores IPIP de dominio público (50 ítems) para describir dónde caen tus respuestas " +
+    "puntuadas dentro del rango de respuesta de Apertura, Responsabilidad, Extraversión, Amabilidad y Neuroticismo.",
   scales: {
     O: { name: "Apertura a la experiencia", description: "Receptividad a nuevas ideas, la estética, la imaginación y la exploración intelectual.", poles: { low: "Convencional", high: "Inventivo/a" }, highDescriptor: "curioso/a, imaginativo/a, intelectualmente aventurero/a, atraído/a por la novedad y el matiz", lowDescriptor: "práctico/a, convencional, anclado/a en lo concreto y lo probado" },
     C: { name: "Responsabilidad", description: "Tendencia a la organización, la diligencia, la planificación y el autocontrol.", poles: { low: "Espontáneo/a", high: "Disciplinado/a" }, highDescriptor: "organizado/a, fiable, disciplinado/a, orientado/a a metas", lowDescriptor: "flexible, espontáneo/a, cómodo/a con lo imprevisto" },
@@ -56,8 +56,8 @@ const BIG_FIVE_FR: InstrumentTranslation = {
   tagline: "La référence scientifique : cinq grandes dimensions de la personnalité.",
   description:
     "Le modèle à cinq facteurs est le cadre le plus validé empiriquement en psychologie de la personnalité. Cette " +
-    "version utilise les marqueurs IPIP du domaine public (50 items) pour estimer votre position sur l'Ouverture, le " +
-    "caractère Consciencieux, l'Extraversion, l'Agréabilité et le Névrosisme, comparée à des normes approximatives.",
+    "version utilise les marqueurs IPIP du domaine public (50 items) pour décrire où se situent vos réponses cotées " +
+    "dans l'étendue de réponse de l'Ouverture, du caractère Consciencieux, de l'Extraversion, de l'Agréabilité et du Névrosisme.",
   scales: {
     O: { name: "Ouverture à l'expérience", description: "Réceptivité aux idées nouvelles, à l'esthétique, à l'imagination et à l'exploration intellectuelle.", poles: { low: "Conventionnel(le)", high: "Inventif(ve)" }, highDescriptor: "curieux(se), imaginatif(ve), intellectuellement aventureux(se), attiré(e) par la nouveauté et la nuance", lowDescriptor: "pratique, conventionnel(le), ancré(e) dans le concret et l'éprouvé" },
     C: { name: "Caractère consciencieux", description: "Tendance à l'organisation, à la rigueur, à la planification et à la maîtrise de soi.", poles: { low: "Spontané(e)", high: "Discipliné(e)" }, highDescriptor: "organisé(e), fiable, discipliné(e), orienté(e) vers les objectifs", lowDescriptor: "flexible, spontané(e), à l'aise avec l'imprévu" },
@@ -989,7 +989,7 @@ const MINDSET_FR: InstrumentTranslation = {
 const EQ_ES: InstrumentTranslation = {
   name: "Inteligencia emocional", shortName: "Intel. emocional",
   tagline: "El predictor más entrenable de relaciones, liderazgo y bienestar.",
-  description: "La inteligencia emocional es la capacidad de reconocer, comprender y manejar las emociones —las tuyas y las de los demás—. Este perfilador estima cinco dominios: Autoconciencia, Autorregulación, Motivación, Empatía y Habilidades sociales. A diferencia del CI, la inteligencia emocional se aprende mucho, así que cada dominio es también una meta de crecimiento.",
+  description: "La inteligencia emocional es la capacidad de reconocer, comprender y manejar las emociones —las tuyas y las de los demás—. Este perfilador estima cinco dominios: Autoconciencia, Autorregulación, Motivación, Empatía y Habilidades sociales. Estas habilidades pueden practicarse, así que cada dominio es también una meta de crecimiento.",
   scales: {
     SA: { name: "Autoconciencia", description: "Reconocer tus propias emociones y sus efectos.", poles: { low: "Inconsciente", high: "Consciente de sí" }, highDescriptor: "en sintonía con tus emociones y con cómo te impulsan", lowDescriptor: "menos reflexivo/a sobre tus estados emocionales internos" },
     SR: { name: "Autorregulación", description: "Manejar los impulsos y recuperarse de emociones difíciles.", poles: { low: "Reactivo/a", high: "Sereno/a" }, highDescriptor: "sereno/a, con autocontrol y capaz de recomponerte bajo estrés", lowDescriptor: "más reactivo/a e impulsivo/a cuando las emociones se intensifican" },
@@ -1008,7 +1008,7 @@ const EQ_ES: InstrumentTranslation = {
 const EQ_FR: InstrumentTranslation = {
   name: "Intelligence émotionnelle", shortName: "Intel. émotionnelle",
   tagline: "Le prédicteur le plus exerçable des relations, du leadership et du bien-être.",
-  description: "L'intelligence émotionnelle, c'est la capacité de reconnaître, comprendre et gérer les émotions — les vôtres et celles des autres. Ce profileur estime cinq domaines : Conscience de soi, Autorégulation, Motivation, Empathie et Compétences sociales. Contrairement au QI, l'intelligence émotionnelle s'apprend beaucoup, alors chaque domaine est aussi un axe de progrès.",
+  description: "L'intelligence émotionnelle, c'est la capacité de reconnaître, comprendre et gérer les émotions — les vôtres et celles des autres. Ce profileur estime cinq domaines : Conscience de soi, Autorégulation, Motivation, Empathie et Compétences sociales. Ces compétences peuvent se travailler, alors chaque domaine est aussi un axe de progrès.",
   scales: {
     SA: { name: "Conscience de soi", description: "Reconnaître ses propres émotions et leurs effets.", poles: { low: "Peu conscient(e)", high: "Conscient(e) de soi" }, highDescriptor: "à l'écoute de vos émotions et de la façon dont elles vous animent", lowDescriptor: "moins réfléchi(e) sur vos états émotionnels intérieurs" },
     SR: { name: "Autorégulation", description: "Gérer ses impulsions et se remettre d'émotions difficiles.", poles: { low: "Réactif(ve)", high: "Posé(e)" }, highDescriptor: "posé(e), maître de vous et capable de vous reprendre sous stress", lowDescriptor: "plus réactif(ve) et impulsif(ve) quand les émotions montent" },

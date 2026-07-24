@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { communityPercentile } from "./calibration";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { communityPercentile, fetchNorms } from "./calibration";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("community percentile from a histogram", () => {
   const even = Array(10).fill(10); // 100 takers, uniform across buckets
@@ -19,5 +23,12 @@ describe("community percentile from a histogram", () => {
   it("clamps to the 1–99 range", () => {
     expect(communityPercentile(even, 99)).toBeLessThanOrEqual(99);
     expect(communityPercentile(even, 0)).toBeGreaterThanOrEqual(1);
+  });
+
+  it("does not fetch community norms for policy-restricted instruments", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    await expect(fetchNorms("mood-checkin")).resolves.toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

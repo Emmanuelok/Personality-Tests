@@ -1,4 +1,4 @@
-import { cyrb53 } from "../prng";
+import { newResultId } from "../prng";
 
 /**
  * Implicit Association Test (Greenwald, McGhee & Schwartz, 1998) — a reaction-time
@@ -90,7 +90,7 @@ const sd = (a: number[]) => {
   return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / Math.max(1, a.length - 1));
 };
 
-export function scoreIat(trials: IatTrial[]): IatResult {
+export function scoreIat(trials: IatTrial[], resultId?: string): IatResult {
   // Improved D (D1): trim >10s; compatible = blocks 3/4, incompatible = 6/7.
   const keep = trials.filter((t) => t.rt <= 10000);
   const rt = (b: number[]) => keep.filter((t) => b.includes(t.block)).map((t) => t.rt);
@@ -111,6 +111,6 @@ export function scoreIat(trials: IatTrial[]): IatResult {
   const combined = keep.filter((t) => t.block >= 3);
   const errorRate = combined.length ? Math.round((combined.filter((t) => !t.firstCorrect).length / combined.length) * 100) : 0;
 
-  const fp = cyrb53("iat|" + d + "|" + keep.length).toString(36);
+  const fp = resultId ?? newResultId();
   return { d, direction, magnitude, errorRate, fingerprint: fp };
 }

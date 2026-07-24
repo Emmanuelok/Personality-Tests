@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { Profile } from "../profile";
 import { LanguageSwitcher, useI18n } from "../i18n";
 import { ThemeToggle } from "./theme";
+import { useDialogFocusTrap } from "./dialog";
 
 /**
  * "Your space" — a small settings sheet for the things a person owns: their
@@ -23,6 +24,9 @@ export function Settings({
   const [name, setName] = useState(profile.name === "Friend" ? "" : profile.name);
   const [saved, setSaved] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialogRef = useDialogFocusTrap<HTMLDivElement>(true, onClose);
 
   const save = () => {
     onSaveName(name.trim());
@@ -32,16 +36,26 @@ export function Settings({
 
   return (
     <div className="sheet-backdrop" onClick={onClose}>
-      <div className="sheet view-enter" role="dialog" aria-label={t("set.title")} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="sheet view-enter"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="sheet-head">
-          <h2>{t("set.title")}</h2>
+          <h2 id={titleId}>{t("set.title")}</h2>
           <button className="coach-close" onClick={onClose} aria-label={t("home.cancel")}>✕</button>
         </div>
 
         <div className="sheet-body">
-          <label className="set-label">{t("set.name")}</label>
+          <label className="set-label" htmlFor="settings-display-name">{t("set.name")}</label>
           <div className="row-actions" style={{ justifyContent: "flex-start", gap: 8 }}>
             <input
+              id="settings-display-name"
               className="name-input set-name"
               value={name}
               maxLength={40}
@@ -73,7 +87,7 @@ export function Settings({
             )}
           </div>
 
-          <p className="trust" style={{ marginTop: 4 }}>{t("set.privacy")}</p>
+          <p className="trust" id={descriptionId} style={{ marginTop: 4 }}>{t("set.privacy")}</p>
         </div>
       </div>
     </div>

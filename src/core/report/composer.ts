@@ -1,5 +1,6 @@
 import type { AssessmentResult, Instrument, ScaleDef, ScaleScore } from "../types";
 import { Rng, hashHex, nonce, seedFrom } from "../prng";
+import { resolveScaleStanding } from "../scoring";
 import { round1, sentence, tidy } from "../variation";
 import { type TraitColor } from "./phrasebank";
 import { reportStrings, type ReportStrings } from "./i18n";
@@ -92,16 +93,19 @@ function colorFor(loc: ReportStrings, instrument: Instrument, scaleId: string): 
 }
 
 function buildTraitInsight(rng: Rng, loc: ReportStrings, instrument: Instrument, scale: ScaleDef, score: ScaleScore): TraitInsight {
-  const pct = Math.round(score.percentile);
+  const standing = resolveScaleStanding(score, scale, instrument.format);
   const ctx = {
     name: scale.name,
-    pct: loc.pct(pct),
+    pos: Math.round(score.normalized),
     hd: scale.highDescriptor,
     ld: scale.lowDescriptor,
     hi: scale.poles?.high ?? "the high side",
     lo: scale.poles?.low ?? "the low side",
   };
-  const opener = fill(rng.pick(loc.openers[score.level]), ctx);
+  const opener = fill(
+    rng.pick(loc.positionOpeners[score.level]),
+    ctx,
+  );
 
   const color = colorFor(loc, instrument, scale.id);
   const poleHigh = score.normalized >= 50;
@@ -135,7 +139,8 @@ function buildTraitInsight(rng: Rng, loc: ReportStrings, instrument: Instrument,
   return {
     scaleId: scale.id,
     name: scale.name,
-    percentile: pct,
+    standing,
+    standingLabel: loc.standingLabel(standing),
     normalized: round1(score.normalized),
     mean: round1(score.mean),
     level: score.level,
@@ -296,9 +301,9 @@ function buildOverview(
 
   const p2 = fill(rng.pick(loc.ovP2), {
     n0: lead[0]?.name ?? "",
-    p0: loc.pct(lead[0]?.percentile ?? 50),
+    p0: lead[0]?.standingLabel ?? "",
     n1: lead[1]?.name ?? "",
-    p1: loc.pct(lead[1]?.percentile ?? 50),
+    p1: lead[1]?.standingLabel ?? "",
   });
 
   const p3 = sentence(rng.pick(loc.ovP3));

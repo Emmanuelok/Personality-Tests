@@ -161,7 +161,7 @@ export function Report({
                   <span className="level">{levelLabel(t.level, i18.locale)} · {t.poleLabel}</span>
                 </div>
                 <ScaleBar value={t.normalized} leftLabel={sd?.poles?.low} rightLabel={sd?.poles?.high} />
-                <div className="pct">{pctLabel(t.percentile, i18.locale)}</div>
+                <div className="pct">{t.standingLabel}</div>
                 <p className="narr">{t.narrative}</p>
                 <div className="sw">
                   <div className="col good">
@@ -265,7 +265,7 @@ export function Report({
   );
 }
 
-/** Live community percentiles (only renders when the opt-in backend has enough data). */
+/** Separate opt-in community reference; never part of the local scale score. */
 function CommunityCalibration({ instrumentId, traits }: { instrumentId: string; traits: { scaleId: string; name: string; normalized: number }[] }) {
   const i18 = useI18n();
   const [norms, setNorms] = useState<Record<string, number[]> | null>(null);

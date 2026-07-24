@@ -1,5 +1,5 @@
-import { cyrb53 } from "../prng";
-import { normalCdf } from "./score";
+import { newResultId } from "../prng";
+import { practiceObservation } from "./score";
 
 /**
  * Working-memory span — a reveal-then-recall test (digit span), the classic
@@ -24,8 +24,8 @@ export interface MemoryResult {
   maxBackward: number;
   forwardCorrect: number;
   backwardCorrect: number;
-  percentile: number;
-  band: string;
+  practiceIndex: number;
+  observation: string;
   fingerprint: string;
 }
 
@@ -49,24 +49,16 @@ export const MEMORY_TEST = {
     { ref: "Baddeley, A. (2000). The episodic buffer: a new component of working memory? Trends in Cognitive Sciences, 4(11), 417–423." },
   ],
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinical assessment. Real working-memory testing is done under controlled conditions by a professional.",
+    "This is an educational practice snapshot, not a clinical assessment.",
     "Browsers, distractions, and the urge to write things down all affect the result — please don't note the digits down; let your memory do the work.",
-    "Working memory is only one slice of the mind, and it can be trained a little and varies with sleep, stress, and age.",
-    "This measures a specific capacity, not your intelligence, worth, or potential.",
+    "Working-memory performance varies with sleep, stress, context, strategy, and prior practice.",
+    "Read the practice index as an observation about this task and sitting, not as a fixed personal trait.",
   ],
 } as const;
 
-const band = (combined: number): string => {
-  if (combined >= 8) return "Very high range";
-  if (combined >= 6.5) return "Above-average range";
-  if (combined >= 5) return "Average range";
-  if (combined >= 3.5) return "Below-average range";
-  return "Well-below-average range";
-};
+interface SpanScale { fMax: number; bMax: number; prefix: string }
 
-interface SpanNorms { fMean: number; fSd: number; bMean: number; bSd: number; prefix: string }
-
-function spanResult(trials: MemoryTrial[], n: SpanNorms): MemoryResult {
+function spanResult(trials: MemoryTrial[], scale: SpanScale, resultId?: string): MemoryResult {
   const maxFor = (mode: SpanMode) =>
     trials.filter((t) => t.mode === mode && t.correct).reduce((m, t) => Math.max(m, t.span), 0);
   const maxForward = maxFor("forward");
@@ -74,24 +66,39 @@ function spanResult(trials: MemoryTrial[], n: SpanNorms): MemoryResult {
   const forwardCorrect = trials.filter((t) => t.mode === "forward" && t.correct).length;
   const backwardCorrect = trials.filter((t) => t.mode === "backward" && t.correct).length;
 
-  const zf = (maxForward - n.fMean) / n.fSd;
-  const zb = (maxBackward - n.bMean) / n.bSd;
-  const z = (zf + zb) / 2;
-  const percentile = Math.max(1, Math.min(99, Math.round(normalCdf(z) * 100)));
-  const combined = (maxForward + maxBackward) / 2;
+  const forwardIndex = Math.min(1, maxForward / scale.fMax);
+  const backwardIndex = Math.min(1, maxBackward / scale.bMax);
+  const practiceIndex = Math.round(((forwardIndex + backwardIndex) / 2) * 100);
 
-  const fp = cyrb53(`${n.prefix}|` + trials.map((t) => `${t.mode[0]}${t.span}:${t.correct ? 1 : 0}`).join(",")).toString(36);
-  return { trials, maxForward, maxBackward, forwardCorrect, backwardCorrect, percentile, band: band(combined), fingerprint: fp };
+  const fp = resultId ?? newResultId();
+  return {
+    trials,
+    maxForward,
+    maxBackward,
+    forwardCorrect,
+    backwardCorrect,
+    practiceIndex,
+    observation: practiceObservation(practiceIndex),
+    fingerprint: fp,
+  };
 }
 
-/** Digit-span scoring (forward ~6.5, backward ~4.8). */
-export function scoreMemory(trials: MemoryTrial[]): MemoryResult {
-  return spanResult(trials, { fMean: 6.5, fSd: 1.3, bMean: 4.8, bSd: 1.3, prefix: "mem" });
+/** Digit-span practice index relative to this flow's longest presented spans. */
+export function scoreMemory(trials: MemoryTrial[], resultId?: string): MemoryResult {
+  return spanResult(trials, {
+    fMax: Math.max(...MEMORY_TEST.forward),
+    bMax: Math.max(...MEMORY_TEST.backward),
+    prefix: "mem",
+  }, resultId);
 }
 
-/** Corsi spatial-span scoring (forward ~5.5, backward ~5.0). */
-export function scoreCorsi(trials: MemoryTrial[]): MemoryResult {
-  return spanResult(trials, { fMean: 5.5, fSd: 1.2, bMean: 5.0, bSd: 1.2, prefix: "corsi" });
+/** Corsi practice index relative to this flow's longest presented spans. */
+export function scoreCorsi(trials: MemoryTrial[], resultId?: string): MemoryResult {
+  return spanResult(trials, {
+    fMax: Math.max(...CORSI_TEST.forward),
+    bMax: Math.max(...CORSI_TEST.backward),
+    prefix: "corsi",
+  }, resultId);
 }
 
 /** A random sequence of `span` distinct block indices in 0..count-1. */
@@ -113,8 +120,9 @@ export const CORSI_TEST = {
   tagline: "Watch a path light up across the board — then tap it back from memory.",
   description:
     "The Corsi block-tapping test is the visual-spatial counterpart to digit span. Blocks light up one by one in a " +
-    "sequence; you reproduce it by tapping them in the same order (then in reverse). It measures spatial working " +
-    "memory (Gsm) — a capacity that's quite separate from how you do with words and numbers.",
+    "sequence; you reproduce it by tapping them in the same order (then in reverse). This activity records how you " +
+    "reproduced spatial paths in this sitting. It is a task-specific practice observation, not an estimate of fixed " +
+    "memory capacity or a comparison with verbal or numerical performance.",
   blocks: [
     { x: 44, y: 64 }, { x: 158, y: 32 }, { x: 262, y: 74 },
     { x: 74, y: 156 }, { x: 206, y: 146 }, { x: 296, y: 188 },
@@ -129,9 +137,10 @@ export const CORSI_TEST = {
     { ref: "Kessels, R. P. C., et al. (2000). The Corsi Block-Tapping Task: standardization and normative data. Applied Neuropsychology, 7(4), 252–258." },
   ],
   caveats: [
-    "This is an EDUCATIONAL estimate, not a clinical assessment, and cannot replace a professionally administered test.",
+    "This is an educational practice snapshot, not a clinical assessment.",
     "Screen size, pointer accuracy, and distractions all affect the result — treat one sitting as a rough snapshot.",
-    "Spatial memory is just one capacity, and it varies with sleep, stress, and practice. It is not a measure of intelligence or worth.",
+    "Spatial-memory task performance varies with sleep, stress, context, strategy, and prior practice.",
+    "Read the practice index as an observation about this task and sitting, not as a fixed personal trait.",
   ],
 } as const;
 

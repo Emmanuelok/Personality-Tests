@@ -1,7 +1,7 @@
 import type { Level } from "@core/types";
 import type { Locale } from "../i18n/strings";
 
-/** Localized display formatting for score levels and percentiles. */
+/** Localized display formatting for score levels and separate community-reference percentiles. */
 
 const LEVELS: Record<Locale, Record<Level, string>> = {
   en: { "very low": "very low", low: "low", moderate: "moderate", high: "high", "very high": "very high" },
@@ -20,7 +20,7 @@ function enOrdinal(n: number): string {
   return r + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-/** "73rd percentile" / "percentil 73" / "73e centile". */
+/** Community-reference display: "73rd percentile" / "percentil 73" / "73e centile". */
 export function pctLabel(p: number, locale: Locale): string {
   const r = Math.round(p);
   if (locale === "es") return `percentil ${r}`;

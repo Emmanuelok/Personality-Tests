@@ -50,7 +50,7 @@ export const eq: Instrument = {
   description:
     "Emotional intelligence is the ability to recognize, understand, and manage emotions — your own and " +
     "others'. This profiler estimates five domains: Self-Awareness, Self-Regulation, Motivation, Empathy, " +
-    "and Social Skills. Unlike IQ, EQ is highly learnable, so every domain here doubles as a growth target.",
+    "and Social Skills. These skills can be practiced, so every domain here doubles as a growth target.",
   estMinutes: 4,
   responseFormat: L,
   itemProvenance: "Original items written for this platform, grounded in the EI literature (Salovey & Mayer; Goleman; Petrides).",

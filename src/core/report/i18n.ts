@@ -12,17 +12,17 @@
  * noun headline. Every other instrument composes fully in the active locale.
  */
 
-import { ordinal } from "../variation";
-import { LEVEL_OPENERS, NUANCE_CLAUSES, BIG_FIVE_COLOR, BIG_FIVE_DYNAMICS, type LevelKey, type TraitColor, type DynamicRule } from "./phrasebank";
+import type { ScaleStanding } from "../types";
+import { NUANCE_CLAUSES, BIG_FIVE_COLOR, BIG_FIVE_DYNAMICS, type LevelKey, type TraitColor, type DynamicRule } from "./phrasebank";
 import { BIG_FIVE_COLOR_ES, BIG_FIVE_DYNAMICS_ES, BIG_FIVE_COLOR_FR, BIG_FIVE_DYNAMICS_FR } from "./color.i18n";
 
 export interface ReportStrings {
-  /** Trait opener templates, conditioned on level. Placeholders {name}{pct}{hd}{ld}{hi}{lo}. */
-  openers: Record<LevelKey, string[]>;
+  /** Response-range openers. Placeholders {name}{pos}{hd}{ld}{hi}{lo}. */
+  positionOpeners: Record<LevelKey, string[]>;
   /** Generic second-sentence nuance clauses. */
   nuance: string[];
-  /** Format a percentile for embedding (English ordinal vs. plain number elsewhere). */
-  pct: (n: number) => string;
+  /** Honest short label used by overview/export surfaces. */
+  standingLabel: (standing: ScaleStanding) => string;
   /** Fallback trait watch-outs when no color bank exists. {x} a descriptor phrase; {hi}{lo} poles. */
   fallbackWatchHigh: string;
   fallbackWatchLow: string;
@@ -67,37 +67,53 @@ export interface ReportStrings {
 }
 
 const EN: ReportStrings = {
-  openers: LEVEL_OPENERS,
+  positionOpeners: {
+    "very high": [
+      "Within this instrument's response range, your {name} is near the high end ({pos}/100). No population comparison is available; your answers leaned strongly toward being {hd}.",
+    ],
+    high: [
+      "Within this instrument's response range, your {name} leans toward the high end ({pos}/100). This is a response-range position, not a population comparison.",
+    ],
+    moderate: [
+      "Your {name} sits near the midpoint of this instrument's response range ({pos}/100). This describes your answer pattern, not where you rank among people.",
+    ],
+    low: [
+      "Within this instrument's response range, your {name} leans toward the low end ({pos}/100). This is a response-range position, not a population comparison.",
+    ],
+    "very low": [
+      "Within this instrument's response range, your {name} is near the low end ({pos}/100). No population comparison is available; your answers leaned strongly toward being {ld}.",
+    ],
+  },
   nuance: NUANCE_CLAUSES,
-  pct: (n) => ordinal(n),
+  standingLabel: (standing) => `${Math.round(standing.position)}/100 · response-range position`,
   fallbackWatchHigh: "Leaning hard into being {x} can crowd out its opposite when a situation needs it.",
   fallbackWatchLow: "A strong {lo} lean means the {hi} mode takes deliberate effort.",
   rel: [
-    "Your {trait} shows up with the people closest to you as being {d} — it shapes how you give, and how you ask for what you need.",
-    "In love and friendship, being {d} (from your {trait}) is part of what people come to rely on in you.",
+    "In close relationships, this {trait} response pattern may sometimes appear as being {d}. Check that possibility against real situations.",
+    "One hypothesis to test is whether being {d} affects how you communicate needs with people you trust.",
   ],
   work: [
-    "At work, your {trait} makes you {d}; you'll feel most in your element where that's genuinely an asset.",
-    "Being {d} colors how you operate professionally — gravitate to roles and teams that reward it.",
+    "In work or study settings, this {trait} pattern may appear as being {d}; notice when that helps and when it does not.",
+    "A small experiment is to watch whether being {d} changes how you approach different tasks or teams.",
   ],
   stress: [
-    "Under pressure, your {trait} leans toward being {d} — knowing that lets you choose your reset deliberately rather than by default.",
-    "When stress hits, expect your {trait} ({d}) to surface; build recovery rituals that fit it.",
+    "Under pressure, this {trait} response pattern might appear as being {d}. Treat that as a prompt to observe, not a prediction.",
+    "If being {d} shows up under stress, compare it with calmer situations before drawing a conclusion.",
   ],
   relHead: ["In Relationships", "How You Connect"],
   workHead: ["At Work & Collaborating", "How You Operate"],
   stressHead: ["Under Pressure", "Stress & Resilience"],
-  strengthsHead: ["Signature Strengths", "Where You Shine", "Your Natural Advantages"],
+  strengthsHead: ["Possible Strengths", "Patterns to Build On", "Potential Advantages"],
   strengthsIntro: [
-    "These are the capacities your profile most reliably gives you — the moves that come cheaply to you and expensively to others.",
-    "Read these as your home turf: the strengths you can lean on without much conscious effort.",
-    "Every profile has a few load-bearing strengths. Here are yours, drawn from your most distinctive traits.",
+    "These are possible advantages suggested by this response pattern. Keep only the ones that match your lived experience.",
+    "Read these as hypotheses to test in context, not abilities the activity has proven.",
+    "These possibilities come from the most distinctive responses in this sitting and may change with context.",
   ],
-  growthHead: ["Growth Edges", "Where to Watch Yourself", "The Other Side of Your Strengths"],
+  growthHead: ["Possible Trade-offs", "Patterns to Watch", "Another Side of the Pattern"],
   growthIntro: [
-    "None of these are flaws so much as the shadow your strengths cast — the predictable cost of your particular wiring.",
-    "Every strength overused becomes a liability. These are the edges worth keeping an eye on.",
-    "Growth rarely means becoming someone else; it usually means managing the downside of who you already are. Start here.",
+    "None of these are flaws; they are possible trade-offs around the strengths observed in this snapshot.",
+    "A helpful tendency in one setting can be less useful in another. Notice before deciding.",
+    "Use these as prompts for a small experiment, not as defects or instructions to change who you are.",
   ],
   typeDepthHead: ["Your Type, in Depth", "The Shape of Your Type", "Inside Your Result"],
   typeOpener: [
@@ -106,8 +122,8 @@ const EN: ReportStrings = {
     "At the center of your result sits {code}, {title}: {summary}",
   ],
   confHigh: [
-    "Your responses pointed to this result decisively — the underlying preferences were clear and consistent.",
-    "This typing rests on firm ground; your answers leaned the same direction with little ambiguity.",
+    "Within this activity's scoring rule, your answers separated this label clearly from its alternatives. That does not make the label universal or permanent.",
+    "Your answers leaned consistently within this item set; keep the resulting type as a shorthand to examine, not a fact about your identity.",
   ],
   confMid: [
     "This result is a good fit, though a couple of dimensions were closer to the middle — read your runner-up too.",
@@ -134,61 +150,46 @@ const EN: ReportStrings = {
     "{who}what follows is assembled entirely from your own answers. As a shorthand, your pattern reads like “{title}”",
   ],
   ovP2: [
-    "The two notes that define you most are your {n0} ({p0} percentile) and your {n1} ({p1} percentile). Almost everything else in this report bends around those two.",
-    "Your profile is anchored by {n0} and {n1} — the two traits that pull furthest from average and therefore shape the most about how you operate.",
+    "The two most distinctive notes in this result are your {n0} ({p0}) and your {n1} ({p1}). Treat them as current observations rather than definitions.",
+    "This result is led by {n0} and {n1} — the two traits furthest from the midpoint of this instrument's response range.",
     "If you remember nothing else: {n0} and {n1} are doing the heavy lifting in your profile, and the rest plays in their key.",
   ],
   ovP3: [
-    "This isn't a verdict. The last section turns the same data toward where you want to go — because the point of seeing yourself clearly is to choose, deliberately, what to do next.",
-    "Read it as a mirror, not a cage. And when you're ready, the growth planner uses these exact scores to map a route from where you are to where you'd like to be.",
-    "Nothing here is fixed. Your traits are tendencies, not sentences — and the improvement plan that follows is built to move them, gently and on purpose.",
+    "This is a snapshot, not a verdict. Confirm, reject, or refine each interpretation using your own context.",
+    "Read it as a prompt for reflection, not a cage. Any next practice should follow your chosen goal, not an assumed identity.",
+    "Context, wording, and ordinary measurement noise can all affect a result. Compare later attempts cautiously.",
   ],
   genericTitle: "Your {top} Portrait",
   genericSubtitle: [
-    "A portrait led by your {top} and {second}",
-    "Defined most by your {top}",
-    "Where your {top} meets your {second}",
+    "A current response pattern led by {top} and {second}",
+    "This sitting leaned most toward {top}",
+    "One snapshot of {top} alongside {second}",
   ],
-  portraitTitle: "Your Personality Portrait",
+  portraitTitle: "Your Current Response Portrait",
   portraitSub: (n) => n,
   uniquenessNote:
     "This report was composed from your full response pattern plus a unique generation seed. " +
-    "No two generations produce identical prose — even from identical answers.",
+    "Repeated generations may vary the wording while preserving the same scored observations.",
   color: BIG_FIVE_COLOR,
   dynamics: BIG_FIVE_DYNAMICS,
 };
 
 const ES: ReportStrings = {
-  openers: {
+  positionOpeners: {
     "very high": [
-      "Tu {name} se sitúa en el percentil {pct}, cerca de lo más alto del rango. Ser {hd} es una de las firmas que definen cómo te mueves por el mundo.",
-      "El {name} es un titular de tu perfil: en el percentil {pct}, cualidades como ser {hd} aparecen de forma fiable, en situaciones muy distintas.",
-      "Puntúas excepcionalmente alto en {name} (percentil {pct}). La atracción hacia ser {hd} es tan fuerte que los demás probablemente lo ven como simplemente quien eres.",
-      "En {name} te asientas bien en la cola superior, el percentil {pct}. Espera que el lado {hd} de ti lleve la voz cantante, a menudo sin ningún esfuerzo consciente.",
+      "Dentro del rango de respuesta de este instrumento, tu {name} está cerca del extremo alto ({pos}/100). No hay una comparación poblacional; tus respuestas se inclinaron con fuerza hacia ser {hd}.",
     ],
     high: [
-      "Tu {name} es alto, en torno al percentil {pct}. Te inclinas notablemente a ser {hd}, aunque no hasta excluir el otro lado.",
-      "En {name} puntúas por encima de la mayoría (percentil {pct}). El polo {hi} es tu modo habitual, con margen para flexibilizar cuando la situación lo pide.",
-      "El {name} es una fortaleza clara de tu carácter (percentil {pct}): ser {hd} surge con naturalidad y fiabilidad.",
-      "Te sitúas en la banda superior de {name} (percentil {pct}), así que las cualidades {hd} tienden a aflorar primero, aunque aún puedes recurrir al lado {lo} cuando ayuda.",
+      "Dentro del rango de respuesta de este instrumento, tu {name} se inclina hacia el extremo alto ({pos}/100). Es una posición en el rango de respuesta, no una comparación poblacional.",
     ],
     moderate: [
-      "Tu {name} es equilibrado, alrededor del percentil {pct}. Puedes ser {hd} o {ld} según el momento, lo que te da una versatilidad real.",
-      "En {name} te sitúas cerca del medio (percentil {pct}). Más que un ajuste fijo, tienes un dial que puedes girar hacia {hi} o {lo} según pida la situación.",
-      "El {name} es una zona flexible para ti (percentil {pct}): recurres tanto al lado {hd} como al {ld}, y el contexto suele decidir cuál aparece.",
-      "En el percentil {pct}, el {name} es uno de tus rasgos adaptables: puedes liderar siendo {hd} o replegarte hacia ser {ld} según haga falta.",
+      "Tu {name} queda cerca del punto medio del rango de respuesta de este instrumento ({pos}/100). Describe tu patrón de respuestas, no tu posición entre otras personas.",
     ],
     low: [
-      "Tu {name} está en el lado más bajo, en torno al percentil {pct}. Te inclinas a ser {ld}, y el polo {lo} suele sentirse más natural que su opuesto.",
-      "En {name} puntúas por debajo de la mayoría (percentil {pct}), así que ser {ld} es tu modo por defecto, con el modo {hd} disponible pero más costoso.",
-      "El {name} se sitúa en la banda baja para ti (percentil {pct}): lleva la voz el lado {lo}, que tiene sus propias fortalezas silenciosas.",
-      "Espera que el polo {lo} domine en {name}: en el percentil {pct}, ser {ld} se acerca más a quien eres que ser {hd}.",
+      "Dentro del rango de respuesta de este instrumento, tu {name} se inclina hacia el extremo bajo ({pos}/100). Es una posición en el rango de respuesta, no una comparación poblacional.",
     ],
     "very low": [
-      "Tu {name} es muy bajo, el percentil {pct}, cerca del fondo del rango. Ser {ld} es un rasgo que define cómo funcionas.",
-      "El {name} se sitúa en la cola baja (percentil {pct}): el polo {lo} es tan constante que los demás probablemente lo leen como simplemente tu naturaleza.",
-      "Puntúas en el percentil {pct} en {name}, marcadamente {ld}. El modo {hd} solo está disponible con un esfuerzo real y deliberado.",
-      "En {name} estás bien dentro del extremo inferior (percentil {pct}). Ser {ld} no es un estado de ánimo aquí; es casi una constante.",
+      "Dentro del rango de respuesta de este instrumento, tu {name} está cerca del extremo bajo ({pos}/100). No hay una comparación poblacional; tus respuestas se inclinaron con fuerza hacia ser {ld}.",
     ],
   },
   nuance: [
@@ -196,37 +197,37 @@ const ES: ReportStrings = {
     "El detalle interesante es menos la puntuación en sí que cómo se combina con tus otros rasgos.",
     "Dos personas pueden compartir esta puntuación y expresarla de forma totalmente distinta; la tuya la moldea el patrón que la rodea.",
     "Los números ponen el escenario; la textura viene de cómo juega esto con el resto de tu perfil.",
-    "Toma el percentil como una coordenada de partida, no como un veredicto: el matiz está en las combinaciones.",
+    "Toma esta puntuación como una observación inicial, no como un veredicto: el matiz está en las combinaciones.",
   ],
-  pct: (n) => String(Math.round(n)),
+  standingLabel: (standing) => `${Math.round(standing.position)}/100 · posición en el rango de respuesta`,
   fallbackWatchHigh: "Inclinarte con fuerza hacia ser {x} puede desplazar a su opuesto cuando una situación lo necesita.",
   fallbackWatchLow: "Una marcada inclinación hacia {lo} significa que el modo {hi} requiere un esfuerzo deliberado.",
   rel: [
-    "Tu {trait} aparece con las personas más cercanas como ser {d}: moldea cómo das y cómo pides lo que necesitas.",
-    "En el amor y la amistad, ser {d} (por tu {trait}) es parte de lo que la gente llega a esperar de ti.",
+    "En relaciones cercanas, este patrón de {trait} puede aparecer a veces como ser {d}. Contrástalo con situaciones reales.",
+    "Una hipótesis que puedes comprobar es si ser {d} influye en cómo comunicas tus necesidades a personas de confianza.",
   ],
   work: [
-    "En el trabajo, tu {trait} te hace {d}; te sentirás en tu elemento donde eso sea genuinamente una ventaja.",
-    "Ser {d} tiñe cómo operas profesionalmente: gravita hacia roles y equipos que lo recompensen.",
+    "En el trabajo o el estudio, este patrón de {trait} puede aparecer como ser {d}; observa cuándo ayuda y cuándo no.",
+    "Un pequeño experimento es observar si ser {d} cambia tu forma de abordar tareas o equipos distintos.",
   ],
   stress: [
-    "Bajo presión, tu {trait} se inclina hacia ser {d}: saberlo te permite elegir tu reinicio a propósito en lugar de por defecto.",
-    "Cuando llega el estrés, espera que aflore tu {trait} ({d}); crea rituales de recuperación que le encajen.",
+    "Bajo presión, este patrón de {trait} podría aparecer como ser {d}. Tómalo como una invitación a observar, no como una predicción.",
+    "Si ser {d} aparece con estrés, compáralo con situaciones más tranquilas antes de concluir.",
   ],
   relHead: ["En las relaciones", "Cómo conectas"],
   workHead: ["En el trabajo y la colaboración", "Cómo operas"],
   stressHead: ["Bajo presión", "Estrés y resiliencia"],
-  strengthsHead: ["Fortalezas distintivas", "Donde brillas", "Tus ventajas naturales"],
+  strengthsHead: ["Fortalezas posibles", "Patrones en los que apoyarte", "Ventajas potenciales"],
   strengthsIntro: [
-    "Estas son las capacidades que tu perfil te da de forma más fiable: las jugadas que a ti te salen baratas y a otros, caras.",
-    "Léelas como tu terreno: las fortalezas en las que puedes apoyarte sin mucho esfuerzo consciente.",
-    "Todo perfil tiene unas pocas fortalezas portantes. Aquí están las tuyas, sacadas de tus rasgos más distintivos.",
+    "Estas son ventajas posibles sugeridas por este patrón de respuestas. Conserva solo las que encajen con tu experiencia.",
+    "Léelas como hipótesis que comprobar en contexto, no como capacidades demostradas por la actividad.",
+    "Estas posibilidades parten de las respuestas más distintivas de esta sesión y pueden variar según el contexto.",
   ],
-  growthHead: ["Aristas de crecimiento", "Dónde vigilarte", "La otra cara de tus fortalezas"],
+  growthHead: ["Posibles compensaciones", "Patrones que observar", "Otra cara del patrón"],
   growthIntro: [
-    "Ninguna de estas es un defecto, sino la sombra que proyectan tus fortalezas: el coste predecible de tu cableado particular.",
-    "Toda fortaleza llevada al exceso se vuelve un lastre. Estas son las aristas que conviene vigilar.",
-    "Crecer rara vez significa volverse otra persona; suele significar gestionar el lado flaco de quien ya eres. Empieza aquí.",
+    "Ninguna es un defecto; son posibles compensaciones alrededor de los patrones observados en esta instantánea.",
+    "Una tendencia útil en un contexto puede ayudar menos en otro. Observa antes de decidir.",
+    "Úsalas como propuestas para un pequeño experimento, no como defectos ni instrucciones para cambiar quién eres.",
   ],
   typeDepthHead: ["Tu tipo, en profundidad", "La forma de tu tipo", "Por dentro de tu resultado"],
   typeOpener: [
@@ -235,8 +236,8 @@ const ES: ReportStrings = {
     "En el centro de tu resultado se asienta {code}, {title}: {summary}",
   ],
   confHigh: [
-    "Tus respuestas apuntaron a este resultado de forma decidida: las preferencias subyacentes eran claras y consistentes.",
-    "Esta tipificación se asienta sobre terreno firme; tus respuestas se inclinaron en la misma dirección con poca ambigüedad.",
+    "Dentro de la regla de puntuación de esta actividad, tus respuestas separaron esta etiqueta de sus alternativas. Eso no la vuelve universal ni permanente.",
+    "Tus respuestas fueron consistentes dentro de este conjunto de ítems; conserva el tipo como un atajo para examinar, no como un hecho sobre tu identidad.",
   ],
   confMid: [
     "Este resultado encaja bien, aunque un par de dimensiones quedaron más cerca del medio: lee también tu segundo lugar.",
@@ -263,61 +264,46 @@ const ES: ReportStrings = {
     "{who}lo que sigue se arma por completo a partir de tus propias respuestas. Como atajo, tu patrón se lee como «{title}»",
   ],
   ovP2: [
-    "Las dos notas que más te definen son tu {n0} (percentil {p0}) y tu {n1} (percentil {p1}). Casi todo lo demás en este informe se curva en torno a esas dos.",
-    "Tu perfil se ancla en {n0} y {n1}: los dos rasgos que más se alejan de la media y que, por tanto, más moldean cómo funcionas.",
+    "Las dos notas más distintivas de este resultado son tu {n0} ({p0}) y tu {n1} ({p1}). Trátalas como observaciones actuales, no como definiciones.",
+    "Este resultado está encabezado por {n0} y {n1}: los dos rasgos más alejados del punto medio del rango de respuesta del instrumento.",
     "Si no recuerdas nada más: {n0} y {n1} llevan el peso de tu perfil, y el resto suena en su tonalidad.",
   ],
   ovP3: [
-    "Esto no es un veredicto. La última sección orienta los mismos datos hacia dónde quieres ir, porque el sentido de verte con claridad es elegir, a propósito, qué hacer después.",
-    "Léelo como un espejo, no como una jaula. Y cuando estés listo, el planificador de crecimiento usa estas mismas puntuaciones para trazar una ruta de donde estás a donde te gustaría estar.",
-    "Nada de esto es fijo. Tus rasgos son tendencias, no sentencias, y el plan de mejora que sigue está hecho para moverlos, con suavidad y a propósito.",
+    "Es una instantánea, no un veredicto. Confirma, rechaza o ajusta cada interpretación con tu propio contexto.",
+    "Léelo como una invitación a reflexionar, no como una jaula. Cualquier práctica siguiente debe partir de tu objetivo elegido, no de una identidad supuesta.",
+    "El contexto, la redacción y el ruido normal de medición pueden afectar el resultado. Compara intentos posteriores con cautela.",
   ],
   genericTitle: "Tu retrato de {top}",
   genericSubtitle: [
-    "Un retrato guiado por tu {top} y tu {second}",
-    "Definido sobre todo por tu {top}",
-    "Donde tu {top} se encuentra con tu {second}",
+    "Un patrón actual guiado por {top} y {second}",
+    "Esta sesión se inclinó sobre todo hacia {top}",
+    "Una instantánea de {top} junto a {second}",
   ],
-  portraitTitle: "Tu retrato de personalidad",
+  portraitTitle: "Tu retrato actual de respuestas",
   portraitSub: (n) => n,
   uniquenessNote:
     "Este informe se compuso a partir de tu patrón completo de respuestas más una semilla de generación única. " +
-    "No hay dos generaciones que produzcan una prosa idéntica, ni siquiera con las mismas respuestas.",
+    "Las regeneraciones pueden variar la redacción y conservar las mismas observaciones puntuadas.",
   color: BIG_FIVE_COLOR_ES,
   dynamics: BIG_FIVE_DYNAMICS_ES,
 };
 
 const FR: ReportStrings = {
-  openers: {
+  positionOpeners: {
     "very high": [
-      "Votre {name} se situe au {pct}e centile, près du sommet de l'échelle. Être {hd} est l'une des signatures qui définissent votre façon d'avancer dans le monde.",
-      "Le {name} est un titre de votre profil : au {pct}e centile, des qualités comme être {hd} apparaissent de façon fiable, dans des situations très différentes.",
-      "Vous obtenez un score exceptionnellement élevé en {name} ({pct}e centile). L'attrait pour être {hd} est si fort que les autres y voient sans doute simplement qui vous êtes.",
-      "En {name}, vous vous installez bien dans la queue supérieure, le {pct}e centile. Attendez-vous à ce que votre côté {hd} mène la danse, souvent sans effort conscient.",
+      "Dans l'étendue de réponse de cet instrument, votre {name} se situe près de l'extrémité haute ({pos}/100). Aucune comparaison de population n'est disponible ; vos réponses penchent fortement vers le fait d'être {hd}.",
     ],
     high: [
-      "Votre {name} est élevé, autour du {pct}e centile. Vous penchez nettement vers être {hd}, sans pour autant exclure l'autre côté.",
-      "En {name}, vous obtenez un meilleur score que la plupart ({pct}e centile). Le pôle {hi} est votre mode habituel, avec assez de souplesse pour vous adapter quand il le faut.",
-      "Le {name} est une force claire de votre tempérament ({pct}e centile) : être {hd} vient naturellement et avec fiabilité.",
-      "Vous vous situez dans la bande supérieure de {name} ({pct}e centile), donc les qualités {hd} tendent à surgir d'abord, même si vous pouvez encore puiser dans le côté {lo} quand cela aide.",
+      "Dans l'étendue de réponse de cet instrument, votre {name} penche vers l'extrémité haute ({pos}/100). C'est une position dans l'étendue de réponse, pas une comparaison de population.",
     ],
     moderate: [
-      "Votre {name} est équilibré, autour du {pct}e centile. Vous pouvez être {hd} ou {ld} selon le moment, ce qui vous donne une réelle polyvalence.",
-      "En {name}, vous vous situez près du milieu ({pct}e centile). Plutôt qu'un réglage figé, vous avez un curseur que vous pouvez tourner vers {hi} ou {lo} selon la situation.",
-      "Le {name} est une zone souple pour vous ({pct}e centile) : vous puisez aussi bien dans le côté {hd} que dans le {ld}, et le contexte décide souvent lequel apparaît.",
-      "Au {pct}e centile, le {name} est l'un de vos traits adaptables : vous pouvez mener en étant {hd} ou vous replier sur être {ld} au besoin.",
+      "Votre {name} se situe près du milieu de l'étendue de réponse de cet instrument ({pos}/100). Cela décrit vos réponses, pas votre rang parmi les personnes.",
     ],
     low: [
-      "Votre {name} est plutôt bas, autour du {pct}e centile. Vous penchez vers être {ld}, et le pôle {lo} semble plus naturel que son opposé.",
-      "En {name}, vous obtenez un score inférieur à la plupart ({pct}e centile), donc être {ld} est votre mode par défaut, le mode {hd} restant accessible mais plus coûteux.",
-      "Le {name} se situe dans la bande basse pour vous ({pct}e centile) : c'est le côté {lo} qui mène, avec ses propres forces discrètes.",
-      "Attendez-vous à ce que le pôle {lo} domine en {name} : au {pct}e centile, être {ld} est plus proche de qui vous êtes qu'être {hd}.",
+      "Dans l'étendue de réponse de cet instrument, votre {name} penche vers l'extrémité basse ({pos}/100). C'est une position dans l'étendue de réponse, pas une comparaison de population.",
     ],
     "very low": [
-      "Votre {name} est très bas, le {pct}e centile, près du bas de l'échelle. Être {ld} est un trait qui définit votre fonctionnement.",
-      "Le {name} se situe dans la queue basse ({pct}e centile) : le pôle {lo} est si constant que les autres y voient sans doute simplement votre nature.",
-      "Vous obtenez le {pct}e centile en {name}, nettement {ld}. Le mode {hd} n'est accessible qu'au prix d'un effort réel et délibéré.",
-      "En {name}, vous êtes bien dans l'extrême inférieur ({pct}e centile). Être {ld} n'est pas une humeur ici ; c'est presque une constante.",
+      "Dans l'étendue de réponse de cet instrument, votre {name} se situe près de l'extrémité basse ({pos}/100). Aucune comparaison de population n'est disponible ; vos réponses penchent fortement vers le fait d'être {ld}.",
     ],
   },
   nuance: [
@@ -325,37 +311,37 @@ const FR: ReportStrings = {
     "Le détail intéressant tient moins au score lui-même qu'à la façon dont il se combine à vos autres traits.",
     "Deux personnes peuvent partager ce score et l'exprimer tout autrement : le vôtre est façonné par le motif qui l'entoure.",
     "Les chiffres plantent le décor ; la texture vient de la façon dont cela joue avec le reste de votre profil.",
-    "Prenez le centile comme une coordonnée de départ, pas un verdict : la nuance est dans les combinaisons.",
+    "Prenez ce score comme une première observation, pas un verdict : la nuance est dans les combinaisons.",
   ],
-  pct: (n) => String(Math.round(n)),
+  standingLabel: (standing) => `${Math.round(standing.position)}/100 · position dans l'étendue de réponse`,
   fallbackWatchHigh: "Pencher fortement vers être {x} peut évincer son opposé quand une situation l'exige.",
   fallbackWatchLow: "Un net penchant vers {lo} signifie que le mode {hi} demande un effort délibéré.",
   rel: [
-    "Votre {trait} se manifeste avec vos proches par le fait d'être {d} : cela façonne votre façon de donner et de demander ce dont vous avez besoin.",
-    "En amour et en amitié, être {d} (de par votre {trait}) fait partie de ce sur quoi les gens apprennent à compter chez vous.",
+    "Dans les relations proches, ce motif de {trait} peut parfois apparaître comme le fait d'être {d}. Vérifiez cette possibilité dans des situations réelles.",
+    "Une hypothèse à tester est de voir si être {d} influence votre manière d'exprimer vos besoins aux personnes de confiance.",
   ],
   work: [
-    "Au travail, votre {trait} vous rend {d} ; vous serez le plus dans votre élément là où c'est vraiment un atout.",
-    "Être {d} colore votre façon d'opérer professionnellement : orientez-vous vers des rôles et des équipes qui le valorisent.",
+    "Au travail ou dans les études, ce motif de {trait} peut apparaître comme le fait d'être {d} ; observez quand cela aide ou non.",
+    "Une petite expérience consiste à voir si être {d} modifie votre approche selon les tâches ou les équipes.",
   ],
   stress: [
-    "Sous pression, votre {trait} penche vers être {d} : le savoir vous permet de choisir votre réinitialisation à dessein plutôt que par défaut.",
-    "Quand le stress survient, attendez-vous à voir surgir votre {trait} ({d}) ; mettez en place des rituels de récupération qui lui conviennent.",
+    "Sous pression, ce motif de {trait} pourrait apparaître comme le fait d'être {d}. Prenez-le comme une invitation à observer, pas une prédiction.",
+    "Si le fait d'être {d} apparaît sous stress, comparez avec des situations plus calmes avant de conclure.",
   ],
   relHead: ["Dans les relations", "Comment vous reliez"],
   workHead: ["Au travail et en équipe", "Comment vous opérez"],
   stressHead: ["Sous pression", "Stress et résilience"],
-  strengthsHead: ["Forces distinctives", "Là où vous brillez", "Vos atouts naturels"],
+  strengthsHead: ["Forces possibles", "Motifs sur lesquels vous appuyer", "Atouts potentiels"],
   strengthsIntro: [
-    "Ce sont les capacités que votre profil vous donne le plus fidèlement : les gestes qui vous coûtent peu et coûtent cher aux autres.",
-    "Lisez-les comme votre terrain : les forces sur lesquelles vous pouvez vous appuyer sans grand effort conscient.",
-    "Chaque profil a quelques forces porteuses. Voici les vôtres, tirées de vos traits les plus distinctifs.",
+    "Voici des avantages possibles suggérés par ce motif de réponses. Ne gardez que ceux qui correspondent à votre vécu.",
+    "Lisez-les comme des hypothèses à tester en contexte, pas comme des capacités prouvées par l'activité.",
+    "Ces possibilités viennent des réponses les plus distinctives de cette séance et peuvent varier selon le contexte.",
   ],
-  growthHead: ["Marges de progression", "Où vous surveiller", "L'autre face de vos forces"],
+  growthHead: ["Compromis possibles", "Motifs à observer", "Un autre côté du motif"],
   growthIntro: [
-    "Aucune n'est un défaut, mais plutôt l'ombre que projettent vos forces : le coût prévisible de votre câblage particulier.",
-    "Toute force poussée à l'excès devient un fardeau. Voici les marges à garder à l'œil.",
-    "Progresser signifie rarement devenir quelqu'un d'autre ; le plus souvent, gérer le revers de qui vous êtes déjà. Commencez ici.",
+    "Aucun n'est un défaut ; ce sont des compromis possibles autour des motifs observés dans cet instantané.",
+    "Une tendance utile dans un cadre peut l'être moins dans un autre. Observez avant de décider.",
+    "Utilisez-les comme pistes pour une petite expérience, pas comme défauts ni consignes pour changer qui vous êtes.",
   ],
   typeDepthHead: ["Votre type, en profondeur", "La forme de votre type", "À l'intérieur de votre résultat"],
   typeOpener: [
@@ -364,8 +350,8 @@ const FR: ReportStrings = {
     "Au centre de votre résultat se trouve {code}, {title} : {summary}",
   ],
   confHigh: [
-    "Vos réponses ont pointé ce résultat de façon décisive : les préférences sous-jacentes étaient claires et cohérentes.",
-    "Ce typage repose sur un terrain solide ; vos réponses ont penché dans le même sens avec peu d'ambiguïté.",
+    "Dans la règle de calcul de cette activité, vos réponses ont clairement séparé cette étiquette de ses alternatives. Cela ne la rend ni universelle ni permanente.",
+    "Vos réponses étaient cohérentes dans cet ensemble d'items ; gardez ce type comme raccourci à examiner, pas comme fait sur votre identité.",
   ],
   confMid: [
     "Ce résultat convient bien, même si quelques dimensions étaient plus proches du milieu : lisez aussi votre second.",
@@ -392,26 +378,26 @@ const FR: ReportStrings = {
     "{who}ce qui suit est assemblé entièrement à partir de vos propres réponses. En raccourci, votre motif se lit comme « {title} »",
   ],
   ovP2: [
-    "Les deux notes qui vous définissent le plus sont votre {n0} ({p0}e centile) et votre {n1} ({p1}e centile). Presque tout le reste de ce rapport s'articule autour de ces deux-là.",
-    "Votre profil est ancré par {n0} et {n1} : les deux traits qui s'écartent le plus de la moyenne et façonnent donc le plus votre fonctionnement.",
+    "Les deux notes les plus distinctives de ce résultat sont votre {n0} ({p0}) et votre {n1} ({p1}). Considérez-les comme des observations actuelles, pas comme des définitions.",
+    "Ce résultat est mené par {n0} et {n1} : les deux traits les plus éloignés du milieu de l'étendue de réponse de l'instrument.",
     "Si vous ne deviez retenir qu'une chose : {n0} et {n1} portent l'essentiel de votre profil, et le reste joue dans leur tonalité.",
   ],
   ovP3: [
-    "Ce n'est pas un verdict. La dernière section oriente les mêmes données vers où vous voulez aller — car le but de se voir clairement est de choisir, à dessein, la suite.",
-    "Lisez-le comme un miroir, pas une cage. Et quand vous serez prêt, le planificateur de progression utilise ces mêmes scores pour tracer une route d'où vous êtes vers où vous aimeriez être.",
-    "Rien ici n'est figé. Vos traits sont des tendances, pas des sentences — et le plan d'amélioration qui suit est fait pour les déplacer, en douceur et à dessein.",
+    "C'est un instantané, pas un verdict. Confirmez, rejetez ou affinez chaque interprétation à l'aide de votre contexte.",
+    "Lisez-le comme une invitation à réfléchir, pas une cage. Toute pratique suivante doit venir de votre objectif choisi, pas d'une identité supposée.",
+    "Le contexte, la formulation et le bruit normal de mesure peuvent affecter le résultat. Comparez les essais ultérieurs avec prudence.",
   ],
   genericTitle: "Votre portrait de {top}",
   genericSubtitle: [
-    "Un portrait porté par votre {top} et votre {second}",
-    "Défini surtout par votre {top}",
-    "Là où votre {top} rencontre votre {second}",
+    "Un motif actuel porté par {top} et {second}",
+    "Cette séance penche surtout vers {top}",
+    "Un instantané de {top} avec {second}",
   ],
-  portraitTitle: "Votre portrait de personnalité",
+  portraitTitle: "Votre portrait actuel de réponses",
   portraitSub: (n) => n,
   uniquenessNote:
     "Ce rapport a été composé à partir de l'ensemble de vos réponses, plus une graine de génération unique. " +
-    "Deux générations ne produisent jamais une prose identique — même à partir de réponses identiques.",
+    "Les régénérations peuvent varier la formulation tout en conservant les mêmes observations calculées.",
   color: BIG_FIVE_COLOR_FR,
   dynamics: BIG_FIVE_DYNAMICS_FR,
 };

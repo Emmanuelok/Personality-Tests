@@ -13,6 +13,7 @@ export function getAbilityTest(id: string): AbilityTest | undefined {
   return BY_ID.get(id);
 }
 
-export { scoreAbility } from "./score";
+export { practiceObservation, scoreAbility, scoreAbilitySubmission } from "./score";
 export { cognitive, culturefair, speed, critical, mechanical, sjt };
+export type { AbilitySubmission } from "./score";
 export type { AbilityTest, AbilityItem, AbilityResult, AbilityResponses, AbilityDomain, DomainScore, AbilityDomainId } from "./types";

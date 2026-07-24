@@ -1,11 +1,10 @@
 /**
  * Localization layer for the cognitive-ability subsystem — the analog of
  * core/instruments/i18n.ts. It keeps scoring language-agnostic (the scorers
- * keep emitting their canonical English band labels and ids) and translates
+ * keep emitting their canonical English observation labels and ids) and translates
  * only at the display edge. Two concerns:
  *
- *   1. localizeBand   — the finite set of qualitative band labels the scorers
- *                       return (range bands + creativity fluency bands).
+ *   1. localizeObservation — the finite set of task observations scorers return.
  *   2. localizeAbilityMeta — per-test display copy (name, description, tagline,
  *                       caveats) for the standalone cognition flows, keyed by
  *                       test id, mirroring how instruments are translated.
@@ -14,38 +13,30 @@
  * a language is purely additive and never breaks an untranslated test.
  */
 
-/** Every distinct band string the ability scorers can emit (see memory/processing/creativity/score/chc). */
-const BANDS: Record<string, Record<string, string>> = {
+const OBSERVATIONS: Record<string, Record<string, string>> = {
   es: {
-    "Very high range": "Rango muy alto",
-    "Above-average range": "Rango por encima de la media",
-    "Average range": "Rango promedio",
-    "Below-average range": "Rango por debajo de la media",
-    "Well-below-average range": "Rango muy por debajo de la media",
-    "Highly fluent": "Muy fluido",
-    "Above-average fluency": "Fluidez por encima de la media",
-    "Average fluency": "Fluidez promedio",
-    "Below-average fluency": "Fluidez por debajo de la media",
-    "Low fluency": "Fluidez baja",
+    "Strong performance on this practice set": "Desempeño sólido en este conjunto de práctica",
+    "Mostly consistent performance on this practice set": "Desempeño mayormente consistente en este conjunto de práctica",
+    "Mixed performance on this practice set": "Desempeño mixto en este conjunto de práctica",
+    "Developing familiarity with this practice set": "Familiaridad en desarrollo con este conjunto de práctica",
+    "Limited evidence from this attempt": "Evidencia limitada en este intento",
   },
   fr: {
-    "Very high range": "Niveau très élevé",
-    "Above-average range": "Niveau au-dessus de la moyenne",
-    "Average range": "Niveau moyen",
-    "Below-average range": "Niveau en dessous de la moyenne",
-    "Well-below-average range": "Niveau bien en dessous de la moyenne",
-    "Highly fluent": "Très fluide",
-    "Above-average fluency": "Fluidité au-dessus de la moyenne",
-    "Average fluency": "Fluidité moyenne",
-    "Below-average fluency": "Fluidité en dessous de la moyenne",
-    "Low fluency": "Fluidité faible",
+    "Strong performance on this practice set": "Performance solide sur cet ensemble d'exercices",
+    "Mostly consistent performance on this practice set": "Performance plutôt régulière sur cet ensemble d'exercices",
+    "Mixed performance on this practice set": "Performance contrastée sur cet ensemble d'exercices",
+    "Developing familiarity with this practice set": "Familiarisation en cours avec cet ensemble d'exercices",
+    "Limited evidence from this attempt": "Peu d'éléments à tirer de cet essai",
   },
 };
 
-/** Translate a scorer's qualitative band label; falls back to the English input. */
-export function localizeBand(band: string, locale: string): string {
-  return BANDS[locale]?.[band] ?? band;
+/** Translate a scorer's task observation; falls back to the English input. */
+export function localizeObservation(observation: string, locale: string): string {
+  return OBSERVATIONS[locale]?.[observation] ?? observation;
 }
+
+/** @deprecated Use localizeObservation. Retained as a display-edge compatibility alias. */
+export const localizeBand = localizeObservation;
 
 export interface AbilityMetaTranslation {
   name?: string;
@@ -64,10 +55,10 @@ const ES: Record<string, AbilityMetaTranslation> = {
       "inversa, almacenamiento más manipulación mental). Es breve, sube de dificultad y mide algo que las pruebas de " +
       "razonamiento no captan.",
     caveats: [
-      "Esto es una estimación EDUCATIVA, no una evaluación clínica. La prueba real de memoria de trabajo se realiza en condiciones controladas por un profesional.",
+      "Esta es una instantánea educativa de una práctica.",
       "Los navegadores, las distracciones y la tentación de apuntar las cosas afectan al resultado: por favor, no anotes los dígitos; deja que tu memoria haga el trabajo.",
-      "La memoria de trabajo es solo una porción de la mente; puede entrenarse un poco y varía con el sueño, el estrés y la edad.",
-      "Esto mide una capacidad concreta, no tu inteligencia, tu valía ni tu potencial.",
+      "El desempeño cambia con el sueño, el estrés, el contexto, la estrategia y la práctica previa.",
+      "Lee el índice como una observación de esta tarea y esta sesión, no como un rasgo personal estable.",
     ],
   },
   "corsi-blocks": {
@@ -75,12 +66,14 @@ const ES: Record<string, AbilityMetaTranslation> = {
     tagline: "Observa un camino que se ilumina en el tablero y reprodúcelo de memoria.",
     description:
       "La prueba de golpeo de bloques de Corsi es la contraparte visoespacial de la amplitud de dígitos. Los bloques se " +
-      "iluminan uno a uno en una secuencia; tú la reproduces tocándolos en el mismo orden (y luego al revés). Mide la " +
-      "memoria de trabajo espacial (Gsm), una capacidad bastante distinta de cómo te desenvuelves con palabras y números.",
+      "iluminan uno a uno en una secuencia; tú la reproduces tocándolos en el mismo orden (y luego al revés). Esta actividad " +
+      "ofrece una observación de cómo reprodujiste caminos espaciales en esta sesión; no estima una capacidad fija ni te " +
+      "compara con tu desempeño en tareas de palabras o números.",
     caveats: [
-      "Esto es una estimación EDUCATIVA, no una evaluación clínica, y no puede sustituir a una prueba administrada por un profesional.",
+      "Esta es una instantánea educativa de una práctica.",
       "El tamaño de la pantalla, la precisión del puntero y las distracciones afectan al resultado: trata una sola sesión como una instantánea aproximada.",
-      "La memoria espacial es solo una capacidad y varía con el sueño, el estrés y la práctica. No es una medida de inteligencia ni de valía.",
+      "El desempeño cambia con el sueño, el estrés, el contexto, la estrategia y la práctica previa.",
+      "Lee el índice como una observación de esta tarea y esta sesión, no como un rasgo personal estable.",
     ],
   },
   "processing-speed": {
@@ -92,10 +85,10 @@ const ES: Record<string, AbilityMetaTranslation> = {
       "lo más rápido posible si un símbolo objetivo aparece en un pequeño conjunto. Es breve, contra reloj, y la " +
       "precisión sigue contando.",
     caveats: [
-      "Esto es una estimación EDUCATIVA, no una evaluación clínica, y no puede sustituir a una prueba administrada por un profesional.",
+      "Esta es una instantánea educativa de una práctica.",
       "El dispositivo de entrada, la pantalla y las distracciones afectan a la velocidad: una pantalla táctil y un ratón no puntúan igual.",
-      "La velocidad de procesamiento es solo una capacidad; disminuye de forma natural con la edad y varía con el sueño y la concentración.",
-      "Mide la velocidad en una tarea simple, no tu inteligencia, tu valía ni tu potencial.",
+      "El desempeño cambia con el sueño, la concentración, la familiaridad, la práctica previa y el contexto.",
+      "Lee el índice como una observación de esta tarea y esta sesión, no como un rasgo personal estable.",
     ],
   },
   "alternative-uses": {
@@ -108,9 +101,9 @@ const ES: Record<string, AbilityMetaTranslation> = {
       "deja volar tu mente.",
     caveats: [
       "Esto puntúa la FLUIDEZ (número de ideas), que es solo una faceta de la creatividad: la originalidad y la utilidad también importan y requieren juicio humano.",
-      "Las tareas de pensamiento divergente predicen el potencial creativo de forma modesta; la creatividad real también exige conocimiento, motivación y constancia.",
-      "Una estimación educativa y lúdica, no una evaluación validada de la creatividad, y desde luego no un veredicto sobre tu imaginación.",
-      "Tu puntuación se presenta como un rango y un percentil, nunca como un número preciso.",
+      "La fluidez en una sesión depende de la familiaridad, el idioma, el estado de ánimo, el tiempo y la práctica previa.",
+      "Esta es una instantánea educativa de una tarea, no un veredicto sobre la creatividad.",
+      "El índice describe únicamente cuántas ideas distintas aparecieron en esta tarea.",
     ],
   },
   "iat-demo": {
@@ -130,16 +123,16 @@ const ES: Record<string, AbilityMetaTranslation> = {
   },
   "adaptive-reasoning": {
     name: "Razonamiento adaptativo",
-    tagline: "La dificultad se adapta a ti: una estimación más precisa en menos preguntas.",
+    tagline: "La dificultad sigue tus respuestas para mantener enfocada esta sesión de práctica.",
     description:
       "Una prueba de matrices adaptativa por ordenador: si aciertas, la siguiente es más difícil; si fallas, se " +
-      "suaviza. Al afinar en el nivel donde te mantienes, precisa tu capacidad de razonamiento fluido (Gf) en menos " +
-      "ítems que una prueba fija. Cada acertijo se genera de nuevo, así que no hay dos partidas iguales.",
+      "suaviza. Al seguir el nivel de reto alcanzado en esta sesión, mantiene la práctica enfocada sin estimar una " +
+      "capacidad fija. Cada acertijo se genera de nuevo, así que no hay dos partidas iguales.",
     caveats: [
-      "Esto es una estimación EDUCATIVA, no una prueba de CI administrada clínicamente.",
-      "La puntuación adaptativa aquí es aproximada: un verdadero motor de teoría de respuesta al ítem calibra cada ítem con datos reales; este usa niveles de dificultad basados en reglas.",
-      "Tu resultado se muestra como un rango y un percentil, nunca como un único número preciso.",
-      "Mide el razonamiento fluido, no tu valía, tu creatividad ni tu potencial.",
+      "Esta es una instantánea educativa de una práctica.",
+      "La puntuación adaptativa es aproximada: una calibración representativa requeriría datos adecuados; aquí se usan niveles de dificultad basados en reglas.",
+      "El índice describe el desempeño en estos acertijos durante esta sesión.",
+      "El sueño, la familiaridad, el dispositivo, las distracciones y la práctica previa pueden cambiar la observación.",
     ],
   },
 };
@@ -154,10 +147,10 @@ const FR: Record<string, AbilityMetaTranslation> = {
       "plus manipulation mentale). C'est bref, la difficulté monte, et cela mesure quelque chose que les tests de " +
       "raisonnement ne captent pas.",
     caveats: [
-      "Ceci est une estimation ÉDUCATIVE, pas une évaluation clinique. Un vrai test de mémoire de travail se fait dans des conditions contrôlées par un professionnel.",
+      "Ceci est un instantané éducatif d'un exercice.",
       "Les navigateurs, les distractions et l'envie de noter les choses influent sur le résultat — ne notez pas les chiffres ; laissez votre mémoire travailler.",
-      "La mémoire de travail n'est qu'une partie de l'esprit ; elle s'entraîne un peu et varie avec le sommeil, le stress et l'âge.",
-      "Ceci mesure une capacité précise, pas votre intelligence, votre valeur ni votre potentiel.",
+      "La performance varie avec le sommeil, le stress, le contexte, la stratégie et l'entraînement antérieur.",
+      "Lisez l'indice comme une observation de cette tâche et de cette séance, pas comme un trait personnel stable.",
     ],
   },
   "corsi-blocks": {
@@ -165,12 +158,14 @@ const FR: Record<string, AbilityMetaTranslation> = {
     tagline: "Regardez un chemin s'illuminer sur le plateau, puis reproduisez-le de mémoire.",
     description:
       "Le test des blocs de Corsi est le pendant visuo-spatial de l'empan de chiffres. Les blocs s'allument un à un en " +
-      "séquence ; vous la reproduisez en les touchant dans le même ordre (puis à l'envers). Il mesure la mémoire de " +
-      "travail spatiale (Gsm), une capacité bien distincte de votre aisance avec les mots et les chiffres.",
+      "séquence ; vous la reproduisez en les touchant dans le même ordre (puis à l'envers). Cette activité décrit comment " +
+      "vous avez reproduit des chemins spatiaux pendant cette séance ; elle n'estime pas une capacité fixe et ne compare " +
+      "pas votre performance à celle des tâches verbales ou numériques.",
     caveats: [
-      "Ceci est une estimation ÉDUCATIVE, pas une évaluation clinique, et ne peut remplacer un test administré par un professionnel.",
+      "Ceci est un instantané éducatif d'un exercice.",
       "La taille de l'écran, la précision du pointeur et les distractions influent sur le résultat — considérez une séance comme un instantané approximatif.",
-      "La mémoire spatiale n'est qu'une capacité et varie avec le sommeil, le stress et l'entraînement. Ce n'est pas une mesure d'intelligence ni de valeur.",
+      "La performance varie avec le sommeil, le stress, le contexte, la stratégie et l'entraînement antérieur.",
+      "Lisez l'indice comme une observation de cette tâche et de cette séance, pas comme un trait personnel stable.",
     ],
   },
   "processing-speed": {
@@ -182,10 +177,10 @@ const FR: Record<string, AbilityMetaTranslation> = {
       "déciderez le plus vite possible si un symbole cible figure dans un petit ensemble. C'est bref, contre la montre, " +
       "et la précision compte toujours.",
     caveats: [
-      "Ceci est une estimation ÉDUCATIVE, pas une évaluation clinique, et ne peut remplacer un test administré par un professionnel.",
+      "Ceci est un instantané éducatif d'un exercice.",
       "Le périphérique de saisie, l'écran et les distractions influent sur la vitesse — un écran tactile et une souris ne donnent pas le même score.",
-      "La vitesse de traitement n'est qu'une capacité ; elle décline naturellement avec l'âge et varie avec le sommeil et la concentration.",
-      "Elle mesure la vitesse sur une tâche simple, pas votre intelligence, votre valeur ni votre potentiel.",
+      "La performance varie avec le sommeil, l'attention, la familiarité, l'entraînement antérieur et le contexte.",
+      "Lisez l'indice comme une observation de cette tâche et de cette séance, pas comme un trait personnel stable.",
     ],
   },
   "alternative-uses": {
@@ -198,9 +193,9 @@ const FR: Record<string, AbilityMetaTranslation> = {
       "Il n'y a pas de mauvaise réponse — laissez votre esprit s'emballer.",
     caveats: [
       "Ceci mesure la FLUIDITÉ (le nombre d'idées), qui n'est qu'une facette de la créativité — l'originalité et l'utilité comptent aussi et exigent un jugement humain.",
-      "Les tâches de pensée divergente prédisent modestement le potentiel créatif ; la vraie créativité demande aussi des connaissances, de la motivation et de la persévérance.",
-      "Une estimation éducative et ludique, pas une évaluation validée de la créativité, et certainement pas un verdict sur votre imagination.",
-      "Votre score est présenté sous forme de niveau et de centile, jamais d'un nombre précis.",
+      "La fluidité d'une séance dépend de la familiarité, de la langue, de l'humeur, du temps et de l'entraînement antérieur.",
+      "Ceci est un instantané éducatif d'une tâche, pas un verdict sur la créativité.",
+      "L'indice décrit uniquement le nombre d'idées distinctes apparues dans cette tâche.",
     ],
   },
   "iat-demo": {
@@ -220,16 +215,16 @@ const FR: Record<string, AbilityMetaTranslation> = {
   },
   "adaptive-reasoning": {
     name: "Raisonnement adaptatif",
-    tagline: "La difficulté s'adapte à vous — une estimation plus fine en moins de questions.",
+    tagline: "La difficulté suit vos réponses pour garder cette séance de pratique ciblée.",
     description:
       "Un test de matrices adaptatif par ordinateur : une bonne réponse rend la suivante plus difficile ; une erreur " +
-      "l'allège. En cernant le niveau où vous oscillez, il précise votre raisonnement fluide (Gf) en moins d'items " +
-      "qu'un test fixe. Chaque énigme est générée à neuf, donc deux passations ne se ressemblent jamais tout à fait.",
+      "l'allège. En suivant le niveau de défi atteint pendant cette séance, l'activité garde la pratique ciblée sans " +
+      "estimer une capacité fixe. Chaque énigme est générée à neuf, donc deux passations ne se ressemblent jamais tout à fait.",
     caveats: [
-      "Ceci est une estimation ÉDUCATIVE, pas un test de QI administré cliniquement.",
-      "Le score adaptatif est approximatif ici — un vrai moteur de théorie de réponse à l'item calibre chaque item sur des données réelles ; celui-ci utilise des niveaux de difficulté fondés sur des règles.",
-      "Votre résultat est présenté sous forme de niveau et de centile, jamais d'un nombre précis.",
-      "Il mesure le raisonnement fluide, pas votre valeur, votre créativité ni votre potentiel.",
+      "Ceci est un instantané éducatif d'un exercice.",
+      "Le score adaptatif est approximatif : un étalonnage représentatif exigerait des données adaptées ; celui-ci utilise des niveaux de difficulté fondés sur des règles.",
+      "L'indice décrit la performance sur ces énigmes pendant cette séance.",
+      "Le sommeil, la familiarité, l'appareil, les distractions et l'entraînement antérieur peuvent modifier l'observation.",
     ],
   },
 };
