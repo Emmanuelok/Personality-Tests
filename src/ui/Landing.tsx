@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { INSTRUMENTS } from "@core/instruments";
 import { LanguageSwitcher, useI18n } from "../i18n";
+import { shouldLoadLandingVideo } from "./landingMedia";
 import { ThemeToggle } from "./theme";
 import { toLoc, type Loc } from "./goals";
 
@@ -20,6 +21,8 @@ interface LandingCopy {
     browse: string;
     imageAlt: string;
     scroll: string;
+    motionPlay: string;
+    motionPause: string;
   };
   stats: Array<{ value: string; label: string }>;
   thesis: {
@@ -85,6 +88,8 @@ const COPY: Record<Loc, LandingCopy> = {
       browse: "Explore every experience",
       imageAlt: "A woman moving through a gallery of reflective portrait planes.",
       scroll: "Scroll to enter",
+      motionPlay: "Play motion",
+      motionPause: "Pause motion",
     },
     stats: [
       { value: "{n}+", label: "guided experiences" },
@@ -201,6 +206,8 @@ const COPY: Record<Loc, LandingCopy> = {
       browse: "Explorar las experiencias",
       imageAlt: "Una mujer recorre una galería de retratos reflectantes.",
       scroll: "Desliza para entrar",
+      motionPlay: "Reproducir movimiento",
+      motionPause: "Pausar movimiento",
     },
     stats: [
       { value: "{n}+", label: "experiencias guiadas" },
@@ -317,6 +324,8 @@ const COPY: Record<Loc, LandingCopy> = {
       browse: "Explorer les expériences",
       imageAlt: "Une femme traverse une galerie de portraits réfléchissants.",
       scroll: "Faites défiler pour entrer",
+      motionPlay: "Relancer l’animation",
+      motionPause: "Mettre en pause",
     },
     stats: [
       { value: "{n}+", label: "expériences guidées" },
@@ -432,7 +441,7 @@ const EXPERIENCE_IMAGES = [
   "/images/psyche-study.webp",
 ] as const;
 
-function AtlasField() {
+function AtlasField({ paused }: { paused: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -534,12 +543,16 @@ function AtlasField() {
       }
       context.restore();
 
-      if (!reducedMotion && pageVisible && inViewport) animationFrame = window.requestAnimationFrame(draw);
+      if (!reducedMotion && !paused && pageVisible && inViewport) {
+        animationFrame = window.requestAnimationFrame(draw);
+      }
     };
 
     const syncAnimation = () => {
       window.cancelAnimationFrame(animationFrame);
-      if (!reducedMotion && pageVisible && inViewport) animationFrame = window.requestAnimationFrame(draw);
+      if (!reducedMotion && !paused && pageVisible && inViewport) {
+        animationFrame = window.requestAnimationFrame(draw);
+      }
     };
 
     const onVisibility = () => {
@@ -567,9 +580,206 @@ function AtlasField() {
       document.removeEventListener("visibilitychange", onVisibility);
       observer?.disconnect();
     };
-  }, []);
+  }, [paused]);
 
   return <canvas ref={canvasRef} className="landing-atlas-field" aria-hidden="true" />;
+}
+
+interface NetworkInformationLike {
+  saveData?: boolean;
+  effectiveType?: string;
+  addEventListener?: (type: "change", listener: EventListener) => void;
+  removeEventListener?: (type: "change", listener: EventListener) => void;
+}
+
+function CinematicHeroMedia({
+  motionPlay,
+  motionPause,
+  paused,
+  onPausedChange,
+  onFilmPlayingChange,
+}: {
+  motionPlay: string;
+  motionPause: string;
+  paused: boolean;
+  onPausedChange: (paused: boolean) => void;
+  onFilmPlayingChange: (playing: boolean) => void;
+}) {
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const playAttemptRef = useRef(0);
+  const [eligible, setEligible] = useState(false);
+  const [canPlay, setCanPlay] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [inViewport, setInViewport] = useState(true);
+  const [pageVisible, setPageVisible] = useState(() => (
+    typeof document === "undefined" || !document.hidden
+  ));
+  const [sourceFailed, setSourceFailed] = useState(false);
+
+  useEffect(() => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const dataQuery = window.matchMedia("(prefers-reduced-data: reduce)");
+    const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
+    const syncEligibility = () => {
+      const nextEligible = shouldLoadLandingVideo({
+        reducedMotion: motionQuery.matches,
+        reducedData: dataQuery.matches,
+        saveData: connection?.saveData ?? false,
+        effectiveType: connection?.effectiveType,
+      });
+      setEligible(nextEligible);
+      if (!nextEligible) {
+        setCanPlay(false);
+        setVideoVisible(false);
+        onFilmPlayingChange(false);
+      }
+    };
+    const onChange = syncEligibility as EventListener;
+    const addQueryListener = (query: MediaQueryList) => {
+      const legacyQuery = query as MediaQueryList & {
+        addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+      };
+      if (typeof legacyQuery.addEventListener === "function") {
+        legacyQuery.addEventListener("change", syncEligibility);
+      } else {
+        legacyQuery.addListener?.(syncEligibility);
+      }
+    };
+    const removeQueryListener = (query: MediaQueryList) => {
+      const legacyQuery = query as MediaQueryList & {
+        removeListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+      };
+      if (typeof legacyQuery.removeEventListener === "function") {
+        legacyQuery.removeEventListener("change", syncEligibility);
+      } else {
+        legacyQuery.removeListener?.(syncEligibility);
+      }
+    };
+
+    syncEligibility();
+    addQueryListener(motionQuery);
+    addQueryListener(dataQuery);
+    connection?.addEventListener?.("change", onChange);
+    return () => {
+      removeQueryListener(motionQuery);
+      removeQueryListener(dataQuery);
+      connection?.removeEventListener?.("change", onChange);
+    };
+  }, [onFilmPlayingChange]);
+
+  useEffect(() => {
+    const media = mediaRef.current;
+    if (!media || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setInViewport(entry?.isIntersecting ?? true);
+    }, { threshold: 0.08 });
+    observer.observe(media);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onVisibility = () => setPageVisible(!document.hidden);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const attempt = ++playAttemptRef.current;
+    if (!eligible || !canPlay || paused || !inViewport || !pageVisible) {
+      video.pause();
+      return;
+    }
+    void video.play().catch((error: unknown) => {
+      if (playAttemptRef.current !== attempt) return;
+      const errorName = error instanceof DOMException ? error.name : "";
+      if (errorName === "AbortError") return;
+      if (errorName === "NotAllowedError") {
+        onPausedChange(true);
+      }
+    });
+    return () => {
+      if (playAttemptRef.current === attempt) playAttemptRef.current += 1;
+    };
+  }, [canPlay, eligible, inViewport, onPausedChange, pageVisible, paused]);
+
+  const toggleMotion = () => {
+    const nextPaused = !paused;
+    if (!nextPaused && eligible && canPlay) {
+      void videoRef.current?.play().catch((error: unknown) => {
+        const errorName = error instanceof DOMException ? error.name : "";
+        if (errorName === "NotAllowedError") onPausedChange(true);
+      });
+    }
+    onPausedChange(nextPaused);
+  };
+
+  const poster = "/images/psyche-hero-cinematic.webp";
+  const loadVideo = eligible && !sourceFailed;
+
+  return (
+    <>
+      <div
+        className={videoVisible ? "landing-hero-photo has-motion" : "landing-hero-photo"}
+        ref={mediaRef}
+        aria-hidden="true"
+      >
+        <img
+          className={videoVisible ? "landing-hero-poster is-obscured" : "landing-hero-poster"}
+          src={poster}
+          width="1672"
+          height="941"
+          loading="eager"
+          decoding="async"
+          alt=""
+        />
+        {loadVideo ? (
+          <video
+            ref={videoRef}
+            className={videoVisible ? "landing-hero-video is-visible" : "landing-hero-video"}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={poster}
+            disablePictureInPicture
+            tabIndex={-1}
+            aria-hidden="true"
+            onCanPlay={() => setCanPlay(true)}
+            onPlaying={() => {
+              setVideoVisible(true);
+              onFilmPlayingChange(true);
+            }}
+            onPause={() => onFilmPlayingChange(false)}
+            onError={() => {
+              setSourceFailed(true);
+              setVideoVisible(false);
+              onFilmPlayingChange(false);
+            }}
+          >
+            <source src="/video/psyche-atlas-personalities-v1.webm" type="video/webm" />
+            <source src="/video/psyche-atlas-personalities-v1.mp4" type="video/mp4" />
+          </video>
+        ) : null}
+        <span className="landing-glass-plane plane-one" />
+        <span className="landing-glass-plane plane-two" />
+        <span className="landing-glass-plane plane-three" />
+      </div>
+      <button
+        className={paused ? "landing-motion-toggle is-paused" : "landing-motion-toggle"}
+        type="button"
+        onClick={toggleMotion}
+        aria-label={paused ? motionPlay : motionPause}
+        title={paused ? motionPlay : motionPause}
+      >
+        <i aria-hidden="true" />
+        <span>{paused ? motionPlay : motionPause}</span>
+      </button>
+    </>
+  );
 }
 
 export function Landing({
@@ -584,6 +794,8 @@ export function Landing({
   const { locale } = useI18n();
   const copy = COPY[toLoc(locale)];
   const experienceCount = String(INSTRUMENTS.length);
+  const [heroPaused, setHeroPaused] = useState(false);
+  const [filmPlaying, setFilmPlaying] = useState(false);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({
@@ -616,21 +828,18 @@ export function Landing({
       </header>
 
       <main id="main-content" tabIndex={-1}>
-        <section className="landing-hero" id="landing-top">
-          <div className="landing-hero-photo" aria-hidden="true">
-            <img
-              src="/images/psyche-hero-cinematic.webp"
-              width="1672"
-              height="941"
-              loading="eager"
-              decoding="async"
-              alt=""
-            />
-            <span className="landing-glass-plane plane-one" />
-            <span className="landing-glass-plane plane-two" />
-            <span className="landing-glass-plane plane-three" />
-          </div>
-          <AtlasField />
+        <section
+          className={heroPaused ? "landing-hero is-motion-paused" : "landing-hero"}
+          id="landing-top"
+        >
+          <CinematicHeroMedia
+            motionPlay={copy.hero.motionPlay}
+            motionPause={copy.hero.motionPause}
+            paused={heroPaused}
+            onPausedChange={setHeroPaused}
+            onFilmPlayingChange={setFilmPlaying}
+          />
+          <AtlasField paused={heroPaused || filmPlaying} />
           <div className="landing-hero-vignette" aria-hidden="true" />
           <div className="landing-hero-copy">
             <span className="landing-kicker"><i />{copy.hero.eyebrow}</span>
