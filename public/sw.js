@@ -1,7 +1,7 @@
 // Cache only versioned, same-origin static assets. Navigation responses can carry
 // checkout or other private state, so documents and query-bearing URLs are never
 // inspected or stored here.
-const CACHE = "psyche-atlas-static-v3";
+const CACHE = "psyche-atlas-static-v4";
 const STATIC_DESTINATIONS = new Set(["script", "style", "image", "font", "manifest"]);
 
 self.addEventListener("install", () => self.skipWaiting());

@@ -241,7 +241,7 @@ export function Home({
         <div className="hero-aurora" aria-hidden="true" />
         <img
           className="hero-learning-image"
-          src="/images/atlas-learning-hero.webp"
+          src="/images/psyche-hero-cinematic.webp"
           width="1672"
           height="941"
           loading="eager"
@@ -277,7 +277,7 @@ export function Home({
           <div className="foryou-aura" aria-hidden="true" />
           <img
             className="foryou-image"
-            src="/images/atlas-learning-hero.webp"
+            src="/images/psyche-hero-cinematic.webp"
             width="1672"
             height="941"
             loading="eager"
@@ -492,7 +492,7 @@ export function Home({
           <p>{workspaceCopy.exploreBody}</p>
         </div>
         <img
-          src="/images/atlas-pathways.webp"
+          src="/images/psyche-explore.webp"
           width="1536"
           height="1024"
           loading="eager"

@@ -162,7 +162,7 @@ export function AtlasOverview({
           <p>{s.atlasBody}</p>
         </div>
         <img
-          src="/images/atlas-insight-landscape.webp"
+          src="/images/psyche-reflection.webp"
           width="1536"
           height="1024"
           loading="eager"
@@ -233,7 +233,7 @@ export function GroupsHub({
       </header>
       <div className="group-paths">
         <article className="group-path-card">
-          <img src="/images/atlas-study-together.webp" width="1536" height="1024" loading="eager" decoding="async" alt="" aria-hidden="true" />
+          <img src="/images/psyche-study.webp" width="1536" height="1024" loading="eager" decoding="async" alt="" aria-hidden="true" />
           <div>
             <h2>{s.studyTitle}</h2>
             <p>{s.studyBody}</p>
@@ -241,7 +241,7 @@ export function GroupsHub({
           </div>
         </article>
         <article className="group-path-card">
-          <img src="/images/atlas-connection-map.webp" width="1536" height="1024" loading="lazy" decoding="async" alt="" aria-hidden="true" />
+          <img src="/images/psyche-connection.webp" width="1536" height="1024" loading="lazy" decoding="async" alt="" aria-hidden="true" />
           <div>
             <h2>{s.mapTitle}</h2>
             <p>{s.mapBody}</p>
