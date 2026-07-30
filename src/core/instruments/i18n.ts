@@ -1,0 +1,3901 @@
+import type { Instrument } from "../types";
+
+/**
+ * Instrument content localization. The engine is language-agnostic (scoring keys
+ * off item/scale ids, never text), so an instrument can be fully translated by
+ * supplying overrides keyed by locale → instrument id. `localizeInstrument`
+ * returns a clone with the translated strings, falling back per-field to English.
+ *
+ * Big Five is fully translated here (es, fr) as the end-to-end proof; other
+ * instruments simply fall through to English until their translations are added.
+ */
+
+export interface InstrumentTranslation {
+  name?: string;
+  shortName?: string;
+  tagline?: string;
+  description?: string;
+  scales?: Record<string, { name?: string; description?: string; poles?: { low: string; high: string }; highDescriptor?: string; lowDescriptor?: string }>;
+  items?: Record<string, string>;
+  /** For choice-format items: translated option texts per item id, parallel to the item's options. */
+  options?: Record<string, string[]>;
+}
+
+const BIG_FIVE_ES: InstrumentTranslation = {
+  name: "Personalidad de los Cinco Grandes (IPIP-50)",
+  shortName: "Cinco Grandes",
+  tagline: "El estándar científico: cinco grandes dimensiones de la personalidad.",
+  description:
+    "El Modelo de los Cinco Factores es el marco más validado empíricamente en la ciencia de la personalidad. Esta " +
+    "versión emplea los marcadores IPIP de dominio público (50 ítems) para describir dónde caen tus respuestas " +
+    "puntuadas dentro del rango de respuesta de Apertura, Responsabilidad, Extraversión, Amabilidad y Neuroticismo.",
+  scales: {
+    O: { name: "Apertura a la experiencia", description: "Receptividad a nuevas ideas, la estética, la imaginación y la exploración intelectual.", poles: { low: "Convencional", high: "Inventivo/a" }, highDescriptor: "curioso/a, imaginativo/a, intelectualmente aventurero/a, atraído/a por la novedad y el matiz", lowDescriptor: "práctico/a, convencional, anclado/a en lo concreto y lo probado" },
+    C: { name: "Responsabilidad", description: "Tendencia a la organización, la diligencia, la planificación y el autocontrol.", poles: { low: "Espontáneo/a", high: "Disciplinado/a" }, highDescriptor: "organizado/a, fiable, disciplinado/a, orientado/a a metas", lowDescriptor: "flexible, espontáneo/a, cómodo/a con lo imprevisto" },
+    E: { name: "Extraversión", description: "Impulso hacia la interacción social, la estimulación, la asertividad y la energía positiva.", poles: { low: "Introvertido/a", high: "Extravertido/a" }, highDescriptor: "extrovertido/a, enérgico/a, socialmente audaz, animado/a por la compañía", lowDescriptor: "reservado/a, comedido/a, restaurado/a por la soledad y la profundidad" },
+    A: { name: "Amabilidad", description: "Orientación hacia la compasión, la cooperación, la confianza y la consideración de los demás.", poles: { low: "Exigente", high: "Compasivo/a" }, highDescriptor: "cálido/a, cooperativo/a, empático/a, dispuesto/a a dar el beneficio de la duda", lowDescriptor: "franco/a, escéptico/a, competitivo/a, dispuesto/a a anteponer la tarea a la armonía" },
+    N: { name: "Neuroticismo", description: "Tendencia a experimentar emociones negativas, reactividad al estrés e inestabilidad de ánimo.", poles: { low: "Estable", high: "Reactivo/a" }, highDescriptor: "emocionalmente reactivo/a, sensible al estrés, propenso/a a la preocupación y a los cambios de humor", lowDescriptor: "tranquilo/a, ecuánime, resistente bajo presión" },
+  },
+  items: {
+    E1: "Soy el alma de la fiesta.", A1: "Me preocupo poco por los demás.", C1: "Siempre estoy preparado/a.", N1: "Me estreso con facilidad.", O1: "Tengo un vocabulario rico.",
+    E2: "No hablo mucho.", A2: "Me intereso por la gente.", C2: "Dejo mis cosas tiradas por ahí.", N2: "Estoy relajado/a la mayor parte del tiempo.", O2: "Me cuesta entender ideas abstractas.",
+    E3: "Me siento cómodo/a entre la gente.", A3: "Insulto a la gente.", C3: "Presto atención a los detalles.", N3: "Me preocupo por las cosas.", O3: "Tengo una imaginación vívida.",
+    E4: "Me mantengo en segundo plano.", A4: "Comprendo los sentimientos de los demás.", C4: "Lo desordeno todo.", N4: "Rara vez me siento triste.", O4: "No me interesan las ideas abstractas.",
+    E5: "Inicio conversaciones.", A5: "No me interesan los problemas de los demás.", C5: "Hago las tareas de inmediato.", N5: "Me altero con facilidad.", O5: "Tengo excelentes ideas.",
+    E6: "Tengo poco que decir.", A6: "Tengo buen corazón.", C6: "A menudo olvido devolver las cosas a su sitio.", N6: "Me molesto con facilidad.", O6: "No tengo buena imaginación.",
+    E7: "Hablo con mucha gente distinta en las fiestas.", A7: "En realidad no me interesan los demás.", C7: "Me gusta el orden.", N7: "Cambio mucho de humor.", O7: "Entiendo las cosas con rapidez.",
+    E8: "No me gusta llamar la atención.", A8: "Dedico tiempo a los demás.", C8: "Eludo mis obligaciones.", N8: "Tengo cambios de humor frecuentes.", O8: "Uso palabras difíciles.",
+    E9: "No me importa ser el centro de atención.", A9: "Siento las emociones de los demás.", C9: "Sigo un horario.", N9: "Me irrito con facilidad.", O9: "Dedico tiempo a reflexionar sobre las cosas.",
+    E10: "Soy callado/a con desconocidos.", A10: "Hago que la gente se sienta a gusto.", C10: "Soy meticuloso/a en mi trabajo.", N10: "A menudo me siento triste.", O10: "Estoy lleno/a de ideas.",
+  },
+};
+
+const BIG_FIVE_FR: InstrumentTranslation = {
+  name: "Personnalité des Big Five (IPIP-50)",
+  shortName: "Big Five",
+  tagline: "La référence scientifique : cinq grandes dimensions de la personnalité.",
+  description:
+    "Le modèle à cinq facteurs est le cadre le plus validé empiriquement en psychologie de la personnalité. Cette " +
+    "version utilise les marqueurs IPIP du domaine public (50 items) pour décrire où se situent vos réponses cotées " +
+    "dans l'étendue de réponse de l'Ouverture, du caractère Consciencieux, de l'Extraversion, de l'Agréabilité et du Névrosisme.",
+  scales: {
+    O: { name: "Ouverture à l'expérience", description: "Réceptivité aux idées nouvelles, à l'esthétique, à l'imagination et à l'exploration intellectuelle.", poles: { low: "Conventionnel(le)", high: "Inventif(ve)" }, highDescriptor: "curieux(se), imaginatif(ve), intellectuellement aventureux(se), attiré(e) par la nouveauté et la nuance", lowDescriptor: "pratique, conventionnel(le), ancré(e) dans le concret et l'éprouvé" },
+    C: { name: "Caractère consciencieux", description: "Tendance à l'organisation, à la rigueur, à la planification et à la maîtrise de soi.", poles: { low: "Spontané(e)", high: "Discipliné(e)" }, highDescriptor: "organisé(e), fiable, discipliné(e), orienté(e) vers les objectifs", lowDescriptor: "flexible, spontané(e), à l'aise avec l'imprévu" },
+    E: { name: "Extraversion", description: "Élan vers l'engagement social, la stimulation, l'assertivité et l'énergie positive.", poles: { low: "Introverti(e)", high: "Extraverti(e)" }, highDescriptor: "sociable, énergique, audacieux(se) en société, ravivé(e) par la compagnie", lowDescriptor: "réservé(e), mesuré(e), ressourcé(e) par la solitude et la profondeur" },
+    A: { name: "Agréabilité", description: "Orientation vers la compassion, la coopération, la confiance et l'attention aux autres.", poles: { low: "Exigeant(e)", high: "Bienveillant(e)" }, highDescriptor: "chaleureux(se), coopératif(ve), empathique, prompt(e) à accorder le bénéfice du doute", lowDescriptor: "franc(he), sceptique, compétitif(ve), prêt(e) à faire passer la tâche avant l'harmonie" },
+    N: { name: "Névrosisme", description: "Tendance à éprouver des émotions négatives, une réactivité au stress et une instabilité de l'humeur.", poles: { low: "Stable", high: "Réactif(ve)" }, highDescriptor: "émotionnellement réactif(ve), sensible au stress, enclin(e) à l'inquiétude et aux sautes d'humeur", lowDescriptor: "calme, posé(e), résistant(e) sous pression" },
+  },
+  items: {
+    E1: "Je suis le boute-en-train de la fête.", A1: "Je me soucie peu des autres.", C1: "Je suis toujours prêt(e).", N1: "Je me stresse facilement.", O1: "J'ai un vocabulaire riche.",
+    E2: "Je ne parle pas beaucoup.", A2: "Je m'intéresse aux gens.", C2: "Je laisse traîner mes affaires.", N2: "Je suis détendu(e) la plupart du temps.", O2: "J'ai du mal à comprendre les idées abstraites.",
+    E3: "Je me sens à l'aise avec les gens.", A3: "J'insulte les gens.", C3: "Je fais attention aux détails.", N3: "Je me fais du souci.", O3: "J'ai une imagination vive.",
+    E4: "Je reste en retrait.", A4: "Je comprends les sentiments des autres.", C4: "Je mets la pagaille.", N4: "Je me sens rarement déprimé(e).", O4: "Les idées abstraites ne m'intéressent pas.",
+    E5: "J'engage la conversation.", A5: "Les problèmes des autres ne m'intéressent pas.", C5: "Je fais mes tâches tout de suite.", N5: "Je suis facilement perturbé(e).", O5: "J'ai d'excellentes idées.",
+    E6: "J'ai peu de choses à dire.", A6: "J'ai bon cœur.", C6: "J'oublie souvent de ranger les choses à leur place.", N6: "Je me contrarie facilement.", O6: "Je n'ai pas une bonne imagination.",
+    E7: "Je parle à beaucoup de gens différents en soirée.", A7: "Je ne m'intéresse pas vraiment aux autres.", C7: "J'aime l'ordre.", N7: "Mon humeur change beaucoup.", O7: "Je comprends vite les choses.",
+    E8: "Je n'aime pas attirer l'attention sur moi.", A8: "Je prends du temps pour les autres.", C8: "Je me dérobe à mes devoirs.", N8: "J'ai de fréquentes sautes d'humeur.", O8: "J'emploie des mots difficiles.",
+    E9: "Cela ne me dérange pas d'être le centre de l'attention.", A9: "Je ressens les émotions des autres.", C9: "Je suis un emploi du temps.", N9: "Je m'irrite facilement.", O9: "Je passe du temps à réfléchir aux choses.",
+    E10: "Je suis silencieux(se) avec les inconnus.", A10: "Je mets les gens à l'aise.", C10: "Je suis exigeant(e) dans mon travail.", N10: "Je me sens souvent déprimé(e).", O10: "Je déborde d'idées.",
+  },
+};
+
+const DISC_ES: InstrumentTranslation = {
+  name: "Estilos de comportamiento DISC",
+  shortName: "DISC",
+  tagline: "Cuatro estilos de comportamiento: cómo actúas, decides y trabajas con los demás.",
+  description:
+    "DISC mapea el comportamiento observable en cuatro estilos —Dominancia, Influencia, Estabilidad y Cumplimiento—. " +
+    "En lugar de un tipo fijo, la mayoría somos una mezcla, guiada por un estilo principal y otro secundario. Es " +
+    "especialmente útil para la comunicación, el trabajo en equipo y el liderazgo.",
+  scales: {
+    D: { name: "Dominancia", description: "Impulso por los resultados, franqueza y control.", poles: { low: "Tranquilo/a", high: "Dominante" }, highDescriptor: "asertivo/a, de ritmo rápido y centrado/a en resultados", lowDescriptor: "modesto/a, conciliador/a y discreto/a con el control" },
+    I: { name: "Influencia", description: "Sociabilidad, entusiasmo y persuasión.", poles: { low: "Reservado/a", high: "Extrovertido/a" }, highDescriptor: "extrovertido/a, expresivo/a y persuasivo/a", lowDescriptor: "reservado/a, reflexivo/a y comedido/a" },
+    S: { name: "Estabilidad", description: "Paciencia, fiabilidad y cooperación.", poles: { low: "Dinámico/a", high: "Estable" }, highDescriptor: "estable, solidario/a y en busca de armonía", lowDescriptor: "cambiante, inquieto/a y cómodo/a con el flujo" },
+    C: { name: "Cumplimiento", description: "Precisión, análisis y estándares.", poles: { low: "Improvisador/a", high: "Preciso/a" }, highDescriptor: "preciso/a, cuidadoso/a y orientado/a a la calidad", lowDescriptor: "improvisador/a, de mirada amplia y poco apegado/a a las reglas" },
+  },
+  items: {
+    D1: "Tomo el mando rápido y empujo con fuerza para lograr resultados.", D2: "Me siento cómodo/a tomando decisiones audaces y afrontando los problemas de frente.", D3: "Me centro en los resultados y en ganar, incluso bajo presión.", D4: "Me impaciento cuando las cosas van demasiado lentas o con demasiada cautela.", D5: "Prefiero liderar que seguir.", D6: "Soy directo/a y claro/a sobre lo que quiero.",
+    I1: "Me encanta conocer gente nueva y entablar conversación con facilidad.", I2: "Soy entusiasta y sé contagiar a los demás el entusiasmo por una idea.", I3: "Persuado e inspiro a la gente más que presionarla.", I4: "Soy optimista y aporto energía al grupo.", I5: "El reconocimiento y caer bien me importan mucho.", I6: "Pienso en voz alta y me gusta comentar mis ideas con los demás.",
+    S1: "Soy paciente y constante, y prefiero un ritmo tranquilo y predecible.", S2: "Soy un/a compañero/a de equipo fiable que apoya a los demás sin alardes.", S3: "No me gustan los cambios bruscos y prefiero la estabilidad.", S4: "Escucho con atención y rara vez meto prisa a la gente.", S5: "Valoro la armonía y evito el conflicto cuando puedo.", S6: "La gente cuenta conmigo por ser constante y leal.",
+    C1: "Presto mucha atención a la exactitud, los detalles y la calidad.", C2: "Me gustan las reglas claras, los estándares y los planes bien pensados.", C3: "Analizo con cuidado antes de decidir.", C4: "Quiero que las cosas se hagan bien, aunque lleve más tiempo.", C5: "Confío en los hechos y la lógica más que en la intuición.", C6: "Me exijo a mí mismo/a y a mi trabajo estándares altos.",
+  },
+};
+
+const DISC_FR: InstrumentTranslation = {
+  name: "Styles comportementaux DISC",
+  shortName: "DISC",
+  tagline: "Quatre styles comportementaux : comment vous agissez, décidez et collaborez.",
+  description:
+    "Le DISC cartographie le comportement observable selon quatre styles — Dominance, Influence, Stabilité et " +
+    "Conformité. Plutôt qu'un type figé, la plupart des gens sont un mélange, mené par un style principal et un style " +
+    "secondaire. C'est particulièrement utile pour la communication, le travail d'équipe et le leadership.",
+  scales: {
+    D: { name: "Dominance", description: "Recherche de résultats, franchise et contrôle.", poles: { low: "Accommodant(e)", high: "Dominant(e)" }, highDescriptor: "assertif(ve), au rythme rapide et axé(e) sur les résultats", lowDescriptor: "modeste, accommodant(e) et discret(ète) quant au contrôle" },
+    I: { name: "Influence", description: "Sociabilité, enthousiasme et persuasion.", poles: { low: "Réservé(e)", high: "Extraverti(e)" }, highDescriptor: "sociable, expressif(ve) et persuasif(ve)", lowDescriptor: "réservé(e), réfléchi(e) et discret(ète)" },
+    S: { name: "Stabilité", description: "Patience, fiabilité et coopération.", poles: { low: "Dynamique", high: "Stable" }, highDescriptor: "stable, soutenant(e) et en quête d'harmonie", lowDescriptor: "changeant(e), agité(e) et à l'aise avec le flux" },
+    C: { name: "Conformité", description: "Précision, analyse et exigence.", poles: { low: "Improvisateur(trice)", high: "Précis(e)" }, highDescriptor: "précis(e), soigneux(se) et axé(e) sur la qualité", lowDescriptor: "improvisateur(trice), à vision large et peu attaché(e) aux règles" },
+  },
+  items: {
+    D1: "Je prends les choses en main rapidement et pousse fort pour obtenir des résultats.", D2: "Je suis à l'aise pour prendre des décisions audacieuses et affronter les problèmes de front.", D3: "Je reste concentré(e) sur les résultats et la victoire, même sous pression.", D4: "Je m'impatiente quand les choses avancent trop lentement ou trop prudemment.", D5: "Je préfère diriger que suivre.", D6: "Je suis franc(he) et direct(e) sur ce que je veux.",
+    I1: "J'adore rencontrer de nouvelles personnes et engage facilement la conversation.", I2: "Je suis enthousiaste et sais enthousiasmer les autres pour une idée.", I3: "Je persuade et inspire les gens plus que je ne les pousse.", I4: "Je suis optimiste et j'apporte de l'énergie au groupe.", I5: "La reconnaissance et le fait d'être apprécié(e) comptent beaucoup pour moi.", I6: "Je pense à voix haute et j'aime discuter de mes idées avec les autres.",
+    S1: "Je suis patient(e) et constant(e), et je préfère un rythme calme et prévisible.", S2: "Je suis un(e) coéquipier(ère) fiable qui soutient les autres discrètement.", S3: "Je n'aime pas les changements brusques et préfère la stabilité.", S4: "J'écoute attentivement et bouscule rarement les gens.", S5: "Je valorise l'harmonie et évite le conflit quand je peux.", S6: "Les gens comptent sur moi pour être constant(e) et loyal(e).",
+    C1: "Je prête une grande attention à l'exactitude, aux détails et à la qualité.", C2: "J'aime les règles claires, les normes et les plans bien pensés.", C3: "J'analyse soigneusement avant de décider.", C4: "Je veux que les choses soient bien faites, même si cela prend plus de temps.", C5: "Je me fie aux faits et à la logique plutôt qu'à l'intuition.", C6: "J'attends de moi-même et de mon travail des normes élevées.",
+  },
+};
+
+const ENNEAGRAM_ES: InstrumentTranslation = {
+  name: "Eneagrama de la personalidad",
+  shortName: "Eneagrama",
+  tagline: "Nueve tipos, tres centros: un mapa de la motivación central.",
+  description:
+    "El Eneagrama describe nueve tipos de personalidad organizados en torno a motivaciones centrales —el deseo básico " +
+    "y el miedo básico de cada tipo— más que a rasgos superficiales. Este perfilador estima tu resonancia con los nueve " +
+    "tipos y resuelve tu tipo dominante, tu ala y tu centro de inteligencia, planteando el crecimiento como el paso de " +
+    "la pasión característica de cada tipo hacia su virtud.",
+  scales: {
+    T1: { name: "Tipo 1 · Reformador", description: "Íntegro, autodisciplinado, orientado a la mejora.", highDescriptor: "alta resonancia con la búsqueda de integridad y rectitud del Reformador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 1" },
+    T2: { name: "Tipo 2 · Ayudador", description: "Cariñoso, generoso, centrado en las relaciones.", highDescriptor: "alta resonancia con el impulso del Ayudador de ser necesitado y amado", lowDescriptor: "baja resonancia con las motivaciones del Tipo 2" },
+    T3: { name: "Tipo 3 · Triunfador", description: "Ambicioso, adaptable, orientado al éxito.", highDescriptor: "alta resonancia con la búsqueda de valor a través del logro del Triunfador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 3" },
+    T4: { name: "Tipo 4 · Individualista", description: "Sensible, expresivo, en busca de identidad.", highDescriptor: "alta resonancia con la búsqueda de identidad auténtica del Individualista", lowDescriptor: "baja resonancia con las motivaciones del Tipo 4" },
+    T5: { name: "Tipo 5 · Investigador", description: "Cerebral, reservado, en busca de competencia.", highDescriptor: "alta resonancia con el impulso de comprensión y autosuficiencia del Investigador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 5" },
+    T6: { name: "Tipo 6 · Leal", description: "Vigilante, comprometido, en busca de seguridad.", highDescriptor: "alta resonancia con la búsqueda de seguridad y apoyo del Leal", lowDescriptor: "baja resonancia con las motivaciones del Tipo 6" },
+    T7: { name: "Tipo 7 · Entusiasta", description: "Optimista, espontáneo, en busca de posibilidades.", highDescriptor: "alta resonancia con la búsqueda de satisfacción y libertad del Entusiasta", lowDescriptor: "baja resonancia con las motivaciones del Tipo 7" },
+    T8: { name: "Tipo 8 · Desafiador", description: "Asertivo, protector, en busca de control.", highDescriptor: "alta resonancia con el impulso de fuerza y autonomía del Desafiador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 8" },
+    T9: { name: "Tipo 9 · Pacificador", description: "Conciliador, sereno, en busca de armonía.", highDescriptor: "alta resonancia con la búsqueda de paz y unión del Pacificador", lowDescriptor: "baja resonancia con las motivaciones del Tipo 9" },
+  },
+  items: {
+    T1a: "Tengo un fuerte sentido interno de cómo deberían ser las cosas y noto cuando se quedan cortas.", T1b: "Me exijo estándares altos y me siento culpable cuando no los cumplo.", T1c: "Siento la necesidad de corregir errores y mejorar lo que no está bien.", T1d: "Ser bueno, justo e intachable me importa profundamente.",
+    T2a: "Percibo lo que los demás necesitan y me muevo instintivamente para ayudarlos.", T2b: "Me siento más valorado/a cuando la gente cuenta conmigo y agradece mi cuidado.", T2c: "Antepongo las necesidades de los demás a las mías, a veces más de lo que me conviene.", T2d: "Me cuesta cuando alguien a quien quiero está molesto/a conmigo.",
+    T3a: "Siento un fuerte impulso por triunfar y por que me vean exitoso/a.", T3b: "Adapto cómo me presento para ganar admiración y lograr resultados.", T3c: "Mido mi valía en gran parte por mis logros y las metas alcanzadas.", T3d: "Me mantengo ocupado/a y eficiente, y odio cualquier cosa que me haga parecer un fracaso.",
+    T4a: "A menudo me siento diferente de los demás, apartado/a de algún modo esencial.", T4b: "Mis emociones son profundas y me atrae lo auténtico, lo bello o lo agridulce.", T4c: "Anhelo algo que me falta y que otros parecen tener.", T4d: "Expresar mi individualidad me importa; no soporto ser del montón.",
+    T5a: "Cuido mi tiempo y mi energía, y prefiero observar antes de implicarme.", T5b: "Me siento más seguro/a cuando tengo conocimiento y soy autosuficiente.", T5c: "Me retiro a pensar las cosas en privado en lugar de actuar al momento.", T5d: "Prefiero conservar mis recursos antes que depender de los demás.",
+    T6a: "Estoy atento/a a lo que podría salir mal para estar preparado/a.", T6b: "La lealtad y la confianza me importan enormemente, aunque la confianza cuesta ganarla.", T6c: "Cuestiono las garantías y la autoridad, y luego a menudo las busco igualmente.", T6d: "Me inquieta la seguridad y busco garantías de que estaré a salvo.",
+    T7a: "Mantengo abiertas mis opciones y persigo experiencias nuevas y emocionantes.", T7b: "Cuando las cosas se vuelven dolorosas o aburridas, busco rápido algo más estimulante.", T7c: "Soy optimista y estoy lleno/a de planes, a menudo más de los que puedo terminar.", T7d: "Detesto sentirme atrapado/a, limitado/a o privado/a de algo.",
+    T8a: "Instintivamente tomo el mando y protejo a las personas que me importan.", T8b: "Soy directo/a y enérgico/a, y no rehúyo la confrontación.", T8c: "Me resisto a que me controlen e impongo mi voluntad cuando me desafían.", T8d: "Mostrar debilidad me parece arriesgado, así que me mantengo fuerte y al mando.",
+    T9a: "Me adapto a los demás para mantener la paz y evitar el conflicto.", T9b: "Veo todos los lados, lo que a veces me dificulta saber qué quiero.", T9c: "Tiendo a fundirme con los planes de los demás y pierdo de vista mis propias prioridades.", T9d: "Prefiero la comodidad y la calma, y desconecto cuando hay tensión.",
+  },
+};
+
+const ENNEAGRAM_FR: InstrumentTranslation = {
+  name: "Ennéagramme de la personnalité",
+  shortName: "Ennéagramme",
+  tagline: "Neuf types, trois centres : une carte de la motivation profonde.",
+  description:
+    "L'Ennéagramme décrit neuf types de personnalité organisés autour de motivations profondes — le désir fondamental " +
+    "et la peur fondamentale de chaque type — plutôt que de traits de surface. Ce profil estime votre résonance avec " +
+    "les neuf types et détermine votre type dominant, votre aile et votre centre d'intelligence, en présentant la " +
+    "croissance comme le passage de la passion caractéristique de chaque type vers sa vertu.",
+  scales: {
+    T1: { name: "Type 1 · Réformateur", description: "Intègre, autodiscipliné, porté sur l'amélioration.", highDescriptor: "forte résonance avec la quête d'intégrité et de justesse du Réformateur", lowDescriptor: "faible résonance avec les motivations du Type 1" },
+    T2: { name: "Type 2 · Altruiste", description: "Attentionné, généreux, centré sur les relations.", highDescriptor: "forte résonance avec le besoin d'être nécessaire et aimé de l'Altruiste", lowDescriptor: "faible résonance avec les motivations du Type 2" },
+    T3: { name: "Type 3 · Battant", description: "Ambitieux, adaptable, orienté vers la réussite.", highDescriptor: "forte résonance avec la quête de valeur par la réussite du Battant", lowDescriptor: "faible résonance avec les motivations du Type 3" },
+    T4: { name: "Type 4 · Individualiste", description: "Sensible, expressif, en quête d'identité.", highDescriptor: "forte résonance avec la quête d'identité authentique de l'Individualiste", lowDescriptor: "faible résonance avec les motivations du Type 4" },
+    T5: { name: "Type 5 · Investigateur", description: "Cérébral, réservé, en quête de compétence.", highDescriptor: "forte résonance avec la quête de compréhension et d'autonomie de l'Investigateur", lowDescriptor: "faible résonance avec les motivations du Type 5" },
+    T6: { name: "Type 6 · Loyaliste", description: "Vigilant, engagé, en quête de sécurité.", highDescriptor: "forte résonance avec la quête de sécurité et de soutien du Loyaliste", lowDescriptor: "faible résonance avec les motivations du Type 6" },
+    T7: { name: "Type 7 · Épicurien", description: "Optimiste, spontané, en quête de possibilités.", highDescriptor: "forte résonance avec la quête de satisfaction et de liberté de l'Épicurien", lowDescriptor: "faible résonance avec les motivations du Type 7" },
+    T8: { name: "Type 8 · Meneur", description: "Affirmé, protecteur, en quête de contrôle.", highDescriptor: "forte résonance avec l'élan de force et d'autonomie du Meneur", lowDescriptor: "faible résonance avec les motivations du Type 8" },
+    T9: { name: "Type 9 · Médiateur", description: "Accommodant, posé, en quête d'harmonie.", highDescriptor: "forte résonance avec la quête de paix et d'union du Médiateur", lowDescriptor: "faible résonance avec les motivations du Type 9" },
+  },
+  items: {
+    T1a: "J'ai un fort sens intérieur de la façon dont les choses devraient être, et je remarque quand elles ne le sont pas.", T1b: "Je m'impose des exigences élevées et je culpabilise quand je ne les atteins pas.", T1c: "Je me sens poussé(e) à corriger les erreurs et à améliorer ce qui ne va pas.", T1d: "Être bon, juste et irréprochable compte profondément pour moi.",
+    T2a: "Je perçois ce dont les autres ont besoin et je me porte instinctivement à leur aide.", T2b: "Je me sens le plus valorisé(e) quand on compte sur moi et qu'on apprécie mes attentions.", T2c: "Je fais passer les besoins des autres avant les miens, parfois plus que de raison.", T2d: "Je vis mal qu'une personne qui m'est chère soit fâchée contre moi.",
+    T3a: "Je suis fortement poussé(e) à réussir et à être perçu(e) comme quelqu'un qui réussit.", T3b: "J'adapte la façon dont je me présente pour gagner l'admiration et obtenir des résultats.", T3c: "Je mesure ma valeur en grande partie à mes accomplissements et aux objectifs atteints.", T3d: "Je reste occupé(e) et efficace, et je déteste tout ce qui me ferait passer pour un échec.",
+    T4a: "Je me sens souvent différent(e) des autres, à part d'une manière essentielle.", T4b: "Mes émotions sont profondes et je suis attiré(e) par l'authentique, le beau, le doux-amer.", T4c: "J'aspire à quelque chose qui me manque et que les autres semblent avoir.", T4d: "Exprimer mon individualité compte pour moi ; je déteste être ordinaire.",
+    T5a: "Je préserve mon temps et mon énergie, et je préfère observer avant de m'engager.", T5b: "Je me sens le plus en sécurité quand je suis compétent(e) et autonome.", T5c: "Je me retire pour réfléchir au calme plutôt que d'agir sur le moment.", T5d: "Je préfère préserver mes ressources plutôt que dépendre des autres.",
+    T6a: "Je guette ce qui pourrait mal tourner afin d'y être préparé(e).", T6b: "La loyauté et la confiance comptent énormément pour moi, même si la confiance se mérite.", T6c: "Je remets en question les assurances et l'autorité, puis je les recherche souvent quand même.", T6d: "La sécurité m'inquiète et je cherche des garanties d'être en sûreté.",
+    T7a: "Je garde mes options ouvertes et je recherche des expériences nouvelles et stimulantes.", T7b: "Quand les choses deviennent pénibles ou ennuyeuses, je cherche vite quelque chose de plus stimulant.", T7c: "Je suis optimiste et plein(e) de projets — souvent plus que je ne peux en finir.", T7d: "Je déteste me sentir piégé(e), limité(e) ou privé(e).",
+    T8a: "Je prends instinctivement les commandes et protège ceux qui me sont chers.", T8b: "Je suis direct(e) et énergique, et je ne fuis pas la confrontation.", T8c: "Je résiste à être contrôlé(e) et j'impose ma volonté quand on me défie.", T8d: "Montrer de la faiblesse me semble risqué, alors je reste fort(e) et aux commandes.",
+    T9a: "Je m'accorde aux autres pour préserver la paix et éviter le conflit.", T9b: "Je vois tous les points de vue, ce qui rend parfois difficile de savoir ce que je veux.", T9c: "J'ai tendance à me fondre dans les projets des autres et à perdre de vue mes priorités.", T9d: "Je préfère le confort et le calme, et je me déconnecte quand la tension monte.",
+  },
+};
+
+/* ── Wellbeing set: PERMA, Satisfaction With Life, Resilience, Self-Esteem, Mood ── */
+
+const PERMA_ES: InstrumentTranslation = {
+  name: "Florecimiento (PERMA)",
+  shortName: "PERMA",
+  tagline: "Cinco pilares cultivables de una vida que va bien.",
+  description:
+    "El bienestar no es una sola cosa: el modelo PERMA de Martin Seligman lo divide en cinco pilares que puedes " +
+    "cultivar por separado: Emoción positiva, Compromiso, Relaciones, Sentido y Logro. Esta es una instantánea cálida " +
+    "y basada en las fortalezas de cómo estás floreciendo ahora mismo y qué pilar agradecería más tu atención.",
+  scales: {
+    POS: { name: "Emoción positiva", description: "Alegría, gratitud, satisfacción y esperanza.", poles: { low: "Agotado/a", high: "Alegre" }, highDescriptor: "rico/a en sensaciones positivas cotidianas", lowDescriptor: "bajo/a en sensaciones positivas últimamente" },
+    ENG: { name: "Compromiso", description: "Absorción y fluidez en lo que haces.", poles: { low: "Desconectado/a", high: "Absorto/a" }, highDescriptor: "a menudo profundamente absorto/a y en flujo", lowDescriptor: "rara vez plenamente comprometido/a" },
+    REL: { name: "Relaciones", description: "Cercanía, apoyo y pertenencia.", poles: { low: "Aislado/a", high: "Conectado/a" }, highDescriptor: "bien conectado/a y apoyado/a", lowDescriptor: "solo/a o con poco apoyo" },
+    MEA: { name: "Sentido", description: "Propósito y significado.", poles: { low: "A la deriva", high: "Con propósito" }, highDescriptor: "anclado/a en el propósito y el significado", lowDescriptor: "en busca de rumbo" },
+    ACC: { name: "Logro", description: "Maestría, progreso y consecución.", poles: { low: "Estancado/a", high: "Realizado/a" }, highDescriptor: "con un fuerte sentido de logro y progreso", lowDescriptor: "bajo/a en sentido de logro" },
+  },
+  items: {
+    P1: "Con frecuencia siento alegría, gratitud o satisfacción.", P2: "Las buenas sensaciones son parte habitual de mis días.", P3: "Últimamente rara vez me siento positivo/a o animado/a.",
+    E1: "A menudo me absorbo por completo en lo que hago.", E2: "Pierdo la noción del tiempo cuando hago algo que me encanta.", E3: "Rara vez estoy plenamente absorto/a o «en flujo».",
+    R1: "Tengo relaciones cercanas y de apoyo con las que puedo contar.", R2: "Me siento querido/a y conectado/a con otras personas.", R3: "A menudo me siento solo/a o sin apoyo.",
+    M1: "Mi vida tiene un claro sentido de propósito y significado.", M2: "Lo que hago me parece valioso y significativo.", M3: "A menudo siento que mi vida carece de rumbo o propósito.",
+    A1: "Logro con regularidad metas que me importan.", A2: "Siento una auténtica sensación de logro y progreso.", A3: "Rara vez siento que consigo lo que me propongo.",
+  },
+};
+
+const PERMA_FR: InstrumentTranslation = {
+  name: "Épanouissement (PERMA)",
+  shortName: "PERMA",
+  tagline: "Cinq piliers cultivables d'une vie qui va bien.",
+  description:
+    "Le bien-être n'est pas une chose unique : le modèle PERMA de Martin Seligman le décompose en cinq piliers que " +
+    "vous pouvez cultiver chacun — Émotion positive, Engagement, Relations, Sens et Accomplissement. Voici un aperçu " +
+    "chaleureux et axé sur les forces de votre épanouissement actuel et du pilier qui mériterait le plus votre attention.",
+  scales: {
+    POS: { name: "Émotion positive", description: "Joie, gratitude, contentement et espoir.", poles: { low: "Épuisé(e)", high: "Joyeux(se)" }, highDescriptor: "riche en émotions positives au quotidien", lowDescriptor: "en manque d'émotions positives ces derniers temps" },
+    ENG: { name: "Engagement", description: "Absorption et fluidité dans ce que vous faites.", poles: { low: "Désengagé(e)", high: "Absorbé(e)" }, highDescriptor: "souvent profondément absorbé(e) et dans le flux", lowDescriptor: "rarement pleinement engagé(e)" },
+    REL: { name: "Relations", description: "Proximité, soutien et appartenance.", poles: { low: "Isolé(e)", high: "Connecté(e)" }, highDescriptor: "bien relié(e) et soutenu(e)", lowDescriptor: "seul(e) ou peu soutenu(e)" },
+    MEA: { name: "Sens", description: "But et signification.", poles: { low: "À la dérive", high: "Habité(e) d'un but" }, highDescriptor: "ancré(e) dans le but et le sens", lowDescriptor: "en quête de direction" },
+    ACC: { name: "Accomplissement", description: "Maîtrise, progrès et réussite.", poles: { low: "À l'arrêt", high: "Accompli(e)" }, highDescriptor: "doté(e) d'un fort sentiment de réussite et de progrès", lowDescriptor: "en manque de sentiment de réussite" },
+  },
+  items: {
+    P1: "Je ressens fréquemment de la joie, de la gratitude ou du contentement.", P2: "Les sensations agréables font régulièrement partie de mes journées.", P3: "Ces derniers temps, je me sens rarement positif(ve) ou enjoué(e).",
+    E1: "Je me plonge souvent entièrement dans ce que je fais.", E2: "Je perds la notion du temps quand je fais quelque chose que j'aime.", E3: "Je suis rarement pleinement absorbé(e) ou « dans le flux ».",
+    R1: "J'ai des relations proches et soutenantes sur lesquelles je peux compter.", R2: "Je me sens aimé(e) et lié(e) aux autres.", R3: "Je me sens souvent seul(e) ou sans soutien.",
+    M1: "Ma vie a un sens clair, un but et une signification.", M2: "Ce que je fais me semble utile et important.", M3: "Je sens souvent que ma vie manque de direction ou de but.",
+    A1: "J'atteins régulièrement des objectifs qui comptent pour moi.", A2: "Je ressens un réel sentiment de réussite et de progrès.", A3: "Je sens rarement que j'accomplis ce que je me suis fixé.",
+  },
+};
+
+const SWLS_ES: InstrumentTranslation = {
+  name: "Satisfacción con la vida",
+  shortName: "Satisfacción vital",
+  tagline: "Tu veredicto general sobre cómo va la vida, según tus propios criterios.",
+  description:
+    "La Escala de Satisfacción con la Vida es la medida más usada del lado reflexivo y valorativo del bienestar: no " +
+    "cómo te sientes momento a momento, sino tu juicio meditado sobre la vida en su conjunto, frente a los estándares " +
+    "que tú mismo/a fijas. Cinco frases breves, décadas de validación en todo el mundo.",
+  scales: {
+    SWL: { name: "Satisfacción con la vida", description: "Juicio cognitivo global de satisfacción con tu vida.", poles: { low: "Insatisfecho/a", high: "Satisfecho/a" }, highDescriptor: "ampliamente satisfecho/a: la vida se acerca a tu ideal", lowDescriptor: "insatisfecho/a: la vida se queda corta respecto a lo que quieres" },
+  },
+  items: {
+    L1: "En la mayoría de los aspectos, mi vida se acerca a mi ideal.",
+    L2: "Las condiciones de mi vida son excelentes.",
+    L3: "Estoy satisfecho/a con mi vida.",
+    L4: "Hasta ahora he conseguido las cosas importantes que quiero en la vida.",
+    L5: "Si pudiera vivir mi vida de nuevo, no cambiaría casi nada.",
+  },
+};
+
+const SWLS_FR: InstrumentTranslation = {
+  name: "Satisfaction de vie",
+  shortName: "Satisfaction de vie",
+  tagline: "Votre jugement global sur le cours de votre vie, selon vos propres critères.",
+  description:
+    "L'Échelle de satisfaction de vie est la mesure la plus utilisée du versant réfléchi et évaluatif du bien-être : " +
+    "non pas ce que vous ressentez d'instant en instant, mais votre jugement posé sur la vie dans son ensemble, au " +
+    "regard des critères que vous vous fixez. Cinq courtes affirmations, des décennies de validation à travers le monde.",
+  scales: {
+    SWL: { name: "Satisfaction de vie", description: "Jugement cognitif global de satisfaction à l'égard de votre vie.", poles: { low: "Insatisfait(e)", high: "Satisfait(e)" }, highDescriptor: "globalement satisfait(e) : la vie est proche de votre idéal", lowDescriptor: "insatisfait(e) : la vie est en deçà de ce que vous voulez" },
+  },
+  items: {
+    L1: "À bien des égards, ma vie est proche de mon idéal.",
+    L2: "Les conditions de ma vie sont excellentes.",
+    L3: "Je suis satisfait(e) de ma vie.",
+    L4: "Jusqu'ici, j'ai obtenu les choses importantes que je veux dans la vie.",
+    L5: "Si je pouvais revivre ma vie, je n'y changerais presque rien.",
+  },
+};
+
+const RESILIENCE_ES: InstrumentTranslation = {
+  name: "Resiliencia (capacidad de recuperación)",
+  shortName: "Resiliencia",
+  tagline: "Con qué rapidez te recuperas y rebotas tras el estrés.",
+  description:
+    "La resiliencia se confunde a menudo con la dureza o la garra, pero la Escala Breve de Resiliencia mide su sentido " +
+    "original: con qué facilidad te recuperas tras el estrés y la adversidad. No se trata de no sufrir nunca, sino de " +
+    "recuperarse. Y como la resiliencia crece con el apoyo, las habilidades y el sentido, una puntuación más baja es un punto desde el que construir.",
+  scales: {
+    RES: { name: "Resiliencia de recuperación", description: "Capacidad de recuperarte rápido del estrés y los reveses.", poles: { low: "Lento/a en recuperarse", high: "Se recupera bien" }, highDescriptor: "te recuperas rápido y sales de la dificultad intacto/a", lowDescriptor: "los reveses tienden a derribarte por más tiempo" },
+  },
+  items: {
+    R1: "Suelo recuperarme rápido tras los momentos difíciles.",
+    R2: "Me cuesta superar los acontecimientos estresantes.",
+    R3: "No tardo mucho en recuperarme de un suceso estresante.",
+    R4: "Me resulta difícil reponerme cuando ocurre algo malo.",
+    R5: "Suelo atravesar los tiempos difíciles con pocos problemas.",
+    R6: "Tiendo a tardar mucho en superar los reveses de mi vida.",
+  },
+};
+
+const RESILIENCE_FR: InstrumentTranslation = {
+  name: "Résilience (capacité de rebond)",
+  shortName: "Résilience",
+  tagline: "À quelle vitesse vous récupérez et rebondissez après le stress.",
+  description:
+    "On confond souvent la résilience avec l'endurance ou la ténacité, mais l'Échelle brève de résilience en mesure le " +
+    "sens d'origine : avec quelle facilité vous rebondissez après le stress et l'adversité. Il ne s'agit pas de ne jamais " +
+    "souffrir, mais de récupérer. Et comme la résilience grandit avec le soutien, les compétences et le sens, un score plus bas est un point d'appui pour progresser.",
+  scales: {
+    RES: { name: "Résilience de rebond", description: "Capacité à récupérer vite du stress et des revers.", poles: { low: "Lent(e) à récupérer", high: "Rebondit bien" }, highDescriptor: "vous récupérez vite et traversez l'épreuve intact(e)", lowDescriptor: "les revers ont tendance à vous abattre plus longtemps" },
+  },
+  items: {
+    R1: "J'ai tendance à rebondir vite après les périodes difficiles.",
+    R2: "J'ai du mal à traverser les événements stressants.",
+    R3: "Il ne me faut pas longtemps pour me remettre d'un événement stressant.",
+    R4: "J'ai du mal à me ressaisir quand quelque chose de mauvais arrive.",
+    R5: "Je traverse généralement les moments difficiles sans trop d'encombre.",
+    R6: "J'ai tendance à mettre longtemps à surmonter les revers de ma vie.",
+  },
+};
+
+const SELFESTEEM_ES: InstrumentTranslation = {
+  name: "Autoestima (Rosenberg)",
+  shortName: "Autoestima",
+  tagline: "Tu sentido global de autovalía: la medida de autoestima más usada en psicología.",
+  description:
+    "La Escala de Autoestima de Rosenberg es la medida de referencia de la autovalía global: cómo de positivamente, en " +
+    "conjunto, te valoras a ti mismo/a. Diez frases equilibradas, validadas durante décadas y culturas. La autoestima no " +
+    "es fija: responde a cómo te tratas y a lo que construyes, así que también sirve como punto de partida para crecer.",
+  scales: {
+    EST: { name: "Autoestima global", description: "Sentido general de valía personal y autoaceptación.", poles: { low: "Baja autovaloración", high: "Alta autovaloración" }, highDescriptor: "con autorrespeto, seguro/a y aceptándote a ti mismo/a", lowDescriptor: "autocrítico/a y propenso/a a dudar de tu valía" },
+  },
+  items: {
+    S1: "En general, estoy satisfecho/a conmigo mismo/a.",
+    S2: "Siento que tengo una serie de buenas cualidades.",
+    S3: "Soy capaz de hacer las cosas tan bien como la mayoría de la gente.",
+    S4: "Siento que soy una persona valiosa, al menos en igual medida que los demás.",
+    S5: "Adopto una actitud positiva hacia mí mismo/a.",
+    S6: "A veces pienso que no sirvo para nada.",
+    S7: "Siento que no tengo mucho de lo que enorgullecerme.",
+    S8: "Ciertamente, a veces me siento inútil.",
+    S9: "Desearía poder tenerme más respeto.",
+    S10: "En definitiva, tiendo a sentir que soy un fracaso.",
+  },
+};
+
+const SELFESTEEM_FR: InstrumentTranslation = {
+  name: "Estime de soi (Rosenberg)",
+  shortName: "Estime de soi",
+  tagline: "Votre sentiment global de valeur personnelle — la mesure d'estime de soi la plus utilisée.",
+  description:
+    "L'Échelle d'estime de soi de Rosenberg est la mesure de référence de la valeur personnelle globale : à quel point, " +
+    "dans l'ensemble, vous vous estimez positivement. Dix affirmations équilibrées, validées au fil des décennies et des " +
+    "cultures. L'estime de soi n'est pas figée : elle réagit à la façon dont vous vous traitez et à ce que vous construisez, ce qui en fait aussi un point de départ pour progresser.",
+  scales: {
+    EST: { name: "Estime de soi globale", description: "Sentiment général de valeur personnelle et d'acceptation de soi.", poles: { low: "Faible estime de soi", high: "Forte estime de soi" }, highDescriptor: "respectueux(se) de vous-même, sûr(e) et vous acceptant", lowDescriptor: "autocritique et enclin(e) à douter de votre valeur" },
+  },
+  items: {
+    S1: "Dans l'ensemble, je suis satisfait(e) de moi-même.",
+    S2: "Je sens que je possède un certain nombre de belles qualités.",
+    S3: "Je suis capable de faire les choses aussi bien que la plupart des gens.",
+    S4: "Je sens que je suis une personne de valeur, au moins autant que les autres.",
+    S5: "J'adopte une attitude positive envers moi-même.",
+    S6: "Il m'arrive de penser que je ne vaux rien.",
+    S7: "Je sens que je n'ai pas grand-chose dont être fier(e).",
+    S8: "Je me sens parfois vraiment inutile.",
+    S9: "J'aimerais pouvoir avoir plus de respect pour moi-même.",
+    S10: "Tout compte fait, j'ai tendance à me considérer comme un échec.",
+  },
+};
+
+const MOOD_ES: InstrumentTranslation = {
+  name: "Chequeo del estado de ánimo",
+  shortName: "Ánimo",
+  tagline: "Una instantánea amable de dos semanas de ánimo y energía: apoyo, no diagnóstico.",
+  description:
+    "Un chequeo breve y cuidadoso de cómo han estado tu ánimo y tu energía en las últimas dos semanas, en el espíritu " +
+    "de los cribados habituales de bienestar, pero enfocado en cómo estás, no en qué va mal. Puntuaciones más altas " +
+    "significan un ánimo y una energía más estables. Es un estímulo para el autoconocimiento y el autocuidado, nunca un diagnóstico.",
+  scales: {
+    MOOD: { name: "Ánimo y perspectiva", description: "Luminosidad del ánimo, el interés y la esperanza.", poles: { low: "Bajo y plano", high: "Luminoso y esperanzado" }, highDescriptor: "ánimo más luminoso, interés y esperanza", lowDescriptor: "ánimo más bajo y plano y menos interés" },
+    ENRG: { name: "Energía y descanso", description: "Energía, descanso y estabilidad física.", poles: { low: "Agotado/a", high: "Con energía" }, highDescriptor: "descansado/a, con energía y sereno/a", lowDescriptor: "cansado/a, agotado/a o inquieto/a" },
+  },
+  items: {
+    M1: "En las últimas dos semanas, me he sentido decaído/a, deprimido/a o sin esperanza.",
+    M2: "He tenido poco interés o placer en cosas que normalmente disfruto.",
+    M3: "Me he sentido bien conmigo mismo/a y con esperanza sobre los días por venir.",
+    M4: "He podido disfrutar de partes de mi día.",
+    E1: "He dormido razonablemente bien y me he sentido descansado/a.",
+    E2: "He tenido energía para hacer lo que necesitaba hacer.",
+    E3: "Me he sentido cansado/a o con poca energía.",
+    E4: "Me he sentido ralentizado/a, o inquieto/a e incapaz de calmarme.",
+  },
+};
+
+const MOOD_FR: InstrumentTranslation = {
+  name: "Bilan de l'humeur",
+  shortName: "Humeur",
+  tagline: "Un aperçu bienveillant sur deux semaines de l'humeur et de l'énergie — du soutien, pas un diagnostic.",
+  description:
+    "Un bilan bref et attentionné de votre humeur et de votre énergie au cours des deux dernières semaines, dans " +
+    "l'esprit des dépistages courants du bien-être — mais centré sur comment vous allez, non sur ce qui ne va pas. Des " +
+    "scores plus élevés indiquent une humeur et une énergie plus stables. C'est une invitation à la conscience de soi et au soin de soi, jamais un diagnostic.",
+  scales: {
+    MOOD: { name: "Humeur et perspective", description: "Éclat de l'humeur, intérêt et espoir.", poles: { low: "Bas et terne", high: "Lumineux et plein d'espoir" }, highDescriptor: "humeur plus lumineuse, intérêt et espoir", lowDescriptor: "humeur plus basse et plus terne, et moins d'intérêt" },
+    ENRG: { name: "Énergie et repos", description: "Énergie, repos et stabilité physique.", poles: { low: "Épuisé(e)", high: "Plein(e) d'énergie" }, highDescriptor: "reposé(e), plein(e) d'énergie et apaisé(e)", lowDescriptor: "fatigué(e), épuisé(e) ou agité(e)" },
+  },
+  items: {
+    M1: "Au cours des deux dernières semaines, je me suis senti(e) abattu(e), déprimé(e) ou sans espoir.",
+    M2: "J'ai eu peu d'intérêt ou de plaisir pour des choses que j'apprécie d'ordinaire.",
+    M3: "Je me suis senti(e) bien dans ma peau et plein(e) d'espoir pour les jours à venir.",
+    M4: "J'ai pu profiter de certains moments de ma journée.",
+    E1: "J'ai assez bien dormi et je me suis senti(e) reposé(e).",
+    E2: "J'ai eu l'énergie de faire ce que je devais faire.",
+    E3: "Je me suis senti(e) fatigué(e) ou à court d'énergie.",
+    E4: "Je me suis senti(e) ralenti(e), ou agité(e) et incapable de me poser.",
+  },
+};
+
+/* ── HEXACO + Dark Triad (dimensional; reports localize via the shared composer) ── */
+
+const HEXACO_ES: InstrumentTranslation = {
+  name: "Personalidad HEXACO (6 dimensiones)",
+  shortName: "HEXACO",
+  tagline: "Los Cinco Grandes, más el factor que les faltaba: Honestidad-Humildad.",
+  description:
+    "HEXACO es un modelo de seis dimensiones con un fuerte respaldo intercultural. Junto a Emocionalidad, " +
+    "eXtraversión, Amabilidad, Responsabilidad y Apertura, añade la Honestidad-Humildad —la tendencia a la " +
+    "sinceridad, la justicia y la modestia—, que predice el comportamiento ético más allá de los Cinco Grandes.",
+  scales: {
+    H: { name: "Honestidad-Humildad", description: "Sinceridad, justicia, modestia y ausencia de codicia.", poles: { low: "Interesado/a", high: "Honesto/a-Humilde" }, highDescriptor: "sincero/a, justo/a, modesto/a y poco dispuesto/a a explotar a los demás", lowDescriptor: "en busca de estatus, autopromocional y dispuesto/a a torcer las reglas por ventaja" },
+    E: { name: "Emocionalidad", description: "Temor, ansiedad, sentimentalidad y necesidad de apoyo.", poles: { low: "Poco sentimental", high: "Sensible" }, highDescriptor: "sensible, sentimental y atento/a al riesgo y al vínculo", lowDescriptor: "duro/a, autosuficiente y tranquilo/a ante el peligro" },
+    X: { name: "eXtraversión", description: "Autoestima social, audacia, sociabilidad y vitalidad.", poles: { low: "Reservado/a", high: "Extrovertido/a" }, highDescriptor: "extrovertido/a, vivaz, con confianza social y con energía entre la gente", lowDescriptor: "reservado/a, discreto/a y a gusto en su propia compañía" },
+    A: { name: "Amabilidad (vs. Ira)", description: "Perdón, gentileza, flexibilidad y paciencia.", poles: { low: "Crítico/a", high: "Amable" }, highDescriptor: "indulgente, gentil, fácil de tratar y lento/a para la ira", lowDescriptor: "crítico/a, terco/a y rápido/a en sentirse agraviado/a" },
+    C: { name: "Responsabilidad", description: "Organización, diligencia, perfeccionismo y prudencia.", poles: { low: "Espontáneo/a", high: "Disciplinado/a" }, highDescriptor: "organizado/a, disciplinado/a, cuidadoso/a y minucioso/a", lowDescriptor: "espontáneo/a, flexible y cómodo/a con el desorden" },
+    O: { name: "Apertura a la experiencia", description: "Aprecio estético, curiosidad, creatividad y heterodoxia.", poles: { low: "Convencional", high: "Inventivo/a" }, highDescriptor: "curioso/a, imaginativo/a y atraído/a por el arte, las ideas y lo poco convencional", lowDescriptor: "práctico/a, convencional y centrado/a en lo familiar" },
+  },
+  items: {
+    H1: "No usaría la adulación para conseguir un aumento o un ascenso, aunque funcionara.", H2: "Si supiera que nunca me pillarían, estaría dispuesto/a a torcer las reglas en beneficio propio.", H3: "Tener mucho dinero y lujo no me importa demasiado.", H4: "Siento que merezco más respeto y trato especial que la persona media.",
+    E1: "Sentiría bastante miedo si tuviera que viajar con muy mal tiempo.", E2: "Me preocupo bastante por cómo saldrán las cosas.", E3: "Puedo manejar situaciones difíciles sin necesitar apoyo emocional de los demás.", E4: "Siento una emoción intensa cuando alguien cercano se marcha por mucho tiempo.",
+    X1: "Me siento razonablemente satisfecho/a conmigo mismo/a y con mi vida.", X2: "En situaciones sociales, suelo ser quien da el primer paso.", X3: "Disfruto de tener mucha gente alrededor con quien hablar.", X4: "La mayoría de la gente es más alegre y animada que yo.",
+    A1: "Rara vez guardo rencor, ni siquiera a quienes me han agraviado gravemente.", A2: "A veces me dicen que soy demasiado crítico/a con los demás.", A3: "Suelo estar dispuesto/a a ceder en lugar de insistir en salirme con la mía.", A4: "Pierdo los estribos más fácilmente que la mayoría.",
+    C1: "Mantengo mis cosas ordenadas y bien organizadas.", C2: "Cuando trabajo en algo, me exijo mucho para hacerlo bien.", C3: "A menudo tomo decisiones de forma impulsiva.", C4: "Reviso los detalles con cuidado antes de dar una tarea por terminada.",
+    O1: "Me cautiva la belleza en el arte o la naturaleza.", O2: "Me gusta hacer preguntas sobre cosas que la mayoría da por sentadas.", O3: "La gente me describiría como imaginativo/a y original.", O4: "Evito las ideas y las personas que parecen extrañas o poco convencionales.",
+  },
+};
+
+const HEXACO_FR: InstrumentTranslation = {
+  name: "Personnalité HEXACO (6 dimensions)",
+  shortName: "HEXACO",
+  tagline: "Les Big Five, plus le facteur qui leur manquait : Honnêteté-Humilité.",
+  description:
+    "HEXACO est un modèle à six dimensions solidement appuyé par les études interculturelles. À côté de l'Émotivité, " +
+    "de l'eXtraversion, de l'Agréabilité, du caractère Consciencieux et de l'Ouverture, il ajoute l'Honnêteté-Humilité " +
+    "— la tendance à la sincérité, à l'équité et à la modestie —, qui prédit le comportement éthique au-delà des Big Five.",
+  scales: {
+    H: { name: "Honnêteté-Humilité", description: "Sincérité, équité, modestie et absence d'avidité.", poles: { low: "Intéressé(e)", high: "Honnête-Humble" }, highDescriptor: "sincère, équitable, modeste et peu enclin(e) à exploiter autrui", lowDescriptor: "en quête de statut, porté(e) à l'autopromotion et prêt(e) à contourner les règles pour un avantage" },
+    E: { name: "Émotivité", description: "Peur, anxiété, sentimentalité et besoin de soutien.", poles: { low: "Peu sentimental(e)", high: "Sensible" }, highDescriptor: "sensible, sentimental(e) et attentif(ve) au risque et au lien", lowDescriptor: "endurci(e), autonome et calme face au danger" },
+    X: { name: "eXtraversion", description: "Estime de soi sociale, audace, sociabilité et entrain.", poles: { low: "Réservé(e)", high: "Extraverti(e)" }, highDescriptor: "sociable, vif(ve), sûr(e) de soi en société et stimulé(e) par les autres", lowDescriptor: "réservé(e), discret(ète) et bien dans sa propre compagnie" },
+    A: { name: "Agréabilité (vs. Colère)", description: "Pardon, douceur, souplesse et patience.", poles: { low: "Critique", high: "Agréable" }, highDescriptor: "indulgent(e), doux(ce), facile à vivre et lent(e) à la colère", lowDescriptor: "critique, têtu(e) et prompt(e) à se sentir lésé(e)" },
+    C: { name: "Caractère consciencieux", description: "Organisation, diligence, perfectionnisme et prudence.", poles: { low: "Spontané(e)", high: "Discipliné(e)" }, highDescriptor: "organisé(e), discipliné(e), soigneux(se) et minutieux(se)", lowDescriptor: "spontané(e), souple et à l'aise avec le désordre" },
+    O: { name: "Ouverture à l'expérience", description: "Sens esthétique, curiosité, créativité et non-conformisme.", poles: { low: "Conventionnel(le)", high: "Inventif(ve)" }, highDescriptor: "curieux(se), imaginatif(ve) et attiré(e) par l'art, les idées et l'inhabituel", lowDescriptor: "pratique, conventionnel(le) et centré(e) sur le familier" },
+  },
+  items: {
+    H1: "Je n'utiliserais pas la flatterie pour obtenir une augmentation ou une promotion, même si cela marchait.", H2: "Si je savais que je ne me ferais jamais prendre, je serais prêt(e) à contourner les règles à mon profit.", H3: "Avoir beaucoup d'argent et de luxe ne m'importe pas particulièrement.", H4: "J'estime mériter plus de respect et de traitement de faveur que la moyenne des gens.",
+    E1: "J'aurais assez peur si je devais voyager par très mauvais temps.", E2: "Je me soucie beaucoup de la façon dont les choses vont tourner.", E3: "Je peux gérer des situations difficiles sans avoir besoin du soutien émotionnel des autres.", E4: "Je ressens une émotion forte quand un proche part pour longtemps.",
+    X1: "Je me sens raisonnablement satisfait(e) de moi-même et de ma vie.", X2: "Dans les situations sociales, je suis souvent celui/celle qui fait le premier pas.", X3: "J'aime avoir beaucoup de monde autour de moi pour discuter.", X4: "La plupart des gens sont plus gais et enjoués que moi.",
+    A1: "Je garde rarement rancune, même envers ceux qui m'ont gravement lésé(e).", A2: "On me dit parfois que je suis trop critique envers les autres.", A3: "Je suis généralement prêt(e) à faire des compromis plutôt qu'à imposer ma façon de voir.", A4: "Je m'emporte plus facilement que la plupart des gens.",
+    C1: "Je garde mes affaires nettes et bien rangées.", C2: "Quand je travaille sur quelque chose, je me pousse à le réussir.", C3: "Je prends souvent des décisions sur un coup de tête.", C4: "Je vérifie soigneusement les détails avant de considérer une tâche terminée.",
+    O1: "La beauté dans l'art ou la nature me captive.", O2: "J'aime poser des questions sur ce que la plupart des gens tiennent pour acquis.", O3: "On me décrirait comme imaginatif(ve) et original(e).", O4: "J'évite les idées et les personnes qui semblent étranges ou non conventionnelles.",
+  },
+};
+
+const DARKTRIAD_ES: InstrumentTranslation = {
+  name: "La Tríada Oscura",
+  shortName: "Tríada Oscura",
+  tagline: "Tres rasgos de sombra, medidos con honestidad, para comprender, no para juzgar.",
+  description:
+    "La Tríada Oscura —Maquiavelismo (manipulación estratégica), Narcisismo (grandiosidad y necesidad de admiración) " +
+    "y Psicopatía (frialdad e impulsividad)— capta el lado «más oscuro» de la personalidad normal. Ver tus niveles con " +
+    "claridad es una vía hacia el autoconocimiento, no un veredicto sobre tu carácter.",
+  scales: {
+    MACH: { name: "Maquiavelismo", description: "Estratégico, calculador y dispuesto a manipular para lograr sus metas.", poles: { low: "Directo/a", high: "Estratégico/a" }, highDescriptor: "estratégico/a, cauteloso/a y cómodo/a maniobrando para obtener resultados", lowDescriptor: "directo/a, confiado/a y sin interés en manipular" },
+    NARC: { name: "Narcisismo", description: "Grandiosidad, sentido de superioridad y necesidad de admiración.", poles: { low: "Modesto/a", high: "Grandioso/a" }, highDescriptor: "seguro/a de sí, buscador/a de atención y ávido/a de reconocimiento", lowDescriptor: "modesto/a, humilde y cómodo/a fuera del foco" },
+    PSYCH: { name: "Psicopatía", description: "Frialdad, impulsividad y búsqueda de emociones (rango normal).", poles: { low: "Empático/a", high: "Frío/a" }, highDescriptor: "audaz, impulsivo/a, buscador/a de emociones y con poca culpa o empatía", lowDescriptor: "cauteloso/a, empático/a y considerado/a con los demás" },
+  },
+  items: {
+    M1: "Es sensato guardarte alguna información sobre ti para cuando resulte útil.", M2: "Estoy dispuesto/a a orientar una situación para obtener el resultado que quiero.", M3: "A casi todo el mundo se le puede ganar con el enfoque adecuado, y yo lo aprovecho.", M4: "Prefiero actuar entre bastidores antes que enfrentarme a la gente de frente.", M5: "Es inteligente esperar el momento oportuno para devolvérsela a alguien.", M6: "Me aseguro de que mis planes sirvan a mis intereses, aunque no lo anuncie.",
+    N1: "La gente me ve como un líder natural, y estoy de acuerdo.", N2: "Me gusta ser el centro de atención.", N3: "Tengo la firme sensación de ser especial o excepcional.", N4: "Disfruto que me admiren, y me molesta cuando no es así.", N5: "Espero un buen reconocimiento por lo que hago.", N6: "Soy más capaz que la mayoría de la gente que me rodea.",
+    P1: "Tiendo a actuar por impulso sin preocuparme mucho por las consecuencias.", P2: "El sufrimiento de los demás no me conmueve con facilidad.", P3: "Me gusta arriesgarme y buscar emociones fuertes.", P4: "Vengarse puede ser satisfactorio.", P5: "Rara vez me siento culpable, incluso cuando probablemente debería.", P6: "Las reglas me parecen más bien sugerencias.",
+  },
+};
+
+const DARKTRIAD_FR: InstrumentTranslation = {
+  name: "La Triade noire",
+  shortName: "Triade noire",
+  tagline: "Trois traits de l'ombre — mesurés honnêtement, pour comprendre, pas pour juger.",
+  description:
+    "La Triade noire — Machiavélisme (manipulation stratégique), Narcissisme (grandiosité et besoin d'admiration) et " +
+    "Psychopathie (froideur et impulsivité) — capte le côté « plus sombre » de la personnalité normale. Voir vos " +
+    "niveaux clairement est une voie vers la connaissance de soi, pas un verdict sur votre caractère.",
+  scales: {
+    MACH: { name: "Machiavélisme", description: "Stratège, calculateur et prêt à manipuler pour atteindre ses buts.", poles: { low: "Direct(e)", high: "Stratège" }, highDescriptor: "stratège, sur ses gardes et à l'aise pour manœuvrer afin d'obtenir des résultats", lowDescriptor: "direct(e), confiant(e) et sans intérêt pour la manipulation" },
+    NARC: { name: "Narcissisme", description: "Grandiosité, sentiment d'importance et besoin d'admiration.", poles: { low: "Modeste", high: "Grandiose" }, highDescriptor: "sûr(e) de lui/elle, en quête d'attention et avide de reconnaissance", lowDescriptor: "modeste, effacé(e) et à l'aise hors des projecteurs" },
+    PSYCH: { name: "Psychopathie", description: "Froideur, impulsivité et recherche de sensations (registre normal).", poles: { low: "Empathique", high: "Froid(e)" }, highDescriptor: "audacieux(se), impulsif(ve), en quête de sensations et peu sujet(te) à la culpabilité ou à l'empathie", lowDescriptor: "prudent(e), empathique et soucieux(se) des autres" },
+  },
+  items: {
+    M1: "Il est sage de garder en réserve certaines informations sur soi pour quand elles seront utiles.", M2: "Je suis prêt(e) à orienter une situation pour obtenir le résultat que je veux.", M3: "On peut convaincre presque tout le monde avec la bonne approche — et j'en joue.", M4: "Je préfère agir en coulisses plutôt que d'affronter les gens directement.", M5: "Il est malin d'attendre le bon moment pour rendre la pareille à quelqu'un.", M6: "Je m'assure que mes plans servent mes intérêts, même si je ne l'affiche pas.",
+    N1: "Les gens me voient comme un leader naturel — et je suis d'accord.", N2: "J'aime être le centre de l'attention.", N3: "J'ai le sentiment fort d'être spécial(e) ou exceptionnel(le).", N4: "J'aime être admiré(e), et cela me dérange quand je ne le suis pas.", N5: "J'attends une bonne dose de reconnaissance pour ce que je fais.", N6: "Je suis plus capable que la plupart des gens autour de moi.",
+    P1: "J'ai tendance à agir sur l'impulsion sans trop me soucier des conséquences.", P2: "La souffrance des autres ne me touche pas facilement.", P3: "J'aime prendre des risques et rechercher des sensations fortes.", P4: "Prendre sa revanche peut être satisfaisant.", P5: "Je me sens rarement coupable, même quand je le devrais probablement.", P6: "Les règles me semblent plutôt des suggestions.",
+  },
+};
+
+/* ── Jungian 16 Types (typological; type card localized separately via jungTypeStrings) ── */
+
+const JUNG_ES: InstrumentTranslation = {
+  name: "Perfilador de tipos junguianos (16 tipos)",
+  shortName: "16 Tipos",
+  tagline: "Cuatro dicotomías, dieciséis tipos: el mapa junguiano de la mente.",
+  description:
+    "Basado en la teoría de los tipos psicológicos de Carl Jung y el marco de cuatro dicotomías popularizado por Myers " +
+    "y Briggs. Estima tus preferencias en cuatro ejes —Extraversión/Introversión, Sensación/Intuición, Pensamiento/" +
+    "Sentimiento, Juicio/Percepción— y las resuelve en uno de dieciséis tipos, con la pila de funciones cognitivas junguianas que lo sustenta.",
+  scales: {
+    EI: { name: "Extraversión–Introversión", description: "Hacia dónde se dirigen principalmente la atención y la energía.", poles: { low: "Introversión", high: "Extraversión" }, highDescriptor: "hacia fuera, hacia la gente y la acción", lowDescriptor: "hacia dentro, hacia la reflexión y la profundidad" },
+    SN: { name: "Sensación–Intuición", description: "Cómo se capta y en qué se confía la información.", poles: { low: "Sensación", high: "Intuición" }, highDescriptor: "patrones abstractos y posibilidad futura", lowDescriptor: "hechos concretos y realidad presente" },
+    TF: { name: "Pensamiento–Sentimiento", description: "Cómo se sopesan y toman las decisiones.", poles: { low: "Pensamiento", high: "Sentimiento" }, highDescriptor: "valores, empatía e impacto humano", lowDescriptor: "lógica imparcial y principio objetivo" },
+    JP: { name: "Juicio–Percepción", description: "Cómo se aborda el mundo exterior.", poles: { low: "Percepción", high: "Juicio" }, highDescriptor: "planificado, decidido y estructurado", lowDescriptor: "abierto, flexible y espontáneo" },
+  },
+  items: {
+    EI1: "Conocer gente nueva tiende a darme más energía que a quitármela.", EI2: "Pienso en voz alta, desarrollando las ideas al comentarlas con otros.", EI3: "En un grupo animado, suelo ser de los más habladores.", EI4: "Busco activamente eventos sociales para recargarme tras una temporada ajetreada.", EI5: "Después de socializar mucho, necesito soledad para volver a sentirme yo.", EI6: "Pienso mejor en silencio y a solas antes de compartirlo.", EI7: "Prefiero unas pocas amistades profundas a un amplio círculo de conocidos.", EI8: "Las reuniones grandes a menudo me dejan agotado/a en lugar de con energía.",
+    SN1: "Me atraen las ideas abstractas, los patrones y lo que las cosas podrían llegar a ser.", SN2: "A menudo noto conexiones y significados que no son evidentes a primera vista.", SN3: "Disfruto más imaginando posibilidades futuras que gestionando los detalles del presente.", SN4: "Confío en las teorías y las corazonadas casi tanto como en los hechos.", SN5: "Me centro en los hechos concretos y en lo que tengo realmente delante.", SN6: "Confío más en la experiencia directa que en la especulación sobre posibilidades.", SN7: "Prefiero instrucciones prácticas paso a paso a los conceptos abiertos.", SN8: "Tiendo a fijarme en detalles sensoriales concretos que otros pasan por alto.",
+    TF1: "Al decidir, sopeso cómo se verá afectada la gente tanto como la lógica.", TF2: "Mantener la armonía en un grupo me importa muchísimo.", TF3: "Mis valores personales y mi empatía guían cómo juzgo una situación.", TF4: "Me resulta fácil sentir lo que siente otra persona.", TF5: "Prefiero decidir con lógica imparcial, aunque hiera algunos sentimientos.", TF6: "Valoro ser sincero/a y coherente por encima de ser diplomático/a.", TF7: "Tiendo a analizar los problemas con objetividad, dejando la emoción a un lado.", TF8: "La justicia según un principio claro me importa más que la comodidad de todos.",
+    JP1: "Me gusta planificar con antelación y cerrar las decisiones mucho antes del plazo.", JP2: "Me siento más tranquilo/a cuando mi día sigue un horario organizado.", JP3: "Prefiero los asuntos decididos y cerrados a dejarlos abiertos.", JP4: "Hago listas y disfruto tachando tareas en orden.", JP5: "Prefiero mantener mis opciones abiertas que comprometerme con un plan fijo.", JP6: "Trabajo mejor en arranques espontáneos que con un esfuerzo constante y programado.", JP7: "La flexibilidad de última hora me va mejor que una rutina fija.", JP8: "A menudo empiezo algo nuevo antes de haber terminado lo anterior.",
+  },
+};
+
+const JUNG_FR: InstrumentTranslation = {
+  name: "Profileur de types jungiens (16 types)",
+  shortName: "16 Types",
+  tagline: "Quatre dichotomies, seize types — la carte jungienne de l'esprit.",
+  description:
+    "Fondé sur la théorie des types psychologiques de Carl Jung et le cadre des quatre dichotomies popularisé par Myers " +
+    "et Briggs. Il estime vos préférences sur quatre axes — Extraversion/Introversion, Sensation/Intuition, Pensée/" +
+    "Sentiment, Jugement/Perception — et les résout en l'un des seize types, avec la pile de fonctions cognitives jungiennes qui le sous-tend.",
+  scales: {
+    EI: { name: "Extraversion–Introversion", description: "Vers où l'attention et l'énergie sont principalement dirigées.", poles: { low: "Introversion", high: "Extraversion" }, highDescriptor: "vers l'extérieur, vers les gens et l'action", lowDescriptor: "vers l'intérieur, vers la réflexion et la profondeur" },
+    SN: { name: "Sensation–Intuition", description: "Comment l'information est captée et à quoi on se fie.", poles: { low: "Sensation", high: "Intuition" }, highDescriptor: "des schémas abstraits et la possibilité future", lowDescriptor: "des faits concrets et la réalité présente" },
+    TF: { name: "Pensée–Sentiment", description: "Comment les décisions sont pesées et prises.", poles: { low: "Pensée", high: "Sentiment" }, highDescriptor: "les valeurs, l'empathie et l'impact humain", lowDescriptor: "la logique impartiale et le principe objectif" },
+    JP: { name: "Jugement–Perception", description: "Comment le monde extérieur est abordé.", poles: { low: "Perception", high: "Jugement" }, highDescriptor: "planifié, décidé et structuré", lowDescriptor: "ouvert, flexible et spontané" },
+  },
+  items: {
+    EI1: "Rencontrer de nouvelles personnes me donne plutôt de l'énergie que cela ne m'en retire.", EI2: "Je pense à voix haute, en développant mes idées en les discutant avec les autres.", EI3: "Dans un groupe animé, je suis souvent l'un(e) des plus bavard(e)s.", EI4: "Je recherche activement les événements sociaux pour me ressourcer après une période chargée.", EI5: "Après avoir beaucoup socialisé, j'ai besoin de solitude pour me sentir à nouveau moi-même.", EI6: "Je réfléchis le mieux au calme et seul(e) avant de partager.", EI7: "Je préfère quelques amitiés profondes à un large cercle de connaissances.", EI8: "Les grands rassemblements me laissent souvent vidé(e) plutôt que dynamisé(e).",
+    SN1: "Je suis attiré(e) par les idées abstraites, les schémas et ce que les choses pourraient devenir.", SN2: "Je remarque souvent des liens et des sens qui ne sont pas évidents en surface.", SN3: "J'aime davantage imaginer des possibilités futures que gérer les détails du présent.", SN4: "Je fais presque autant confiance aux théories et aux intuitions qu'aux faits concrets.", SN5: "Je me concentre sur les faits concrets et sur ce qui est réellement devant moi.", SN6: "Je fais plus confiance à l'expérience directe qu'à la spéculation sur les possibilités.", SN7: "Je préfère des instructions pratiques, étape par étape, aux concepts ouverts.", SN8: "J'ai tendance à remarquer des détails sensoriels précis que d'autres négligent.",
+    TF1: "Quand je décide, je pèse autant l'effet sur les gens que la logique.", TF2: "Préserver l'harmonie dans un groupe compte énormément pour moi.", TF3: "Mes valeurs personnelles et mon empathie guident ma façon de juger une situation.", TF4: "Il m'est facile de ressentir ce que ressent une autre personne.", TF5: "Je préfère décider par une logique impartiale, même si cela froisse quelques sensibilités.", TF6: "Je valorise la franchise et la cohérence plus que le tact.", TF7: "J'ai tendance à analyser les problèmes objectivement, en mettant l'émotion de côté.", TF8: "L'équité selon un principe clair compte plus pour moi que le confort de chacun.",
+    JP1: "J'aime planifier à l'avance et trancher les décisions bien avant l'échéance.", JP2: "Je me sens plus serein(e) quand ma journée suit un emploi du temps organisé.", JP3: "Je préfère les affaires décidées et closes plutôt que laissées ouvertes.", JP4: "Je fais des listes et j'aime cocher les tâches dans l'ordre.", JP5: "Je préfère garder mes options ouvertes que m'engager dans un plan figé.", JP6: "Je travaille mieux par élans spontanés que par un effort régulier et programmé.", JP7: "La flexibilité de dernière minute me convient mieux qu'une routine fixe.", JP8: "Je commence souvent quelque chose de nouveau avant d'avoir fini le précédent.",
+  },
+};
+
+/* ── Optimism, Hope, Curiosity (the newly-added emotional/focused instruments) ── */
+
+const OPTIMISM_ES: InstrumentTranslation = {
+  name: "Optimismo (orientación vital)",
+  shortName: "Optimismo",
+  tagline: "¿Esperas lo mejor, te preparas para lo peor, o ambas cosas?",
+  description:
+    "El optimismo disposicional es la expectativa general de que vienen cosas buenas, y es uno de los predictores más " +
+    "fiables de la resiliencia, el afrontamiento y el bienestar. Este perfilador mide el Optimismo y el Pesimismo como " +
+    "dos tendencias separables —mucha gente tiene algo de cada una— y plantea ambas como actitudes que puedes cambiar con la práctica, no destinos fijos.",
+  scales: {
+    OPT: { name: "Optimismo", description: "Expectativa general de que vienen buenos resultados.", poles: { low: "Cauteloso/a", high: "Optimista" }, highDescriptor: "esperando buenos resultados y mirando el lado bueno", lowDescriptor: "prudente y comedido/a sobre lo que viene" },
+    PES: { name: "Pesimismo", description: "Expectativa general de que las cosas saldrán mal.", poles: { low: "Esperanzado/a", high: "Pesimista" }, highDescriptor: "preparándote para la decepción y esperando reveses", lowDescriptor: "rara vez anticipando lo peor" },
+  },
+  items: {
+    O1: "En tiempos inciertos, suelo esperar lo mejor.", O2: "En general, soy optimista sobre mi futuro.", O3: "En conjunto, espero que me ocurran más cosas buenas que malas.", O4: "Suelo creer que las cosas saldrán bien al final.", O5: "Cuando empiezo algo nuevo, espero que vaya bien.", O6: "Normalmente encuentro el lado bueno de una situación difícil.",
+    P1: "Si algo puede salirme mal, saldrá mal.", P2: "Casi nunca espero que las cosas vayan a mi favor.", P3: "Rara vez cuento con que me pasen cosas buenas.", P4: "Tiendo a prepararme para lo peor.", P5: "Los reveses me hacen dudar de que las cosas mejoren.", P6: "A menudo espero llevarme una decepción.",
+  },
+};
+
+const OPTIMISM_FR: InstrumentTranslation = {
+  name: "Optimisme (orientation de vie)",
+  shortName: "Optimisme",
+  tagline: "Attendez-vous le meilleur, vous préparez-vous au pire — ou les deux ?",
+  description:
+    "L'optimisme dispositionnel est l'attente générale que de bonnes choses arrivent, et c'est l'un des prédicteurs les " +
+    "plus fiables de la résilience, de l'adaptation et du bien-être. Ce profil mesure l'Optimisme et le Pessimisme comme " +
+    "deux tendances distinctes — beaucoup de gens ont un peu des deux — et présente les deux comme des attitudes que l'on peut faire évoluer avec la pratique, non des destins figés.",
+  scales: {
+    OPT: { name: "Optimisme", description: "Attente générale de bons résultats.", poles: { low: "Prudent(e)", high: "Optimiste" }, highDescriptor: "attendant de bons résultats et voyant le bon côté", lowDescriptor: "mesuré(e) et prudent(e) quant à l'avenir" },
+    PES: { name: "Pessimisme", description: "Attente générale que les choses tournent mal.", poles: { low: "Confiant(e)", high: "Pessimiste" }, highDescriptor: "vous préparant à la déception et anticipant les revers", lowDescriptor: "anticipant rarement le pire" },
+  },
+  items: {
+    O1: "En période d'incertitude, je m'attends généralement au meilleur.", O2: "Dans l'ensemble, je suis optimiste quant à mon avenir.", O3: "Globalement, je m'attends à plus de bonnes choses que de mauvaises.", O4: "Je crois généralement que les choses finiront par s'arranger.", O5: "Quand je commence quelque chose de nouveau, je m'attends à ce que ça se passe bien.", O6: "Je trouve généralement le bon côté d'une situation difficile.",
+    P1: "Si quelque chose peut mal tourner pour moi, ça tournera mal.", P2: "Je m'attends rarement à ce que les choses aillent dans mon sens.", P3: "Je compte rarement sur de bonnes choses.", P4: "J'ai tendance à me préparer au pire.", P5: "Les revers me font douter que les choses s'améliorent.", P6: "Je m'attends souvent à être déçu(e).",
+  },
+};
+
+const HOPE_ES: InstrumentTranslation = {
+  name: "Esperanza (agencia y rutas)",
+  shortName: "Esperanza",
+  tagline: "La voluntad y el camino: dos mitades de cómo persigues tus metas.",
+  description:
+    "En el modelo de Snyder, la esperanza no es un sentimiento ilusorio, sino una forma de pensar sobre las metas. Tiene " +
+    "dos motores: la AGENCIA, el impulso y la fuerza de voluntad para perseguir lo que quieres, y las RUTAS, la habilidad " +
+    "para encontrar caminos hacia ello. La esperanza fuerte necesita ambas. Este perfilador muestra el equilibrio entre tu voluntad y tu camino, y ambas mitades crecen con la práctica.",
+  scales: {
+    AGENCY: { name: "Agencia (la voluntad)", description: "Energía y determinación dirigidas a metas.", poles: { low: "Poco impulso", high: "Decidido/a" }, highDescriptor: "con impulso y persistencia hacia tus metas", lowDescriptor: "con menos impulso hacia las metas ahora mismo" },
+    PATHWAYS: { name: "Rutas (el camino)", description: "Capacidad de generar caminos hacia tus metas.", poles: { low: "Pocas rutas", high: "Ingenioso/a" }, highDescriptor: "ingenioso/a para encontrar rodeos a los obstáculos", lowDescriptor: "con menos rutas a tus metas a mano" },
+  },
+  items: {
+    A1: "Persigo con energía las metas que me propongo.", A2: "Aun desanimado/a, sigo avanzando hacia lo que quiero.", A3: "Me siento impulsado/a a cumplir las metas que me importan.", A4: "Mis experiencias pasadas me dan confianza para el futuro.", A5: "Suelo encontrar la motivación para seguir con una meta.", A6: "Una vez que me comprometo con una meta, la llevo a cabo.",
+    W1: "Se me ocurren muchas maneras de alcanzar mis metas.", W2: "Cuando me atasco, encuentro la forma de rodear el obstáculo.", W3: "Hay muchas formas de rodear cualquier problema.", W4: "Normalmente encuentro varias rutas hacia lo que quiero.", W5: "Cuando un enfoque falla, ideo otro.", W6: "Soy ingenioso/a para encontrar caminos hacia mis metas.",
+  },
+};
+
+const HOPE_FR: InstrumentTranslation = {
+  name: "Espoir (volonté et chemins)",
+  shortName: "Espoir",
+  tagline: "La volonté et le chemin — deux moitiés de votre poursuite des objectifs.",
+  description:
+    "Dans le modèle de Snyder, l'espoir n'est pas un vœu pieux, mais une manière de penser les objectifs. Il a deux " +
+    "moteurs : l'AGENTIVITÉ, l'élan et la volonté de poursuivre ce que vous voulez, et les CHEMINS, l'art de trouver des " +
+    "voies pour y parvenir. Un espoir fort a besoin des deux. Ce profil montre l'équilibre entre votre volonté et votre chemin, et les deux moitiés grandissent avec la pratique.",
+  scales: {
+    AGENCY: { name: "Agentivité (la volonté)", description: "Énergie et détermination orientées vers les buts.", poles: { low: "Peu d'élan", high: "Déterminé(e)" }, highDescriptor: "porté(e) et persévérant(e) vers vos objectifs", lowDescriptor: "avec moins d'élan vers les objectifs en ce moment" },
+    PATHWAYS: { name: "Chemins (la voie)", description: "Capacité à générer des voies vers vos buts.", poles: { low: "Peu de voies", high: "Ingénieux(se)" }, highDescriptor: "ingénieux(se) pour contourner les obstacles", lowDescriptor: "avec moins de voies vers vos buts qui viennent à l'esprit" },
+  },
+  items: {
+    A1: "Je poursuis avec énergie les objectifs que je me fixe.", A2: "Même découragé(e), je continue vers ce que je veux.", A3: "Je me sens poussé(e) à atteindre les objectifs qui comptent pour moi.", A4: "Mes expériences passées me donnent confiance pour l'avenir.", A5: "Je trouve généralement la motivation de persévérer vers un but.", A6: "Une fois engagé(e) dans un objectif, je le mène à bien.",
+    W1: "Je peux imaginer de nombreuses façons d'atteindre mes objectifs.", W2: "Quand je suis bloqué(e), je trouve un moyen de contourner l'obstacle.", W3: "Il y a beaucoup de façons de contourner n'importe quel problème.", W4: "Je trouve généralement plusieurs voies vers ce que je veux.", W5: "Quand une approche échoue, j'en imagine une autre.", W6: "Je suis ingénieux(se) pour trouver des chemins vers mes objectifs.",
+  },
+};
+
+const CURIOSITY_ES: InstrumentTranslation = {
+  name: "Curiosidad y exploración",
+  shortName: "Curiosidad",
+  tagline: "Con qué fuerza buscas lo nuevo y con qué facilidad abrazas lo desconocido.",
+  description:
+    "La curiosidad como rasgo tiene dos caras: el IMPULSO EXPLORADOR —el apetito por nuevos conocimientos, habilidades y " +
+    "experiencias— y la APERTURA —la disposición a inclinarte hacia la novedad, la incertidumbre y lo impredecible—. " +
+    "Juntas alimentan el aprendizaje, la creatividad y un sentido más rico. Este perfilador muestra con qué fuerza corre cada una en ti y dónde podría crecer tu curiosidad.",
+  scales: {
+    STRETCH: { name: "Impulso explorador", description: "Búsqueda activa de nuevos conocimientos y experiencias.", poles: { low: "Asentado/a", high: "Buscador/a" }, highDescriptor: "ávido/a de nuevos conocimientos, habilidades y experiencias", lowDescriptor: "a gusto con lo familiar y conocido" },
+    EMBRACE: { name: "Apertura", description: "Acoger la novedad, la ambigüedad y lo impredecible.", poles: { low: "Prefiere la certeza", high: "Abraza la novedad" }, highDescriptor: "estimulado/a por la incertidumbre y lo desconocido", lowDescriptor: "prefiriendo la previsibilidad y la certeza" },
+  },
+  items: {
+    S1: "Busco activamente nuevas experiencias e información.", S2: "Me encanta explorar temas de los que sé poco.", S3: "Soy de los que salen a buscar novedad.", S4: "Vaya donde vaya, estoy atento/a a cosas nuevas que aprender.", S5: "Aprender sobre temas desconocidos me da energía.", S6: "Busco a propósito desafíos que me exijan.",
+    E1: "Disfruto de la incertidumbre y lo impredecible.", E2: "Me siento cómodo/a sin saber cómo saldrán las cosas.", E3: "Las situaciones desconocidas me emocionan más que me inquietan.", E4: "Doy la bienvenida a las sorpresas y la ambigüedad.", E5: "Prefiero enfrentarme a algo nuevo que quedarme con lo conocido.", E6: "Las personas e ideas impredecibles me intrigan.",
+  },
+};
+
+const CURIOSITY_FR: InstrumentTranslation = {
+  name: "Curiosité et exploration",
+  shortName: "Curiosité",
+  tagline: "Avec quelle force vous cherchez le nouveau — et quelle aisance vous accueillez l'inconnu.",
+  description:
+    "La curiosité comme trait a deux faces : l'ÉLAN EXPLORATOIRE — l'appétit pour de nouvelles connaissances, compétences " +
+    "et expériences — et l'OUVERTURE — la disposition à se pencher vers la nouveauté, l'incertitude et l'imprévisible. " +
+    "Ensemble, elles nourrissent l'apprentissage, la créativité et un sens plus riche. Ce profil montre la force de chacune en vous et où votre curiosité pourrait grandir.",
+  scales: {
+    STRETCH: { name: "Élan exploratoire", description: "Recherche active de nouvelles connaissances et expériences.", poles: { low: "Posé(e)", high: "Chercheur(se)" }, highDescriptor: "avide de nouvelles connaissances, compétences et expériences", lowDescriptor: "à l'aise avec le familier et le connu" },
+    EMBRACE: { name: "Ouverture", description: "Accueillir la nouveauté, l'ambiguïté et l'imprévisible.", poles: { low: "Préfère la certitude", high: "Accueille la nouveauté" }, highDescriptor: "stimulé(e) par l'incertitude et l'inconnu", lowDescriptor: "préférant la prévisibilité et la certitude" },
+  },
+  items: {
+    S1: "Je recherche activement de nouvelles expériences et informations.", S2: "J'adore explorer des sujets que je connais peu.", S3: "Je suis du genre à partir en quête de nouveauté.", S4: "Où que j'aille, je guette de nouvelles choses à apprendre.", S5: "Apprendre sur des sujets inconnus me dynamise.", S6: "Je recherche exprès des défis qui me poussent.",
+    E1: "J'aime l'incertitude et l'imprévisible.", E2: "Je suis à l'aise sans savoir comment les choses vont tourner.", E3: "Les situations inconnues m'enthousiasment plus qu'elles ne m'inquiètent.", E4: "J'accueille les surprises et l'ambiguïté.", E5: "Je préfère affronter du nouveau que rester dans le familier.", E6: "Les personnes et idées imprévisibles m'intriguent.",
+  },
+};
+
+const PROCRAST_ES: InstrumentTranslation = {
+  name: "Procrastinación", shortName: "Procrastinación",
+  tagline: "Cuánto aplazas lo que importa, y lo que te cuesta.",
+  description: "La procrastinación no es pereza; es una ruptura entre la intención y la acción, casi siempre guiada por cómo nos hace sentir una tarea ahora mismo. Es uno de los predictores más fiables de metas incumplidas y estrés añadido y, por suerte, de los más modificables con las tácticas adecuadas. Esto te da una lectura honesta de tu tendencia a aplazar como punto de partida.",
+  scales: { PROC: { name: "Procrastinación", description: "Tendencia a aplazar de forma voluntaria la acción prevista aunque se espere salir perjudicado.", poles: { low: "Puntual", high: "Postergador/a" }, highDescriptor: "propenso/a a aplazar tareas y decisiones, a menudo con un coste", lowDescriptor: "rápido/a y fiable para empezar y terminar" } },
+  items: {
+    P1: "Aplazo las tareas hasta justo antes de la fecha límite.",
+    P2: "«Lo haré mañana» es una frase que uso mucho.",
+    P3: "Pospongo empezar las cosas aunque sé que no debería.",
+    P4: "Pierdo el tiempo en cosas triviales cuando tengo algo importante que hacer.",
+    P5: "A menudo acabo apurado porque dejé las cosas para demasiado tarde.",
+    P6: "Cuando planeo empezar, suelo empezar a tiempo.",
+    P7: "Termino las tareas bastante antes de su fecha.",
+    P8: "Incluso las tareas desagradables las abordo sin mucha demora.",
+    P9: "Me digo que empezaré pronto, y luego sigo sin empezar.",
+    P10: "Mis demoras acaban costándome tiempo, dinero o estrés.",
+    P11: "Se me da bien cumplir lo que programo.",
+    P12: "Sigo posponiendo decisiones que podría tomar ahora.",
+  },
+};
+const PROCRAST_FR: InstrumentTranslation = {
+  name: "Procrastination", shortName: "Procrastination",
+  tagline: "À quel point vous remettez ce qui compte — et ce que cela coûte.",
+  description: "La procrastination n'est pas de la paresse ; c'est une rupture entre l'intention et l'action, le plus souvent dictée par ce qu'une tâche nous fait ressentir sur le moment. C'est l'un des prédicteurs les plus fiables d'objectifs manqués et de stress supplémentaire — et, heureusement, l'un des plus modifiables avec les bonnes tactiques. Voici une lecture honnête de votre tendance à remettre, comme point de départ.",
+  scales: { PROC: { name: "Procrastination", description: "Tendance à différer volontairement l'action prévue alors qu'on s'attend à y perdre.", poles: { low: "Ponctuel(le)", high: "Procrastinateur(trice)" }, highDescriptor: "enclin(e) à remettre tâches et décisions, souvent à un coût", lowDescriptor: "prompt(e) et fiable pour commencer et finir" } },
+  items: {
+    P1: "Je remets les tâches à juste avant l'échéance.",
+    P2: "« Je le ferai demain » est une phrase que j'emploie souvent.",
+    P3: "Je repousse le démarrage même quand je sais que je ne devrais pas.",
+    P4: "Je perds du temps sur des broutilles quand j'ai quelque chose d'important à faire.",
+    P5: "Je me retrouve souvent à courir parce que je m'y suis pris trop tard.",
+    P6: "Quand je prévois de commencer, je commence généralement à l'heure.",
+    P7: "Je termine mes tâches bien avant l'échéance.",
+    P8: "Même les tâches désagréables, je les attaque sans trop tarder.",
+    P9: "Je me dis que je vais bientôt commencer, puis je continue à ne pas le faire.",
+    P10: "Mes retards finissent par me coûter du temps, de l'argent ou du stress.",
+    P11: "Je suis doué(e) pour mener à bien ce que je planifie.",
+    P12: "Je continue de reporter des décisions que je pourrais prendre maintenant.",
+  },
+};
+
+const PERFECT_ES: InstrumentTranslation = {
+  name: "Perfeccionismo", shortName: "Perfeccionismo",
+  tagline: "Estándares altos que te impulsan, o miedo a fallar que te pesa.",
+  description: "El perfeccionismo son dos cosas con un mismo nombre. Buscar estándares personales altos puede alimentar la maestría y el orgullo; pero la preocupación corrosiva por los errores —autocrítica dura, miedo a no dar la talla— predice ansiedad, agotamiento y procrastinación. Este perfilador mide ambas para que conserves el motor y aflojes el freno.",
+  scales: {
+    STAND: { name: "Altos estándares", description: "Esfuerzo por alcanzar estándares personales exigentes y la excelencia.", poles: { low: "Relajado/a", high: "Exigente" }, highDescriptor: "movido/a por estándares exigentes y una atracción por la excelencia", lowDescriptor: "relajado/a con los estándares, conforme con lo «suficientemente bueno»" },
+    CONC: { name: "Preocupación por los errores", description: "Inquietud autocrítica por los errores y el juicio ajeno.", poles: { low: "Autocompasivo/a", high: "Autocrítico/a" }, highDescriptor: "autocrítico/a, reacio/a al error y abrumado/a por el miedo a no dar la talla", lowDescriptor: "indulgente con tus errores y despreocupado/a por la imperfección" },
+  },
+  items: {
+    S1: "Me fijo estándares muy altos a mí mismo/a.",
+    S2: "No quedo satisfecho/a con un trabajo a menos que sea excelente.",
+    S3: "Aspiro a lo mejor en casi todo lo que hago.",
+    S4: "Tengo un fuerte impulso por seguir mejorando.",
+    S5: "Hacer algo bien me importa muchísimo.",
+    C1: "Mis errores me persiguen mucho después de cometerlos.",
+    C2: "Si no llego a la perfección, me siento un/a fracasado/a.",
+    C3: "Me preocupa mucho que los demás juzguen mis defectos.",
+    C4: "Los pequeños errores me hacen dudar de todo mi esfuerzo.",
+    C5: "Rara vez quedo satisfecho/a, por bien que lo haya hecho.",
+    C6: "El miedo a no ser suficiente me frena.",
+  },
+};
+const PERFECT_FR: InstrumentTranslation = {
+  name: "Perfectionnisme", shortName: "Perfectionnisme",
+  tagline: "Des exigences élevées qui vous portent — ou la peur d'échouer qui vous pèse.",
+  description: "Le perfectionnisme, c'est deux choses sous un même nom. Viser des exigences personnelles élevées peut nourrir la maîtrise et la fierté ; mais l'inquiétude corrosive face aux erreurs — autocritique sévère, peur de ne pas être à la hauteur — prédit l'anxiété, l'épuisement et la procrastination. Ce profileur mesure les deux pour que vous gardiez le moteur et relâchiez le frein.",
+  scales: {
+    STAND: { name: "Exigences élevées", description: "Tendre vers des standards personnels exigeants et l'excellence.", poles: { low: "Décontracté(e)", high: "Exigeant(e)" }, highDescriptor: "porté(e) par des standards exigeants et un attrait pour l'excellence", lowDescriptor: "détendu(e) sur les standards, à l'aise avec « assez bien »" },
+    CONC: { name: "Peur de l'erreur", description: "Inquiétude autocritique face aux erreurs et au jugement d'autrui.", poles: { low: "Bienveillant(e) envers soi", high: "Autocritique" }, highDescriptor: "autocritique, allergique à l'erreur et accablé(e) par la peur de ne pas être à la hauteur", lowDescriptor: "indulgent(e) envers vos erreurs et serein(e) face à l'imperfection" },
+  },
+  items: {
+    S1: "Je me fixe des exigences très élevées.",
+    S2: "Je ne suis pas satisfait(e) d'un travail s'il n'est pas excellent.",
+    S3: "Je vise le meilleur dans presque tout ce que je fais.",
+    S4: "J'ai une forte envie de continuer à m'améliorer.",
+    S5: "Bien faire les choses compte énormément pour moi.",
+    C1: "Mes erreurs me hantent longtemps après coup.",
+    C2: "Si je n'atteins pas la perfection, je me sens en échec.",
+    C3: "Je m'inquiète beaucoup du jugement des autres sur mes défauts.",
+    C4: "De petites erreurs me font douter de tout mon effort.",
+    C5: "Je suis rarement satisfait(e), même quand j'ai bien fait.",
+    C6: "La peur de ne pas être à la hauteur me retient.",
+  },
+};
+
+const GRATITUDE_ES: InstrumentTranslation = {
+  name: "Gratitud", shortName: "Gratitud",
+  tagline: "Con qué facilidad notas y agradeces lo bueno.",
+  description: "La gratitud es el hábito de notar lo bueno y sentirse agradecido por ello, y es uno de los ingredientes más fiables y entrenables de una vida feliz. Quien tiene más gratitud reporta más emoción positiva, vínculos más fuertes y mayor resiliencia. Esta es una mirada cálida a tu disposición agradecida y una base desde la que crecer.",
+  scales: { GRAT: { name: "Gratitud", description: "Disposición a notar, apreciar y agradecer lo bueno de la vida.", poles: { low: "Reservado/a", high: "Agradecido/a" }, highDescriptor: "rápido/a en notar lo bueno y sentir gratitud genuina", lowDescriptor: "menos inclinado/a a detenerte en lo que agradeces" } },
+  items: {
+    G1: "Tengo mucho que agradecer en la vida.",
+    G2: "Si enumerara todo lo que agradezco, sería una lista muy larga.",
+    G3: "Estoy agradecido/a a una gran variedad de personas.",
+    G4: "A medida que crezco, aprecio más a las personas y las cosas de mi vida.",
+    G5: "A menudo noto y saboreo los pequeños buenos momentos.",
+    G6: "Pasan largas temporadas sin que sienta gratitud por nada.",
+    G7: "Me cuesta sentirme agradecido/a por lo que tengo.",
+  },
+};
+const GRATITUDE_FR: InstrumentTranslation = {
+  name: "Gratitude", shortName: "Gratitude",
+  tagline: "Avec quelle facilité vous remarquez et appréciez le bon.",
+  description: "La gratitude est l'habitude de remarquer ce qui est bon et de s'en sentir reconnaissant — et c'est l'un des ingrédients les plus fiables et les plus exerçables d'une vie heureuse. Les personnes plus reconnaissantes rapportent plus d'émotions positives, des liens plus forts et une plus grande résilience. Voici un aperçu chaleureux de votre disposition à la gratitude, et une base à faire grandir.",
+  scales: { GRAT: { name: "Gratitude", description: "Disposition à remarquer, apprécier et être reconnaissant du bon dans la vie.", poles: { low: "Réservé(e)", high: "Reconnaissant(e)" }, highDescriptor: "prompt(e) à remarquer le bon et à ressentir une vraie reconnaissance", lowDescriptor: "moins enclin(e) à vous attarder sur ce dont vous êtes reconnaissant(e)" } },
+  items: {
+    G1: "J'ai tellement de raisons d'être reconnaissant(e) dans la vie.",
+    G2: "Si je listais tout ce dont je suis reconnaissant(e), ce serait une longue liste.",
+    G3: "Je suis reconnaissant(e) envers une grande diversité de personnes.",
+    G4: "En vieillissant, j'apprécie davantage les personnes et les choses de ma vie.",
+    G5: "Je remarque et savoure souvent les petits bons moments.",
+    G6: "De longues périodes passent sans que je ressente de gratitude pour quoi que ce soit.",
+    G7: "J'ai du mal à me sentir reconnaissant(e) pour ce que j'ai.",
+  },
+};
+
+const SELFEFF_ES: InstrumentTranslation = {
+  name: "Autoeficacia", shortName: "Autoeficacia",
+  tagline: "Tu creencia central de que puedes con lo que venga.",
+  description: "La autoeficacia es la confianza en que podrás movilizar el esfuerzo y las estrategias para afrontar un reto, y décadas de investigación la convierten en uno de los predictores más potentes de la persistencia, la resiliencia y lo que la gente realmente logra. Es una lectura clara de tu sentido general de agencia y, como la eficacia se construye con experiencias de logro, también sirve de base para crecer.",
+  scales: { GSE: { name: "Autoeficacia general", description: "Creencia en tu capacidad de afrontar retos y alcanzar metas.", poles: { low: "Insegura", high: "Segura" }, highDescriptor: "seguro/a, con sentido de agencia y sin amilanarte ante nuevos retos", lowDescriptor: "propenso/a a dudar de tu capacidad para afrontar lo que viene" } },
+  items: {
+    E1: "Suelo resolver problemas difíciles si me esfuerzo lo suficiente.",
+    E2: "Cuando topo con un obstáculo, encuentro la manera de conseguir lo que necesito.",
+    E3: "Me resulta fácil mantener mis propósitos y cumplir mis metas.",
+    E4: "Confío en que sabría manejar con eficacia los imprevistos.",
+    E5: "Gracias a mi ingenio, sé manejar situaciones inesperadas.",
+    E6: "Puedo resolver la mayoría de los problemas si invierto el esfuerzo necesario.",
+    E7: "Puedo mantener la calma ante las dificultades porque confío en mi capacidad de afrontarlas.",
+    E8: "Cuando surge un problema, suelo encontrar varias formas de abordarlo.",
+    E9: "Si estoy en apuros, normalmente se me ocurre una salida.",
+    E10: "Venga lo que venga, suelo ser capaz de manejarlo.",
+  },
+};
+const SELFEFF_FR: InstrumentTranslation = {
+  name: "Sentiment d'efficacité", shortName: "Efficacité",
+  tagline: "Votre conviction profonde de pouvoir gérer ce qui vient.",
+  description: "Le sentiment d'efficacité personnelle, c'est la confiance de pouvoir mobiliser l'effort et les stratégies pour relever un défi — et des décennies de recherche en font l'un des plus forts prédicteurs de la persévérance, de la résilience et de ce que les gens accomplissent vraiment. Voici une lecture nette de votre sens de l'action ; et comme l'efficacité se bâtit par les expériences de maîtrise, c'est aussi une base à faire grandir.",
+  scales: { GSE: { name: "Efficacité personnelle générale", description: "Croyance en votre capacité à relever les défis et atteindre vos objectifs.", poles: { low: "Hésitant(e)", high: "Assuré(e)" }, highDescriptor: "confiant(e), acteur(trice) de votre vie et non décontenancé(e) par les nouveaux défis", lowDescriptor: "enclin(e) à douter de votre capacité à gérer ce qui vient" } },
+  items: {
+    E1: "J'arrive en général à résoudre les problèmes difficiles si je m'y emploie.",
+    E2: "Quand je heurte un obstacle, je trouve le moyen d'obtenir ce qu'il me faut.",
+    E3: "Il m'est facile de tenir mes intentions et de mener mes objectifs à terme.",
+    E4: "Je suis confiant(e) de pouvoir gérer efficacement les imprévus.",
+    E5: "Grâce à ma débrouillardise, je sais gérer les situations imprévues.",
+    E6: "Je peux résoudre la plupart des problèmes si j'investis l'effort nécessaire.",
+    E7: "Je peux rester calme face aux difficultés car je me fie à ma capacité d'y faire face.",
+    E8: "Quand un problème surgit, je trouve souvent plusieurs façons de l'aborder.",
+    E9: "Si je suis en difficulté, je trouve généralement une issue.",
+    E10: "Quoi qu'il arrive, je suis généralement capable de le gérer.",
+  },
+};
+
+const EMOREG_ES: InstrumentTranslation = {
+  name: "Regulación emocional", shortName: "Reg. emocional",
+  tagline: "Cómo manejas las emociones: reencuadrándolas o conteniéndolas.",
+  description: "Dos personas pueden sentir la misma emoción y vivirla de forma muy distinta según cómo la manejen. Este perfilador mapea dos estrategias del influyente modelo de James Gross: la reevaluación cognitiva (cambiar cómo piensas una situación para cambiar cómo se siente) y la supresión expresiva (ocultar las señales externas). La reevaluación suele favorecer el bienestar; la supresión tiene costes ocultos, pero ambas son habilidades que puedes reequilibrar con práctica.",
+  scales: {
+    REAP: { name: "Reevaluación cognitiva", description: "Reencuadrar una situación para cambiar su impacto emocional.", poles: { low: "Rara vez reencuadra", high: "Reencuadra con facilidad" }, highDescriptor: "hábil para reencuadrar situaciones y guiar tus propias emociones", lowDescriptor: "menos inclinado/a a reencuadrar para atravesar las emociones" },
+    SUPP: { name: "Supresión expresiva", description: "Inhibir la expresión externa de la emoción.", poles: { low: "Expresivo/a", high: "Se lo guarda" }, highDescriptor: "inclinado/a a guardarte lo que sientes en vez de mostrarlo", lowDescriptor: "expresivo/a y abierto/a con lo que sientes" },
+  },
+  items: {
+    R1: "Cuando quiero sentirme menos alterado/a, replanteo cómo estoy viendo la situación.",
+    R2: "Controlo mis emociones cambiando mi forma de pensar lo que ocurre.",
+    R3: "Cuando quiero sentirme más positivo/a, reencuadro la situación a propósito.",
+    R4: "Cuando estoy estresado/a, intento pensarlo de un modo que me mantenga en calma.",
+    R5: "Encuentro nuevos ángulos en una situación difícil para cambiar cómo me hace sentir.",
+    R6: "Cuando quiero sentirme menos negativo/a, cambio lo que el suceso significa para mí.",
+    S1: "Me guardo mis emociones en vez de mostrarlas.",
+    S2: "Cuando siento algo con fuerza, procuro que no se note.",
+    S3: "Controlo mis emociones no expresándolas.",
+    S4: "Aun molesto/a, mantengo una cara neutra para que nadie lo note.",
+  },
+};
+const EMOREG_FR: InstrumentTranslation = {
+  name: "Régulation émotionnelle", shortName: "Régul. émo.",
+  tagline: "Comment vous pilotez vos émotions : en les recadrant, ou en les contenant.",
+  description: "Deux personnes peuvent ressentir la même émotion et la vivre très différemment selon la façon dont elles la gèrent. Ce profileur cartographie deux stratégies du modèle influent de James Gross : la réévaluation cognitive (changer sa façon de penser une situation pour en changer le ressenti) et la suppression expressive (cacher les signes extérieurs). La réévaluation favorise plutôt le bien-être ; la suppression a des coûts cachés — mais les deux sont des compétences que l'on peut rééquilibrer.",
+  scales: {
+    REAP: { name: "Réévaluation cognitive", description: "Recadrer une situation pour changer son impact émotionnel.", poles: { low: "Recadre rarement", high: "Recadre aisément" }, highDescriptor: "habile à recadrer les situations pour orienter vos propres émotions", lowDescriptor: "moins enclin(e) à recadrer pour traverser vos émotions" },
+    SUPP: { name: "Suppression expressive", description: "Inhiber l'expression extérieure de l'émotion.", poles: { low: "Expressif(ve)", high: "Garde pour soi" }, highDescriptor: "enclin(e) à garder vos émotions plutôt qu'à les montrer", lowDescriptor: "expressif(ve) et ouvert(e) sur ce que vous ressentez" },
+  },
+  items: {
+    R1: "Quand je veux être moins contrarié(e), je repense ma façon de voir la situation.",
+    R2: "Je contrôle mes émotions en changeant ma façon de penser ce qui arrive.",
+    R3: "Quand je veux me sentir plus positif(ve), je recadre la situation exprès.",
+    R4: "Quand je suis stressé(e), j'essaie d'y penser d'une manière qui me garde calme.",
+    R5: "Je trouve de nouveaux angles à une situation difficile pour changer ce qu'elle me fait ressentir.",
+    R6: "Quand je veux être moins négatif(ve), je change ce que l'événement signifie pour moi.",
+    S1: "Je garde mes émotions pour moi plutôt que de les montrer.",
+    S2: "Quand je ressens quelque chose fortement, je veille à ne pas le laisser paraître.",
+    S3: "Je contrôle mes émotions en ne les exprimant pas.",
+    S4: "Même contrarié(e), je garde un visage neutre pour que personne ne le devine.",
+  },
+};
+
+const SELFCTRL_ES: InstrumentTranslation = {
+  name: "Autocontrol", shortName: "Autocontrol",
+  tagline: "Resistir el tirón del momento y cumplir con lo que importa.",
+  description: "El autocontrol —la capacidad de anular un impulso y dirigir tu conducta hacia lo que de verdad importa— predice las notas, la salud, el ahorro y la calidad de las relaciones mejor que casi cualquier otro rasgo. Esta escala breve y muy validada lo mide en dos caras: frenar los impulsos y mantener el rumbo. Y es entrenable: en gran parte es estructura y hábitos, no pura fuerza de voluntad.",
+  scales: {
+    RESTRAINT: { name: "Control de impulsos", description: "Capacidad de resistir la tentación y frenar el impulso.", poles: { low: "Impulsivo/a", high: "Contenido/a" }, highDescriptor: "capaz de resistir la tentación y pensar antes de actuar", lowDescriptor: "espontáneo/a y propenso/a a actuar por impulso" },
+    DISCIPLINE: { name: "Autodisciplina", description: "Constancia, seguimiento y rumbo hacia las metas.", poles: { low: "Laxo/a", high: "Disciplinado/a" }, highDescriptor: "constante, fiable y capaz de terminar lo que empieza", lowDescriptor: "le cuesta seguir rutinas y llevar las tareas hasta el final" },
+  },
+  items: {
+    R1: "Se me da bien resistir la tentación.",
+    R2: "Cuando me tienta algo que no debería, suelo poder decir que no.",
+    R3: "Mantengo mis impulsos bien controlados.",
+    R4: "A menudo actúo por impulso sin pensarlo bien.",
+    R5: "Me cuesta romper los malos hábitos.",
+    R6: "Hago cosas de las que luego me arrepiento porque no pude contenerme.",
+    R7: "El placer y la diversión a veces me impiden sacar el trabajo adelante.",
+    D1: "Me quedo con las tareas hasta terminarlas.",
+    D2: "Sigo trabajando hacia mis metas incluso cuando es tedioso.",
+    D3: "Soy fiable con mis rutinas y compromisos.",
+    D4: "Puedo obligarme a hacer cosas que no me apetecen.",
+    D5: "A menudo empiezo cosas pero no las termino.",
+    D6: "Aplazo las tareas que me resultan aburridas o difíciles.",
+    D7: "Ojalá tuviera más autodisciplina.",
+  },
+};
+const SELFCTRL_FR: InstrumentTranslation = {
+  name: "Maîtrise de soi", shortName: "Maîtrise de soi",
+  tagline: "Résister à l'attrait de l'instant — et tenir bon sur ce qui compte.",
+  description: "La maîtrise de soi — la capacité d'inhiber une impulsion et d'orienter sa conduite vers ce qui compte vraiment — prédit les résultats scolaires, la santé, l'épargne et la qualité des relations mieux que presque tout autre trait. Cette échelle brève et solidement validée la mesure sur deux faces : freiner l'impulsion et garder le cap. Et elle se travaille : c'est en grande partie de la structure et des habitudes, pas de la seule volonté.",
+  scales: {
+    RESTRAINT: { name: "Contrôle des impulsions", description: "Capacité de résister à la tentation et de freiner l'impulsion.", poles: { low: "Impulsif(ve)", high: "Maîtrisé(e)" }, highDescriptor: "capable de résister à la tentation et de réfléchir avant d'agir", lowDescriptor: "spontané(e) et enclin(e) à agir sur l'impulsion" },
+    DISCIPLINE: { name: "Autodiscipline", description: "Constance, suivi et cap maintenu vers les objectifs.", poles: { low: "Souple", high: "Discipliné(e)" }, highDescriptor: "constant(e), fiable et capable de finir ce que vous commencez", lowDescriptor: "en peine de tenir des routines et de mener les tâches à terme" },
+  },
+  items: {
+    R1: "Je suis doué(e) pour résister à la tentation.",
+    R2: "Quand quelque chose que je ne devrais pas me tente, j'arrive en général à dire non.",
+    R3: "Je tiens mes impulsions bien en main.",
+    R4: "J'agis souvent sur l'impulsion sans bien y réfléchir.",
+    R5: "J'ai du mal à rompre les mauvaises habitudes.",
+    R6: "Je fais des choses que je regrette ensuite parce que je n'ai pas pu m'en empêcher.",
+    R7: "Le plaisir et l'amusement m'empêchent parfois d'avancer dans mon travail.",
+    D1: "Je reste sur mes tâches jusqu'à ce qu'elles soient finies.",
+    D2: "Je continue vers mes objectifs même quand c'est fastidieux.",
+    D3: "Je suis fiable dans mes routines et mes engagements.",
+    D4: "Je peux me forcer à faire des choses dont je n'ai pas envie.",
+    D5: "Je commence souvent des choses sans les finir.",
+    D6: "Je remets les tâches que je trouve ennuyeuses ou difficiles.",
+    D7: "J'aimerais avoir plus d'autodiscipline.",
+  },
+};
+
+const GRIT_ES: InstrumentTranslation = {
+  name: "Determinación (Grit)", shortName: "Determinación",
+  tagline: "Pasión y perseverancia por metas a largo plazo, y cómo cultivarla.",
+  description: "La determinación es la combinación de perseverancia y pasión sostenida que predice quién alcanza metas a largo plazo, a menudo más que el talento puro. Este perfilador mide sus dos facetas —Perseverancia del esfuerzo y Consistencia del interés— y, como la determinación es maleable, te señala la faceta donde el crecimiento llega más rápido.",
+  scales: {
+    PERS: { name: "Perseverancia del esfuerzo", description: "Trabajar duro y recuperarse de los reveses.", poles: { low: "Se frena fácil", high: "Perseverante" }, highDescriptor: "trabajador/a, resiliente y capaz de empujar a través de la dificultad", lowDescriptor: "más fácilmente frenado/a por los obstáculos y el cansancio" },
+    CONS: { name: "Consistencia del interés", description: "Mantener las mismas metas con el tiempo.", poles: { low: "Cambiante", high: "Constante" }, highDescriptor: "estable y centrado/a en metas a largo plazo", lowDescriptor: "atraído/a por nuevos intereses, con un foco que cambia con el tiempo" },
+  },
+  items: {
+    PE1: "Termino todo lo que empiezo.", PE2: "Los reveses no me desaniman por mucho tiempo; me recupero y sigo.", PE3: "Soy muy trabajador/a.", PE4: "Sigo trabajando con diligencia aunque el avance sea lento.",
+    CI1: "Me mantengo enfocado/a en las mismas metas durante años.", CI2: "Mis intereses se mantienen bastante estables de un año a otro.", CI3: "Rara vez abandono un proyecto una vez que me he comprometido de verdad.", CI4: "Las ideas y proyectos nuevos no me apartan fácilmente de los actuales.",
+  },
+};
+const GRIT_FR: InstrumentTranslation = {
+  name: "Cran (Grit)", shortName: "Cran",
+  tagline: "Passion et persévérance pour des objectifs de long terme — et comment le cultiver.",
+  description: "Le cran, c'est la combinaison de persévérance et de passion durable qui prédit qui atteint ses objectifs de long terme, souvent plus que le talent brut. Ce profileur en mesure les deux facettes — Persévérance de l'effort et Constance de l'intérêt — et, comme le cran est malléable, vous indique la facette où la progression vient le plus vite.",
+  scales: {
+    PERS: { name: "Persévérance de l'effort", description: "Travailler dur et rebondir après les revers.", poles: { low: "Vite ralenti(e)", high: "Persévérant(e)" }, highDescriptor: "travailleur(se), résilient(e) et capable de pousser à travers la difficulté", lowDescriptor: "plus facilement ralenti(e) par les obstacles et la fatigue" },
+    CONS: { name: "Constance de l'intérêt", description: "Tenir les mêmes objectifs dans le temps.", poles: { low: "Changeant(e)", high: "Constant(e)" }, highDescriptor: "stable et concentré(e) sur des objectifs de long terme", lowDescriptor: "attiré(e) par de nouveaux intérêts, avec un focus qui change avec le temps" },
+  },
+  items: {
+    PE1: "Je termine tout ce que je commence.", PE2: "Les revers ne me découragent pas longtemps ; je rebondis et je continue.", PE3: "Je suis travailleur(se).", PE4: "Je continue à travailler avec application même quand les progrès sont lents.",
+    CI1: "Je reste concentré(e) sur les mêmes objectifs pendant des années.", CI2: "Mes centres d'intérêt restent assez stables d'une année à l'autre.", CI3: "J'abandonne rarement un projet une fois vraiment engagé(e).", CI4: "Les idées et projets nouveaux ne me détournent pas facilement des miens.",
+  },
+};
+
+const NFC_ES: InstrumentTranslation = {
+  name: "Necesidad de cognición", shortName: "Nec. de cognición",
+  tagline: "Cuánto disfrutas el trabajo de pensar.",
+  description: "La necesidad de cognición es el grado en que buscas y disfrutas el pensamiento que exige esfuerzo. Quien la tiene alta saborea los problemas complejos y sopesa los argumentos con cuidado; quien la tiene baja prefiere atajos cognitivos y tareas concretas. No es inteligencia, es apetito, pero moldea cómo aprendes, decides y resistes (o caes en) la persuasión.",
+  scales: { NFC: { name: "Necesidad de cognición", description: "Tendencia a disfrutar y dedicarse al pensamiento esforzado.", poles: { low: "Piensa lo justo", high: "Le encanta pensar" }, highDescriptor: "saboreas la complejidad y el pensamiento profundo", lowDescriptor: "prefieres lo simple, lo concreto y lo eficiente" } },
+  items: {
+    N1: "Disfruto de verdad abordando problemas complejos y pensándolos a fondo.", N2: "Encuentro verdadera satisfacción en un esfuerzo mental largo y difícil.", N3: "Aprender nuevas formas de pensar me entusiasma.", N4: "Prefiero que mi vida esté llena de enigmas que tenga que resolver.",
+    N5: "Pensar mucho no es mi idea de diversión.", N6: "Solo pienso lo justo y necesario.", N7: "Prefiero hacer algo que requiera poco pensamiento que algo desafiante.", N8: "Intento evitar situaciones en las que tenga que pensar en profundidad.",
+  },
+};
+const NFC_FR: InstrumentTranslation = {
+  name: "Besoin de cognition", shortName: "Besoin de cognition",
+  tagline: "À quel point vous aimez le travail de penser.",
+  description: "Le besoin de cognition, c'est le degré auquel vous recherchez et appréciez la pensée qui demande de l'effort. Ceux qui l'ont élevé savourent les problèmes complexes et pèsent soigneusement les arguments ; ceux qui l'ont plus bas préfèrent les raccourcis cognitifs et les tâches concrètes. Ce n'est pas l'intelligence, c'est l'appétit — mais cela façonne votre façon d'apprendre, de décider et de résister (ou non) à la persuasion.",
+  scales: { NFC: { name: "Besoin de cognition", description: "Tendance à apprécier et à s'engager dans la pensée exigeante.", poles: { low: "Réfléchit au besoin", high: "Aime réfléchir" }, highDescriptor: "vous savourez la complexité et la pensée profonde", lowDescriptor: "vous préférez le simple, le concret et l'efficace" } },
+  items: {
+    N1: "J'aime sincèrement m'attaquer aux problèmes complexes et les penser à fond.", N2: "Je trouve une vraie satisfaction dans un effort mental long et exigeant.", N3: "Apprendre de nouvelles façons de penser m'enthousiasme.", N4: "Je préfère que ma vie soit pleine d'énigmes à résoudre.",
+    N5: "Réfléchir intensément n'est pas mon idée du plaisir.", N6: "Je ne réfléchis qu'autant qu'il le faut.", N7: "Je préfère faire quelque chose qui demande peu de réflexion plutôt qu'un défi.", N8: "J'essaie d'éviter les situations où je dois réfléchir en profondeur.",
+  },
+};
+
+const MINDSET_ES: InstrumentTranslation = {
+  name: "Mentalidad (Dweck)", shortName: "Mentalidad",
+  tagline: "¿Crees que tus capacidades están talladas en piedra, o que crecen?",
+  description: "La investigación de Carol Dweck sobre la «mentalidad» plantea una pregunta engañosamente simple: ¿crees que cualidades centrales como la inteligencia y el talento son fijas, o que pueden crecer con esfuerzo, estrategia y ayuda? Una mentalidad de crecimiento se asocia con la resiliencia tras el fracaso y el gusto por el reto. Esta foto muestra hacia dónde te inclinas, y la mentalidad misma es una de las cosas más cambiables de ti.",
+  scales: { MIND: { name: "Mentalidad de crecimiento", description: "Creencia de que las capacidades y cualidades pueden desarrollarse.", poles: { low: "Fija", high: "De crecimiento" }, highDescriptor: "ves la capacidad como algo que crece con el esfuerzo y el aprendizaje", lowDescriptor: "ves la capacidad como algo en gran parte fijo e innato" } },
+  items: {
+    M1: "Las personas pueden cambiar de forma sustancial cuán inteligentes son.", M2: "Seas quien seas, puedes mejorar mucho tus capacidades.", M3: "El talento es solo un punto de partida; el esfuerzo y el aprendizaje lo hacen crecer.", M4: "Puedo cambiar incluso cosas básicas del tipo de persona que soy.",
+    M5: "Tu inteligencia es algo muy básico que no puedes cambiar mucho.", M6: "Las personas tienen cierta cantidad de talento y poco pueden hacer para cambiarlo.", M7: "O se te da bien algo o no.", M8: "Las personas no pueden cambiar realmente su carácter esencial.",
+  },
+};
+const MINDSET_FR: InstrumentTranslation = {
+  name: "État d'esprit (Dweck)", shortName: "État d'esprit",
+  tagline: "Croyez-vous vos capacités gravées dans le marbre — ou cultivables ?",
+  description: "Les travaux de Carol Dweck sur l'« état d'esprit » posent une question trompeusement simple : croyez-vous que des qualités centrales comme l'intelligence et le talent sont figées, ou qu'elles peuvent grandir avec l'effort, la stratégie et l'aide ? Un état d'esprit de développement est lié à la résilience après l'échec et au goût du défi. Cet aperçu montre votre penchant — et l'état d'esprit lui-même est l'une des choses les plus modifiables chez vous.",
+  scales: { MIND: { name: "État d'esprit de développement", description: "Croyance que les capacités et qualités peuvent se développer.", poles: { low: "Figé", high: "De développement" }, highDescriptor: "vous voyez la capacité comme se cultivant par l'effort et l'apprentissage", lowDescriptor: "vous voyez la capacité comme largement figée et innée" } },
+  items: {
+    M1: "On peut changer sensiblement son niveau d'intelligence.", M2: "Qui que vous soyez, vous pouvez nettement améliorer vos capacités.", M3: "Le talent n'est qu'un point de départ ; l'effort et l'apprentissage le font grandir.", M4: "Je peux changer même des choses fondamentales de la personne que je suis.",
+    M5: "Votre intelligence est quelque chose de très fondamental que l'on ne peut guère changer.", M6: "On a une certaine dose de talent et on ne peut pas y faire grand-chose.", M7: "Soit on est doué pour quelque chose, soit on ne l'est pas.", M8: "On ne peut pas vraiment changer son caractère profond.",
+  },
+};
+
+const EQ_ES: InstrumentTranslation = {
+  name: "Inteligencia emocional", shortName: "Intel. emocional",
+  tagline: "El predictor más entrenable de relaciones, liderazgo y bienestar.",
+  description: "La inteligencia emocional es la capacidad de reconocer, comprender y manejar las emociones —las tuyas y las de los demás—. Este perfilador estima cinco dominios: Autoconciencia, Autorregulación, Motivación, Empatía y Habilidades sociales. Estas habilidades pueden practicarse, así que cada dominio es también una meta de crecimiento.",
+  scales: {
+    SA: { name: "Autoconciencia", description: "Reconocer tus propias emociones y sus efectos.", poles: { low: "Inconsciente", high: "Consciente de sí" }, highDescriptor: "en sintonía con tus emociones y con cómo te impulsan", lowDescriptor: "menos reflexivo/a sobre tus estados emocionales internos" },
+    SR: { name: "Autorregulación", description: "Manejar los impulsos y recuperarse de emociones difíciles.", poles: { low: "Reactivo/a", high: "Sereno/a" }, highDescriptor: "sereno/a, con autocontrol y capaz de recomponerte bajo estrés", lowDescriptor: "más reactivo/a e impulsivo/a cuando las emociones se intensifican" },
+    MO: { name: "Motivación", description: "Impulso, optimismo y resiliencia hacia las metas.", poles: { low: "Se desanima fácil", high: "Motivado/a" }, highDescriptor: "motivado/a, optimista y rápido/a para recuperarte", lowDescriptor: "más fácilmente desanimado/a cuando baja la motivación" },
+    EM: { name: "Empatía", description: "Percibir y comprender lo que sienten los demás.", poles: { low: "Distante", high: "Empático/a" }, highDescriptor: "perceptivo/a y sintonizado/a con lo que sienten los demás", lowDescriptor: "menos sintonizado/a de forma natural con las emociones ajenas" },
+    SS: { name: "Habilidades sociales", description: "Gestionar relaciones, influencia y conflicto.", poles: { low: "Torpe", high: "Hábil" }, highDescriptor: "socialmente hábil, persuasivo/a y bueno/a con el conflicto", lowDescriptor: "menos cómodo/a navegando las dinámicas sociales" },
+  },
+  items: {
+    SA1: "Suelo poder nombrar exactamente qué siento, y por qué.", SA2: "Soy consciente de cómo mis estados de ánimo moldean mi conducta.", SA3: "A menudo me pillan por sorpresa mis propias reacciones emocionales.", SA4: "Conozco bien mis fortalezas emocionales y mis detonantes.",
+    SR1: "Puedo mantener la calma y la compostura bajo presión.", SR2: "Cuando me altero, sé calmarme y volver a enfocarme.", SR3: "A menudo digo o hago cosas en el calor del momento de las que luego me arrepiento.", SR4: "Puedo posponer la gratificación para alcanzar una meta mayor.",
+    MO1: "Sigo motivado/a hacia mis metas incluso sin recompensas externas.", MO2: "Me recupero rápido de los reveses.", MO3: "Pierdo la motivación en cuanto las cosas se ponen difíciles.", MO4: "Soy optimista en que el esfuerzo acabará dando frutos.",
+    EM1: "Puedo percibir cómo se sienten los demás, aunque no lo digan.", EM2: "Sintonizo de verdad con las perspectivas de otras personas.", EM3: "Me cuesta entender por qué la gente se siente como se siente.", EM4: "Capto señales sutiles en el tono y el lenguaje corporal.",
+    SS1: "Manejo bien los conflictos y las conversaciones difíciles.", SS2: "Puedo conectar con casi cualquier persona.", SS3: "Se me da bien influir e inspirar a la gente.", SS4: "Las situaciones sociales me resultan incómodas y difíciles de manejar.",
+  },
+};
+const EQ_FR: InstrumentTranslation = {
+  name: "Intelligence émotionnelle", shortName: "Intel. émotionnelle",
+  tagline: "Le prédicteur le plus exerçable des relations, du leadership et du bien-être.",
+  description: "L'intelligence émotionnelle, c'est la capacité de reconnaître, comprendre et gérer les émotions — les vôtres et celles des autres. Ce profileur estime cinq domaines : Conscience de soi, Autorégulation, Motivation, Empathie et Compétences sociales. Ces compétences peuvent se travailler, alors chaque domaine est aussi un axe de progrès.",
+  scales: {
+    SA: { name: "Conscience de soi", description: "Reconnaître ses propres émotions et leurs effets.", poles: { low: "Peu conscient(e)", high: "Conscient(e) de soi" }, highDescriptor: "à l'écoute de vos émotions et de la façon dont elles vous animent", lowDescriptor: "moins réfléchi(e) sur vos états émotionnels intérieurs" },
+    SR: { name: "Autorégulation", description: "Gérer ses impulsions et se remettre d'émotions difficiles.", poles: { low: "Réactif(ve)", high: "Posé(e)" }, highDescriptor: "posé(e), maître de vous et capable de vous reprendre sous stress", lowDescriptor: "plus réactif(ve) et impulsif(ve) quand les émotions montent" },
+    MO: { name: "Motivation", description: "Élan, optimisme et résilience vers les objectifs.", poles: { low: "Vite découragé(e)", high: "Motivé(e)" }, highDescriptor: "motivé(e), optimiste et prompt(e) à rebondir", lowDescriptor: "plus facilement découragé(e) quand la motivation baisse" },
+    EM: { name: "Empathie", description: "Percevoir et comprendre ce que ressentent les autres.", poles: { low: "Distant(e)", high: "Empathique" }, highDescriptor: "perceptif(ve) et accordé(e) à ce que ressentent les autres", lowDescriptor: "moins naturellement accordé(e) aux émotions d'autrui" },
+    SS: { name: "Compétences sociales", description: "Gérer les relations, l'influence et le conflit.", poles: { low: "Maladroit(e)", high: "Habile" }, highDescriptor: "socialement habile, persuasif(ve) et à l'aise avec le conflit", lowDescriptor: "moins à l'aise dans les dynamiques sociales" },
+  },
+  items: {
+    SA1: "J'arrive en général à nommer exactement ce que je ressens, et pourquoi.", SA2: "Je suis conscient(e) de la façon dont mes humeurs façonnent mon comportement.", SA3: "Je suis souvent pris(e) au dépourvu par mes propres réactions émotionnelles.", SA4: "Je connais bien mes forces émotionnelles et mes déclencheurs.",
+    SR1: "Je sais rester calme et posé(e) sous pression.", SR2: "Quand je suis contrarié(e), je sais m'apaiser et me recentrer.", SR3: "Je dis ou fais souvent des choses sur le coup que je regrette ensuite.", SR4: "Je peux différer une gratification pour atteindre un objectif plus grand.",
+    MO1: "Je reste motivé(e) vers mes objectifs même sans récompense extérieure.", MO2: "Je rebondis vite après les revers.", MO3: "Je perds ma motivation dès que les choses se compliquent.", MO4: "Je suis optimiste : l'effort finira par payer.",
+    EM1: "Je sens ce que ressentent les autres, même quand ils ne le disent pas.", EM2: "Je me mets vraiment à la place des autres.", EM3: "J'ai du mal à comprendre pourquoi les gens ressentent ce qu'ils ressentent.", EM4: "Je capte les signaux subtils du ton et du langage corporel.",
+    SS1: "Je gère bien les conflits et les conversations difficiles.", SS2: "Je peux créer un lien avec presque n'importe qui.", SS3: "Je suis doué(e) pour influencer et inspirer les gens.", SS4: "Les situations sociales me semblent gênantes et difficiles à gérer.",
+  },
+};
+
+const RIASEC_ES: InstrumentTranslation = {
+  name: "Intereses profesionales (RIASEC)", shortName: "RIASEC",
+  tagline: "Tu código Holland, y las carreras que encajan con él.",
+  description: "El modelo RIASEC de Holland es la columna vertebral de la orientación profesional moderna. Mapea seis temas de interés —Realista, Investigador, Artístico, Social, Emprendedor y Convencional— y tus tres principales forman tu «código Holland». Este perfilador encuentra el tuyo y lo traduce en campos profesionales concretos que vale la pena explorar.",
+  scales: {
+    R: { name: "Realista", description: "Trabajo práctico, manual, físico y técnico.", highDescriptor: "práctico, manos a la obra y con inclinación técnica", lowDescriptor: "menos atraído/a por el trabajo técnico y manual" },
+    I: { name: "Investigador", description: "Trabajo analítico, científico y guiado por ideas.", highDescriptor: "analítico/a, curioso/a y con mente investigadora", lowDescriptor: "menos atraído/a por el análisis y la investigación" },
+    A: { name: "Artístico", description: "Trabajo creativo, expresivo y poco estructurado.", highDescriptor: "creativo/a, expresivo/a y original", lowDescriptor: "menos atraído/a por el trabajo artístico y abierto" },
+    S: { name: "Social", description: "Ayudar, enseñar y cuidar a las personas.", highDescriptor: "centrado/a en las personas, servicial y afectuoso/a", lowDescriptor: "menos atraído/a por roles de ayuda a las personas" },
+    E: { name: "Emprendedor", description: "Liderar, persuadir y trabajo orientado a los negocios.", highDescriptor: "ambicioso/a, persuasivo/a y orientado/a al liderazgo", lowDescriptor: "menos atraído/a por liderar y vender" },
+    C: { name: "Convencional", description: "Trabajo organizado, detallado y estructurado.", highDescriptor: "organizado/a, detallista y sistemático/a", lowDescriptor: "menos atraído/a por el trabajo estructurado y de procedimientos" },
+  },
+  items: {
+    R1: "Trabajar con las manos, herramientas, máquinas o al aire libre.", R2: "Construir, reparar o manejar cosas con resultados tangibles.", R3: "Tareas prácticas, manuales y físicas antes que el trabajo de escritorio.",
+    I1: "Analizar problemas, datos y cómo funcionan las cosas.", I2: "Investigación, ciencia y resolver cosas desde sus principios.", I3: "Sumergirme en ideas, teorías y una comprensión profunda.",
+    A1: "Expresarme a través del arte, la escritura, la música o el diseño.", A2: "Trabajo creativo y original, con margen para improvisar.", A3: "Proyectos estéticos, imaginativos y sin estructura.",
+    S1: "Ayudar, enseñar, orientar o cuidar a las personas.", S2: "Trabajar de cerca con otros y apoyarlos.", S3: "Trabajo que mejora visiblemente la vida de las personas.",
+    E1: "Liderar, persuadir, presentar y vender ideas.", E2: "Negocios, ambición, acuerdos e influencia.", E3: "Tomar el mando e impulsar metas y crecimiento.",
+    C1: "Trabajo organizado y detallado con procedimientos claros.", C2: "Gestionar datos, registros, horarios y sistemas.", C3: "Reglas claras y procesos ordenados antes que la ambigüedad.",
+  },
+};
+const RIASEC_FR: InstrumentTranslation = {
+  name: "Intérêts professionnels (RIASEC)", shortName: "RIASEC",
+  tagline: "Votre code Holland — et les métiers qui lui correspondent.",
+  description: "Le modèle RIASEC de Holland est la colonne vertébrale de l'orientation professionnelle moderne. Il cartographie six thèmes d'intérêt — Réaliste, Investigateur, Artistique, Social, Entreprenant et Conventionnel — et vos trois principaux forment votre « code Holland ». Ce profileur trouve le vôtre et le traduit en domaines de carrière concrets à explorer.",
+  scales: {
+    R: { name: "Réaliste", description: "Travail concret, pratique, physique et technique.", highDescriptor: "pratique, concret(ète) et porté(e) vers la technique", lowDescriptor: "moins attiré(e) par le travail technique et manuel" },
+    I: { name: "Investigateur", description: "Travail analytique, scientifique et porté par les idées.", highDescriptor: "analytique, curieux(se) et porté(e) sur la recherche", lowDescriptor: "moins attiré(e) par l'analyse et la recherche" },
+    A: { name: "Artistique", description: "Travail créatif, expressif et peu structuré.", highDescriptor: "créatif(ve), expressif(ve) et original(e)", lowDescriptor: "moins attiré(e) par le travail artistique et ouvert" },
+    S: { name: "Social", description: "Aider, enseigner et prendre soin des gens.", highDescriptor: "tourné(e) vers les autres, serviable et bienveillant(e)", lowDescriptor: "moins attiré(e) par les rôles d'aide aux autres" },
+    E: { name: "Entreprenant", description: "Diriger, persuader et travail orienté affaires.", highDescriptor: "ambitieux(se), persuasif(ve) et porté(e) sur le leadership", lowDescriptor: "moins attiré(e) par diriger et vendre" },
+    C: { name: "Conventionnel", description: "Travail organisé, minutieux et structuré.", highDescriptor: "organisé(e), minutieux(se) et méthodique", lowDescriptor: "moins attiré(e) par le travail structuré et procédural" },
+  },
+  items: {
+    R1: "Travailler de mes mains, avec des outils, des machines ou en plein air.", R2: "Construire, réparer ou faire fonctionner des choses aux résultats tangibles.", R3: "Des tâches pratiques, manuelles et physiques plutôt qu'un travail de bureau.",
+    I1: "Analyser des problèmes, des données et le fonctionnement des choses.", I2: "La recherche, la science et comprendre à partir des principes.", I3: "Plonger dans les idées, les théories et la compréhension profonde.",
+    A1: "M'exprimer par l'art, l'écriture, la musique ou le design.", A2: "Un travail créatif et original, avec de la place pour improviser.", A3: "Des projets esthétiques, imaginatifs et sans structure.",
+    S1: "Aider, enseigner, accompagner ou prendre soin des gens.", S2: "Travailler étroitement avec les autres et les soutenir.", S3: "Un travail qui améliore visiblement la vie des gens.",
+    E1: "Diriger, persuader, présenter et vendre des idées.", E2: "Les affaires, l'ambition, les accords et l'influence.", E3: "Prendre les rênes et viser objectifs et croissance.",
+    C1: "Un travail organisé et minutieux avec des procédures claires.", C2: "Gérer données, dossiers, plannings et systèmes.", C3: "Des règles claires et des processus ordonnés plutôt que l'ambiguïté.",
+  },
+};
+
+const EMPATHY_ES: InstrumentTranslation = {
+  name: "Empatía (IRI)", shortName: "Empatía",
+  tagline: "Cuatro caras de la empatía: pensar, sentir, imaginar y abrumarse.",
+  description: "La empatía es en realidad varias capacidades. El Índice de Reactividad Interpersonal de Davis mapea cuatro: Toma de perspectiva (ver el punto de vista del otro), Preocupación empática (afecto cálido por los demás), Fantasía (absorberse en personajes e historias) y Malestar personal (tu propia ansiedad ante el sufrimiento ajeno). Juntas dibujan cómo —y con qué facilidad— sientes con los demás.",
+  scales: {
+    PT: { name: "Toma de perspectiva", description: "Adoptar cognitivamente el punto de vista de otro.", poles: { low: "Anclado en sí", high: "Toma perspectiva" }, highDescriptor: "rápido/a para ver los puntos de vista de los demás", lowDescriptor: "más anclado/a en tu propia perspectiva" },
+    EC: { name: "Preocupación empática", description: "Sentimientos cálidos de compasión hacia los demás.", poles: { low: "Distante", high: "Compasivo/a" }, highDescriptor: "cálido/a, cariñoso/a y compasivo/a", lowDescriptor: "más frío/a y distante ante los sentimientos ajenos" },
+    FS: { name: "Fantasía", description: "Entrar imaginativamente en las experiencias de personajes ficticios.", poles: { low: "Literal", high: "Imaginativo/a" }, highDescriptor: "absorbido/a imaginativamente en historias y personajes", lowDescriptor: "anclado/a en lo literal y lo real" },
+    PD: { name: "Malestar personal", description: "Ansiedad centrada en uno mismo ante el sufrimiento ajeno.", poles: { low: "Sereno/a", high: "Se abruma" }, highDescriptor: "fácilmente abrumado/a por el malestar de los demás", lowDescriptor: "capaz de mantener la calma ante el malestar ajeno" },
+  },
+  items: {
+    PT1: "Intento ver las cosas desde el punto de vista del otro antes de juzgar.", PT2: "Cuando me enfado con alguien, intento imaginar cómo se ven las cosas desde su lado.", PT3: "Creo que la mayoría de los asuntos tienen dos caras e intento ver ambas.",
+    EC1: "A menudo siento una preocupación cálida y tierna por quienes tienen menos suerte que yo.", EC2: "Las desgracias de los demás me conmueven de verdad.", EC3: "Me describiría como una persona bastante tierna de corazón.",
+    FS1: "Me absorben profundamente los sentimientos de los personajes de historias o películas.", FS2: "Imagino de verdad lo que viven los personajes de una novela.", FS3: "Sueño despierto/a con viveza y me imagino en situaciones inventadas.",
+    PD1: "En las emergencias me siento ansioso/a, tenso/a y un poco desbordado/a.", PD2: "Estar en una situación emocionalmente cargada me asusta.", PD3: "Cuando veo a alguien gravemente herido, tiendo a descomponerme un poco.",
+  },
+};
+const EMPATHY_FR: InstrumentTranslation = {
+  name: "Empathie (IRI)", shortName: "Empathie",
+  tagline: "Quatre facettes de l'empathie : penser, ressentir, imaginer et être submergé.",
+  description: "L'empathie est en réalité plusieurs capacités. L'Indice de Réactivité Interpersonnelle de Davis en cartographie quatre : la Prise de perspective (voir le point de vue de l'autre), la Préoccupation empathique (un souci chaleureux des autres), la Fantaisie (l'absorption dans les personnages et les histoires) et la Détresse personnelle (votre propre anxiété face à la souffrance d'autrui). Ensemble, elles dessinent comment — et avec quelle facilité — vous ressentez avec les autres.",
+  scales: {
+    PT: { name: "Prise de perspective", description: "Adopter cognitivement le point de vue d'autrui.", poles: { low: "Ancré(e) sur soi", high: "Prend du recul" }, highDescriptor: "prompt(e) à voir le point de vue des autres", lowDescriptor: "plus ancré(e) dans votre propre perspective" },
+    EC: { name: "Préoccupation empathique", description: "Des sentiments chaleureux de compassion tournés vers les autres.", poles: { low: "Distant(e)", high: "Compatissant(e)" }, highDescriptor: "chaleureux(se), attentionné(e) et compatissant(e)", lowDescriptor: "plus froid(e) et détaché(e) face aux sentiments d'autrui" },
+    FS: { name: "Fantaisie", description: "Entrer par l'imagination dans le vécu de personnages fictifs.", poles: { low: "Littéral(e)", high: "Imaginatif(ve)" }, highDescriptor: "absorbé(e) par l'imagination dans les histoires et les personnages", lowDescriptor: "ancré(e) dans le littéral et le réel" },
+    PD: { name: "Détresse personnelle", description: "Anxiété centrée sur soi face à la souffrance d'autrui.", poles: { low: "Posé(e)", high: "Submergé(e)" }, highDescriptor: "facilement submergé(e) par la détresse des autres", lowDescriptor: "capable de rester calme face à la détresse d'autrui" },
+  },
+  items: {
+    PT1: "J'essaie de voir les choses du point de vue de l'autre avant de juger.", PT2: "Quand je suis fâché(e) contre quelqu'un, j'essaie d'imaginer comment les choses lui apparaissent.", PT3: "Je pense que la plupart des questions ont deux faces et j'essaie de voir les deux.",
+    EC1: "Je ressens souvent une tendresse chaleureuse pour les personnes moins chanceuses que moi.", EC2: "Les malheurs des autres me touchent vraiment.", EC3: "Je me décrirais comme une personne plutôt au cœur tendre.",
+    FS1: "Je me laisse profondément absorber par les sentiments des personnages des histoires ou des films.", FS2: "J'imagine vraiment ce que vivent les personnages d'un roman.", FS3: "Je rêve éveillé(e) de façon vive et m'imagine dans des situations inventées.",
+    PD1: "En cas d'urgence, je me sens anxieux(se), tendu(e) et un peu débordé(e).", PD2: "Être dans une situation émotionnellement chargée me fait peur.", PD3: "Quand je vois quelqu'un gravement blessé, j'ai tendance à un peu m'effondrer.",
+  },
+};
+const EYSENCK_ES: InstrumentTranslation = {
+  name: "Perfil PEN de Eysenck", shortName: "PEN",
+  tagline: "Tres grandes dimensiones: extraversión, neuroticismo y dureza de carácter.",
+  description: "Hans Eysenck sostenía que la personalidad se reduce a unas pocas dimensiones amplias y de base biológica. Este perfilador mapea las tres clásicas: Extraversión, Neuroticismo (reactividad emocional) y Psicoticismo (una etiqueta histórica para las tendencias de carácter firme, inconformistas e impulsivas, no la psicosis). Es un complemento útil a los Cinco Grandes, recorriendo el mismo terreno desde la influyente mirada de Eysenck.",
+  scales: {
+    EXT: { name: "Extraversión", description: "Sociabilidad, actividad y búsqueda de estimulación.", poles: { low: "Introvertido", high: "Extravertido" }, highDescriptor: "extrovertido/a, enérgico/a y atraído/a por la emoción", lowDescriptor: "reservado/a, tranquilo/a y a gusto con la calma" },
+    NEU: { name: "Neuroticismo", description: "Reactividad emocional y propensión al estrés.", poles: { low: "Estable", high: "Reactivo" }, highDescriptor: "emocionalmente reactivo/a, sensible al estrés y propenso/a a preocuparse", lowDescriptor: "tranquilo/a, sereno/a y difícil de alterar" },
+    PSY: { name: "Dureza de carácter", description: "Inconformismo, falta de sentimentalismo y franqueza (el 'Psicoticismo' de Eysenck).", poles: { low: "Tierno / conformista", high: "Duro / inconformista" }, highDescriptor: "independiente, de carácter firme y poco convencional", lowDescriptor: "cálido/a, afable y convencional" },
+  },
+  items: {
+    E1: "Hago amigos con facilidad y disfruto de las reuniones sociales animadas.", E2: "Me consideraría más el alma de la fiesta que alguien que pasa desapercibido.", E3: "Me gusta tener mucha emoción y actividad a mi alrededor.", E4: "A menudo actúo por impulso del momento.", E5: "Prefiero una velada tranquila a solas a un gran evento social.", E6: "Tiendo a mantenerme en segundo plano en los eventos sociales.",
+    N1: "Mi estado de ánimo puede cambiar rápidamente sin gran motivo.", N2: "Sigo dándole vueltas a las cosas mucho después de que han pasado.", N3: "A menudo me siento tenso/a o nervioso/a.", N4: "Con frecuencia me siento ansioso/a sin saber muy bien por qué.", N5: "Me mantengo tranquilo/a y firme bajo presión.", N6: "Los pequeños contratiempos rara vez alteran mi compostura.",
+    P1: "Cuestiono las reglas y convenciones en vez de seguirlas sin más.", P2: "Soy bastante poco sentimental y práctico/a con casi todo.", P3: "Prefiero seguir mi propio camino, aunque otros lo desaprueben.", P4: "Puedo ser franco/a y de carácter firme cuando la situación lo exige.", P5: "Soy muy considerado/a con los sentimientos de los demás.", P6: "Me gusta encajar y seguir las normas sociales aceptadas.",
+  },
+};
+const EYSENCK_FR: InstrumentTranslation = {
+  name: "Profil PEN d'Eysenck", shortName: "PEN",
+  tagline: "Trois grandes dimensions : extraversion, névrosisme et fermeté d'esprit.",
+  description: "Hans Eysenck soutenait que la personnalité se résume à quelques dimensions larges et d'origine biologique. Ce profileur cartographie les trois classiques : l'Extraversion, le Névrosisme (réactivité émotionnelle) et le Psychoticisme (une étiquette historique pour les tendances au caractère ferme, non-conformistes et impulsives — pas la psychose). C'est un complément utile aux Big Five, parcourant le même terrain depuis le regard influent d'Eysenck.",
+  scales: {
+    EXT: { name: "Extraversion", description: "Sociabilité, activité et recherche de stimulation.", poles: { low: "Introverti", high: "Extraverti" }, highDescriptor: "sociable, énergique et attiré(e) par l'excitation", lowDescriptor: "réservé(e), calme et à l'aise dans le calme" },
+    NEU: { name: "Névrosisme", description: "Réactivité émotionnelle et propension au stress.", poles: { low: "Stable", high: "Réactif" }, highDescriptor: "émotionnellement réactif(ve), sensible au stress et prompt(e) à s'inquiéter", lowDescriptor: "calme, posé(e) et difficile à ébranler" },
+    PSY: { name: "Fermeté d'esprit", description: "Non-conformisme, absence de sentimentalité et franchise (le « Psychoticisme » d'Eysenck).", poles: { low: "Tendre / conformiste", high: "Dur / non-conformiste" }, highDescriptor: "indépendant(e), au caractère ferme et peu conventionnel(le)", lowDescriptor: "chaleureux(se), accommodant(e) et conventionnel(le)" },
+  },
+  items: {
+    E1: "Je me fais des amis facilement et j'aime les réunions sociales animées.", E2: "Je me décrirais plutôt comme l'âme de la fête que comme quelqu'un d'effacé.", E3: "J'aime avoir beaucoup d'animation et d'activité autour de moi.", E4: "J'agis souvent sur un coup de tête.", E5: "Je préfère une soirée tranquille seul(e) à un grand événement social.", E6: "J'ai tendance à rester en retrait lors des événements sociaux.",
+    N1: "Mon humeur peut changer rapidement sans grande raison.", N2: "Je continue de ressasser les choses longtemps après qu'elles sont finies.", N3: "Je me sens souvent tendu(e) ou à cran.", N4: "Je me sens fréquemment anxieux(se) sans trop savoir pourquoi.", N5: "Je reste calme et posé(e) sous la pression.", N6: "Les petits contretemps ébranlent rarement mon sang-froid.",
+    P1: "Je remets en question les règles et les conventions plutôt que de simplement les suivre.", P2: "Je suis assez peu sentimental(e) et terre-à-terre sur la plupart des choses.", P3: "Je préfère suivre ma propre voie, même si d'autres le désapprouvent.", P4: "Je peux être direct(e) et ferme quand la situation l'exige.", P5: "Je suis très attentif(ve) aux sentiments des autres.", P6: "J'aime m'intégrer et suivre les normes sociales admises.",
+  },
+};
+const PSS_ES: InstrumentTranslation = {
+  name: "Estrés percibido", shortName: "Estrés",
+  tagline: "Qué tan desbordada, impredecible y fuera de control se ha sentido la vida últimamente.",
+  description: "El estrés no consiste solo en lo que te ocurre, sino en cuánto sientes que puedes manejarlo. La Escala de Estrés Percibido, la más utilizada del campo, capta esa valoración: qué tan impredecible, incontrolable y desbordante ha sido el último mes. Es una instantánea de un período de tiempo, y cambia a medida que cambian tus circunstancias y tu forma de afrontarlas.",
+  scales: {
+    STRESS: { name: "Estrés percibido", description: "Estrés evaluado durante el último mes.", poles: { low: "Con control", high: "Desbordado/a" }, highDescriptor: "con sensación de sobrecarga y poco control", lowDescriptor: "con sensación de estabilidad y control" },
+  },
+  items: {
+    S1: "En el último mes, ¿con qué frecuencia te has alterado por algo que ocurrió inesperadamente?", S2: "¿Con qué frecuencia has sentido que no podías controlar las cosas importantes de tu vida?", S3: "¿Con qué frecuencia te has sentido nervioso/a y estresado/a?", S4: "¿Con qué frecuencia te has visto incapaz de afrontar todo lo que tenías que hacer?", S5: "¿Con qué frecuencia te han enfadado cosas que estaban fuera de tu control?",
+    S6: "¿Con qué frecuencia has sentido que las dificultades se acumulaban tanto que no podías superarlas?", S7: "¿Con qué frecuencia te has sentido seguro/a de tu capacidad para manejar tus problemas personales?", S8: "¿Con qué frecuencia has sentido que las cosas te iban bien?", S9: "¿Con qué frecuencia has sido capaz de controlar las irritaciones de tu vida?", S10: "¿Con qué frecuencia has sentido que tenías todo bajo control?",
+  },
+};
+const PSS_FR: InstrumentTranslation = {
+  name: "Stress perçu", shortName: "Stress",
+  tagline: "À quel point la vie a semblé surchargée, imprévisible et hors de contrôle ces derniers temps.",
+  description: "Le stress ne tient pas seulement à ce qui vous arrive, mais à votre sentiment de pouvoir y faire face. L'Échelle de Stress Perçu, la plus utilisée du domaine, saisit cette évaluation : à quel point le mois écoulé a semblé imprévisible, incontrôlable et surchargeant. C'est un instantané d'une période, et il évolue au fil de vos circonstances et de votre manière d'y faire face.",
+  scales: {
+    STRESS: { name: "Stress perçu", description: "Stress évalué au cours du dernier mois.", poles: { low: "Maîtrisé", high: "Débordé(e)" }, highDescriptor: "avec un sentiment de surcharge et de perte de contrôle", lowDescriptor: "avec un sentiment de stabilité et de maîtrise" },
+  },
+  items: {
+    S1: "Au cours du dernier mois, à quelle fréquence avez-vous été contrarié(e) par un événement inattendu ?", S2: "À quelle fréquence avez-vous eu le sentiment de ne pas pouvoir contrôler les choses importantes de votre vie ?", S3: "À quelle fréquence vous êtes-vous senti(e) nerveux(se) et stressé(e) ?", S4: "À quelle fréquence avez-vous trouvé que vous ne pouviez pas faire face à tout ce que vous aviez à faire ?", S5: "À quelle fréquence avez-vous été irrité(e) par des choses hors de votre contrôle ?",
+    S6: "À quelle fréquence avez-vous senti les difficultés s'accumuler au point de ne pas pouvoir les surmonter ?", S7: "À quelle fréquence vous êtes-vous senti(e) confiant(e) dans votre capacité à gérer vos problèmes personnels ?", S8: "À quelle fréquence avez-vous eu le sentiment que les choses allaient comme vous le vouliez ?", S9: "À quelle fréquence avez-vous été capable de maîtriser les irritations de votre vie ?", S10: "À quelle fréquence avez-vous eu le sentiment de maîtriser la situation ?",
+  },
+};
+const WORRY_ES: InstrumentTranslation = {
+  name: "Chequeo de preocupación", shortName: "Preocupación",
+  tagline: "Una instantánea amable de dos semanas sobre preocupación y calma: apoyo, no diagnóstico.",
+  description: "Un breve y cuidadoso chequeo sobre la preocupación y la tensión de las últimas dos semanas, en el espíritu de los cribados habituales de ansiedad, pero planteado en torno a la calma y la estabilidad en lugar de los síntomas. Las puntuaciones más altas indican más bienestar. Es un estímulo para el autoconocimiento y el autocuidado, nunca un diagnóstico.",
+  scales: {
+    CALM: { name: "Calma y bienestar", description: "Ausencia de preocupación ansiosa.", poles: { low: "Ansioso/a", high: "En calma" }, highDescriptor: "tranquilo/a, a gusto y capaz de relajarse", lowDescriptor: "ansioso/a, en tensión y preocupado/a" },
+    STDY: { name: "Estabilidad", description: "Estabilidad interior y ausencia de inquietud.", poles: { low: "Inquieto/a", high: "Estable" }, highDescriptor: "asentado/a, sereno/a y estable", lowDescriptor: "inquieto/a, irritable o aprensivo/a" },
+  },
+  items: {
+    C1: "En las últimas dos semanas, me he sentido nervioso/a, ansioso/a o con los nervios de punta.", C2: "No he podido dejar de preocuparme ni controlar la preocupación.", C3: "Me he sentido tranquilo/a y a gusto.", C4: "He podido relajarme cuando he querido.",
+    S1: "Me he sentido relajado/a en lugar de tenso/a.", S2: "He estado inquieto/a o me ha costado quedarme quieto/a.", S3: "Me he sentido fácilmente molesto/a o irritable.", S4: "He sentido miedo de que pudiera pasar algo terrible.",
+  },
+};
+const WORRY_FR: InstrumentTranslation = {
+  name: "Point sur l'inquiétude", shortName: "Inquiétude",
+  tagline: "Un aperçu bienveillant sur deux semaines de l'inquiétude et du calme — un soutien, pas un diagnostic.",
+  description: "Un bref point attentionné sur l'inquiétude et la tension des deux dernières semaines, dans l'esprit des dépistages courants de l'anxiété — mais articulé autour du calme et de la stabilité plutôt que des symptômes. Des scores plus élevés signifient plus de sérénité. C'est une invitation à mieux se connaître et à prendre soin de soi, jamais un diagnostic.",
+  scales: {
+    CALM: { name: "Calme et sérénité", description: "Absence d'inquiétude anxieuse.", poles: { low: "Anxieux", high: "Calme" }, highDescriptor: "calme, à l'aise et capable de se détendre", lowDescriptor: "anxieux(se), à cran et inquiet(ète)" },
+    STDY: { name: "Stabilité", description: "Stabilité intérieure et absence d'agitation.", poles: { low: "Agité", high: "Stable" }, highDescriptor: "posé(e), égal(e) et stable", lowDescriptor: "agité(e), irritable ou inquiet(ète)" },
+  },
+  items: {
+    C1: "Au cours des deux dernières semaines, je me suis senti(e) nerveux(se), anxieux(se) ou à cran.", C2: "Je n'ai pas pu arrêter de m'inquiéter ni contrôler mon inquiétude.", C3: "Je me suis senti(e) calme et à l'aise.", C4: "J'ai pu me détendre quand je le voulais.",
+    S1: "Je me suis senti(e) détendu(e) plutôt que crispé(e).", S2: "J'ai été agité(e) ou j'ai eu du mal à rester en place.", S3: "Je me suis senti(e) facilement contrarié(e) ou irritable.", S4: "J'ai eu peur qu'il puisse arriver quelque chose d'affreux.",
+  },
+};
+const ZKPQ_ES: InstrumentTranslation = {
+  name: "Los Cinco Alternativos (ZKPQ)", shortName: "Alt-Cinco",
+  tagline: "El rival de base biológica de los Cinco Grandes, de Zuckerman.",
+  description: "Marvin Zuckerman sostenía que los Cinco Grandes no recortaban del todo la naturaleza por sus articulaciones, y propuso unos 'Cinco Alternativos' arraigados en rasgos con bases biológicas y evolutivas más claras: búsqueda impulsiva de sensaciones, neuroticismo-ansiedad, agresión-hostilidad, actividad y sociabilidad. Una fascinante segunda opinión sobre la estructura de la personalidad.",
+  scales: {
+    IMPSS: { name: "Búsqueda impulsiva de sensaciones", description: "Impulsividad junto al ansia de emoción y novedad.", poles: { low: "Deliberado", high: "Impulsivo" }, highDescriptor: "impulsivo/a y ávido/a de emociones nuevas", lowDescriptor: "previsor/a y reacio/a al riesgo" },
+    NANX: { name: "Neuroticismo-Ansiedad", description: "Tensión, preocupación y malestar emocional.", poles: { low: "Tranquilo", high: "Ansioso" }, highDescriptor: "tenso/a, preocupado/a y fácilmente alterado/a", lowDescriptor: "tranquilo/a y emocionalmente estable" },
+    AGGH: { name: "Agresión-Hostilidad", description: "Disposición a la ira, la discusión y la hostilidad.", poles: { low: "Apacible", high: "Hostil" }, highDescriptor: "irascible, directo/a y combativo/a", lowDescriptor: "paciente, suave y lento/a para enfadarse" },
+    ACT: { name: "Actividad", description: "Energía, ajetreo y necesidad de acción.", poles: { low: "Relajado", high: "Activo" }, highDescriptor: "enérgico/a, inquieto/a y siempre en marcha", lowDescriptor: "relajado/a y a gusto con un ritmo pausado" },
+    SY: { name: "Sociabilidad", description: "Disfrute de la gente, las fiestas y la actividad social.", poles: { low: "Solitario", high: "Sociable" }, highDescriptor: "extrovertido/a y con energía entre la gente", lowDescriptor: "más a gusto en soledad o en grupos pequeños" },
+  },
+  items: {
+    IS1: "Actúo por impulso y ansío experiencias nuevas y emocionantes.", IS2: "Me gusta hacer cosas solo por la emoción que producen.", IS3: "Planifico con cuidado y me mantengo alejado/a de los riesgos.",
+    NA1: "A menudo me siento tenso/a, preocupado/a o alterado/a.", NA2: "Las pequeñas cosas me desaniman o me ponen ansioso/a con facilidad.", NA3: "Soy una persona tranquila y rara vez me altero.",
+    AH1: "Puedo tener la lengua afilada o enfadarme rápido cuando me provocan.", AH2: "Discuto sin problema y defiendo mi postura, incluso de forma brusca.", AH3: "Soy paciente y tardo en enfadarme.",
+    AC1: "Siempre estoy en movimiento y me gusta mantenerme ocupado/a.", AC2: "Prefiero una vida activa y de ritmo rápido a una relajada.", AC3: "Estoy más a gusto a un ritmo lento y tranquilo.",
+    SY1: "Me encanta estar rodeado/a de mucha gente y actividad social.", SY2: "Prefiero estar en una fiesta animada que en casa a solas.", SY3: "Prefiero la soledad o los grupos pequeños a las grandes multitudes.",
+  },
+};
+const ZKPQ_FR: InstrumentTranslation = {
+  name: "Les Cinq Alternatifs (ZKPQ)", shortName: "Alt-Cinq",
+  tagline: "Le rival d'origine biologique des Big Five, selon Zuckerman.",
+  description: "Marvin Zuckerman estimait que les Big Five ne découpaient pas la nature selon ses véritables articulations, et proposa des « Cinq Alternatifs » ancrés dans des traits aux bases biologiques et évolutives plus nettes : recherche impulsive de sensations, névrosisme-anxiété, agression-hostilité, activité et sociabilité. Un second avis fascinant sur la structure de la personnalité.",
+  scales: {
+    IMPSS: { name: "Recherche impulsive de sensations", description: "Impulsivité doublée d'une soif de sensations fortes et de nouveauté.", poles: { low: "Réfléchi", high: "Impulsif" }, highDescriptor: "impulsif(ve) et avide de sensations nouvelles", lowDescriptor: "prévoyant(e) et réfractaire au risque" },
+    NANX: { name: "Névrosisme-Anxiété", description: "Tension, inquiétude et trouble émotionnel.", poles: { low: "Calme", high: "Anxieux" }, highDescriptor: "tendu(e), inquiet(ète) et facilement perturbé(e)", lowDescriptor: "calme et émotionnellement stable" },
+    AGGH: { name: "Agression-Hostilité", description: "Propension à la colère, à la dispute et à l'hostilité.", poles: { low: "Accommodant", high: "Hostile" }, highDescriptor: "soupe au lait, direct(e) et combatif(ve)", lowDescriptor: "patient(e), doux(ce) et lent(e) à la colère" },
+    ACT: { name: "Activité", description: "Énergie, agitation et besoin d'action.", poles: { low: "Détendu", high: "Actif" }, highDescriptor: "énergique, agité(e) et toujours en mouvement", lowDescriptor: "détendu(e) et à l'aise dans un rythme posé" },
+    SY: { name: "Sociabilité", description: "Goût des gens, des fêtes et de l'activité sociale.", poles: { low: "Solitaire", high: "Sociable" }, highDescriptor: "sociable et stimulé(e) par la foule", lowDescriptor: "plus à l'aise dans la solitude ou les petits groupes" },
+  },
+  items: {
+    IS1: "J'agis sur un coup de tête et je recherche des expériences nouvelles et excitantes.", IS2: "J'aime faire des choses juste pour le frisson.", IS3: "Je planifie soigneusement et j'évite les risques.",
+    NA1: "Je me sens souvent tendu(e), inquiet(ète) ou contrarié(e).", NA2: "Un rien me déprime ou me rend anxieux(se).", NA3: "Je suis calme et rarement ébranlé(e).",
+    AH1: "Je peux avoir la langue acérée ou m'emporter vite quand on me provoque.", AH2: "Je discute volontiers et je tiens ma position, même brutalement.", AH3: "Je suis patient(e) et lent(e) à me mettre en colère.",
+    AC1: "Je suis toujours en mouvement et j'aime rester occupé(e).", AC2: "Je préfère une vie active et trépidante à une vie tranquille.", AC3: "Je suis plus heureux(se) à un rythme lent et tranquille.",
+    SY1: "J'adore être entouré(e) de beaucoup de monde et d'activité sociale.", SY2: "Je préfère une fête animée à rester seul(e) à la maison.", SY3: "Je préfère la solitude ou les petits groupes aux grandes foules.",
+  },
+};
+const TCI_ES: InstrumentTranslation = {
+  name: "Temperamento y Carácter", shortName: "TCI",
+  tagline: "El modelo de Cloninger: lo que heredaste y lo que has cultivado.",
+  description: "El modelo psicobiológico de Cloninger establece una distinción llamativa: cuatro dimensiones de TEMPERAMENTO, en gran parte heredadas y automáticas (búsqueda de novedad, evitación del daño, dependencia de la recompensa, persistencia), y tres dimensiones de CARÁCTER que maduran a lo largo de la vida (autodirección, cooperación, autotrascendencia). Juntas separan la naturaleza con la que empiezas del yo que has construido.",
+  scales: {
+    NS: { name: "Búsqueda de novedad", description: "Temperamento: entusiasmo exploratorio e impulsividad.", poles: { low: "Constante", high: "Busca novedad" }, highDescriptor: "explorador/a, impulsivo/a y excitable", lowDescriptor: "reservado/a, deliberado/a y ordenado/a" },
+    HA: { name: "Evitación del daño", description: "Temperamento: preocupación, cautela y miedo al daño.", poles: { low: "Audaz", high: "Cauto" }, highDescriptor: "cauteloso/a, propenso/a a la preocupación y fácil de fatigar", lowDescriptor: "seguro/a, relajado/a y tolerante al riesgo" },
+    RD: { name: "Dependencia de la recompensa", description: "Temperamento: calidez y sensibilidad a la aprobación social.", poles: { low: "Distante", high: "Cálido" }, highDescriptor: "cálido/a, sentimental y sensible a la aprobación", lowDescriptor: "distante, práctico/a e independiente de la aprobación" },
+    PS: { name: "Persistencia", description: "Temperamento: perseverancia pese a la frustración.", poles: { low: "Cede", high: "Persevera" }, highDescriptor: "trabajador/a, decidido/a y perseverante", lowDescriptor: "fácil de desanimar cuando la recompensa se desvanece" },
+    SD: { name: "Autodirección", description: "Carácter: responsabilidad, propósito e ingenio.", poles: { low: "A la deriva", high: "Autodirigido" }, highDescriptor: "con propósito, responsable y autónomo/a", lowDescriptor: "inseguro/a de su rumbo y propenso/a a culpar a otros" },
+    CO: { name: "Cooperación", description: "Carácter: tolerancia, empatía y disposición a ayudar.", poles: { low: "Centrado en sí", high: "Cooperativo" }, highDescriptor: "tolerante, empático/a y cooperador/a", lowDescriptor: "centrado/a en sí mismo/a e intolerante con lo distinto" },
+    ST: { name: "Autotrascendencia", description: "Carácter: espiritualidad y conexión con un todo mayor.", poles: { low: "Material", high: "Trascendente" }, highDescriptor: "idealista y en sintonía con algo más grande", lowDescriptor: "concreto/a, material y autosuficiente" },
+  },
+  items: {
+    NS1: "Siempre busco experiencias nuevas y emocionantes.", NS2: "Prefiero las rutinas familiares a la novedad y la sorpresa.",
+    HA1: "Me preocupo por lo que podría salir mal, aunque otros no lo hagan.", HA2: "Me mantengo relajado/a y seguro/a en situaciones desconocidas o arriesgadas.",
+    RD1: "Soy cálido/a y sentimental, y me importa la aprobación de los demás.", RD2: "Me mantengo emocionalmente distante e indiferente a los elogios o las críticas.",
+    PS1: "Sigo esforzándome por una meta incluso cuando otros abandonarían.", PS2: "Pierdo la motivación en cuanto una tarea deja de ser gratificante.",
+    SD1: "Asumo la responsabilidad de mi vida y actúo según mis propios propósitos.", SD2: "Me cuesta fijarme metas y seguir mi propia dirección.",
+    CO1: "Soy tolerante y servicial, e intento entender otros puntos de vista.", CO2: "Tengo poca paciencia con las personas que son diferentes a mí.",
+    ST1: "A veces siento una conexión profunda con algo más grande que yo.", ST2: "Me centro en lo concreto y material, no en lo espiritual o trascendente.",
+  },
+};
+const TCI_FR: InstrumentTranslation = {
+  name: "Tempérament et Caractère", shortName: "TCI",
+  tagline: "Le modèle de Cloninger — ce dont vous avez hérité, et ce que vous avez cultivé.",
+  description: "Le modèle psychobiologique de Cloninger établit une distinction frappante : quatre dimensions de TEMPÉRAMENT, en grande partie héritées et automatiques (recherche de nouveauté, évitement du danger, dépendance à la récompense, persistance), et trois dimensions de CARACTÈRE qui mûrissent au fil de la vie (autodétermination, coopération, autotranscendance). Ensemble, elles séparent la nature de départ du soi que vous avez construit.",
+  scales: {
+    NS: { name: "Recherche de nouveauté", description: "Tempérament : enthousiasme exploratoire et impulsivité.", poles: { low: "Constant", high: "Cherche la nouveauté" }, highDescriptor: "exploratoire, impulsif(ve) et excitable", lowDescriptor: "réservé(e), réfléchi(e) et ordonné(e)" },
+    HA: { name: "Évitement du danger", description: "Tempérament : inquiétude, prudence et crainte du danger.", poles: { low: "Audacieux", high: "Prudent" }, highDescriptor: "prudent(e), enclin(e) à l'inquiétude et vite fatigué(e)", lowDescriptor: "confiant(e), détendu(e) et tolérant(e) au risque" },
+    RD: { name: "Dépendance à la récompense", description: "Tempérament : chaleur et sensibilité à l'approbation sociale.", poles: { low: "Détaché", high: "Chaleureux" }, highDescriptor: "chaleureux(se), sentimental(e) et sensible à l'approbation", lowDescriptor: "détaché(e), pragmatique et indépendant(e) de l'approbation" },
+    PS: { name: "Persistance", description: "Tempérament : persévérance malgré la frustration.", poles: { low: "Cède", high: "Persévère" }, highDescriptor: "travailleur(se), déterminé(e) et persévérant(e)", lowDescriptor: "vite découragé(e) quand la récompense s'estompe" },
+    SD: { name: "Autodétermination", description: "Caractère : responsabilité, sens et débrouillardise.", poles: { low: "À la dérive", high: "Autodéterminé" }, highDescriptor: "déterminé(e), responsable et maître de soi", lowDescriptor: "incertain(e) de sa direction et prompt(e) à rejeter la faute" },
+    CO: { name: "Coopération", description: "Caractère : tolérance, empathie et serviabilité.", poles: { low: "Centré sur soi", high: "Coopératif" }, highDescriptor: "tolérant(e), empathique et coopératif(ve)", lowDescriptor: "centré(e) sur soi et intolérant(e) à la différence" },
+    ST: { name: "Autotranscendance", description: "Caractère : spiritualité et lien avec un tout plus vaste.", poles: { low: "Matériel", high: "Transcendant" }, highDescriptor: "idéaliste et à l'écoute de quelque chose de plus grand", lowDescriptor: "concret(ète), matériel(le) et autosuffisant(e)" },
+  },
+  items: {
+    NS1: "Je suis toujours à la recherche d'expériences nouvelles et excitantes.", NS2: "Je préfère les routines familières à la nouveauté et à la surprise.",
+    HA1: "Je m'inquiète de ce qui pourrait mal tourner, même quand les autres ne le font pas.", HA2: "Je reste détendu(e) et confiant(e) dans les situations inconnues ou risquées.",
+    RD1: "Je suis chaleureux(se) et sentimental(e), et l'approbation des autres compte pour moi.", RD2: "Je reste détaché(e) émotionnellement et indifférent(e) aux éloges comme aux critiques.",
+    PS1: "Je continue de viser un objectif même quand d'autres abandonneraient.", PS2: "Je perds ma motivation dès qu'une tâche cesse d'être gratifiante.",
+    SD1: "Je prends la responsabilité de ma vie et j'agis selon mes propres buts.", SD2: "J'ai du mal à me fixer des objectifs et à suivre ma propre direction.",
+    CO1: "Je suis tolérant(e) et serviable, et j'essaie de comprendre d'autres points de vue.", CO2: "J'ai peu de patience avec les gens qui sont différents de moi.",
+    ST1: "Je ressens parfois un lien profond avec quelque chose de plus grand que moi.", ST2: "Je me concentre sur le concret et le matériel, pas sur le spirituel ou le transcendant.",
+  },
+};
+const SENSATION_ES: InstrumentTranslation = {
+  name: "Búsqueda de sensaciones", shortName: "Sensaciones",
+  tagline: "Tu apetito por la novedad, la intensidad y un poco de riesgo.",
+  description: "La búsqueda de sensaciones, cartografiada por Marvin Zuckerman, es el impulso hacia la experiencia variada, novedosa e intensa, y la disposición a asumir riesgos físicos o sociales para conseguirla. Aquí aparece en dos sabores: el gusto por la emoción física y la aventura, y la atracción por la experiencia novedosa y desinhibida. Alta o baja, moldea la vida que construyes.",
+  scales: {
+    TAS: { name: "Búsqueda de emoción y aventura", description: "Deseo de emoción física, velocidad y aventura.", poles: { low: "Cauto", high: "Busca emociones" }, highDescriptor: "atraído/a por la adrenalina, la velocidad y el riesgo físico", lowDescriptor: "más a gusto con actividades tranquilas y de bajo riesgo" },
+    DIS: { name: "Experiencia y desinhibición", description: "Deseo de experiencia novedosa, intensa y poco convencional.", poles: { low: "Estable", high: "Busca novedad" }, highDescriptor: "atraído/a por la novedad, la intensidad y la espontaneidad", lowDescriptor: "a gusto con lo familiar y predecible" },
+  },
+  items: {
+    T1: "Me encantaría probar actividades como el paracaidismo, surfear olas grandes o la escalada.", T2: "Me atraen las emociones físicas y un toque de peligro.", T3: "La velocidad, las alturas y el movimiento rápido me emocionan más de lo que me asustan.", T4: "Busco activamente experiencias aventureras y llenas de adrenalina.",
+    D1: "Disfruto de experiencias salvajes, espontáneas y desinhibidas.", D2: "Me atrae lo novedoso, lo intenso o lo poco convencional.", D3: "Me inquieto y me aburro cuando la vida se vuelve demasiado familiar.", D4: "Pruebo algo solo por ver cómo es, aunque sea un poco arriesgado.",
+  },
+};
+const SENSATION_FR: InstrumentTranslation = {
+  name: "Recherche de sensations", shortName: "Sensations",
+  tagline: "Votre appétit pour la nouveauté, l'intensité et un brin de risque.",
+  description: "La recherche de sensations, cartographiée par Marvin Zuckerman, est la quête d'expériences variées, nouvelles et intenses — et la volonté de prendre des risques physiques ou sociaux pour les vivre. Elle apparaît ici sous deux formes : le goût du frisson physique et de l'aventure, et l'attrait pour l'expérience nouvelle et désinhibée. Élevée ou faible, elle façonne la vie que vous bâtissez.",
+  scales: {
+    TAS: { name: "Recherche de frisson et d'aventure", description: "Désir de frisson physique, de vitesse et d'aventure.", poles: { low: "Prudent", high: "Cherche le frisson" }, highDescriptor: "attiré(e) par l'adrénaline, la vitesse et le risque physique", lowDescriptor: "plus à l'aise dans des activités calmes et peu risquées" },
+    DIS: { name: "Expérience et désinhibition", description: "Désir d'expérience nouvelle, intense et non conventionnelle.", poles: { low: "Stable", high: "Cherche la nouveauté" }, highDescriptor: "attiré(e) par la nouveauté, l'intensité et la spontanéité", lowDescriptor: "satisfait(e) du familier et du prévisible" },
+  },
+  items: {
+    T1: "J'adorerais essayer des activités comme le parachutisme, le surf de grosses vagues ou l'escalade.", T2: "Je suis attiré(e) par les sensations physiques et une pointe de danger.", T3: "La vitesse, les hauteurs et le mouvement rapide m'excitent plus qu'ils ne m'effraient.", T4: "Je recherche activement des expériences aventureuses et pleines d'adrénaline.",
+    D1: "J'aime les expériences débridées, spontanées et désinhibées.", D2: "Je suis attiré(e) par ce qui est nouveau, intense ou non conventionnel.", D3: "Je deviens agité(e) et je m'ennuie quand la vie devient trop familière.", D4: "J'essaie quelque chose juste pour voir ce que ça fait, même si c'est un peu risqué.",
+  },
+};
+const PANAS_ES: InstrumentTranslation = {
+  name: "Afecto positivo y negativo", shortName: "PANAS",
+  tagline: "Dos estados de ánimo independientes: cuánto afecto positivo y negativo llevas.",
+  description: "El estado de ánimo no es un único dial de malo a bueno. El PANAS trata el afecto positivo (entusiasmo, viveza, energía) y el afecto negativo (malestar, irritabilidad, miedo) como dos dimensiones en gran medida independientes: puedes estar alto o bajo en cada una. Valora cuánto te has sentido de cada modo últimamente para ver el equilibrio que llevas.",
+  scales: {
+    PA: { name: "Afecto positivo", description: "Energía, entusiasmo y placer comprometido.", poles: { low: "Poca energía", high: "Mucha energía" }, highDescriptor: "con energía, entusiasta y comprometido/a", lowDescriptor: "apático/a, con poca energía y desconectado/a" },
+    NA: { name: "Afecto negativo", description: "Malestar, irritabilidad y activación desagradable.", poles: { low: "Sereno", high: "Angustiado" }, highDescriptor: "tenso/a, angustiado/a y fácilmente alterado/a", lowDescriptor: "tranquilo/a y prácticamente sin malestar" },
+  },
+  items: {
+    P1: "Interesado/a", P2: "Entusiasmado/a", P3: "Orgulloso/a", P4: "Alerta", P5: "Inspirado/a", P6: "Decidido/a", P7: "Atento/a", P8: "Activo/a",
+    N1: "Angustiado/a", N2: "Disgustado/a", N3: "Culpable", N4: "Asustado/a", N5: "Hostil", N6: "Irritable", N7: "Nervioso/a", N8: "Temeroso/a",
+  },
+};
+const PANAS_FR: InstrumentTranslation = {
+  name: "Affect positif et négatif", shortName: "PANAS",
+  tagline: "Deux humeurs indépendantes : la dose d'affect positif et négatif que vous portez.",
+  description: "L'humeur n'est pas un simple curseur du mauvais au bon. Le PANAS traite l'affect positif (enthousiasme, vivacité, énergie) et l'affect négatif (détresse, irritabilité, peur) comme deux dimensions largement indépendantes — vous pouvez être élevé(e) ou faible sur chacune. Évaluez combien vous vous êtes senti(e) ainsi récemment pour voir l'équilibre que vous portez.",
+  scales: {
+    PA: { name: "Affect positif", description: "Énergie, enthousiasme et plaisir engagé.", poles: { low: "Peu d'énergie", high: "Beaucoup d'énergie" }, highDescriptor: "plein(e) d'énergie, enthousiaste et engagé(e)", lowDescriptor: "éteint(e), peu énergique et désengagé(e)" },
+    NA: { name: "Affect négatif", description: "Détresse, irritabilité et activation désagréable.", poles: { low: "Serein", high: "En détresse" }, highDescriptor: "tendu(e), en détresse et facilement contrarié(e)", lowDescriptor: "calme et largement exempt(e) de détresse" },
+  },
+  items: {
+    P1: "Intéressé(e)", P2: "Enthousiaste", P3: "Fier(ère)", P4: "En alerte", P5: "Inspiré(e)", P6: "Déterminé(e)", P7: "Attentif(ve)", P8: "Actif(ve)",
+    N1: "En détresse", N2: "Contrarié(e)", N3: "Coupable", N4: "Effrayé(e)", N5: "Hostile", N6: "Irritable", N7: "Nerveux(se)", N8: "Apeuré(e)",
+  },
+};
+const RYFF_ES: InstrumentTranslation = {
+  name: "Bienestar psicológico", shortName: "Bienestar",
+  tagline: "Seis pilares de una vida bien vivida, más allá de sentirse bien.",
+  description: "Carol Ryff sostenía que el bienestar es más que sentimientos agradables: es florecer. Su modelo mapea seis dimensiones: autonomía, dominio del entorno, crecimiento personal, relaciones positivas, propósito en la vida y autoaceptación. Juntas trazan una imagen más rica y eudaimónica de cuán plenamente vives, y qué pilar más valdría la pena atender.",
+  scales: {
+    AUT: { name: "Autonomía", description: "Autodirección e independencia de la presión social.", poles: { low: "Dirigido por otros", high: "Autodirigido" }, highDescriptor: "autónomo/a y fiel a tus propios criterios", lowDescriptor: "muy guiado/a por las expectativas ajenas" },
+    MAS: { name: "Dominio del entorno", description: "Manejar la vida y dar forma a tu entorno.", poles: { low: "Desbordado", high: "Con el control" }, highDescriptor: "al frente de las exigencias de la vida y dueño/a de tu contexto", lowDescriptor: "a menudo desbordado/a por las exigencias cotidianas" },
+    GRO: { name: "Crecimiento personal", description: "Desarrollo continuo y apertura al desafío.", poles: { low: "Estancado", high: "En crecimiento" }, highDescriptor: "creciendo, aprendiendo y expandiéndote", lowDescriptor: "con sensación de estancamiento" },
+    REL: { name: "Relaciones positivas", description: "Relaciones cálidas, de confianza y generosas.", poles: { low: "Reservado", high: "Conectado" }, highDescriptor: "cálida y profundamente conectado/a con los demás", lowDescriptor: "más aislado/a o reservado/a en las relaciones" },
+    PUR: { name: "Propósito en la vida", description: "Dirección, sentido y metas.", poles: { low: "A la deriva", high: "Con propósito" }, highDescriptor: "anclado/a en un propósito y un sentido claros", lowDescriptor: "en busca de dirección" },
+    ACC: { name: "Autoaceptación", description: "Una mirada positiva y serena hacia ti y tu pasado.", poles: { low: "Autocrítico", high: "Se acepta" }, highDescriptor: "aceptándote y en paz con quien eres", lowDescriptor: "autocrítico/a o inquieto/a con tu vida" },
+  },
+  items: {
+    AU1: "No me da miedo expresar mis opiniones, aunque difieran de las de la mayoría.", AU2: "Me juzgo por mis propios criterios, no por lo que piensen los demás.", AU3: "Me dejo influir fácilmente por las opiniones de quienes me rodean.",
+    MA1: "Manejo bien las exigencias de la vida diaria.", MA2: "He construido una vida y un entorno que me convienen.", MA3: "Las exigencias de la vida cotidiana a menudo me superan.",
+    GR1: "Me veo creciendo y desarrollándome como persona.", GR2: "Busco experiencias nuevas que desafíen cómo me veo a mí mismo/a.", GR3: "Siento que he dejado de crecer o de mejorar.",
+    RE1: "Tengo relaciones cálidas y de confianza con las que puedo contar.", RE2: "La gente me describiría como una persona generosa.", RE3: "Me cuesta abrirme de verdad con los demás.",
+    PU1: "Tengo un sentido claro de dirección y propósito en la vida.", PU2: "Mis metas dan sentido a mi vida.", PU3: "A veces siento que mi vida carece de un propósito real.",
+    AC1: "Me gustan la mayoría de los aspectos de quien soy.", AC2: "Estoy en gran medida en paz con cómo ha resultado mi vida.", AC3: "Estoy decepcionado/a por muchas cosas de mi vida.",
+  },
+};
+const RYFF_FR: InstrumentTranslation = {
+  name: "Bien-être psychologique", shortName: "Bien-être",
+  tagline: "Six piliers d'une vie bien vécue, au-delà du simple bien-être ressenti.",
+  description: "Carol Ryff soutenait que le bien-être est plus que des sentiments agréables : c'est l'épanouissement. Son modèle cartographie six dimensions : autonomie, maîtrise de l'environnement, croissance personnelle, relations positives, sens de la vie et acceptation de soi. Ensemble, elles esquissent une image plus riche et eudémonique de la plénitude avec laquelle vous vivez — et du pilier qui mériterait le plus d'attention.",
+  scales: {
+    AUT: { name: "Autonomie", description: "Autodétermination et indépendance face à la pression sociale.", poles: { low: "Dirigé par autrui", high: "Autodéterminé" }, highDescriptor: "maître de vous et fidèle à vos propres critères", lowDescriptor: "fortement guidé(e) par les attentes des autres" },
+    MAS: { name: "Maîtrise de l'environnement", description: "Gérer sa vie et façonner son entourage.", poles: { low: "Débordé", high: "Aux commandes" }, highDescriptor: "à la hauteur des exigences de la vie et maître de votre contexte", lowDescriptor: "souvent débordé(e) par les exigences du quotidien" },
+    GRO: { name: "Croissance personnelle", description: "Développement continu et ouverture au défi.", poles: { low: "Statique", high: "En croissance" }, highDescriptor: "en train de grandir, d'apprendre et de vous étendre", lowDescriptor: "avec un sentiment de stagnation" },
+    REL: { name: "Relations positives", description: "Des relations chaleureuses, de confiance et généreuses.", poles: { low: "Sur la réserve", high: "Connecté" }, highDescriptor: "chaleureusement et profondément lié(e) aux autres", lowDescriptor: "plus isolé(e) ou sur la réserve dans les relations" },
+    PUR: { name: "Sens de la vie", description: "Direction, sens et objectifs.", poles: { low: "À la dérive", high: "Habité par un but" }, highDescriptor: "ancré(e) dans un but et un sens clairs", lowDescriptor: "en quête de direction" },
+    ACC: { name: "Acceptation de soi", description: "Un regard positif et apaisé sur vous-même et votre passé.", poles: { low: "Critique envers soi", high: "S'accepte" }, highDescriptor: "vous acceptant et en paix avec qui vous êtes", lowDescriptor: "critique envers vous-même ou troublé(e) par votre vie" },
+  },
+  items: {
+    AU1: "Je n'ai pas peur d'exprimer mes opinions, même quand elles diffèrent de celles de la foule.", AU2: "Je me juge selon mes propres critères, pas selon ce que pensent les autres.", AU3: "Je me laisse facilement influencer par les opinions de mon entourage.",
+    MA1: "Je gère bien les exigences de la vie quotidienne.", MA2: "J'ai bâti une vie et un environnement qui me conviennent.", MA3: "Les exigences du quotidien me submergent souvent.",
+    GR1: "Je me vois grandir et me développer en tant que personne.", GR2: "Je recherche des expériences nouvelles qui remettent en question l'image que j'ai de moi.", GR3: "J'ai l'impression d'avoir cessé de grandir ou de m'améliorer.",
+    RE1: "J'ai des relations chaleureuses et de confiance sur lesquelles je peux compter.", RE2: "On me décrirait comme une personne généreuse.", RE3: "J'ai du mal à m'ouvrir vraiment aux autres.",
+    PU1: "J'ai un sens clair de direction et de but dans la vie.", PU2: "Mes objectifs donnent un sens à ma vie.", PU3: "Il m'arrive de sentir que ma vie manque de but réel.",
+    AC1: "J'aime la plupart des aspects de qui je suis.", AC2: "Je suis largement en paix avec la façon dont ma vie a tourné.", AC3: "Je suis déçu(e) par beaucoup de choses dans ma vie.",
+  },
+};
+const BURNOUT_ES: InstrumentTranslation = {
+  name: "Chequeo de burnout", shortName: "Burnout",
+  tagline: "Agotamiento, cinismo y eficacia: las tres caras del burnout.",
+  description: "El burnout, tal como lo mapeó Christina Maslach, no es solo cansancio: es un síndrome con tres partes: agotamiento emocional, cinismo/distanciamiento y una sensación de logro que mengua. Este chequeo refleja las tres para que veas no solo cuán agotado/a te sientes, sino dónde se está produciendo la erosión, y dónde tu sensación de eficacia aún se mantiene.",
+  scales: {
+    EE: { name: "Agotamiento emocional", description: "Sentirse vaciado/a y exhausto/a por las exigencias.", poles: { low: "Con recursos", high: "Agotado" }, highDescriptor: "funcionando en vacío y emocionalmente exhausto/a", lowDescriptor: "con energía y recursos emocionales" },
+    CY: { name: "Cinismo", description: "Distanciamiento y desencanto con el trabajo.", poles: { low: "Implicado", high: "Cínico" }, highDescriptor: "distante, cínico/a y desconectado/a", lowDescriptor: "implicado/a y conectado/a con tu trabajo" },
+    PA: { name: "Eficacia profesional", description: "Sensación de logro y competencia.", poles: { low: "Mermada", high: "Eficaz" }, highDescriptor: "eficaz y logrando cosas que valen la pena", lowDescriptor: "dudando de tu impacto y tu competencia" },
+  },
+  items: {
+    EE1: "Me siento emocionalmente agotado/a por mi trabajo y las exigencias diarias.", EE2: "Me siento exprimido/a al final del día.", EE3: "Solo llegar al final del día me supone un esfuerzo.", EE4: "Me siento quemado/a por mis responsabilidades.",
+    CY1: "Me he vuelto más cínico/a sobre si mi trabajo importa de verdad.", CY2: "Me he distanciado más de las personas con las que o para las que trabajo.", CY3: "Solo quiero hacer mis tareas y que me dejen en paz.", CY4: "Cada vez dudo más del valor de lo que hago.",
+    PA1: "Siento que estoy logrando cosas que valen la pena.", PA2: "Afronto los problemas con eficacia.", PA3: "Me siento con energía cuando hago bien mi trabajo.", PA4: "Tengo un impacto positivo en los demás a través de lo que hago.",
+  },
+};
+const BURNOUT_FR: InstrumentTranslation = {
+  name: "Bilan d'épuisement", shortName: "Épuisement",
+  tagline: "Épuisement, cynisme et efficacité — les trois visages du burnout.",
+  description: "Le burnout, tel que Christina Maslach l'a cartographié, n'est pas qu'une fatigue : c'est un syndrome à trois composantes — l'épuisement émotionnel, le cynisme/détachement, et un sentiment d'accomplissement qui s'amenuise. Ce bilan reflète les trois afin que vous voyiez non seulement à quel point vous vous sentez vidé(e), mais où l'érosion se produit — et où votre sentiment d'efficacité tient encore.",
+  scales: {
+    EE: { name: "Épuisement émotionnel", description: "Se sentir vidé(e) et épuisé(e) par les exigences.", poles: { low: "Ressourcé", high: "Épuisé" }, highDescriptor: "à court de tout et émotionnellement vidé(e)", lowDescriptor: "plein(e) d'énergie et de ressources émotionnelles" },
+    CY: { name: "Cynisme", description: "Détachement et désillusion vis-à-vis du travail.", poles: { low: "Engagé", high: "Cynique" }, highDescriptor: "détaché(e), cynique et désengagé(e)", lowDescriptor: "engagé(e) et connecté(e) à votre travail" },
+    PA: { name: "Efficacité professionnelle", description: "Sentiment d'accomplissement et de compétence.", poles: { low: "Diminuée", high: "Efficace" }, highDescriptor: "efficace et accomplissant des choses qui en valent la peine", lowDescriptor: "doutant de votre impact et de votre compétence" },
+  },
+  items: {
+    EE1: "Je me sens émotionnellement vidé(e) par mon travail et les exigences quotidiennes.", EE2: "Je me sens épuisé(e) à la fin de la journée.", EE3: "Rien que traverser la journée me demande un effort.", EE4: "Je me sens épuisé(e) par mes responsabilités.",
+    CY1: "Je suis devenu(e) plus cynique quant à savoir si mon travail compte vraiment.", CY2: "Je me suis détaché(e) des personnes avec qui ou pour qui je travaille.", CY3: "Je veux juste faire mes tâches et qu'on me laisse tranquille.", CY4: "Je doute de plus en plus de la valeur de ce que je fais.",
+    PA1: "J'ai le sentiment d'accomplir des choses qui en valent la peine.", PA2: "Je gère les problèmes efficacement.", PA3: "Je me sens plein(e) d'énergie quand je fais bien mon travail.", PA4: "J'ai un impact positif sur les autres par ce que je fais.",
+  },
+};
+const LOCUS_ES: InstrumentTranslation = {
+  name: "Locus de control", shortName: "Locus",
+  tagline: "¿Diriges tu vida o la vida te sucede?",
+  description: "El locus de control es uno de los constructos más perdurables de la psicología: el grado en que crees que los resultados provienen de tus propias acciones (un locus interno) frente a la suerte, el destino y los demás poderosos (un locus externo). Un locus más interno predice mejor afrontamiento, logro y salud, pero la postura más sana es realista: hacerte cargo de lo que puedes mientras aceptas lo que no.",
+  scales: {
+    LOC: { name: "Locus interno", description: "Creencia de que tus propias acciones determinan tus resultados.", poles: { low: "Externo", high: "Interno" }, highDescriptor: "con sentido de agencia: sientes que llevas el timón", lowDescriptor: "externo/a: sientes que los resultados se te escapan de las manos" },
+  },
+  items: {
+    L1: "Lo que me ocurre es sobre todo el resultado de mis propias acciones.", L2: "Puedo dar forma a mi futuro mediante las decisiones que tomo.", L3: "Cuando me esfuerzo, normalmente obtengo los resultados que quiero.", L4: "Si me preparo bien, puedo afrontar lo que venga.",
+    L5: "Buena parte de lo que me ocurre es cuestión de suerte o destino.", L6: "Por más que lo intente, fuerzas fuera de mi control deciden el resultado.", L7: "Tiene poco sentido planificar: la vida es sobre todo azar.", L8: "Otras personas poderosas determinan en gran medida lo que puedo lograr.",
+  },
+};
+const LOCUS_FR: InstrumentTranslation = {
+  name: "Lieu de contrôle", shortName: "Locus",
+  tagline: "Dirigez-vous votre vie, ou la vie vous arrive-t-elle ?",
+  description: "Le lieu de contrôle est l'un des concepts les plus durables de la psychologie : la mesure dans laquelle vous croyez que les résultats découlent de vos propres actions (un lieu interne) plutôt que de la chance, du destin et des autres puissants (un lieu externe). Un lieu plus interne prédit un meilleur ajustement, de meilleures réussites et une meilleure santé — mais la posture la plus saine est réaliste : assumer ce que vous pouvez tout en acceptant ce que vous ne pouvez pas.",
+  scales: {
+    LOC: { name: "Lieu interne", description: "Conviction que vos propres actions déterminent vos résultats.", poles: { low: "Externe", high: "Interne" }, highDescriptor: "doté(e) d'un sentiment d'agir : vous tenez le volant", lowDescriptor: "externe : vous sentez que les résultats vous échappent" },
+  },
+  items: {
+    L1: "Ce qui m'arrive résulte surtout de mes propres actions.", L2: "Je peux façonner mon avenir par les choix que je fais.", L3: "Quand je travaille dur, j'obtiens généralement les résultats que je veux.", L4: "Si je me prépare bien, je peux faire face à tout ce qui se présente.",
+    L5: "Une grande partie de ce qui m'arrive est une question de chance ou de destin.", L6: "Quels que soient mes efforts, des forces hors de mon contrôle décident du résultat.", L7: "Il ne sert à rien de planifier — la vie est surtout affaire de hasard.", L8: "D'autres personnes puissantes déterminent en grande partie ce que je peux accomplir.",
+  },
+};
+const SELFMON_ES: InstrumentTranslation = {
+  name: "Automonitoreo", shortName: "Automonitoreo",
+  tagline: "¿Camaleón social o el mismo en cada sala?",
+  description: "El automonitoreo, un constructo clásico de la psicología social de Mark Snyder, capta cuánto observas y ajustas tu autopresentación para encajar en el momento. Quienes puntúan alto leen las situaciones y se adaptan a ellas; quienes puntúan bajo se mantienen fieles a su estado interior en cualquier contexto. Cada estilo tiene ventajas sociales reales, y también costes.",
+  scales: {
+    SM: { name: "Automonitoreo", description: "Tendencia a observar y ajustar la autopresentación a la situación.", poles: { low: "Consistente", high: "Adaptable" }, highDescriptor: "adaptable y atento/a a la situación (un camaleón social)", lowDescriptor: "consistente y fiel a sí mismo/a en cualquier contexto" },
+  },
+  items: {
+    M1: "En situaciones sociales, ajusto mi comportamiento a quienquiera con quien esté.", M2: "Se me da bien leer el ambiente y actuar en consecuencia.", M3: "Puedo presentarme de formas bastante distintas según la situación.", M4: "Puedo mirar a alguien a los ojos y soltar una mentira piadosa sin inmutarme.",
+    M5: "Probablemente sería un actor decente.", M6: "Mi comportamiento suele ser una expresión honesta de cómo me siento de verdad, sea cual sea el contexto.", M7: "Me cuesta cambiar mi comportamiento para adaptarme a distintas personas y situaciones.", M8: "Rara vez finjo para impresionar o agradar a la gente.",
+  },
+};
+const SELFMON_FR: InstrumentTranslation = {
+  name: "Monitorage de soi", shortName: "Monitorage",
+  tagline: "Caméléon social ou le même dans chaque pièce ?",
+  description: "Le monitorage de soi, un concept classique de la psychologie sociale dû à Mark Snyder, mesure à quel point vous observez et ajustez votre présentation de vous-même pour coller au moment. Les hauts monitoreurs lisent les situations et s'y adaptent ; les bas monitoreurs restent fidèles à leur état intérieur en toute circonstance. Chaque style a de réels avantages sociaux — et des coûts.",
+  scales: {
+    SM: { name: "Monitorage de soi", description: "Tendance à observer et ajuster sa présentation de soi à la situation.", poles: { low: "Constant", high: "Adaptable" }, highDescriptor: "adaptable et à l'écoute de la situation (un caméléon social)", lowDescriptor: "constant(e) et fidèle à soi en toute circonstance" },
+  },
+  items: {
+    M1: "Dans les situations sociales, j'ajuste mon comportement à la personne avec qui je suis.", M2: "Je sais lire une assemblée et agir en conséquence.", M3: "Je peux me présenter très différemment selon la situation.", M4: "Je peux regarder quelqu'un dans les yeux et dire un pieux mensonge sans broncher.",
+    M5: "Je ferais sans doute un acteur correct.", M6: "Mon comportement est généralement une expression honnête de ce que je ressens vraiment, quel que soit le contexte.", M7: "J'ai du mal à changer mon comportement pour m'adapter à différentes personnes et situations.", M8: "Je fais rarement semblant pour impressionner ou plaire aux gens.",
+  },
+};
+const MORAL_ES: InstrumentTranslation = {
+  name: "Fundamentos morales", shortName: "Fund. morales",
+  tagline: "Las intuiciones bajo tu sentido del bien y el mal.",
+  description: "La Teoría de los Fundamentos Morales sostiene que nuestros juicios morales se apoyan en un puñado de fundamentos intuitivos: cuidado, equidad, lealtad, autoridad y santidad. Cuáles pesan más en ti moldea tus valores, tu política y dónde chocas con los demás. Este perfilador muestra tu huella moral: ningún fundamento es correcto o incorrecto.",
+  scales: {
+    CARE: { name: "Cuidado / Daño", description: "Sensibilidad al sufrimiento y compasión.", highDescriptor: "compasivo/a y protector/a de los vulnerables", lowDescriptor: "menos guiado/a por evitar el daño en tus juicios morales" },
+    FAIR: { name: "Equidad / Trampa", description: "Preocupación por la justicia, los derechos y la proporcionalidad.", highDescriptor: "con sentido de la justicia y atento/a a la equidad y los derechos", lowDescriptor: "menos centrado/a en la equidad en tus juicios morales" },
+    LOYAL: { name: "Lealtad / Traición", description: "Valorar la solidaridad y la fidelidad al grupo.", highDescriptor: "leal, con sentido de grupo y entregado/a a los tuyos", lowDescriptor: "más individualista que fiel al grupo" },
+    AUTH: { name: "Autoridad / Subversión", description: "Respeto por la autoridad legítima y la tradición.", highDescriptor: "respetuoso/a del orden, la jerarquía y la tradición", lowDescriptor: "más escéptico/a ante la autoridad y la tradición" },
+    SANCT: { name: "Santidad / Degradación", description: "Preocupación por la pureza, la decencia y lo sagrado.", highDescriptor: "atento/a a la santidad, la decencia y lo sagrado", lowDescriptor: "menos movido/a por preocupaciones de pureza o santidad" },
+  },
+  items: {
+    CARE1: "Que alguien haya sufrido o no es central en cómo juzgo una acción.", CARE2: "La compasión por quienes sufren es una de las virtudes más importantes.", CARE3: "Está profundamente mal dañar a una criatura vulnerable o indefensa.",
+    FAIR1: "La justicia y tratar a las personas por igual es una de mis máximas prioridades.", FAIR2: "Me molesta profundamente que se le nieguen a alguien sus derechos.", FAIR3: "Las personas deberían ser recompensadas en proporción a lo que aportan.",
+    LOYAL1: "La lealtad a mi grupo, mi familia o mi país me importa muchísimo.", LOYAL2: "Las personas deberían apoyar a su comunidad, aun a costa personal.", LOYAL3: "Traicionar a tu grupo es una de las peores cosas que se pueden hacer.",
+    AUTH1: "Valoro el respeto por la autoridad legítima y la tradición.", AUTH2: "La sociedad funciona mejor cuando la gente sigue a líderes y normas legítimos.", AUTH3: "Se debería enseñar a los niños a respetar a sus mayores.",
+    SANCT1: "Algunas cosas son sagradas y nunca deberían profanarse.", SANCT2: "Me importa si las acciones son decentes y puras frente a degradantes.", SANCT3: "Las personas deberían mantener ciertos estándares de decencia y autodisciplina.",
+  },
+};
+const MORAL_FR: InstrumentTranslation = {
+  name: "Fondements moraux", shortName: "Fond. moraux",
+  tagline: "Les intuitions sous votre sens du bien et du mal.",
+  description: "La théorie des fondements moraux montre que nos jugements moraux reposent sur une poignée de fondements intuitifs : bienveillance, équité, loyauté, autorité et sainteté. Ceux qui pèsent le plus pour vous façonnent vos valeurs, votre politique et vos points de friction avec autrui. Ce profileur révèle votre empreinte morale — aucun fondement n'est juste ou faux.",
+  scales: {
+    CARE: { name: "Bienveillance / Préjudice", description: "Sensibilité à la souffrance et compassion.", highDescriptor: "compatissant(e) et protecteur(trice) des plus vulnérables", lowDescriptor: "moins guidé(e) par l'évitement du préjudice dans vos jugements moraux" },
+    FAIR: { name: "Équité / Tricherie", description: "Souci de la justice, des droits et de la proportionnalité.", highDescriptor: "soucieux(se) de justice et attentif(ve) à l'équité et aux droits", lowDescriptor: "moins centré(e) sur l'équité dans vos jugements moraux" },
+    LOYAL: { name: "Loyauté / Trahison", description: "Valoriser la solidarité et la fidélité au groupe.", highDescriptor: "loyal(e), attaché(e) au groupe et dévoué(e) aux vôtres", lowDescriptor: "plus individualiste que loyal(e) au groupe" },
+    AUTH: { name: "Autorité / Subversion", description: "Respect de l'autorité légitime et de la tradition.", highDescriptor: "respectueux(se) de l'ordre, de la hiérarchie et de la tradition", lowDescriptor: "plus sceptique envers l'autorité et la tradition" },
+    SANCT: { name: "Sainteté / Dégradation", description: "Souci de la pureté, de la décence et du sacré.", highDescriptor: "attentif(ve) à la sainteté, à la décence et au sacré", lowDescriptor: "moins touché(e) par les préoccupations de pureté ou de sainteté" },
+  },
+  items: {
+    CARE1: "Le fait que quelqu'un ait souffert ou non est central dans ma façon de juger une action.", CARE2: "La compassion pour ceux qui souffrent est l'une des vertus les plus importantes.", CARE3: "Il est profondément mal de nuire à une créature vulnérable ou sans défense.",
+    FAIR1: "La justice et le traitement égal des personnes comptent parmi mes plus hautes priorités.", FAIR2: "Cela me dérange profondément qu'on prive quelqu'un de ses droits.", FAIR3: "Les gens devraient être récompensés en proportion de ce qu'ils apportent.",
+    LOYAL1: "La loyauté envers mon groupe, ma famille ou mon pays compte énormément pour moi.", LOYAL2: "On devrait soutenir sa communauté, même à titre personnel coûteux.", LOYAL3: "Trahir son groupe est l'une des pires choses qu'une personne puisse faire.",
+    AUTH1: "Je tiens au respect de l'autorité légitime et de la tradition.", AUTH2: "La société fonctionne mieux quand les gens suivent des dirigeants et des règles légitimes.", AUTH3: "On devrait apprendre aux enfants à respecter leurs aînés.",
+    SANCT1: "Certaines choses sont sacrées et ne devraient jamais être violées.", SANCT2: "Je me soucie de savoir si les actions sont décentes et pures plutôt que dégradantes.", SANCT3: "Les gens devraient maintenir certaines normes de décence et d'autodiscipline.",
+  },
+};
+const BFAS_ES: InstrumentTranslation = {
+  name: "Aspectos de los Cinco Grandes", shortName: "BFAS",
+  tagline: "Diez aspectos: la capa de detalle entre los Cinco Grandes y sus facetas.",
+  description: "Cada dominio de los Cinco Grandes contiene en realidad dos 'aspectos' distintos; por ejemplo, la responsabilidad se divide en laboriosidad y orden, y el neuroticismo en volatilidad y retraimiento. Este perfilador mide los diez, dándote una lectura más nítida y accionable que los cinco dominios amplios por sí solos, y mostrando dónde dos caras del mismo rasgo tiran en direcciones distintas.",
+  scales: {
+    INT: { name: "Intelecto", description: "Implicación con las ideas y el razonamiento (aspecto de la apertura).", poles: { low: "Concreto", high: "Intelectual" }, highDescriptor: "movido/a por las ideas y ágil con lo abstracto", lowDescriptor: "práctico/a y poco interesado/a en la abstracción" },
+    AES: { name: "Apertura", description: "Sensibilidad estética e imaginación (aspecto de la apertura).", poles: { low: "Convencional", high: "Imaginativo" }, highDescriptor: "imaginativo/a y conmovido/a por la belleza", lowDescriptor: "con los pies en la tierra y literal" },
+    IND: { name: "Laboriosidad", description: "Impulso por trabajar y lograr (aspecto de la responsabilidad).", poles: { low: "Despreocupado", high: "Tenaz" }, highDescriptor: "trabajador/a y persistente", lowDescriptor: "relajado/a y fácil de distraer" },
+    ORD: { name: "Orden", description: "Necesidad de orden y rutina (aspecto de la responsabilidad).", poles: { low: "Flexible", high: "Ordenado" }, highDescriptor: "ordenado/a, planificado/a y estructurado/a", lowDescriptor: "suelto/a, espontáneo/a y desordenado/a" },
+    ENT: { name: "Entusiasmo", description: "Sociabilidad y emoción positiva (aspecto de la extraversión).", poles: { low: "Reservado", high: "Entusiasta" }, highDescriptor: "cálido/a, extrovertido/a y alegre", lowDescriptor: "callado/a y emocionalmente contenido/a" },
+    ASR: { name: "Asertividad", description: "Impulso por liderar e influir (aspecto de la extraversión).", poles: { low: "Deferente", high: "Asertivo" }, highDescriptor: "enérgico/a, con iniciativa y visible", lowDescriptor: "modesto/a y entre bastidores" },
+    COM: { name: "Compasión", description: "Preocupación emocional por los demás (aspecto de la amabilidad).", poles: { low: "Distante", high: "Compasivo" }, highDescriptor: "empático/a y afectuoso/a", lowDescriptor: "frío/a y emocionalmente al margen" },
+    POL: { name: "Cortesía", description: "Respeto por los demás y contención (aspecto de la amabilidad).", poles: { low: "Confrontador", high: "Cortés" }, highDescriptor: "deferente y poco confrontador/a", lowDescriptor: "directo/a, retador/a e insistente" },
+    VOL: { name: "Volatilidad", description: "Irritabilidad y vaivenes emocionales (aspecto del neuroticismo).", poles: { low: "Sereno", high: "Volátil" }, highDescriptor: "fácil de alterar y rápido/a para enfadarse", lowDescriptor: "tranquilo/a y lento/a para enfadarse" },
+    WTH: { name: "Retraimiento", description: "Ansiedad y ánimo bajo (aspecto del neuroticismo).", poles: { low: "Resiliente", high: "Retraído" }, highDescriptor: "propenso/a a la preocupación y al ánimo bajo", lowDescriptor: "estable, esperanzado/a y difícil de desanimar" },
+  },
+  items: {
+    INT1: "Capto rápidamente ideas abstractas o complejas.", INT2: "Evito las discusiones difíciles o filosóficas.",
+    AES1: "Me conmueven profundamente el arte, la música o la belleza natural.", AES2: "Rara vez me pierdo en la imaginación o la fantasía.",
+    IND1: "Me exijo para sacar las cosas adelante y terminar lo que empiezo.", IND2: "A menudo aplazo tareas y me cuesta llevarlas a cabo.",
+    ORD1: "Me gusta mantener las cosas ordenadas, planificadas y organizadas.", ORD2: "Tiendo a dejar mis cosas hechas un desastre.",
+    ENT1: "Soy alegre y hago amigos con facilidad.", ENT2: "Rara vez me siento efusivo/a o emocionado/a.",
+    ASR1: "Tomo la iniciativa y alzo la voz en los grupos.", ASR2: "Me contengo a la hora de liderar o hacerme valer.",
+    COM1: "Siento las emociones de los demás y me importa su bienestar.", COM2: "Los problemas de los demás no me afectan demasiado.",
+    POL1: "Evito pasar por encima de los demás y respeto sus deseos.", POL2: "Puedo ser confrontador/a o insistente.",
+    VOL1: "Me irrito o me altero con facilidad.", VOL2: "Mantengo la calma incluso cuando me provocan.",
+    WTH1: "A menudo me siento ansioso/a, decaído/a o desanimado/a.", WTH2: "Rara vez me siento triste o desbordado/a.",
+  },
+};
+const BFAS_FR: InstrumentTranslation = {
+  name: "Aspects des Big Five", shortName: "BFAS",
+  tagline: "Dix aspects — le niveau de détail entre les Big Five et leurs facettes.",
+  description: "Chaque domaine des Big Five contient en réalité deux « aspects » distincts — par exemple, la conscience se divise en assiduité et ordre, et le névrosisme en volatilité et retrait. Ce profileur mesure les dix, offrant une lecture plus nette et plus actionnable que les cinq grands domaines seuls — et montrant où les deux faces d'un même trait tirent dans des directions opposées.",
+  scales: {
+    INT: { name: "Intellect", description: "Rapport aux idées et au raisonnement (aspect de l'ouverture).", poles: { low: "Concret", high: "Intellectuel" }, highDescriptor: "porté(e) par les idées et vif(ve) avec l'abstrait", lowDescriptor: "pratique et peu intéressé(e) par l'abstraction" },
+    AES: { name: "Ouverture", description: "Sensibilité esthétique et imagination (aspect de l'ouverture).", poles: { low: "Conventionnel", high: "Imaginatif" }, highDescriptor: "imaginatif(ve) et touché(e) par la beauté", lowDescriptor: "terre-à-terre et littéral(e)" },
+    IND: { name: "Assiduité", description: "Élan au travail et à la réussite (aspect de la conscience).", poles: { low: "Décontracté", high: "Acharné" }, highDescriptor: "travailleur(se) et persévérant(e)", lowDescriptor: "détendu(e) et facilement distrait(e)" },
+    ORD: { name: "Ordre", description: "Besoin d'ordre et de routine (aspect de la conscience).", poles: { low: "Flexible", high: "Ordonné" }, highDescriptor: "ordonné(e), planifié(e) et structuré(e)", lowDescriptor: "relâché(e), spontané(e) et désordonné(e)" },
+    ENT: { name: "Enthousiasme", description: "Sociabilité et émotion positive (aspect de l'extraversion).", poles: { low: "Réservé", high: "Enthousiaste" }, highDescriptor: "chaleureux(se), sociable et enjoué(e)", lowDescriptor: "discret(ète) et émotionnellement contenu(e)" },
+    ASR: { name: "Assertivité", description: "Élan à diriger et à influencer (aspect de l'extraversion).", poles: { low: "Effacé", high: "Affirmé" }, highDescriptor: "énergique, prenant les devants et visible", lowDescriptor: "modeste et en coulisses" },
+    COM: { name: "Compassion", description: "Souci émotionnel d'autrui (aspect de l'agréabilité).", poles: { low: "Détaché", high: "Compatissant" }, highDescriptor: "empathique et attentionné(e)", lowDescriptor: "froid(e) et émotionnellement à l'écart" },
+    POL: { name: "Politesse", description: "Respect d'autrui et retenue (aspect de l'agréabilité).", poles: { low: "Frondeur", high: "Poli" }, highDescriptor: "déférent(e) et peu conflictuel(le)", lowDescriptor: "direct(e), provocateur(trice) et insistant(e)" },
+    VOL: { name: "Volatilité", description: "Irritabilité et sautes d'humeur (aspect du névrosisme).", poles: { low: "Posé", high: "Volatil" }, highDescriptor: "facilement contrarié(e) et prompt(e) à la colère", lowDescriptor: "calme et lent(e) à la colère" },
+    WTH: { name: "Retrait", description: "Anxiété et humeur basse (aspect du névrosisme).", poles: { low: "Résilient", high: "En retrait" }, highDescriptor: "enclin(e) à l'inquiétude et à l'humeur basse", lowDescriptor: "stable, optimiste et difficile à décourager" },
+  },
+  items: {
+    INT1: "Je saisis rapidement les idées abstraites ou complexes.", INT2: "J'évite les discussions difficiles ou philosophiques.",
+    AES1: "Je suis profondément ému(e) par l'art, la musique ou la beauté de la nature.", AES2: "Je me perds rarement dans l'imagination ou la fantaisie.",
+    IND1: "Je me pousse à avancer et à terminer ce que je commence.", IND2: "Je remets souvent les tâches à plus tard et j'ai du mal à les mener à bien.",
+    ORD1: "J'aime garder les choses rangées, planifiées et organisées.", ORD2: "J'ai tendance à laisser mes affaires en désordre.",
+    ENT1: "Je suis enjoué(e) et je me fais des amis facilement.", ENT2: "Je me sens rarement pétillant(e) ou excité(e).",
+    ASR1: "Je prends les choses en main et je m'exprime dans les groupes.", ASR2: "Je me retiens de diriger ou de m'imposer.",
+    COM1: "Je ressens les émotions des autres et je me soucie de leur bien-être.", COM2: "Les problèmes des autres ne m'affectent pas beaucoup.",
+    POL1: "J'évite de marcher sur les autres et je respecte leurs souhaits.", POL2: "Je peux être conflictuel(le) ou insistant(e).",
+    VOL1: "Je m'irrite ou me contrarie facilement.", VOL2: "Je garde mon calme même quand on me provoque.",
+    WTH1: "Je me sens souvent anxieux(se), abattu(e) ou découragé(e).", WTH2: "Je me sens rarement triste ou débordé(e).",
+  },
+};
+const DERAIL_ES: InstrumentTranslation = {
+  name: "Descarriladores profesionales", shortName: "Descarriladores",
+  tagline: "Las fortalezas que te sabotean en silencio bajo presión.",
+  description: "La mayoría de los reveses profesionales no se deben a la falta de habilidades, sino a fortalezas sobreutilizadas. La tradición de los 'descarriladores' (iniciada por el Hogan Development Survey) mapea las tendencias que te sirven casi todos los días pero te perjudican bajo estrés: volatilidad, suspicacia, cautela, exceso de confianza, transgresión de normas, perfeccionismo y excesiva deferencia. Conocer los tuyos es cómo evitas que tomen el mando en los peores momentos.",
+  scales: {
+    VOL: { name: "Volátil", description: "Cambios de humor y arrebatos bajo presión (pasión sobreutilizada).", poles: { low: "Sereno", high: "Volátil" }, highDescriptor: "intenso/a y fácil de detonar cuando hay estrés", lowDescriptor: "estable y difícil de alterar" },
+    SKE: { name: "Escéptico", description: "Desconfianza y cinismo (perspicacia sobreutilizada).", poles: { low: "Confiado", high: "Escéptico" }, highDescriptor: "vigilante, desconfiado/a y rápido/a para sospechar", lowDescriptor: "confiado/a y abierto/a" },
+    CAU: { name: "Cauto", description: "Aversión al riesgo e indecisión (prudencia sobreutilizada).", poles: { low: "Decidido", high: "Cauto" }, highDescriptor: "dubitativo/a y con miedo a equivocarse", lowDescriptor: "decidido/a y dispuesto/a a actuar" },
+    BOL: { name: "Audaz", description: "Exceso de confianza y sensación de merecimiento (autoconfianza sobreutilizada).", poles: { low: "Modesto", high: "Audaz" }, highDescriptor: "tan seguro/a de ti que te sobreestimas", lowDescriptor: "modesto/a y autocrítico/a" },
+    MIS: { name: "Travieso", description: "Asunción de riesgos y transgresión de normas (encanto sobreutilizado).", poles: { low: "Prudente", high: "Travieso" }, highDescriptor: "que tantea los límites y dobla las reglas", lowDescriptor: "cuidadoso/a y respetuoso/a de las normas" },
+    PER: { name: "Perfeccionista", description: "Exceso de control y microgestión (diligencia sobreutilizada).", poles: { low: "Flexible", high: "Perfeccionista" }, highDescriptor: "exigente, controlador/a y reacio/a a delegar", lowDescriptor: "flexible y que confía en los demás" },
+    DUT: { name: "Cumplidor", description: "Excesiva deferencia y complacencia (lealtad sobreutilizada).", poles: { low: "Independiente", high: "Cumplidor" }, highDescriptor: "que evita el conflicto y ansía complacer a la autoridad", lowDescriptor: "independiente y dispuesto/a a cuestionar" },
+  },
+  items: {
+    VOL1: "Bajo estrés puedo estallar, saltar o perder los nervios.", VOL2: "Mantengo el temple incluso cuando las cosas van mal.",
+    SKE1: "Sospecho rápido de las intenciones de los demás.", SKE2: "Concedo con facilidad a la gente el beneficio de la duda.",
+    CAU1: "El miedo a equivocarme me hace dudar antes de actuar o decidir.", CAU2: "Tomo decisiones con facilidad, sin darle demasiadas vueltas.",
+    BOL1: "Tengo mucha confianza en mis capacidades, quizá más de la que debería.", BOL2: "Admito sin problema cuando me equivoco o algo me supera.",
+    MIS1: "Disfruto poniendo a prueba los límites y asumiendo riesgos que otros evitarían.", MIS2: "Voy a lo seguro y me ciño a las reglas.",
+    PER1: "Mis estándares son tan altos que me cuesta delegar o soltar las cosas.", PER2: "Me conformo con lo 'suficientemente bueno' y confío en que otros cumplan.",
+    DUT1: "Evito hacer ruido y cedo ante quienes están por encima de mí.", DUT2: "Planto cara a la autoridad cuando de verdad no estoy de acuerdo.",
+  },
+};
+const DERAIL_FR: InstrumentTranslation = {
+  name: "Dérailleurs de carrière", shortName: "Dérailleurs",
+  tagline: "Les forces qui vous sabotent en silence sous la pression.",
+  description: "La plupart des revers de carrière ne viennent pas d'un manque de compétences, mais de forces surutilisées. La tradition des « dérailleurs » (initiée par le Hogan Development Survey) cartographie les tendances qui vous servent presque tous les jours mais vous desservent sous la pression : volatilité, méfiance, prudence, excès de confiance, transgression des règles, perfectionnisme et déférence excessive. Connaître les vôtres, c'est les empêcher de prendre le volant aux pires moments.",
+  scales: {
+    VOL: { name: "Volatil", description: "Sautes d'humeur et emportements sous pression (passion surutilisée).", poles: { low: "Posé", high: "Volatil" }, highDescriptor: "intense et vite déclenché(e) sous le stress", lowDescriptor: "stable et difficile à ébranler" },
+    SKE: { name: "Sceptique", description: "Méfiance et cynisme (perspicacité surutilisée).", poles: { low: "Confiant", high: "Sceptique" }, highDescriptor: "sur ses gardes, méfiant(e) et prompt(e) à soupçonner", lowDescriptor: "confiant(e) et ouvert(e)" },
+    CAU: { name: "Prudent", description: "Aversion au risque et indécision (prudence surutilisée).", poles: { low: "Décidé", high: "Prudent" }, highDescriptor: "hésitant(e) et craignant l'erreur", lowDescriptor: "décidé(e) et prêt(e) à agir" },
+    BOL: { name: "Audacieux", description: "Excès de confiance et sentiment de dû (confiance en soi surutilisée).", poles: { low: "Modeste", high: "Audacieux" }, highDescriptor: "sûr(e) de vous au point de vous surestimer", lowDescriptor: "modeste et porté(e) à vous remettre en question" },
+    MIS: { name: "Espiègle", description: "Prise de risque et transgression des règles (charme surutilisé).", poles: { low: "Prudent", high: "Espiègle" }, highDescriptor: "qui teste les limites et contourne les règles", lowDescriptor: "prudent(e) et respectueux(se) des règles" },
+    PER: { name: "Perfectionniste", description: "Excès de contrôle et microgestion (diligence surutilisée).", poles: { low: "Flexible", high: "Perfectionniste" }, highDescriptor: "exigeant(e), contrôlant(e) et réticent(e) à déléguer", lowDescriptor: "flexible et confiant(e) envers les autres" },
+    DUT: { name: "Dévoué", description: "Déférence excessive et désir de plaire (loyauté surutilisée).", poles: { low: "Indépendant", high: "Dévoué" }, highDescriptor: "évitant le conflit et soucieux(se) de plaire à l'autorité", lowDescriptor: "indépendant(e) et prêt(e) à contester" },
+  },
+  items: {
+    VOL1: "Sous le stress, je peux exploser, m'emporter ou perdre mon calme.", VOL2: "Je garde mon sang-froid même quand les choses tournent mal.",
+    SKE1: "Je suis prompt(e) à soupçonner les motivations des autres.", SKE2: "J'accorde volontiers aux gens le bénéfice du doute.",
+    CAU1: "La peur de me tromper me fait hésiter à agir ou à décider.", CAU2: "Je prends des décisions facilement, sans trop m'inquiéter.",
+    BOL1: "J'ai une grande confiance en mes capacités — peut-être plus que je ne le devrais.", BOL2: "J'admets volontiers quand j'ai tort ou que je suis dépassé(e).",
+    MIS1: "J'aime tester les limites et prendre des risques que d'autres éviteraient.", MIS2: "Je joue la sécurité et je m'en tiens aux règles.",
+    PER1: "Mes exigences sont si élevées que j'ai du mal à déléguer ou à lâcher prise.", PER2: "Je me contente du « assez bien » et je fais confiance aux autres pour livrer.",
+    DUT1: "J'évite de faire des vagues et je m'incline devant mes supérieurs.", DUT2: "Je tiens tête à l'autorité quand je suis vraiment en désaccord.",
+  },
+};
+const PID5_ES: InstrumentTranslation = {
+  name: "Dominios de rasgos desadaptativos", shortName: "Dominios",
+  tagline: "Los cinco dominios de rasgos del DSM-5: el reflejo 'difícil' de los Cinco Grandes.",
+  description: "La psiquiatría moderna describe la dificultad de la personalidad no como casillas, sino como dimensiones: cinco amplios dominios de rasgos que son esencialmente el extremo desadaptativo de los Cinco Grandes: afectividad negativa, desapego, antagonismo, desinhibición y psicoticismo. Este cribado educativo mapea dónde te sitúas en cada uno, como estímulo para el autoconocimiento, nunca como diagnóstico.",
+  scales: {
+    NEGA: { name: "Afectividad negativa", description: "Emoción negativa frecuente e intensa (el polo desadaptativo del neuroticismo alto).", poles: { low: "Estable", high: "Volátil" }, highDescriptor: "emocionalmente intenso/a, ansioso/a y fácil de desbordar", lowDescriptor: "emocionalmente estable y lento/a para angustiarse" },
+    DETA: { name: "Desapego", description: "Retraimiento y menor placer (el polo desadaptativo de la extraversión baja).", poles: { low: "Implicado", high: "Desapegado" }, highDescriptor: "retraído/a, apagado/a y evitando la intimidad", lowDescriptor: "implicado/a, cálido/a y emocionalmente presente" },
+    ANTA: { name: "Antagonismo", description: "Manipulación y grandiosidad (el polo desadaptativo de la amabilidad baja).", poles: { low: "Amable", high: "Antagonista" }, highDescriptor: "interesado/a, manipulador/a y con sensación de merecimiento", lowDescriptor: "honesto/a, considerado/a y cooperador/a" },
+    DISI: { name: "Desinhibición", description: "Impulsividad e irresponsabilidad (el polo desadaptativo de la responsabilidad baja).", poles: { low: "Controlado", high: "Desinhibido" }, highDescriptor: "impulsivo/a, distraíble y poco fiable", lowDescriptor: "controlado/a, fiable y previsor/a" },
+    PSYO: { name: "Psicoticismo", description: "Experiencias inusuales y pensamiento excéntrico (el polo desadaptativo de la apertura alta).", poles: { low: "Convencional", high: "Excéntrico" }, highDescriptor: "poco convencional, con percepciones inusuales y pensamiento disperso", lowDescriptor: "convencional y de pensamiento claro" },
+  },
+  items: {
+    NA1: "Mis emociones oscilan con intensidad y pueden cambiar rápido.", NA2: "Me preocupo por muchísimas cosas distintas.", NA3: "Me pongo muy ansioso/a cuando personas importantes para mí podrían alejarse.", NA4: "Pequeños estreses pueden dejarme con sensación de desbordamiento.",
+    DE1: "Mantengo las distancias con la gente, incluso con quienes están cerca de mí.", DE2: "Rara vez obtengo mucho placer o entusiasmo de la vida.", DE3: "Por lo general prefiero estar solo/a a estar con otros.", DE4: "No muestro mucha emoción a los demás.",
+    AN1: "Uso el encanto o la adulación para conseguir lo que quiero.", AN2: "Siento que merezco un trato especial.", AN3: "Distorsiono la verdad cuando me conviene.", AN4: "No me importa anteponer mis intereses a los de los demás.",
+    DI1: "Actúo por impulso sin pensar en las consecuencias.", DI2: "A menudo no cumplo con mis obligaciones.", DI3: "Me distraigo con facilidad y dejo cosas sin terminar.", DI4: "Asumo riesgos que podrían causarme verdaderos problemas.",
+    PS1: "Tengo experiencias que a otros les costaría creer.", PS2: "Mis pensamientos a menudo se sienten dispersos o difíciles de seguir.", PS3: "La gente me dice que mis ideas o mi comportamiento son inusuales o excéntricos.", PS4: "A veces tengo percepciones o corazonadas que cuesta explicar.",
+  },
+};
+const PID5_FR: InstrumentTranslation = {
+  name: "Domaines de traits inadaptés", shortName: "Domaines",
+  tagline: "Les cinq domaines de traits du DSM-5 — le miroir « difficile » des Big Five.",
+  description: "La psychiatrie moderne décrit la difficulté de la personnalité non par des cases, mais par des dimensions : cinq grands domaines de traits qui sont essentiellement l'extrémité inadaptée des Big Five — affectivité négative, détachement, antagonisme, désinhibition et psychoticisme. Ce dépistage éducatif situe où vous vous trouvez sur chacun, comme invitation à mieux se comprendre — jamais un diagnostic.",
+  scales: {
+    NEGA: { name: "Affectivité négative", description: "Émotion négative fréquente et intense (le pôle inadapté du névrosisme élevé).", poles: { low: "Stable", high: "Volatil" }, highDescriptor: "émotionnellement intense, anxieux(se) et facilement débordé(e)", lowDescriptor: "émotionnellement stable et lent(e) à la détresse" },
+    DETA: { name: "Détachement", description: "Retrait et moindre plaisir (le pôle inadapté de l'extraversion basse).", poles: { low: "Engagé", high: "Détaché" }, highDescriptor: "en retrait, éteint(e) et évitant l'intimité", lowDescriptor: "engagé(e), chaleureux(se) et présent(e) émotionnellement" },
+    ANTA: { name: "Antagonisme", description: "Manipulation et grandiosité (le pôle inadapté de l'agréabilité basse).", poles: { low: "Agréable", high: "Antagoniste" }, highDescriptor: "intéressé(e), trompeur(se) et avec un sentiment de dû", lowDescriptor: "honnête, prévenant(e) et coopératif(ve)" },
+    DISI: { name: "Désinhibition", description: "Impulsivité et irresponsabilité (le pôle inadapté de la conscience basse).", poles: { low: "Contrôlé", high: "Désinhibé" }, highDescriptor: "impulsif(ve), distrait(e) et peu fiable", lowDescriptor: "contrôlé(e), fiable et prévoyant(e)" },
+    PSYO: { name: "Psychoticisme", description: "Expériences inhabituelles et pensée excentrique (le pôle inadapté de l'ouverture élevée).", poles: { low: "Conventionnel", high: "Excentrique" }, highDescriptor: "peu conventionnel(le), avec des perceptions inhabituelles et une pensée éparse", lowDescriptor: "conventionnel(le) et à la pensée claire" },
+  },
+  items: {
+    NA1: "Mes émotions oscillent intensément et peuvent changer vite.", NA2: "Je m'inquiète d'un très grand nombre de choses.", NA3: "Je deviens très anxieux(se) quand des personnes importantes pour moi pourraient s'éloigner.", NA4: "De petits stress peuvent me laisser un sentiment de débordement.",
+    DE1: "Je garde mes distances avec les gens, même les proches.", DE2: "Je tire rarement beaucoup de plaisir ou d'enthousiasme de la vie.", DE3: "Je préfère généralement être seul(e) qu'avec les autres.", DE4: "Je ne montre pas beaucoup d'émotion aux autres.",
+    AN1: "J'use de charme ou de flatterie pour obtenir ce que je veux.", AN2: "J'ai le sentiment de mériter un traitement spécial.", AN3: "Je déforme la vérité quand cela m'arrange.", AN4: "Cela ne me dérange pas de faire passer mes intérêts bien avant ceux des autres.",
+    DI1: "J'agis sur un coup de tête sans penser aux conséquences.", DI2: "Je ne tiens souvent pas mes obligations.", DI3: "Je me laisse facilement distraire et je laisse des choses inachevées.", DI4: "Je prends des risques qui pourraient me causer de vrais problèmes.",
+    PS1: "J'ai des expériences que d'autres auraient du mal à croire.", PS2: "Mes pensées semblent souvent éparses ou difficiles à suivre.", PS3: "On me dit que mes idées ou mon comportement sont inhabituels ou excentriques.", PS4: "J'ai parfois des perceptions ou des intuitions difficiles à expliquer.",
+  },
+};
+const ROKEACH_ES: InstrumentTranslation = {
+  name: "Valores de Rokeach", shortName: "Rokeach",
+  tagline: "Metas finales frente a formas de actuar: el mapa clásico de cuatro vías de lo que valoras.",
+  description: "Milton Rokeach dividió los valores humanos de dos maneras: valores terminales (los estados finales por los que vivimos) frente a valores instrumentales (las formas de comportarse que apreciamos), y fines personales frente a sociales. El cruce da cuatro orientaciones, un complemento esclarecedor al círculo de Schwartz, que muestra si tu brújula apunta a fines personales o compartidos, y a una conducta moral o basada en la competencia.",
+  scales: {
+    TERMP: { name: "Terminal · personal", description: "Estados finales deseados para ti (una buena vida, paz interior, logro).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "centrado/a en la realización personal y una buena vida", lowDescriptor: "menos orientado/a a metas finales personales" },
+    TERMS: { name: "Terminal · social", description: "Estados finales deseados para el mundo (paz, igualdad, libertad).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "movido/a por la justicia y el bien común", lowDescriptor: "menos orientado/a a metas finales sociales" },
+    INSTM: { name: "Instrumental · moral", description: "Formas de actuar valoradas hacia los demás (honesto, servicial, indulgente).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "guiado/a por la honestidad, la amabilidad y la integridad", lowDescriptor: "menos guiado/a por valores de conducta moral" },
+    INSTC: { name: "Instrumental · competencia", description: "Formas de actuar valoradas respecto a la capacidad (capaz, ambicioso, lógico).", poles: { low: "Menos central", high: "Central" }, highDescriptor: "guiado/a por la competencia, la ambición y la eficacia", lowDescriptor: "menos guiado/a por valores de competencia" },
+  },
+  items: {
+    TP1: "Una vida cómoda y placentera para mí es una prioridad absoluta.", TP2: "La armonía interior, la felicidad y el respeto por mí mismo/a guían mis decisiones.", TP3: "Una sensación de logro personal me importa profundamente.",
+    TS1: "Un mundo de paz, justicia e igualdad me importa profundamente.", TS2: "Me preocupan la libertad y el bienestar de todas las personas, no solo los míos.", TS3: "Renunciaría a mi comodidad personal por el bien social mayor.",
+    IM1: "Ser honesto/a y ético/a me importa más que ganar.", IM2: "Valoro ser servicial, indulgente y amable en mi forma de actuar.", IM3: "Prefiero hacer lo correcto antes que lo ventajoso.",
+    IC1: "Valoro ser capaz, lógico/a y eficaz por encima de todo.", IC2: "La ambición y el logro son centrales para quien quiero ser.", IC3: "Admiro la competencia y la inteligencia tanto como la calidez.",
+  },
+};
+const ROKEACH_FR: InstrumentTranslation = {
+  name: "Valeurs de Rokeach", shortName: "Rokeach",
+  tagline: "Buts finaux ou manières d'agir — la carte classique en quatre volets de ce que vous prisez.",
+  description: "Milton Rokeach a divisé les valeurs humaines de deux façons : les valeurs terminales (les états finaux pour lesquels nous vivons) face aux valeurs instrumentales (les manières d'agir que nous prisons), et les buts personnels face aux buts sociaux. Le croisement donne quatre orientations — un complément éclairant au cercle de Schwartz, montrant si votre boussole pointe vers des fins personnelles ou partagées, et vers une conduite morale ou fondée sur la compétence.",
+  scales: {
+    TERMP: { name: "Terminale · personnelle", description: "États finaux désirés pour vous (une bonne vie, la paix intérieure, l'accomplissement).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "centré(e) sur l'épanouissement personnel et une bonne vie", lowDescriptor: "moins orienté(e) vers des buts finaux personnels" },
+    TERMS: { name: "Terminale · sociale", description: "États finaux désirés pour le monde (paix, égalité, liberté).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "animé(e) par la justice et le bien commun", lowDescriptor: "moins orienté(e) vers des buts finaux sociaux" },
+    INSTM: { name: "Instrumentale · morale", description: "Manières d'agir prisées envers autrui (honnête, serviable, indulgent).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "guidé(e) par l'honnêteté, la gentillesse et l'intégrité", lowDescriptor: "moins guidé(e) par des valeurs de conduite morale" },
+    INSTC: { name: "Instrumentale · compétence", description: "Manières d'agir prisées quant à la capacité (capable, ambitieux, logique).", poles: { low: "Moins centrale", high: "Centrale" }, highDescriptor: "guidé(e) par la compétence, l'ambition et l'efficacité", lowDescriptor: "moins guidé(e) par des valeurs de compétence" },
+  },
+  items: {
+    TP1: "Une vie confortable et agréable pour moi est une priorité absolue.", TP2: "L'harmonie intérieure, le bonheur et le respect de moi-même guident mes choix.", TP3: "Un sentiment d'accomplissement personnel compte profondément pour moi.",
+    TS1: "Un monde de paix, de justice et d'égalité compte profondément pour moi.", TS2: "Je me soucie de la liberté et du bien-être de tous, pas seulement des miens.", TS3: "Je renoncerais à mon confort personnel pour le bien social plus grand.",
+    IM1: "Être honnête et éthique compte plus pour moi que gagner.", IM2: "Je valorise le fait d'être serviable, indulgent(e) et bienveillant(e) dans mes actes.", IM3: "Je préfère faire ce qui est juste plutôt que ce qui est avantageux.",
+    IC1: "Je valorise par-dessus tout le fait d'être capable, logique et efficace.", IC2: "L'ambition et la réussite sont centrales pour la personne que je veux être.", IC3: "J'admire la compétence et l'intelligence autant que la chaleur humaine.",
+  },
+};
+const SCHWARTZ_ES: InstrumentTranslation = {
+  name: "Valores personales (Schwartz)", shortName: "Valores",
+  tagline: "Lo que de verdad te importa: la brújula tras tus decisiones.",
+  description: "La teoría de Schwartz mapea diez valores humanos básicos que guían nuestras decisiones en todas las culturas, desde la autodirección y el logro hasta la benevolencia y el universalismo. Este perfilador muestra qué valores ocupan los primeros puestos para ti, para que puedas alinear tu tiempo, tu trabajo y tus relaciones con lo que de verdad te importa.",
+  scales: {
+    SD: { name: "Autodirección", description: "Independencia de pensamiento y acción; libertad y creatividad.", highDescriptor: "que valora la libertad, la autonomía y la expresión creativa", lowDescriptor: "a gusto siendo guiado/a en vez de dirigirte por ti mismo/a" },
+    ST: { name: "Estimulación", description: "Emoción, novedad y desafío.", highDescriptor: "atraído/a por la aventura, la variedad y las experiencias nuevas", lowDescriptor: "que prefiere la calma y lo familiar a las emociones fuertes" },
+    HE: { name: "Hedonismo", description: "Placer y disfrute de la vida.", highDescriptor: "que valora el placer, la diversión y disfrutar el momento", lowDescriptor: "más centrado/a en el deber o las metas que en el placer" },
+    AC: { name: "Logro", description: "Éxito personal demostrando competencia.", highDescriptor: "impulsado/a a triunfar, destacar y ser reconocido/a", lowDescriptor: "menos centrado/a en el estatus o el logro externo" },
+    PO: { name: "Poder", description: "Estatus, prestigio y control sobre personas o recursos.", highDescriptor: "que valora la influencia, la autoridad y el liderazgo", lowDescriptor: "poco interesado/a en el dominio o el estatus" },
+    SE: { name: "Seguridad", description: "Seguridad, armonía y estabilidad.", highDescriptor: "que valora la seguridad, el orden y la estabilidad", lowDescriptor: "a gusto con el riesgo y la incertidumbre" },
+    CO: { name: "Conformidad", description: "Contención de acciones que puedan molestar a otros o violar normas.", highDescriptor: "que valora la cortesía, las normas y cumplir lo esperado", lowDescriptor: "dispuesto/a a romper normas y seguir tu propio camino" },
+    TR: { name: "Tradición", description: "Respeto y compromiso con las costumbres y las ideas.", highDescriptor: "que valora la tradición, la humildad y la continuidad", lowDescriptor: "que prefiere lo nuevo y progresista a lo tradicional" },
+    BE: { name: "Benevolencia", description: "Preservar y mejorar el bienestar de los cercanos.", highDescriptor: "entregado/a al bienestar de quienes te rodean", lowDescriptor: "más centrado/a en ti que en cuidar a otros" },
+    UN: { name: "Universalismo", description: "Comprensión, tolerancia y protección de todas las personas y la naturaleza.", highDescriptor: "que se preocupa por la justicia, la igualdad y el planeta", lowDescriptor: "más centrado/a en tu propio círculo que en el mundo más amplio" },
+  },
+  items: {
+    SD1: "Tomar mis propias decisiones y ser libre para dirigir mi vida.", SD2: "Ser creativo/a y explorar mis propias ideas y curiosidad.",
+    ST1: "Emoción, novedad y aventura.", ST2: "Una vida variada y sorprendente antes que una predecible.",
+    HE1: "Disfrutar de los placeres de la vida y darme caprichos.", HE2: "Buscar la diversión y las cosas que simplemente sientan bien.",
+    AC1: "Tener éxito y demostrar mi competencia.", AC2: "Lograr mucho y ser reconocido/a por ello.",
+    PO1: "Tener influencia, estatus o control sobre los recursos.", PO2: "Estar en una posición de autoridad y liderazgo.",
+    SE1: "Seguridad, estabilidad y orden en mi vida y en la sociedad.", SE2: "Un entorno seguro y predecible para mí y mi familia.",
+    CO1: "Seguir las normas y no molestar ni ofender a los demás.", CO2: "Ser cortés y hacer lo que se espera de mí.",
+    TR1: "Honrar la tradición y las costumbres que me han transmitido.", TR2: "Ser humilde y respetar las creencias arraigadas.",
+    BE1: "Cuidar del bienestar de las personas cercanas a mí.", BE2: "Ser leal, entregado/a y servicial con amigos y familia.",
+    UN1: "La justicia, la igualdad y el bienestar de todas las personas.", UN2: "Proteger la naturaleza y el medio ambiente.",
+  },
+};
+const SCHWARTZ_FR: InstrumentTranslation = {
+  name: "Valeurs personnelles (Schwartz)", shortName: "Valeurs",
+  tagline: "Ce qui compte vraiment pour vous — la boussole derrière vos choix.",
+  description: "La théorie de Schwartz cartographie dix valeurs humaines fondamentales qui guident nos décisions à travers les cultures, de l'autonomie et la réussite à la bienveillance et l'universalisme. Ce profileur montre quelles valeurs arrivent en tête chez vous, afin d'aligner votre temps, votre travail et vos relations sur ce qui compte vraiment pour vous.",
+  scales: {
+    SD: { name: "Autonomie", description: "Indépendance de pensée et d'action ; liberté et créativité.", highDescriptor: "valorisant la liberté, l'autonomie et l'expression créative", lowDescriptor: "à l'aise d'être guidé(e) plutôt que de vous diriger vous-même" },
+    ST: { name: "Stimulation", description: "Excitation, nouveauté et défi.", highDescriptor: "attiré(e) par l'aventure, la variété et les expériences nouvelles", lowDescriptor: "préférant le calme et le familier aux sensations fortes" },
+    HE: { name: "Hédonisme", description: "Plaisir et jouissance de la vie.", highDescriptor: "valorisant le plaisir, l'amusement et l'instant présent", lowDescriptor: "plus porté(e) sur le devoir ou les objectifs que sur le plaisir" },
+    AC: { name: "Réussite", description: "Succès personnel par la démonstration de la compétence.", highDescriptor: "animé(e) par l'envie de réussir, d'exceller et d'être reconnu(e)", lowDescriptor: "moins centré(e) sur le statut ou la réussite externe" },
+    PO: { name: "Pouvoir", description: "Statut, prestige et contrôle sur les personnes ou les ressources.", highDescriptor: "valorisant l'influence, l'autorité et le leadership", lowDescriptor: "peu intéressé(e) par la domination ou le statut" },
+    SE: { name: "Sécurité", description: "Sûreté, harmonie et stabilité.", highDescriptor: "valorisant la sécurité, l'ordre et la stabilité", lowDescriptor: "à l'aise avec le risque et l'incertitude" },
+    CO: { name: "Conformité", description: "Retenue des actes susceptibles de contrarier autrui ou d'enfreindre les normes.", highDescriptor: "valorisant la politesse, les règles et le respect des attentes", lowDescriptor: "prêt(e) à enfreindre les normes et à suivre votre voie" },
+    TR: { name: "Tradition", description: "Respect et attachement aux coutumes et aux idées.", highDescriptor: "valorisant la tradition, l'humilité et la continuité", lowDescriptor: "préférant le nouveau et le progressiste au traditionnel" },
+    BE: { name: "Bienveillance", description: "Préserver et améliorer le bien-être des proches.", highDescriptor: "dévoué(e) au bien-être de vos proches", lowDescriptor: "plus centré(e) sur vous que tourné(e) vers le soin d'autrui" },
+    UN: { name: "Universalisme", description: "Compréhension, tolérance et protection de tous et de la nature.", highDescriptor: "soucieux(se) de justice, d'égalité et de la planète", lowDescriptor: "plus centré(e) sur votre cercle que sur le monde au sens large" },
+  },
+  items: {
+    SD1: "Faire mes propres choix et être libre de diriger ma vie.", SD2: "Être créatif(ve) et explorer mes propres idées et ma curiosité.",
+    ST1: "L'excitation, la nouveauté et l'aventure.", ST2: "Une vie variée et surprenante plutôt que prévisible.",
+    HE1: "Profiter des plaisirs de la vie et me faire plaisir.", HE2: "Rechercher l'amusement et ce qui fait simplement du bien.",
+    AC1: "Réussir et démontrer ma compétence.", AC2: "Accomplir beaucoup et être reconnu(e) pour cela.",
+    PO1: "Avoir de l'influence, du statut ou le contrôle des ressources.", PO2: "Être en position d'autorité et de leadership.",
+    SE1: "La sécurité, la stabilité et l'ordre dans ma vie et la société.", SE2: "Un environnement sûr et prévisible pour moi et ma famille.",
+    CO1: "Suivre les règles et ne pas contrarier ni offenser les autres.", CO2: "Être poli(e) et faire ce qu'on attend de moi.",
+    TR1: "Honorer la tradition et les coutumes qui m'ont été transmises.", TR2: "Être humble et respecter les croyances anciennes.",
+    BE1: "Prendre soin du bien-être de mes proches.", BE2: "Être loyal(e), dévoué(e) et serviable envers amis et famille.",
+    UN1: "La justice, l'égalité et le bien-être de tous.", UN2: "Protéger la nature et l'environnement.",
+  },
+};
+const SIXTEENPF_ES: InstrumentTranslation = {
+  name: "16 Factores de Personalidad", shortName: "16PF",
+  tagline: "Los dieciséis rasgos primarios de Cattell: el mapa más granular de la personalidad normal.",
+  description: "Raymond Cattell empleó el análisis factorial para destilar la personalidad en dieciséis 'rasgos fuente' primarios. Este perfilador los mide todos —de la calidez y la dominancia a la vigilancia, la reserva y la tensión—, ofreciendo un retrato excepcionalmente detallado que los Cinco Grandes agrupan. Una lectura rica y minuciosa para quien busca matices.",
+  scales: {
+    A: { name: "Calidez", description: "Cercanía emocional y calidez hacia las personas.", poles: { low: "Reservado", high: "Cálido" }, highDescriptor: "cálido", lowDescriptor: "reservado" },
+    B: { name: "Razonamiento", description: "Agilidad autovalorada con las ideas abstractas.", poles: { low: "Concreto", high: "Abstracto" }, highDescriptor: "abstracto", lowDescriptor: "concreto" },
+    C: { name: "Estabilidad emocional", description: "Calma y resiliencia bajo estrés.", poles: { low: "Reactivo", high: "Estable" }, highDescriptor: "estable", lowDescriptor: "reactivo" },
+    E: { name: "Dominancia", description: "Asertividad e impulso por liderar.", poles: { low: "Deferente", high: "Asertivo" }, highDescriptor: "asertivo", lowDescriptor: "deferente" },
+    F: { name: "Vivacidad", description: "Espontaneidad, energía y entusiasmo.", poles: { low: "Serio", high: "Vivaz" }, highDescriptor: "vivaz", lowDescriptor: "serio" },
+    G: { name: "Conciencia de las normas", description: "Respeto por el deber, las normas y la corrección.", poles: { low: "Pragmático", high: "Cumplidor" }, highDescriptor: "cumplidor", lowDescriptor: "pragmático" },
+    H: { name: "Audacia social", description: "Audacia y soltura en las situaciones sociales.", poles: { low: "Tímido", high: "Audaz" }, highDescriptor: "audaz", lowDescriptor: "tímido" },
+    I: { name: "Sensibilidad", description: "Sensibilidad y apreciación estética.", poles: { low: "Utilitario", high: "Sensible" }, highDescriptor: "sensible", lowDescriptor: "utilitario" },
+    L: { name: "Vigilancia", description: "Cautela y recelo hacia los demás.", poles: { low: "Confiado", high: "Vigilante" }, highDescriptor: "vigilante", lowDescriptor: "confiado" },
+    M: { name: "Abstracción", description: "Absorción en las ideas frente al enfoque práctico.", poles: { low: "Práctico", high: "Imaginativo" }, highDescriptor: "imaginativo", lowDescriptor: "práctico" },
+    N: { name: "Reserva", description: "Reserva sobre la propia vida interior.", poles: { low: "Franco", high: "Reservado" }, highDescriptor: "reservado", lowDescriptor: "franco" },
+    O: { name: "Aprensión", description: "Dudas sobre uno mismo, preocupación y tendencia a la culpa.", poles: { low: "Seguro de sí", high: "Aprensivo" }, highDescriptor: "aprensivo", lowDescriptor: "seguro de sí" },
+    Q1: { name: "Apertura al cambio", description: "Apetito por la novedad y el cuestionamiento.", poles: { low: "Tradicional", high: "Abierto" }, highDescriptor: "abierto", lowDescriptor: "tradicional" },
+    Q2: { name: "Autosuficiencia", description: "Preferencia por la soledad y la autonomía.", poles: { low: "Orientado al grupo", high: "Autosuficiente" }, highDescriptor: "autosuficiente", lowDescriptor: "orientado al grupo" },
+    Q3: { name: "Perfeccionismo", description: "Necesidad de orden, planificación y estándares.", poles: { low: "Flexible", high: "Organizado" }, highDescriptor: "organizado", lowDescriptor: "flexible" },
+    Q4: { name: "Tensión", description: "Inquietud y tensión nerviosa.", poles: { low: "Relajado", high: "Tenso" }, highDescriptor: "tenso", lowDescriptor: "relajado" },
+  },
+  items: {
+    A1: "Conecto rápido con la gente y disfruto de la cercanía con los demás.", A2: "Tiendo a mantener una distancia emocional con la gente.",
+    B1: "Capto rápido ideas nuevas y abstractas.", B2: "Me cuesta seguir razonamientos complejos o abstractos.",
+    C1: "Me mantengo emocionalmente estable incluso cuando la vida se pone difícil.", C2: "Mis sentimientos se alteran fácilmente con los problemas cotidianos.",
+    E1: "Me hago valer y empujo por lo que quiero.", E2: "Suelo ceder ante los demás en lugar de tomar el mando.",
+    F1: "Soy espontáneo/a, animado/a y entusiasta.", F2: "Soy bastante serio/a y contenido/a.",
+    G1: "Me tomo en serio el deber, las normas y hacer lo correcto.", G2: "Doblo las reglas cuando se interponen en mi camino.",
+    H1: "Soy socialmente audaz y me lanzo con facilidad a grupos nuevos.", H2: "Me siento tímido/a y dubitativo/a en situaciones sociales desconocidas.",
+    I1: "Soy de sensibilidad tierna y me conmueven la belleza y los sentimientos.", I2: "Me apoyo en la lógica mucho más que en el sentimiento al decidir.",
+    L1: "Me mantengo alerta porque no siempre se puede confiar en la gente.", L2: "Por lo general supongo que la gente tiene buenas intenciones.",
+    M1: "Me absorben las ideas y la imaginación y pierdo de vista lo práctico.", M2: "Mantengo la atención firmemente en lo práctico y lo del momento.",
+    N1: "Guardo mis pensamientos privados para mí.", N2: "Soy abierto/a y franco/a sobre mí con casi cualquiera.",
+    O1: "A menudo me preocupa haber hecho algo mal.", O2: "Me siento seguro/a y rara vez dudo de mí.",
+    Q11: "Me gusta probar nuevos enfoques y cuestionar lo establecido.", Q12: "Prefiero las formas familiares y tradicionales de hacer las cosas.",
+    Q21: "Prefiero tomar mis propias decisiones y contar conmigo mismo/a.", Q22: "Prefiero hacer las cosas en grupo antes que solo/a.",
+    Q31: "Me gusta tener las cosas organizadas, planificadas y a un alto nivel.", Q32: "Me siento cómodo/a dejando las cosas sueltas y sin estructura.",
+    Q41: "A menudo me siento tenso/a, inquieto/a o crispado/a.", Q42: "Me siento relajado/a y tranquilo/a la mayor parte del tiempo.",
+  },
+};
+const SIXTEENPF_FR: InstrumentTranslation = {
+  name: "16 Facteurs de Personnalité", shortName: "16PF",
+  tagline: "Les seize traits primaires de Cattell — la carte la plus fine de la personnalité normale.",
+  description: "Raymond Cattell a utilisé l'analyse factorielle pour distiller la personnalité en seize « traits sources » primaires. Ce profileur les mesure tous — de la chaleur et la dominance à la vigilance, la discrétion et la tension — offrant un portrait d'une finesse inhabituelle que les Big Five regroupent. Une lecture riche et détaillée pour qui veut de la nuance.",
+  scales: {
+    A: { name: "Chaleur", description: "Proximité émotionnelle et chaleur envers les gens.", poles: { low: "Réservé", high: "Chaleureux" }, highDescriptor: "chaleureux", lowDescriptor: "réservé" },
+    B: { name: "Raisonnement", description: "Aisance autoévaluée avec les idées abstraites.", poles: { low: "Concret", high: "Abstrait" }, highDescriptor: "abstrait", lowDescriptor: "concret" },
+    C: { name: "Stabilité émotionnelle", description: "Calme et résilience sous le stress.", poles: { low: "Réactif", high: "Stable" }, highDescriptor: "stable", lowDescriptor: "réactif" },
+    E: { name: "Dominance", description: "Assertivité et élan à diriger.", poles: { low: "Déférent", high: "Affirmé" }, highDescriptor: "affirmé", lowDescriptor: "déférent" },
+    F: { name: "Vivacité", description: "Spontanéité, énergie et enthousiasme.", poles: { low: "Sérieux", high: "Vif" }, highDescriptor: "vif", lowDescriptor: "sérieux" },
+    G: { name: "Conscience des règles", description: "Respect du devoir, des règles et de la bienséance.", poles: { low: "Accommodant", high: "Consciencieux" }, highDescriptor: "consciencieux", lowDescriptor: "accommodant" },
+    H: { name: "Audace sociale", description: "Audace et aisance dans les situations sociales.", poles: { low: "Timide", high: "Audacieux" }, highDescriptor: "audacieux", lowDescriptor: "timide" },
+    I: { name: "Sensibilité", description: "Délicatesse et sensibilité esthétique.", poles: { low: "Utilitaire", high: "Sensible" }, highDescriptor: "sensible", lowDescriptor: "utilitaire" },
+    L: { name: "Vigilance", description: "Méfiance et circonspection envers autrui.", poles: { low: "Confiant", high: "Vigilant" }, highDescriptor: "vigilant", lowDescriptor: "confiant" },
+    M: { name: "Abstraction", description: "Absorption dans les idées vs. focalisation pratique.", poles: { low: "Pragmatique", high: "Imaginatif" }, highDescriptor: "imaginatif", lowDescriptor: "pragmatique" },
+    N: { name: "Discrétion", description: "Réserve quant à sa vie intérieure.", poles: { low: "Direct", high: "Réservé" }, highDescriptor: "réservé", lowDescriptor: "direct" },
+    O: { name: "Appréhension", description: "Doute de soi, inquiétude et tendance à la culpabilité.", poles: { low: "Assuré", high: "Inquiet" }, highDescriptor: "inquiet", lowDescriptor: "assuré" },
+    Q1: { name: "Ouverture au changement", description: "Goût de la nouveauté et de la remise en question.", poles: { low: "Traditionnel", high: "Ouvert" }, highDescriptor: "ouvert", lowDescriptor: "traditionnel" },
+    Q2: { name: "Autonomie", description: "Préférence pour la solitude et l'autonomie.", poles: { low: "Grégaire", high: "Autonome" }, highDescriptor: "autonome", lowDescriptor: "grégaire" },
+    Q3: { name: "Perfectionnisme", description: "Besoin d'ordre, de planification et de standards.", poles: { low: "Flexible", high: "Organisé" }, highDescriptor: "organisé", lowDescriptor: "flexible" },
+    Q4: { name: "Tension", description: "Agitation et tension nerveuse.", poles: { low: "Détendu", high: "Tendu" }, highDescriptor: "tendu", lowDescriptor: "détendu" },
+  },
+  items: {
+    A1: "Je me lie vite aux gens et j'aime la proximité avec les autres.", A2: "J'ai tendance à garder une distance émotionnelle avec les gens.",
+    B1: "Je saisis vite les idées nouvelles et abstraites.", B2: "J'ai du mal à suivre un raisonnement complexe ou abstrait.",
+    C1: "Je reste émotionnellement stable même quand la vie devient dure.", C2: "Mes émotions sont facilement perturbées par les problèmes du quotidien.",
+    E1: "Je m'affirme et je pousse pour ce que je veux.", E2: "Je m'en remets généralement aux autres plutôt que de prendre les commandes.",
+    F1: "Je suis spontané(e), enjoué(e) et enthousiaste.", F2: "Je suis plutôt sérieux(se) et réservé(e).",
+    G1: "Je prends au sérieux le devoir, les règles et le fait de bien agir.", G2: "Je contourne les règles quand elles me gênent.",
+    H1: "Je suis socialement audacieux(se) et j'aborde facilement de nouveaux groupes.", H2: "Je me sens timide et hésitant(e) dans les situations sociales inconnues.",
+    I1: "Je suis sensible et touché(e) par la beauté et les émotions.", I2: "Je m'appuie bien plus sur la logique que sur le sentiment pour décider.",
+    L1: "Je reste sur mes gardes car on ne peut pas toujours faire confiance aux gens.", L2: "Je suppose généralement que les gens ont de bonnes intentions.",
+    M1: "Je me laisse absorber par les idées et l'imagination et perds de vue le concret.", M2: "Je garde mon attention fermement sur les questions pratiques et immédiates.",
+    N1: "Je garde mes pensées intimes pour moi.", N2: "Je suis ouvert(e) et franc(he) sur moi-même avec presque tout le monde.",
+    O1: "Je crains souvent d'avoir fait quelque chose de mal.", O2: "Je me sens en sécurité et je doute rarement de moi.",
+    Q11: "J'aime essayer de nouvelles approches et remettre en question l'usage établi.", Q12: "Je préfère les façons de faire familières et traditionnelles.",
+    Q21: "Je préfère prendre mes propres décisions et compter sur moi-même.", Q22: "Je préfère faire les choses en groupe plutôt que seul(e).",
+    Q31: "J'aime que les choses soient organisées, planifiées et faites à un haut niveau.", Q32: "Je suis à l'aise de laisser les choses souples et sans structure.",
+    Q41: "Je me sens souvent tendu(e), agité(e) ou crispé(e).", Q42: "Je me sens détendu(e) et tranquille la plupart du temps.",
+  },
+};
+const ATTACH_ES: InstrumentTranslation = {
+  name: "Estilo de apego en las relaciones", shortName: "Estilo de apego",
+  tagline: "Cómo te vinculas: dos dimensiones, cuatro estilos de relación.",
+  description: "El apego adulto moldea cómo buscamos la cercanía y manejamos la distancia en las relaciones. Este perfilador estima tu ansiedad y tu evitación del apego y te sitúa entre cuatro estilos —seguro, ansioso-preocupado, evitativo-rechazante y temeroso-evitativo—, con el crecimiento planteado como un movimiento hacia la seguridad.",
+  scales: {
+    ANX: { name: "Ansiedad del apego", description: "Miedo al abandono y necesidad de reafirmación en las relaciones cercanas.", poles: { low: "Seguro", high: "Ansioso" }, highDescriptor: "que ansía la cercanía, sensible a la disponibilidad de la pareja y rápido/a para temer el rechazo", lowDescriptor: "seguro/a de ser amado/a y sin preocuparte por el abandono" },
+    AV: { name: "Evitación del apego", description: "Incomodidad con la cercanía y preferencia por la autosuficiencia.", poles: { low: "Conectado", high: "Evitativo" }, highDescriptor: "que valora la independencia, reservado/a con los sentimientos e incómodo/a con demasiada cercanía", lowDescriptor: "a gusto con la intimidad, con depender de otros y con abrirte" },
+  },
+  items: {
+    ANX1: "Me preocupa que las personas a las que quiero no me quieran tanto como yo a ellas.", ANX2: "Necesito mucha reafirmación de que se me quiere.", ANX3: "A menudo temo que las personas cercanas me abandonen.", ANX4: "Me disgusta cuando alguien cercano no está disponible cuando lo necesito.",
+    ANX5: "Rara vez me preocupa que me dejen o me rechacen.", ANX6: "Cuando estoy cerca de alguien, a menudo temo que la relación se rompa.", ANX7: "Ansío la cercanía, a veces más de lo que la otra persona parece querer.", ANX8: "Me siento seguro/a de que las personas a las que quiero no me dejarán.",
+    AV1: "Prefiero no depender de los demás, ni que dependan de mí.", AV2: "Me cuesta abrirme del todo a las personas cercanas.", AV3: "Me incomoda cuando alguien quiere una cercanía emocional muy estrecha.", AV4: "Me siento a gusto apoyándome en personas cercanas cuando necesito apoyo.",
+    AV5: "Prefiero guardarme mis sentimientos antes que compartirlos.", AV6: "Cuando alguien se acerca demasiado, tiendo a apartarme.", AV7: "Me resulta fácil tener intimidad emocional con las personas a las que quiero.", AV8: "Valoro mi independencia más que la cercanía.",
+  },
+};
+const ATTACH_FR: InstrumentTranslation = {
+  name: "Style d'attachement dans les relations", shortName: "Style d'attachement",
+  tagline: "Comment vous créez des liens : deux dimensions, quatre styles relationnels.",
+  description: "L'attachement adulte façonne notre manière de chercher la proximité et de gérer la distance dans les relations. Ce profileur estime votre anxiété et votre évitement d'attachement et vous situe parmi quatre styles — sécure, anxieux-préoccupé, détaché-évitant et craintif-évitant — la croissance étant pensée comme un mouvement vers la sécurité.",
+  scales: {
+    ANX: { name: "Anxiété d'attachement", description: "Peur de l'abandon et besoin de réassurance dans les relations proches.", poles: { low: "Sécure", high: "Anxieux" }, highDescriptor: "avide de proximité, sensible à la disponibilité du partenaire et prompt(e) à craindre le rejet", lowDescriptor: "assuré(e) d'être aimé(e) et sans préoccupation d'abandon" },
+    AV: { name: "Évitement d'attachement", description: "Inconfort avec la proximité et préférence pour l'autonomie.", poles: { low: "Connecté", high: "Évitant" }, highDescriptor: "valorisant l'indépendance, sur la réserve avec ses sentiments et mal à l'aise avec trop de proximité", lowDescriptor: "à l'aise avec l'intimité, le fait de dépendre des autres et de s'ouvrir" },
+  },
+  items: {
+    ANX1: "Je crains que les personnes que j'aime ne tiennent pas autant à moi que moi à elles.", ANX2: "J'ai besoin de beaucoup de réassurance sur le fait d'être aimé(e).", ANX3: "J'ai souvent peur d'être abandonné(e) par mes proches.", ANX4: "Je suis contrarié(e) quand un proche n'est pas disponible quand j'ai besoin de lui.",
+    ANX5: "Je m'inquiète rarement d'être quitté(e) ou rejeté(e).", ANX6: "Quand je suis proche de quelqu'un, je crains souvent que la relation s'effondre.", ANX7: "J'aspire à la proximité, parfois plus que l'autre ne semble le vouloir.", ANX8: "Je me sens sûr(e) que les personnes que j'aime ne me quitteront pas.",
+    AV1: "Je préfère ne pas dépendre des autres, ni qu'ils dépendent de moi.", AV2: "J'ai du mal à m'ouvrir entièrement à mes proches.", AV3: "Je suis mal à l'aise quand quelqu'un veut une grande proximité émotionnelle.", AV4: "Je suis à l'aise de m'appuyer sur mes proches pour du soutien.",
+    AV5: "Je préfère garder mes sentiments pour moi plutôt que de les partager.", AV6: "Quand quelqu'un devient trop proche, j'ai tendance à m'éloigner.", AV7: "Il m'est facile d'avoir une intimité émotionnelle avec les personnes que j'aime.", AV8: "Je valorise mon indépendance plus que la proximité.",
+  },
+};
+const LOVELANG_ES: InstrumentTranslation = {
+  name: "Lenguajes del amor", shortName: "Lenguajes del amor",
+  tagline: "Cómo das y recibes amor con más profundidad.",
+  description: "Los cinco lenguajes del amor describen las distintas formas en que las personas se sienten amadas: mediante palabras, tiempo, servicio, regalos o contacto. Conocer tu lenguaje principal (y el de tu pareja) es una forma sencilla y poderosa de hacer que el amor cale. Este perfilador clasifica los cinco y resalta tus dos principales.",
+  scales: {
+    WORDS: { name: "Palabras de afirmación", description: "Sentirse amado/a a través del aprecio y el ánimo.", highDescriptor: "que se llena de energía con palabras amables y afirmativas", lowDescriptor: "menos dependiente de la afirmación verbal" },
+    TIME: { name: "Tiempo de calidad", description: "Sentirse amado/a a través de la unión enfocada.", highDescriptor: "que se llena con la atención plena y la presencia", lowDescriptor: "menos dependiente del tiempo dedicado juntos" },
+    SERVICE: { name: "Actos de servicio", description: "Sentirse amado/a cuando los demás ayudan y hacen.", highDescriptor: "conmovido/a por las acciones útiles y la carga compartida", lowDescriptor: "menos centrado/a en la ayuda práctica como amor" },
+    GIFTS: { name: "Recibir regalos", description: "Sentirse amado/a a través de detalles pensados.", highDescriptor: "conmovido/a por regalos y gestos significativos", lowDescriptor: "menos orientado/a a los regalos como señal de amor" },
+    TOUCH: { name: "Contacto físico", description: "Sentirse amado/a a través de la cercanía afectuosa.", highDescriptor: "conectado/a mediante abrazos, contacto y cercanía", lowDescriptor: "menos dependiente del contacto físico" },
+  },
+  items: {
+    LL1: "Tras una semana dura, ¿qué de un ser querido significaría más para ti?",
+    LL2: "Te sientes más amado/a en una relación cuando tu pareja…",
+    LL3: "Un amigo quiere demostrar que le importas. Te conmovería más que…",
+    LL4: "¿Qué te dolería más no recibir de alguien cercano?",
+    LL5: "En tu cumpleaños, el gesto que más cala es…",
+    LL6: "Instintivamente, muestras amor a los demás…",
+    LL7: "¿Qué cumplido sobre tu relación te agradaría más?",
+    LL8: "Tras una discusión, ¿qué te ayuda a sentirte reconectado/a más rápido?",
+    LL9: "Cuando echas de menos a alguien, lo que más desearías es poder…",
+    LL10: "La frase que más resuena contigo es…",
+  },
+  options: {
+    LL1: ["oír 'estoy orgulloso/a de ti, tú puedes'", "una velada con su atención plena y sin distracciones", "que se ocupe en silencio de una tarea que te daba pavor", "una pequeña sorpresa que diga que pensaba en ti", "un abrazo largo y sentarse muy juntos"],
+    LL2: ["te dice a menudo lo que aprecia de ti", "reserva tiempo real y enfocado solo para los dos", "echa una mano y te aligera la carga sin que se lo pidas", "te trae pequeños detalles que muestran que recordó", "es cálidamente cariñosa: abrazos, tomarse de la mano, cercanía"],
+    LL3: ["te escribiera un mensaje sentido", "despejara su día para pasarlo contigo", "se presentara a ayudarte a mudarte o a arreglar algo", "te trajera un pequeño regalo que te encajara a la perfección", "te recibiera con un abrazo grande y cálido"],
+    LL4: ["cualquier palabra de aprecio o ánimo", "tiempo de verdad, sin distracciones, juntos", "cualquier ayuda o apoyo práctico", "cualquier señal de que piensa en ti cuando estáis lejos", "cercanía física afectuosa"],
+    LL5: ["una nota sincera sobre lo que significas para ellos", "un día sin prisas dedicado por entero a ti", "que te quiten todo de encima ese día", "un regalo significativo y bien elegido", "mucho calor y afecto físico"],
+    LL6: ["diciéndoles lo que admiras de ellos", "dándoles tu presencia plena", "haciendo cosas útiles por ellos", "eligiendo regalos pensados", "abrazándolos y siendo físicamente cariñoso/a"],
+    LL7: ["'Siempre me hace sentir valorado/a.'", "'De verdad nos hacemos tiempo el uno para el otro.'", "'Siempre está ahí para ayudarme.'", "'Hace los regalos más pensados.'", "'Se nota lo cariñoso/a que es.'"],
+    LL8: ["una charla sincera y tranquilizadora", "volver a pasar un rato tranquilo juntos", "que haga algo amable para compensarlo", "una pequeña ofrenda de paz que muestre que le importa", "un abrazo y cercanía física"],
+    LL9: ["oírle decir algo cálido", "simplemente estar presentes juntos", "que te ayude con lo que tienes encima", "encontrar un pequeño algo que te recuerde a él/ella", "abrazarle, o que te abracen"],
+    LL10: ["'Dime que me quieres.'", "'Pasa tiempo conmigo.'", "'Déjame ayudarte.'", "'Te traje algo.'", "'Abrázame.'"],
+  },
+};
+const LOVELANG_FR: InstrumentTranslation = {
+  name: "Langages de l'amour", shortName: "Langages de l'amour",
+  tagline: "Comment vous donnez et recevez l'amour le plus profondément.",
+  description: "Les cinq langages de l'amour décrivent les différentes façons dont les gens se sentent aimés — par les mots, le temps, les services, les cadeaux ou le contact. Connaître votre langage principal (et celui de votre partenaire) est un moyen simple et puissant de faire que l'amour touche juste. Ce profileur classe les cinq et met en avant vos deux principaux.",
+  scales: {
+    WORDS: { name: "Paroles valorisantes", description: "Se sentir aimé(e) par l'appréciation et l'encouragement.", highDescriptor: "stimulé(e) par des paroles gentilles et valorisantes", lowDescriptor: "moins tributaire de l'affirmation verbale" },
+    TIME: { name: "Moments de qualité", description: "Se sentir aimé(e) par une présence partagée et attentive.", highDescriptor: "comblé(e) par l'attention pleine et la présence", lowDescriptor: "moins dépendant(e) du temps dédié ensemble" },
+    SERVICE: { name: "Services rendus", description: "Se sentir aimé(e) quand les autres aident et agissent.", highDescriptor: "touché(e) par les actions utiles et la charge partagée", lowDescriptor: "moins porté(e) sur l'aide pratique comme amour" },
+    GIFTS: { name: "Cadeaux reçus", description: "Se sentir aimé(e) par des attentions réfléchies.", highDescriptor: "touché(e) par des cadeaux et gestes significatifs", lowDescriptor: "moins orienté(e) vers les cadeaux comme signe d'amour" },
+    TOUCH: { name: "Contact physique", description: "Se sentir aimé(e) par une proximité affectueuse.", highDescriptor: "connecté(e) par les câlins, le contact et la proximité", lowDescriptor: "moins tributaire du contact physique" },
+  },
+  items: {
+    LL1: "Après une semaine difficile, qu'est-ce qui, venant d'un être cher, compterait le plus ?",
+    LL2: "Vous vous sentez le plus aimé(e) dans une relation quand votre partenaire…",
+    LL3: "Un ami veut montrer qu'il tient à vous. Vous seriez le plus touché(e) s'il…",
+    LL4: "Qu'est-ce qui vous manquerait le plus, venant d'un proche ?",
+    LL5: "Pour votre anniversaire, le geste qui touche le plus est…",
+    LL6: "Vous montrez instinctivement de l'amour aux autres…",
+    LL7: "Quel compliment sur votre relation vous ferait le plus plaisir ?",
+    LL8: "Après un désaccord, qu'est-ce qui vous aide à vous reconnecter le plus vite ?",
+    LL9: "Quand quelqu'un vous manque, vous souhaiteriez surtout pouvoir…",
+    LL10: "La phrase qui résonne le plus en vous est…",
+  },
+  options: {
+    LL1: ["entendre « je suis fier(ère) de toi — tu vas y arriver »", "une soirée avec son attention pleine et entière", "qu'il/elle s'occupe discrètement d'une corvée que vous redoutiez", "une petite surprise qui dit qu'il/elle pensait à vous", "un long câlin et rester blottis l'un contre l'autre"],
+    LL2: ["vous dit souvent ce qu'il/elle apprécie chez vous", "réserve un vrai temps rien que pour vous deux", "donne un coup de main et allège votre charge sans qu'on le demande", "vous apporte de petites attentions qui montrent qu'il/elle s'est souvenu(e)", "est chaleureusement affectueux(se) — câlins, main dans la main, proximité"],
+    LL3: ["vous écrivait un message touchant", "libérait sa journée pour la passer avec vous", "venait vous aider à déménager ou à réparer quelque chose", "vous apportait un petit cadeau qui vous correspondait parfaitement", "vous accueillait avec un grand câlin chaleureux"],
+    LL4: ["la moindre parole d'appréciation ou d'encouragement", "un vrai temps ensemble, sans distraction", "la moindre aide ou soutien pratique", "le moindre signe qu'il/elle pense à vous quand vous êtes loin", "une proximité physique affectueuse"],
+    LL5: ["un mot sincère sur ce que vous représentez pour eux", "une journée sans hâte passée entièrement avec vous", "qu'on vous décharge de tout ce jour-là", "un cadeau significatif et bien choisi", "beaucoup de chaleur et d'affection physique"],
+    LL6: ["en leur disant ce que vous admirez chez eux", "en leur offrant votre présence pleine", "en faisant des choses utiles pour eux", "en choisissant des cadeaux réfléchis", "en les câlinant et en étant physiquement affectueux(se)"],
+    LL7: ["« Il/Elle me fait toujours me sentir apprécié(e). »", "« On se réserve vraiment du temps l'un pour l'autre. »", "« Il/Elle est toujours là pour m'aider. »", "« Il/Elle fait les cadeaux les plus réfléchis. »", "« On voit comme il/elle est affectueux(se). »"],
+    LL8: ["une discussion sincère et rassurante", "repasser un moment calme ensemble", "qu'il/elle fasse quelque chose de gentil pour se faire pardonner", "un petit gage de paix qui montre qu'il/elle tient à vous", "un câlin et une proximité physique"],
+    LL9: ["l'entendre dire quelque chose de chaleureux", "simplement être présents ensemble", "qu'il/elle vous aide avec ce que vous avez à gérer", "trouver un petit quelque chose qui vous rappelle lui/elle", "le/la serrer, ou être serré(e)"],
+    LL10: ["« Dis-moi que tu m'aimes. »", "« Passe du temps avec moi. »", "« Laisse-moi t'aider. »", "« Je t'ai pris quelque chose. »", "« Serre-moi dans tes bras. »"],
+  },
+};
+const CONFLICT_ES: InstrumentTranslation = {
+  name: "Estilo de conflicto (Thomas-Kilmann)", shortName: "Estilo de conflicto",
+  tagline: "Cómo manejas el desacuerdo: tu modo por defecto y tu reserva.",
+  description: "El modelo de Thomas-Kilmann mapea cinco formas de manejar el conflicto en dos ejes: cuán firme eres y cuán cooperativo. No hay un modo 'mejor'; la habilidad está en usar el adecuado para cada situación. Este perfilador encuentra tus estilos principal y de reserva, y señala el modo que vale la pena practicar.",
+  scales: {
+    COMPETE: { name: "Competir", description: "Firme, poco cooperativo: persigues tus propios intereses.", poles: { low: "Conciliador", high: "Contundente" }, highDescriptor: "firme, directo/a y dispuesto/a a mantenerse en sus trece", lowDescriptor: "rara vez contundente en el conflicto" },
+    COLLAB: { name: "Colaborar", description: "Firme y cooperativo: resolver para todos.", poles: { low: "Superficial", high: "Resolutivo" }, highDescriptor: "implicado/a, abierto/a y buscador/a de soluciones", lowDescriptor: "menos inclinado/a a profundizar en soluciones compartidas" },
+    COMPROMISE: { name: "Comprometer", description: "Toma y daca moderado.", poles: { low: "Todo o nada", high: "Punto medio" }, highDescriptor: "pragmático/a y buscador/a de equidad", lowDescriptor: "menos inclinado/a a partir la diferencia" },
+    AVOID: { name: "Evitar", description: "Poco firme, poco cooperativo: esquivar.", poles: { low: "Confrontador", high: "Evasivo" }, highDescriptor: "tranquilo/a, reacio/a al conflicto y desescalador/a", lowDescriptor: "inclinado/a a implicarse en lugar de retirarse" },
+    ACCOMM: { name: "Ceder", description: "Poco firme, cooperativo: ceder por armonía.", poles: { low: "Se afirma", high: "Cede" }, highDescriptor: "generoso/a, buscador/a de armonía y abnegado/a", lowDescriptor: "menos inclinado/a a ceder por la paz" },
+  },
+  items: {
+    CS1: "Un colega impulsa un plan que crees equivocado. Lo más probable es que…", CS2: "La tensión sube en un desacuerdo. Tu instinto es…", CS3: "Tú y un amigo queréis cosas distintas para un plan compartido. Tú…", CS4: "Alguien te desafía en una reunión. Tiendes a…", CS5: "Cuando un conflicto simplemente no se resuelve, lo más probable es que…",
+    CS6: "En la mayoría de los desacuerdos, tu máxima prioridad es…", CS7: "Un familiar quiere algo que tú no. Normalmente…", CS8: "Bajo presión en una disputa, por defecto eres…", CS9: "Mirando atrás a los conflictos que has tenido, lo más frecuente es que…", CS10: "La trampa a la que más propenso/a eres en un conflicto es…",
+  },
+  options: {
+    CS1: ["defender tu postura con firmeza y empujar por tu enfoque", "indagar juntos en el problema real para hallar la mejor respuesta", "buscar un punto medio con el que ambos podáis vivir", "dejarlo pasar por ahora y retomarlo después si importa", "seguirle el plan para mantener la fluidez"],
+    CS2: ["mantenerte firme y seguir defendiendo tu punto", "ir más despacio y trabajar lo que de verdad ocurre", "proponer un reparto rápido y justo para que ambos sigáis adelante", "dar un paso atrás y dejar que las cosas se enfríen", "ceder para mantener la paz"],
+    CS3: ["abogar con fuerza por lo que quieres", "buscar una opción que os dé a ambos lo que más importa", "ceder un poco cada uno y encontraros en el medio", "seguir la corriente y evitar hacer de ello un problema", "ceder a lo que prefiera"],
+    CS4: ["replicar y defender tu posición", "invitar su punto de vista y construir hacia una solución", "encontrar un compromiso que satisfaga lo suficiente a ambos", "desviar y hacer avanzar la conversación", "ceder para evitar la fricción"],
+    CS5: ["presionar hasta que se resuelva a tu manera", "seguir trabajándolo hasta cubrir las necesidades de todos", "negociar un trato en el que todos cedan algo", "aparcarlo y apartarte por ahora", "ceder para que se acabe"],
+    CS6: ["lograr el resultado correcto, tal como lo ves", "resolver del todo el problema de fondo", "alcanzar rápido una resolución justa y viable", "mantener la calma y el bajo dramatismo", "proteger la relación y la armonía"],
+    CS7: ["mantenerte firme en lo que necesitas", "hablarlo hasta el final hacia una solución real", "encontrar un punto intermedio", "dejarlo correr para evitar una pelea", "darle la razón para mantener la paz"],
+    CS8: ["decidido/a y contundente", "abierto/a y centrado/a en la solución", "práctico/a y ecuánime", "discreto/a y distante", "amable y dispuesto/a a ceder"],
+    CS9: ["luchaste por tu posición", "trabajaste hacia un beneficio mutuo", "partiste la diferencia", "te apartaste de ello", "dejaste que la otra persona se saliera con la suya"],
+    CS10: ["ganar el punto pero tensar la relación", "invertir demasiado tiempo en disputas pequeñas", "conformarte con menos de lo posible", "dejar sin abordar los problemas reales", "enterrar tus propias necesidades"],
+  },
+};
+const CONFLICT_FR: InstrumentTranslation = {
+  name: "Style de conflit (Thomas-Kilmann)", shortName: "Style de conflit",
+  tagline: "Comment vous gérez le désaccord — votre mode par défaut et votre mode de secours.",
+  description: "Le modèle de Thomas-Kilmann cartographie cinq façons de gérer le conflit selon deux axes : votre degré d'affirmation et de coopération. Il n'y a pas de « meilleur » mode ; l'art est d'utiliser le bon selon la situation. Ce profileur identifie vos styles principal et de secours, et désigne le mode qui mérite d'être travaillé.",
+  scales: {
+    COMPETE: { name: "Rivaliser", description: "Affirmé, peu coopératif : poursuivre ses propres intérêts.", poles: { low: "Conciliant", high: "Énergique" }, highDescriptor: "affirmé(e), direct(e) et prêt(e) à tenir bon", lowDescriptor: "rarement énergique en cas de conflit" },
+    COLLAB: { name: "Collaborer", description: "Affirmé et coopératif : résoudre pour tous.", poles: { low: "Superficiel", high: "Résolutif" }, highDescriptor: "impliqué(e), ouvert(e) et en quête de solutions", lowDescriptor: "moins enclin(e) à creuser des solutions partagées" },
+    COMPROMISE: { name: "Compromis", description: "Donnant-donnant modéré.", poles: { low: "Tout ou rien", high: "Juste milieu" }, highDescriptor: "pragmatique et soucieux(se) d'équité", lowDescriptor: "moins enclin(e) à couper la poire en deux" },
+    AVOID: { name: "Éviter", description: "Peu affirmé, peu coopératif : esquiver.", poles: { low: "Confrontant", high: "Fuyant" }, highDescriptor: "calme, réfractaire au conflit et apaisant(e)", lowDescriptor: "enclin(e) à s'impliquer plutôt qu'à se retirer" },
+    ACCOMM: { name: "Accommoder", description: "Peu affirmé, coopératif : céder pour l'harmonie.", poles: { low: "S'affirme", high: "Cède" }, highDescriptor: "généreux(se), en quête d'harmonie et prêt(e) à se sacrifier", lowDescriptor: "moins enclin(e) à céder pour la paix" },
+  },
+  items: {
+    CS1: "Un collègue défend un plan que vous jugez mauvais. Vous allez très probablement…", CS2: "La tension monte dans un désaccord. Votre instinct est de…", CS3: "Vous et un ami voulez des choses différentes pour un projet commun. Vous…", CS4: "Quelqu'un vous met au défi en réunion. Vous avez tendance à…", CS5: "Quand un conflit ne se résout tout simplement pas, vous allez surtout…",
+    CS6: "Dans la plupart des désaccords, votre priorité absolue est de…", CS7: "Un membre de la famille veut quelque chose que vous ne voulez pas. Vous…", CS8: "Sous pression dans un différend, vous êtes par défaut…", CS9: "En repensant aux conflits que vous avez eus, le plus souvent vous…", CS10: "Le piège auquel vous êtes le plus enclin(e) en cas de conflit est…",
+  },
+  options: {
+    CS1: ["défendre votre point fermement et pousser votre approche", "creuser ensemble le vrai problème pour trouver la meilleure réponse", "chercher un terrain d'entente acceptable pour vous deux", "laisser tomber pour l'instant et y revenir plus tard si ça compte", "vous rallier à son plan pour que tout reste fluide"],
+    CS2: ["tenir bon et continuer à défendre votre point", "ralentir et démêler ce qui se passe vraiment", "proposer un partage rapide et équitable pour avancer tous les deux", "prendre du recul et laisser les choses se calmer", "céder pour préserver la paix"],
+    CS3: ["plaider fort pour ce que vous voulez", "chercher une option qui donne à chacun l'essentiel", "que chacun cède un peu et se rejoindre au milieu", "suivre le mouvement et éviter d'en faire une affaire", "vous ranger à sa préférence"],
+    CS4: ["répliquer et défendre votre position", "inviter son point de vue et construire vers une solution", "trouver un compromis qui satisfasse assez les deux", "détourner et faire avancer la discussion", "concéder pour éviter les frictions"],
+    CS5: ["insister jusqu'à ce que ce soit réglé à votre façon", "continuer à y travailler jusqu'à satisfaire les besoins de chacun", "négocier un accord où chacun donne quelque chose", "le mettre de côté et vous retirer pour l'instant", "céder pour que ce soit fini"],
+    CS6: ["obtenir le bon résultat, tel que vous le voyez", "résoudre pleinement le problème de fond", "parvenir vite à une résolution juste et réalisable", "garder le calme et éviter le drame", "protéger la relation et l'harmonie"],
+    CS7: ["tenir bon sur ce dont vous avez besoin", "en parler jusqu'au bout vers une vraie solution", "trouver un compromis à mi-chemin", "laisser couler pour éviter une dispute", "lui donner raison pour préserver la paix"],
+    CS8: ["décidé(e) et énergique", "ouvert(e) et axé(e) sur la solution", "pratique et impartial(e)", "discret(ète) et en retrait", "aimable et conciliant(e)"],
+    CS9: ["vous êtes battu(e) pour votre position", "avez œuvré vers un gagnant-gagnant", "avez coupé la poire en deux", "vous en êtes éloigné(e)", "avez laissé l'autre avoir gain de cause"],
+    CS10: ["gagner le point mais tendre la relation", "investir trop de temps dans de petites disputes", "vous contenter de moins que le possible", "laisser de vrais problèmes sans réponse", "enterrer vos propres besoins"],
+  },
+};
+const KOLB_ES: InstrumentTranslation = {
+  name: "Estilo de aprendizaje de Kolb", shortName: "Kolb",
+  tagline: "Divergente, asimilador, convergente, acomodador: tu estilo de aprendizaje.",
+  description: "El modelo de aprendizaje experiencial de David Kolb mapea cómo aprendes en dos ejes: cómo recibes la experiencia (sintiendo de forma concreta o pensando de forma abstracta) y cómo actúas sobre ella (observando de forma reflexiva o haciendo de forma activa). El cruce da cuatro estilos —divergente, asimilador, convergente y acomodador—, cada uno con su propia forma de convertir la experiencia en comprensión.",
+  scales: {
+    GRASP: { name: "Captar", description: "Cómo recibes la experiencia.", poles: { low: "Concreto (sentir)", high: "Abstracto (pensar)" }, highDescriptor: "abstracto: mediante el análisis y los conceptos", lowDescriptor: "concreto: mediante el sentir y la experiencia directa" },
+    TRANS: { name: "Transformar", description: "Cómo actúas sobre la experiencia.", poles: { low: "Reflexivo (observar)", high: "Activo (hacer)" }, highDescriptor: "activo: experimentando y haciendo", lowDescriptor: "reflexivo: observando y meditando" },
+  },
+  items: {
+    KG1: "Le encuentras sentido a algo nuevo sobre todo…", KG2: "Confías más en…", KG3: "Preferirías aprender de…", KG4: "Tu instinto es…",
+    KT1: "Aprendes mejor…", KT2: "Ante algo nuevo, preferirías…", KT3: "Le encuentras sentido a las cosas…", KT4: "Por defecto sueles…",
+  },
+  options: {
+    KG1: ["analizando las ideas y razonándolo", "guiándote por la experiencia concreta y lo que sientes"],
+    KG2: ["las teorías, los conceptos y el análisis lógico", "la experiencia directa, práctica y personal"],
+    KG3: ["modelos y principios abstractos", "los detalles concretos del momento"],
+    KG4: ["dar un paso atrás hacia la idea de fondo", "quedarte con los detalles tangibles"],
+    KT1: ["haciendo y probando cosas", "observando y reflexionando primero"],
+    KT2: ["lanzarte y experimentar", "observar desde varios ángulos antes de actuar"],
+    KT3: ["actuando sobre ellas", "pensándolas con calma"],
+    KT4: ["ponerte manos a la obra enseguida", "formarte primero una opinión meditada"],
+  },
+};
+const KOLB_FR: InstrumentTranslation = {
+  name: "Style d'apprentissage de Kolb", shortName: "Kolb",
+  tagline: "Divergent, assimilateur, convergent, accommodateur — votre style d'apprentissage.",
+  description: "Le modèle d'apprentissage expérientiel de David Kolb cartographie votre façon d'apprendre sur deux axes : comment vous recevez l'expérience (par le ressenti concret ou la pensée abstraite) et comment vous agissez dessus (par l'observation réflexive ou l'action active). Le croisement donne quatre styles — divergent, assimilateur, convergent et accommodateur — chacun avec sa propre manière de transformer l'expérience en compréhension.",
+  scales: {
+    GRASP: { name: "Saisir", description: "Comment vous recevez l'expérience.", poles: { low: "Concret (ressentir)", high: "Abstrait (penser)" }, highDescriptor: "abstrait : par l'analyse et les concepts", lowDescriptor: "concret : par le ressenti et l'expérience directe" },
+    TRANS: { name: "Transformer", description: "Comment vous agissez sur l'expérience.", poles: { low: "Réflexif (observer)", high: "Actif (faire)" }, highDescriptor: "actif : en expérimentant et en faisant", lowDescriptor: "réflexif : en observant et en méditant" },
+  },
+  items: {
+    KG1: "Vous donnez du sens à quelque chose de nouveau surtout…", KG2: "Vous faites davantage confiance…", KG3: "Vous préféreriez apprendre…", KG4: "Votre instinct est de…",
+    KT1: "Vous apprenez le mieux…", KT2: "Face à du nouveau, vous préféreriez…", KT3: "Vous donnez du sens aux choses…", KT4: "Par défaut, vous avez tendance à…",
+  },
+  options: {
+    KG1: ["en analysant les idées et en y réfléchissant", "en vous laissant guider par l'expérience concrète et le ressenti"],
+    KG2: ["aux théories, aux concepts et à l'analyse logique", "à l'expérience directe, pratique et personnelle"],
+    KG3: ["des modèles et des principes abstraits", "des détails concrets de l'instant"],
+    KG4: ["prendre du recul vers l'idée sous-jacente", "rester avec les détails tangibles"],
+    KT1: ["en faisant et en essayant les choses", "en observant et en réfléchissant d'abord"],
+    KT2: ["vous lancer et expérimenter", "observer sous plusieurs angles avant d'agir"],
+    KT3: ["en agissant dessus", "en y réfléchissant tranquillement"],
+    KT4: ["mettre la main à la pâte tout de suite", "vous forger d'abord un avis réfléchi"],
+  },
+};
+const VARK_ES: InstrumentTranslation = {
+  name: "Preferencias de aprendizaje VARK", shortName: "VARK",
+  tagline: "Visual, auditivo, lectura/escritura, kinestésico: tus preferencias de estudio (con un matiz).",
+  description: "VARK describe cuatro canales sensoriales que la gente suele preferir al estudiar: visual, auditivo, lectura/escritura y kinestésico. Es uno de los modelos de aprendizaje más populares del mundo. Lo incluimos por eso, pero con honestidad: la idea de que adaptar las clases a tu 'estilo' mejora el aprendizaje se ha probado una y otra vez y no se ha sostenido. Toma tu resultado como una preferencia que conviene conocer, nunca como un techo de lo que puedes aprender.",
+  scales: {
+    VIS: { name: "Visual", description: "Aprender mediante imágenes, diagramas y disposición espacial.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por diagramas, gráficos y ver", lowDescriptor: "menos dependiente del material visual" },
+    AUR: { name: "Auditivo", description: "Aprender mediante escuchar y hablar.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por escuchar y conversar", lowDescriptor: "menos dependiente de la palabra hablada" },
+    RDW: { name: "Lectura/Escritura", description: "Aprender mediante el texto: leer y escribir.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por leer y escribir", lowDescriptor: "menos dependiente del texto" },
+    KIN: { name: "Kinestésico", description: "Aprender mediante el hacer y la experiencia física.", poles: { low: "Menos preferido", high: "Preferido" }, highDescriptor: "atraído/a por la práctica manual", lowDescriptor: "menos dependiente de la práctica física" },
+  },
+  items: {
+    Q1: "Estás aprendiendo a usar una app nueva. Preferirías…", Q2: "Alguien te pregunta cómo llegar a tu casa. Tú…", Q3: "Para fijar el nombre de alguien nuevo, lo que más ayuda es…", Q4: "Al elegir cómo seguir una receta, prefieres una que…",
+    Q5: "Estudiando algo importante, lo más probable es que…", Q6: "Un aparato nuevo no funciona. Primero…", Q7: "Los profesores de los que mejor aprendes suelen…", Q8: "Para explicarle una idea nueva a un amigo, tú…",
+    Q9: "Con una tarde libre para aprender algo, tú…", Q10: "Al recordar un gran viaje, lo primero que vuelve es…", Q11: "Con un juego de mesa nuevo, preferirías…", Q12: "Preparando una presentación, lo haces mejor…",
+  },
+  options: {
+    Q1: ["explorar las pantallas y los iconos hasta que te cuadre", "que alguien te lo explique en voz alta", "leer primero la guía de ayuda", "toquetear y descubrirlo haciendo"],
+    Q2: ["le dibujas o le envías un pequeño mapa", "le dices los giros en voz alta", "le escribes las indicaciones", "te ofreces a llevarle hasta allí"],
+    Q3: ["imaginar su cara junto al nombre", "decirlo en voz alta unas cuantas veces", "verlo escrito o anotarlo", "ligarlo a un apretón de manos o un gesto"],
+    Q4: ["muestre una foto de cada paso", "puedas seguir con un vídeo narrado", "liste instrucciones escritas claras", "te deje probar y ajustar sobre la marcha"],
+    Q5: ["hagas diagramas, gráficos y notas con colores", "lo comentes en voz alta o repases grabaciones", "reescribas y releas tus notas", "uses tarjetas, modelos o problemas de práctica"],
+    Q6: ["miras los diagramas del manual", "llamas a soporte y lo hablas", "lees la sección de resolución de problemas", "lo manipulas hasta que funcione"],
+    Q7: ["usar diapositivas, diagramas y elementos visuales", "explicar y comentar las cosas en voz alta", "dar apuntes y lecturas", "hacer demostraciones y actividades prácticas"],
+    Q8: ["se la dibujas", "se la cuentas", "se la escribes o le mandas un mensaje", "se la muestras con un ejemplo real"],
+    Q9: ["verías un documental visual", "escucharías un pódcast o una charla", "leerías un libro o artículos", "harías un taller práctico"],
+    Q10: ["cómo se veían los lugares", "los sonidos y las conversaciones", "lo que leíste o escribiste sobre él", "lo que hiciste y cómo te sentiste"],
+    Q11: ["estudiar el tablero y las piezas para captarlo", "que alguien te explique las reglas", "leer el reglamento", "empezar una ronda de práctica y aprender sobre la marcha"],
+    Q12: ["diseñando buenas diapositivas visuales", "ensayándola en voz alta", "escribiendo un guion completo", "practicando de pie con accesorios"],
+  },
+};
+const VARK_FR: InstrumentTranslation = {
+  name: "Préférences d'apprentissage VARK", shortName: "VARK",
+  tagline: "Visuel, auditif, lecture/écriture, kinesthésique — vos préférences d'étude (avec une réserve).",
+  description: "VARK décrit quatre canaux sensoriels que les gens préfèrent souvent pour étudier — visuel, auditif, lecture/écriture et kinesthésique. C'est l'un des modèles d'apprentissage les plus populaires au monde. Nous l'incluons pour cette raison, mais en toute honnêteté : l'idée qu'adapter les cours à votre « style » améliore l'apprentissage a été testée à maintes reprises sans se confirmer. Prenez votre résultat comme une préférence utile à connaître, jamais comme un plafond de ce que vous pouvez apprendre.",
+  scales: {
+    VIS: { name: "Visuel", description: "Apprendre par les images, les schémas et la disposition spatiale.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par les schémas, les graphiques et le visuel", lowDescriptor: "moins tributaire du matériel visuel" },
+    AUR: { name: "Auditif", description: "Apprendre par l'écoute et la parole.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par l'écoute et la discussion", lowDescriptor: "moins tributaire de la parole" },
+    RDW: { name: "Lecture/Écriture", description: "Apprendre par le texte — lire et écrire.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par la lecture et l'écriture", lowDescriptor: "moins tributaire du texte" },
+    KIN: { name: "Kinesthésique", description: "Apprendre par l'action et l'expérience physique.", poles: { low: "Moins préféré", high: "Préféré" }, highDescriptor: "attiré(e) par la pratique manuelle", lowDescriptor: "moins tributaire de la pratique physique" },
+  },
+  items: {
+    Q1: "Vous apprenez à utiliser une nouvelle appli. Vous préféreriez…", Q2: "Quelqu'un demande comment venir chez vous. Vous…", Q3: "Pour retenir le nom d'une nouvelle personne, ce qui aide le plus, c'est…", Q4: "Pour suivre une recette, vous préférez une qui…",
+    Q5: "Pour réviser quelque chose d'important, vous allez surtout…", Q6: "Un appareil neuf ne marche pas. Vous allez d'abord…", Q7: "Les enseignants dont vous apprenez le mieux ont tendance à…", Q8: "Pour expliquer une nouvelle idée à un ami, vous…",
+    Q9: "Avec un après-midi libre pour apprendre quelque chose, vous…", Q10: "En vous remémorant un beau voyage, ce qui revient en premier, c'est…", Q11: "Avec un nouveau jeu de société, vous préféreriez…", Q12: "En préparant une présentation, vous êtes au mieux en…",
+  },
+  options: {
+    Q1: ["explorer les écrans et les icônes jusqu'à ce que ça fasse tilt", "qu'on vous guide à voix haute", "lire d'abord le guide d'aide", "tâtonner et comprendre en faisant"],
+    Q2: ["lui dessiner ou envoyer un petit plan", "lui dire les tournants à voix haute", "écrire les indications", "proposer de l'y conduire"],
+    Q3: ["imaginer son visage à côté du nom", "le dire à voix haute plusieurs fois", "le voir écrit ou le noter", "l'associer à une poignée de main ou un geste"],
+    Q4: ["montre une photo de chaque étape", "se suit avec une vidéo commentée", "liste des instructions écrites claires", "vous laisse goûter et ajuster au fur et à mesure"],
+    Q5: ["faire des schémas, des graphiques et des notes en couleurs", "en discuter à voix haute ou réécouter des enregistrements", "réécrire et relire vos notes", "utiliser des cartes, des modèles ou des exercices"],
+    Q6: ["regarder les schémas du manuel", "appeler le support et en parler", "lire la section dépannage", "le manipuler jusqu'à ce qu'il marche"],
+    Q7: ["utiliser diapositives, schémas et visuels", "expliquer et discuter les choses à voix haute", "donner des polycopiés et des lectures", "faire des démonstrations et des activités pratiques"],
+    Q8: ["la lui dessiner", "la lui expliquer", "la lui écrire ou lui envoyer un message", "la lui montrer avec un exemple concret"],
+    Q9: ["regarderiez un documentaire visuel", "écouteriez un podcast ou une conférence", "liriez un livre ou des articles", "feriez un atelier pratique"],
+    Q10: ["à quoi ressemblaient les lieux", "les sons et les conversations", "ce que vous avez lu ou écrit dessus", "ce que vous avez fait et ressenti"],
+    Q11: ["étudier le plateau et les pièces pour le saisir", "qu'on vous explique les règles", "lire le livret de règles", "lancer une manche d'essai et apprendre en jouant"],
+    Q12: ["concevant de bonnes diapositives visuelles", "la répétant à voix haute", "rédigeant un script complet", "vous entraînant debout avec des accessoires"],
+  },
+};
+const CHRONO_ES: InstrumentTranslation = {
+  name: "Cronotipo (alondra o búho)", shortName: "Cronotipo",
+  tagline: "El reloj natural de tu cuerpo: cuándo estás de verdad en tu mejor momento.",
+  description: "Tu cronotipo es tu tendencia biológica hacia la matutinidad o la vespertinidad: marca cuándo estás alerta, cuándo te concentras mejor y cuándo deberías dormir. La mayoría lo combate; alinearte con él es una forma sencilla y respaldada por la investigación de sentirte más agudo/a y descansar mejor.",
+  scales: {
+    MORN: { name: "Matutinidad–Vespertinidad", description: "Dónde caen tu energía y tus horarios de sueño naturales.", poles: { low: "Búho nocturno", high: "Madrugador" }, highDescriptor: "madrugador/a, alerta y concentrado/a por la mañana", lowDescriptor: "persona vespertina, en tu mejor momento al caer la noche" },
+  },
+  items: {
+    M1: "Me despierto temprano de forma natural y me siento despejado/a poco después.", M2: "Mi pensamiento más agudo lo tengo en la primera mitad del día.", M3: "Empiezo a decaer y me entra sueño bastante pronto por la noche.", M4: "Si pudiera elegir libremente, me acostaría temprano y me levantaría temprano.",
+    M5: "Alcanzo mi mejor momento por la tarde y por la noche.", M6: "Preferiría con mucho quedarme despierto/a hasta tarde que tener que madrugar.", M7: "Las mañanas se me hacen difíciles: necesito horas para sentirme plenamente persona.", M8: "Mi energía y mi creatividad alcanzan su punto máximo al anochecer.",
+  },
+};
+const CHRONO_FR: InstrumentTranslation = {
+  name: "Chronotype (alouette ou hibou)", shortName: "Chronotype",
+  tagline: "L'horloge naturelle de votre corps — quand vous êtes vraiment au meilleur de vous-même.",
+  description: "Votre chronotype est votre tendance biologique vers le matin ou le soir : il détermine quand vous êtes alerte, quand vous vous concentrez le mieux et quand vous devriez dormir. La plupart des gens le combattent ; s'aligner sur lui est un moyen simple et étayé par la recherche de se sentir plus vif et de mieux récupérer.",
+  scales: {
+    MORN: { name: "Matinalité–Vespéralité", description: "Où se situent votre énergie et vos horaires de sommeil naturels.", poles: { low: "Couche-tard", high: "Lève-tôt" }, highDescriptor: "lève-tôt, alerte et concentré(e) le matin", lowDescriptor: "personne du soir, au meilleur de vous-même après la tombée de la nuit" },
+  },
+  items: {
+    M1: "Je me réveille tôt naturellement et je me sens alerte peu après.", M2: "Je réfléchis le plus finement dans la première moitié de la journée.", M3: "Je commence à fatiguer et à avoir sommeil assez tôt le soir.", M4: "Si je pouvais choisir librement, je me coucherais tôt et me lèverais tôt.",
+    M5: "J'atteins mon rythme le soir et la nuit.", M6: "Je préférerais de loin veiller tard plutôt que devoir me lever tôt.", M7: "Les matins sont durs pour moi — il me faut des heures pour me sentir pleinement humain(e).", M8: "Mon énergie et ma créativité culminent après la tombée de la nuit.",
+  },
+};
+const FOURTEMP_ES: InstrumentTranslation = {
+  name: "Los Cuatro Temperamentos", shortName: "Temperamentos",
+  tagline: "El mapa clásico: sanguíneo, colérico, melancólico, flemático.",
+  description: "Uno de los modelos más antiguos de la personalidad, los cuatro temperamentos —sanguíneo (vivaz), colérico (decidido), melancólico (profundo) y flemático (tranquilo)— siguen siendo una forma vívida e intuitiva de entenderte. Este perfilador encuentra tu temperamento principal y el secundario que lo matiza.",
+  scales: {
+    SANG: { name: "Sanguíneo", description: "Sociable, entusiasta, vivaz, espontáneo.", poles: { low: "Reservado", high: "Vivaz" }, highDescriptor: "extrovertido/a, entusiasta y amante de la diversión", lowDescriptor: "más reservado/a que sociable" },
+    CHOL: { name: "Colérico", description: "Decidido, resolutivo, ambicioso, fogoso.", poles: { low: "Apacible", high: "Decidido" }, highDescriptor: "ambicioso/a, resolutivo/a y audaz", lowDescriptor: "menos inclinado/a a liderar y empujar" },
+    MEL: { name: "Melancólico", description: "Analítico, profundo, sensible, perfeccionista.", poles: { low: "Ligero", high: "Profundo" }, highDescriptor: "reflexivo/a, de sentir profundo y preciso/a", lowDescriptor: "menos inclinado/a al análisis profundo y la intensidad" },
+    PHLEG: { name: "Flemático", description: "Tranquilo, apacible, leal, pacífico.", poles: { low: "Inquieto", high: "Tranquilo" }, highDescriptor: "tranquilo/a, paciente y estable", lowDescriptor: "menos plácido/a, más inquieto/a" },
+  },
+  items: {
+    SA1: "Soy extrovertido/a, hablador/a y me encanta estar rodeado/a de gente.", SA2: "Soy entusiasta y aporto energía y diversión allá donde voy.", SA3: "Actúo por impulso y persigo lo que me emociona en el momento.", SA4: "Hago amigos con facilidad y rara vez me topo con un extraño.",
+    CH1: "Soy decidido/a, resolutivo/a y me gusta estar al mando.", CH2: "Me fijo grandes metas y me esfuerzo mucho por lograrlas.", CH3: "Soy directo/a y no temo la confrontación.", CH4: "Me impaciento cuando las cosas o las personas van demasiado lento.",
+    ME1: "Soy analítico/a y pienso a fondo antes de actuar.", ME2: "Mantengo estándares altos y noto cada fallo y detalle.", ME3: "Siento las cosas con intensidad y puedo emocionarme con fuerza.", ME4: "Prefiero la planificación cuidadosa y el orden a la espontaneidad.",
+    PH1: "Soy tranquilo/a, estable y difícil de alterar.", PH2: "Soy de trato fácil y me amoldo para mantener la paz.", PH3: "Soy paciente, leal y de fiar.", PH4: "Prefiero una vida tranquila y predecible al drama y el cambio.",
+  },
+};
+const FOURTEMP_FR: InstrumentTranslation = {
+  name: "Les Quatre Tempéraments", shortName: "Tempéraments",
+  tagline: "La carte classique : sanguin, colérique, mélancolique, flegmatique.",
+  description: "L'un des plus anciens modèles de la personnalité, les quatre tempéraments — sanguin (vif), colérique (déterminé), mélancolique (profond) et flegmatique (calme) — restent une façon vivante et intuitive de se comprendre. Ce profileur trouve votre tempérament dominant et le secondaire qui le nuance.",
+  scales: {
+    SANG: { name: "Sanguin", description: "Sociable, enthousiaste, vif, spontané.", poles: { low: "Réservé", high: "Vif" }, highDescriptor: "sociable, enthousiaste et amateur(trice) de plaisir", lowDescriptor: "plus réservé(e) que sociable" },
+    CHOL: { name: "Colérique", description: "Déterminé, décidé, ambitieux, fougueux.", poles: { low: "Accommodant", high: "Déterminé" }, highDescriptor: "ambitieux(se), décidé(e) et audacieux(se)", lowDescriptor: "moins porté(e) à diriger et à pousser" },
+    MEL: { name: "Mélancolique", description: "Analytique, profond, sensible, perfectionniste.", poles: { low: "Léger", high: "Profond" }, highDescriptor: "réfléchi(e), au ressenti profond et précis(e)", lowDescriptor: "moins porté(e) à l'analyse profonde et à l'intensité" },
+    PHLEG: { name: "Flegmatique", description: "Calme, accommodant, loyal, paisible.", poles: { low: "Agité", high: "Calme" }, highDescriptor: "calme, patient(e) et stable", lowDescriptor: "moins placide, plus agité(e)" },
+  },
+  items: {
+    SA1: "Je suis sociable, bavard(e) et j'adore être entouré(e).", SA2: "Je suis enthousiaste et j'apporte énergie et plaisir partout où je vais.", SA3: "J'agis sur un coup de tête et je poursuis ce qui m'excite sur le moment.", SA4: "Je me fais des amis facilement et je ne rencontre presque jamais d'inconnu.",
+    CH1: "Je suis déterminé(e), décidé(e) et j'aime être aux commandes.", CH2: "Je me fixe de grands objectifs et je travaille dur pour les atteindre.", CH3: "Je suis direct(e) et je ne crains pas la confrontation.", CH4: "Je m'impatiente quand les choses ou les gens vont trop lentement.",
+    ME1: "Je suis analytique et je réfléchis à fond avant d'agir.", ME2: "Je tiens des standards élevés et je remarque chaque défaut et détail.", ME3: "Je ressens les choses profondément et je peux être saisi(e) d'une forte émotion.", ME4: "Je préfère la planification soignée et l'ordre à la spontanéité.",
+    PH1: "Je suis calme, stable et difficile à ébranler.", PH2: "Je suis accommodant(e) et je m'adapte pour préserver la paix.", PH3: "Je suis patient(e), loyal(e) et fiable.", PH4: "Je préfère une vie tranquille et prévisible au drame et au changement.",
+  },
+};
+const COLOR_ES: InstrumentTranslation = {
+  name: "Cuatro estilos de color", shortName: "Colores",
+  tagline: "Dorado, azul, verde, naranja: tu color al trabajar y relacionarte.",
+  description: "Una instantánea amable y codificada por colores de cómo trabajas y te relacionas, en la tradición de True Colors e Insights Discovery. El Dorado organiza, el Azul conecta, el Verde analiza y el Naranja se aventura. La mayoría es una mezcla liderada por un color brillante: un lenguaje rápido y memorable para equipos, familias y autoconocimiento.",
+  scales: {
+    GOLD: { name: "Dorado — Estructura", description: "Responsabilidad, orden y deber.", poles: { low: "Flexible", high: "Estructurado" }, highDescriptor: "organizado/a, fiable y cumplidor/a", lowDescriptor: "suelto/a y sin estructura" },
+    BLUE: { name: "Azul — Conexión", description: "Empatía, armonía y sentido.", poles: { low: "Distante", high: "Cariñoso" }, highDescriptor: "cálido/a, empático/a y buscador/a de armonía", lowDescriptor: "distante y práctico/a" },
+    GREEN: { name: "Verde — Análisis", description: "Lógica, curiosidad y competencia.", poles: { low: "Intuitivo", high: "Analítico" }, highDescriptor: "analítico/a, de cabeza fría y curioso/a", lowDescriptor: "guiado/a por el sentir y menos analítico/a" },
+    ORANGE: { name: "Naranja — Acción", description: "Espontaneidad, energía y audacia.", poles: { low: "Estable", high: "Espontáneo" }, highDescriptor: "espontáneo/a, enérgico/a y audaz", lowDescriptor: "estable y amante de la rutina" },
+  },
+  items: {
+    G1: "Me gustan los planes claros, los horarios y hacer las cosas como es debido.", G2: "Soy fiable, organizado/a y termino lo que me comprometo a hacer.", G3: "Valoro la tradición, el deber y ser responsable.", G4: "Me siento incómodo/a cuando las cosas están desorganizadas o se dejan para el último momento.",
+    B1: "Me importan profundamente los sentimientos de la gente y la armonía.", B2: "Busco el sentido, la autenticidad y la conexión.", B3: "Soy cálido/a, empático/a y buen/a oyente.", B4: "Ayudar a los demás a crecer es una de mis mayores alegrías.",
+    N1: "Pienso las cosas con lógica y valoro la competencia.", N2: "Soy curioso/a y me encanta entender cómo funcionan las cosas.", N3: "Me mantengo sereno/a y analítico/a cuando otros se emocionan.", N4: "Cuestiono las suposiciones y quiero pruebas antes de convencerme.",
+    O1: "Soy espontáneo/a y me encantan la acción, la variedad y la diversión.", O2: "Actúo rápido y me adapto con facilidad en el momento.", O3: "Me inquietan demasiadas reglas o rutinas.", O4: "Soy audaz, juguetón/a y me gusta algo de riesgo.",
+  },
+};
+const COLOR_FR: InstrumentTranslation = {
+  name: "Quatre styles de couleur", shortName: "Couleurs",
+  tagline: "Or, bleu, vert, orange — votre couleur au travail et dans les relations.",
+  description: "Un aperçu convivial et codé par couleurs de votre façon de travailler et de vous relier, dans la tradition de True Colors et d'Insights Discovery. L'Or organise, le Bleu relie, le Vert analyse et l'Orange se lance à l'aventure. La plupart des gens sont un mélange mené par une couleur vive : un langage rapide et mémorable pour les équipes, les familles et la connaissance de soi.",
+  scales: {
+    GOLD: { name: "Or — Structure", description: "Responsabilité, ordre et devoir.", poles: { low: "Flexible", high: "Structuré" }, highDescriptor: "organisé(e), fiable et consciencieux(se)", lowDescriptor: "relâché(e) et sans structure" },
+    BLUE: { name: "Bleu — Connexion", description: "Empathie, harmonie et sens.", poles: { low: "Détaché", high: "Attentionné" }, highDescriptor: "chaleureux(se), empathique et en quête d'harmonie", lowDescriptor: "détaché(e) et terre-à-terre" },
+    GREEN: { name: "Vert — Analyse", description: "Logique, curiosité et compétence.", poles: { low: "Intuitif", high: "Analytique" }, highDescriptor: "analytique, de sang-froid et curieux(se)", lowDescriptor: "guidé(e) par le ressenti et moins analytique" },
+    ORANGE: { name: "Orange — Action", description: "Spontanéité, énergie et audace.", poles: { low: "Stable", high: "Spontané" }, highDescriptor: "spontané(e), énergique et audacieux(se)", lowDescriptor: "stable et amateur(trice) de routine" },
+  },
+  items: {
+    G1: "J'aime les plans clairs, les emplois du temps et faire les choses correctement.", G2: "Je suis fiable, organisé(e) et je termine ce que je m'engage à faire.", G3: "Je valorise la tradition, le devoir et le fait d'être responsable.", G4: "Je suis mal à l'aise quand les choses sont désorganisées ou faites à la dernière minute.",
+    B1: "Je me soucie profondément des sentiments des gens et de l'harmonie.", B2: "Je recherche le sens, l'authenticité et la connexion.", B3: "Je suis chaleureux(se), empathique et bon(ne) auditeur(trice).", B4: "Aider les autres à grandir est l'une de mes plus grandes joies.",
+    N1: "Je réfléchis logiquement et je valorise la compétence.", N2: "Je suis curieux(se) et j'adore comprendre comment les choses fonctionnent.", N3: "Je reste calme et analytique quand les autres s'emportent.", N4: "Je remets en question les suppositions et je veux des preuves avant d'être convaincu(e).",
+    O1: "Je suis spontané(e) et j'adore l'action, la variété et le plaisir.", O2: "J'agis vite et je m'adapte facilement sur le moment.", O3: "Trop de règles ou de routines me rendent agité(e).", O4: "Je suis audacieux(se), joueur(se) et j'aime un peu de risque.",
+  },
+};
+const KEIRSEY_ES: InstrumentTranslation = {
+  name: "Temperamentos de Keirsey", shortName: "Keirsey",
+  tagline: "Cuatro temperamentos: guardián, artesano, idealista, racional.",
+  description: "David Keirsey reorganizó los dieciséis tipos junguianos en cuatro temperamentos construidos sobre dos preguntas: ¿te comunicas en términos concretos o abstractos, y actúas de forma cooperativa o haces lo que sea eficaz? El cruce de esos dos ejes da el guardián, el artesano, el idealista y el racional: una mirada memorable y centrada en la conducta sobre el tipo.",
+  scales: {
+    COMM: { name: "Comunicación", description: "Enfoque concreto/observador frente a abstracto/introspectivo.", poles: { low: "Concreta", high: "Abstracta" }, highDescriptor: "abstracto/a, orientado/a al futuro y a las posibilidades", lowDescriptor: "concreto/a, factual y centrado/a en el presente" },
+    ACT: { name: "Acción", description: "Enfoque cooperativo (correcto) frente a utilitario (eficaz).", poles: { low: "Cooperativa", high: "Utilitaria" }, highDescriptor: "utilitario/a: hace lo que funciona", lowDescriptor: "cooperativo/a: hace lo que es correcto" },
+  },
+  items: {
+    KC1: "Cuando hablas y piensas, te atraen más…", KC2: "Preferirías que una buena conversación fuera…", KC3: "Tu atención va naturalmente hacia…", KC4: "Confías más en…", KC5: "Tu mente tiende a derivar hacia…",
+    KA1: "Para alcanzar una meta, preferirías…", KA2: "¿Qué te guía más?", KA3: "Cuando el método oficial es ineficiente, tú…", KA4: "Te sientes mejor cuando…", KA5: "Te describirías como más…",
+  },
+  options: {
+    KC1: ["las teorías, los patrones y lo que las cosas podrían significar", "los hechos concretos y lo que tienes delante"],
+    KC2: ["imaginativa, simbólica o filosófica", "práctica, literal y con los pies en la tierra"],
+    KC3: ["las posibilidades futuras y lo que podría ser", "las realidades del presente y lo que de hecho es"],
+    KC4: ["la teoría y los patrones que infieres", "la experiencia directa y lo tangible"],
+    KC5: ["las abstracciones y el sentido de conjunto", "los detalles, las especificidades y lo concreto"],
+    KA1: ["hacer lo que funcione, aunque sea poco convencional", "hacerlo de la forma correcta y debida"],
+    KA2: ["la eficacia y los resultados", "las reglas y el procedimiento aceptado"],
+    KA3: ["improvisas el tuyo, que funciona", "lo sigues igualmente, por corrección"],
+    KA4: ["consigues el resultado por cualquier medio sensato", "actúas de formas socialmente aprobadas"],
+    KA5: ["pragmático/a y utilitario/a", "cooperativo/a y correcto/a"],
+  },
+};
+const KEIRSEY_FR: InstrumentTranslation = {
+  name: "Tempéraments de Keirsey", shortName: "Keirsey",
+  tagline: "Quatre tempéraments — gardien, artisan, idéaliste, rationnel.",
+  description: "David Keirsey a réorganisé les seize types jungiens en quatre tempéraments fondés sur deux questions : communiquez-vous en termes concrets ou abstraits, et agissez-vous de façon coopérative ou faites-vous ce qui est efficace ? Le croisement de ces deux axes donne le gardien, l'artisan, l'idéaliste et le rationnel — un regard mémorable et centré sur le comportement.",
+  scales: {
+    COMM: { name: "Communication", description: "Focalisation concrète/observatrice vs. abstraite/introspective.", poles: { low: "Concrète", high: "Abstraite" }, highDescriptor: "abstrait(e), tourné(e) vers l'avenir et les possibilités", lowDescriptor: "concret(ète), factuel(le) et centré(e) sur le présent" },
+    ACT: { name: "Action", description: "Approche coopérative (correcte) vs. utilitaire (efficace).", poles: { low: "Coopérative", high: "Utilitaire" }, highDescriptor: "utilitaire : fait ce qui marche", lowDescriptor: "coopératif(ve) : fait ce qui est correct" },
+  },
+  items: {
+    KC1: "Quand vous parlez et pensez, vous êtes plus attiré(e) par…", KC2: "Vous préféreriez qu'une bonne conversation soit…", KC3: "Votre attention va naturellement vers…", KC4: "Vous faites davantage confiance…", KC5: "Votre esprit a tendance à dériver vers…",
+    KA1: "Pour atteindre un but, vous préféreriez…", KA2: "Qu'est-ce qui vous guide le plus ?", KA3: "Quand la méthode officielle est inefficace, vous…", KA4: "Vous vous sentez mieux quand vous…", KA5: "Vous vous décririez comme plutôt…",
+  },
+  options: {
+    KC1: ["les théories, les motifs et ce que les choses pourraient signifier", "les faits concrets et ce qui est devant vous"],
+    KC2: ["imaginative, symbolique ou philosophique", "pratique, littérale et terre-à-terre"],
+    KC3: ["les possibilités futures et ce qui pourrait être", "les réalités présentes et ce qui est réellement"],
+    KC4: ["la théorie et les motifs que vous déduisez", "l'expérience directe et le tangible"],
+    KC5: ["les abstractions et le sens d'ensemble", "les détails, les spécificités et le concret"],
+    KA1: ["faire ce qui marche, même si c'est peu conventionnel", "le faire de la bonne et juste manière"],
+    KA2: ["l'efficacité et les résultats", "les règles et la procédure admise"],
+    KA3: ["improvisez la vôtre, qui marche", "la suivez quand même, par correction"],
+    KA4: ["obtenez le résultat par tout moyen sensé", "agissez de façons socialement approuvées"],
+    KA5: ["pragmatique et utilitaire", "coopératif(ve) et correct(e)"],
+  },
+};
+const LEADERSHIP_ES: InstrumentTranslation = {
+  name: "Estilos de liderazgo", shortName: "Liderazgo",
+  tagline: "Transformacional, transaccional o distante: cómo lideras.",
+  description: "El modelo de Liderazgo de Rango Completo (detrás del muy utilizado Cuestionario Multifactorial de Liderazgo) mapea cómo lideras en tres modos: transformacional (inspirar y desarrollar a las personas), transaccional (intercambio claro y supervisión) y pasivo/laissez-faire (sin intervenir). Los líderes más fuertes son sobre todo transformacionales, con buenos hábitos transaccionales, y bajos en el estilo pasivo.",
+  scales: {
+    TFM: { name: "Transformacional", description: "Visión inspiradora, desarrollo individualizado, estímulo intelectual.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "inspirador/a, desarrollador/a y guiado/a por la visión", lowDescriptor: "menos centrado/a en la visión y el desarrollo" },
+    TRN: { name: "Transaccional", description: "Recompensa contingente y gestión activa.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "claro/a, estructurado/a y gestor/a del desempeño", lowDescriptor: "menos centrado/a en objetivos y supervisión" },
+    LFR: { name: "Laissez-faire", description: "Liderazgo pasivo, evitativo y sin intervención.", poles: { low: "Implicado", high: "Distante" }, highDescriptor: "distante y lento/a para implicarse", lowDescriptor: "presente, implicado/a y receptivo/a" },
+  },
+  items: {
+    TF1: "Inspiro a los demás con una visión convincente de lo que es posible.", TF2: "Acompaño y desarrollo el potencial individual de cada persona.", TF3: "Logro que la gente mire más allá de su interés propio por el bien del grupo.", TF4: "Animo a los demás a cuestionar suposiciones y a pensar de formas nuevas.",
+    TS1: "Fijo expectativas claras y recompenso a quien las cumple.", TS2: "Hago seguimiento del desempeño frente a los objetivos e intervengo para corregir desviaciones.", TS3: "Dejo explícito el intercambio: haz el trabajo, recibe la recompensa.", TS4: "Me centro en las reglas, los estándares y mantener las cosas en marcha.",
+    LF1: "Tiendo a no entrometerme y dejar que las cosas funcionen solas.", LF2: "Evito implicarme hasta que los problemas se vuelven serios.", LF3: "Retraso decisiones y dejo que otros lo resuelvan.", LF4: "A menudo estoy ausente cuando se me necesita para liderar.",
+  },
+};
+const LEADERSHIP_FR: InstrumentTranslation = {
+  name: "Styles de leadership", shortName: "Leadership",
+  tagline: "Transformationnel, transactionnel ou en retrait — votre façon de diriger.",
+  description: "Le modèle de Leadership à Spectre Complet (derrière le très utilisé Questionnaire Multifactoriel de Leadership) cartographie votre façon de diriger selon trois modes : transformationnel (inspirer et développer les gens), transactionnel (échange clair et supervision) et passif/laissez-faire (en retrait). Les leaders les plus forts sont surtout transformationnels, appuyés sur de solides habitudes transactionnelles, et faibles sur le style passif.",
+  scales: {
+    TFM: { name: "Transformationnel", description: "Vision inspirante, développement individualisé, stimulation intellectuelle.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "inspirant(e), développeur(se) et guidé(e) par la vision", lowDescriptor: "moins centré(e) sur la vision et le développement" },
+    TRN: { name: "Transactionnel", description: "Récompense conditionnelle et gestion active.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "clair(e), structuré(e) et gestionnaire de la performance", lowDescriptor: "moins centré(e) sur les objectifs et la supervision" },
+    LFR: { name: "Laissez-faire", description: "Leadership passif, évitant et en retrait.", poles: { low: "Impliqué", high: "En retrait" }, highDescriptor: "en retrait et lent(e) à s'impliquer", lowDescriptor: "présent(e), impliqué(e) et réactif(ve)" },
+  },
+  items: {
+    TF1: "J'inspire les autres avec une vision convaincante du possible.", TF2: "J'accompagne et développe le potentiel individuel de chacun.", TF3: "J'amène les gens à dépasser leur intérêt propre pour le bien du groupe.", TF4: "J'encourage les autres à remettre en question les hypothèses et à penser autrement.",
+    TS1: "Je fixe des attentes claires et je récompense ceux qui les atteignent.", TS2: "Je suis la performance par rapport aux objectifs et j'interviens pour corriger les écarts.", TS3: "Je rends l'échange explicite : faites le travail, recevez la récompense.", TS4: "Je me concentre sur les règles, les standards et le maintien du cap.",
+    LF1: "J'ai tendance à m'effacer et à laisser les choses se réguler seules.", LF2: "J'évite de m'impliquer jusqu'à ce que les problèmes deviennent sérieux.", LF3: "Je retarde les décisions et je laisse les autres régler les choses.", LF4: "Je suis souvent absent(e) quand on a besoin de moi pour diriger.",
+  },
+};
+const MCCLELLAND_ES: InstrumentTranslation = {
+  name: "Necesidades de McClelland", shortName: "Necesidades",
+  tagline: "Logro, afiliación o poder: lo que de verdad te impulsa.",
+  description: "David McClelland sostenía que tres motivos aprendidos moldean buena parte de nuestra conducta en el trabajo y en la vida: la necesidad de Logro (sobresalir), Afiliación (pertenecer) y Poder (influir). La mayoría tiene un impulsor dominante. Conocer el tuyo aclara qué roles, metas y entornos te darán energía de verdad.",
+  scales: {
+    ACH: { name: "Necesidad de logro", description: "Impulso por fijar y alcanzar metas exigentes.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "guiado/a por metas y en busca de excelencia", lowDescriptor: "menos movido/a por el logro personal" },
+    AFF: { name: "Necesidad de afiliación", description: "Impulso por las relaciones cálidas y la pertenencia.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "en busca de conexión y armonía", lowDescriptor: "menos movido/a por la pertenencia" },
+    POW: { name: "Necesidad de poder", description: "Impulso por influir, liderar y generar impacto.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "en busca de influencia e impacto", lowDescriptor: "menos movido/a por la influencia" },
+  },
+  items: {
+    AC1: "Me fijo metas desafiantes y siento el impulso de cumplirlas.", AC2: "Me encanta medir mi progreso y superar mi propia marca.", AC3: "El logro personal me motiva más que el dinero o el estatus.", AC4: "Prefiero tareas con estándares claros donde pueda destacar.",
+    AF1: "Las relaciones cálidas y cercanas me importan más que ganar o liderar.", AF2: "Hago un esfuerzo extra por caer bien y por pertenecer.", AF3: "Me siento mejor cuando estoy conectado/a y en armonía con los demás.", AF4: "Me disgusta el conflicto y me esfuerzo por mantener las relaciones fluidas.",
+    PW1: "Me llena de energía influir en la gente y dar forma a los resultados.", PW2: "Busco posiciones donde pueda dirigir a otros y generar impacto.", PW3: "Tener un efecto en el mundo me importa muchísimo.", PW4: "Disfruto estar al mando y persuadir a otros de mi punto de vista.",
+  },
+};
+const MCCLELLAND_FR: InstrumentTranslation = {
+  name: "Besoins de McClelland", shortName: "Besoins",
+  tagline: "Accomplissement, affiliation ou pouvoir — ce qui vous motive vraiment.",
+  description: "David McClelland soutenait que trois motifs appris façonnent une grande partie de notre comportement au travail et dans la vie : le besoin d'Accomplissement (exceller), d'Affiliation (appartenir) et de Pouvoir (influencer). La plupart des gens ont un moteur dominant. Connaître le vôtre clarifie quels rôles, objectifs et environnements vous donneront vraiment de l'énergie.",
+  scales: {
+    ACH: { name: "Besoin d'accomplissement", description: "Élan à fixer et atteindre des objectifs exigeants.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "guidé(e) par les objectifs et en quête d'excellence", lowDescriptor: "moins porté(e) par la réussite personnelle" },
+    AFF: { name: "Besoin d'affiliation", description: "Élan vers les relations chaleureuses et l'appartenance.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "en quête de connexion et d'harmonie", lowDescriptor: "moins porté(e) par l'appartenance" },
+    POW: { name: "Besoin de pouvoir", description: "Élan à influencer, diriger et avoir de l'impact.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "en quête d'influence et d'impact", lowDescriptor: "moins porté(e) par l'influence" },
+  },
+  items: {
+    AC1: "Je me fixe des objectifs exigeants et je ressens l'élan de les atteindre.", AC2: "J'adore mesurer mes progrès et battre mon propre record.", AC3: "L'accomplissement personnel me motive plus que l'argent ou le statut.", AC4: "Je préfère les tâches aux critères clairs où je peux exceller.",
+    AF1: "Les relations chaleureuses et proches comptent plus pour moi que gagner ou diriger.", AF2: "Je fais des efforts pour être apprécié(e) et pour appartenir.", AF3: "Je me sens au mieux quand je suis connecté(e) et en harmonie avec les autres.", AF4: "Je n'aime pas le conflit et je m'efforce de garder des relations fluides.",
+    PW1: "Influencer les gens et façonner les résultats me stimule.", PW2: "Je recherche des postes où je peux diriger les autres et avoir de l'impact.", PW3: "Avoir un effet sur le monde compte énormément pour moi.", PW4: "J'aime être aux commandes et persuader les autres de mon point de vue.",
+  },
+};
+const ANCHORS_ES: InstrumentTranslation = {
+  name: "Anclas de carrera", shortName: "Anclas",
+  tagline: "Aquello a lo que no renunciarías en una carrera.",
+  description: "Edgar Schein descubrió que, a medida que las personas ganan experiencia, su carrera acaba girando en torno a un único 'ancla': el valor o la necesidad a la que no renunciarían si se vieran obligadas a elegir. Este perfilador sopesa las ocho —desde la maestría técnica y la gestión hasta la autonomía, la seguridad, el emprendimiento, el servicio, el puro desafío y el estilo de vida— y nombra la que te ancla.",
+  scales: {
+    TF: { name: "Técnico/Funcional", description: "Dominio de un área de pericia específica.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la pericia profunda", lowDescriptor: "menos movido/a por la maestría técnica" },
+    GM: { name: "Dirección general", description: "Liderar, integrar y asumir responsabilidad.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en el liderazgo y la gestión", lowDescriptor: "menos atraído/a por gestionar" },
+    AU: { name: "Autonomía/Independencia", description: "Libertad para trabajar a tu manera.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la independencia", lowDescriptor: "cómodo/a dentro de la estructura" },
+    SE: { name: "Seguridad/Estabilidad", description: "Previsibilidad y un camino fiable.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la seguridad", lowDescriptor: "cómodo/a con el riesgo y el cambio" },
+    EC: { name: "Creatividad emprendedora", description: "Construir algo nuevo y propio.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en crear proyectos", lowDescriptor: "menos atraído/a por fundar cosas" },
+    SV: { name: "Servicio/Dedicación", description: "Servir a una causa mayor que uno mismo.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en el servicio y el sentido", lowDescriptor: "menos movido/a por una causa" },
+    CH: { name: "Puro desafío", description: "Superar problemas difíciles y ganar.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en el desafío y la competencia", lowDescriptor: "menos movido/a por la dificultad en sí" },
+    LS: { name: "Estilo de vida", description: "Integrar la carrera con una vida equilibrada.", poles: { low: "Menos central", high: "Central" }, highDescriptor: "anclado/a en la integración trabajo-vida", lowDescriptor: "dispuesto/a a que el trabajo domine" },
+  },
+  items: {
+    TF1: "Ser un experto reconocido, el mejor en una habilidad específica, es lo que más me importa.", TF2: "Prefiero profundizar mi maestría técnica antes que pasar a la dirección general.",
+    GM1: "Me impulsa liderar, gestionar personas y llevar las riendas de todo.", GM2: "Llegar a un puesto de alta dirección es una ambición central.",
+    AU1: "La libertad de hacer mi trabajo a mi manera me importa más que el estatus o el dinero.", AU2: "Me incomodan las reglas rígidas, los jefes y la estructura.",
+    SE1: "La seguridad y la estabilidad me importan más que el riesgo o el ascenso rápido.", SE2: "Valoro un camino profesional predecible y fiable.",
+    EC1: "Sueño con construir algo propio: un proyecto o una creación.", EC2: "Crear un negocio o producto que sea de verdad mío es una meta que me impulsa.",
+    SV1: "Quiero que mi trabajo sirva a una causa o mejore el mundo.", SV2: "El sentido y la contribución me importan más que el dinero o el rango.",
+    CH1: "Soy más feliz abordando los problemas más difíciles, los que parecen imposibles.", CH2: "Busco retos duros y competencia para ganar.",
+    LS1: "Quiero que mi carrera encaje en una vida equilibrada, no que la domine.", LS2: "Integrar el trabajo con la familia y la vida personal es innegociable para mí.",
+  },
+};
+const ANCHORS_FR: InstrumentTranslation = {
+  name: "Ancres de carrière", shortName: "Ancres",
+  tagline: "Ce à quoi vous ne renonceriez pas dans une carrière.",
+  description: "Edgar Schein a découvert qu'à mesure que les gens acquièrent de l'expérience, leur carrière finit par tourner autour d'une seule « ancre » : la valeur ou le besoin auquel ils ne renonceraient pas s'ils devaient choisir. Ce profileur pèse les huit — de la maîtrise technique et la gestion à l'autonomie, la sécurité, l'entrepreneuriat, le service, le pur défi et le style de vie — et nomme celle qui vous ancre.",
+  scales: {
+    TF: { name: "Technique/Fonctionnel", description: "Maîtrise d'un domaine d'expertise précis.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans l'expertise profonde", lowDescriptor: "moins porté(e) par la maîtrise technique" },
+    GM: { name: "Direction générale", description: "Diriger, intégrer et assumer la responsabilité.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans le leadership et la gestion", lowDescriptor: "moins attiré(e) par la gestion" },
+    AU: { name: "Autonomie/Indépendance", description: "Liberté de travailler à votre façon.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans l'indépendance", lowDescriptor: "à l'aise dans la structure" },
+    SE: { name: "Sécurité/Stabilité", description: "Prévisibilité et parcours fiable.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans la sécurité", lowDescriptor: "à l'aise avec le risque et le changement" },
+    EC: { name: "Créativité entrepreneuriale", description: "Bâtir du neuf qui vous appartient.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans la création de projets", lowDescriptor: "moins porté(e) à fonder des choses" },
+    SV: { name: "Service/Dévouement", description: "Servir une cause plus grande que soi.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans le service et le sens", lowDescriptor: "moins porté(e) par une cause" },
+    CH: { name: "Pur défi", description: "Surmonter des problèmes difficiles et gagner.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans le défi et la compétition", lowDescriptor: "moins porté(e) par la difficulté en soi" },
+    LS: { name: "Style de vie", description: "Intégrer la carrière à une vie équilibrée.", poles: { low: "Moins central", high: "Central" }, highDescriptor: "ancré(e) dans l'équilibre vie-travail", lowDescriptor: "prêt(e) à laisser le travail dominer" },
+  },
+  items: {
+    TF1: "Être un expert reconnu, le meilleur dans une compétence précise, compte le plus pour moi.", TF2: "Je préfère approfondir ma maîtrise technique plutôt que de passer à la direction générale.",
+    GM1: "Je suis poussé(e) à diriger, à gérer des gens et à tout piloter.", GM2: "Atteindre un poste de haute direction est une ambition centrale.",
+    AU1: "La liberté de faire mon travail à ma façon compte plus pour moi que le statut ou l'argent.", AU2: "Je supporte mal les règles rigides, les chefs et la structure.",
+    SE1: "La sécurité et la stabilité comptent plus pour moi que le risque ou l'avancement rapide.", SE2: "Je valorise un parcours professionnel prévisible et fiable.",
+    EC1: "Je rêve de bâtir quelque chose qui m'appartient : un projet ou une création.", EC2: "Créer une entreprise ou un produit qui soit vraiment le mien est un objectif moteur.",
+    SV1: "Je veux que mon travail serve une cause ou améliore le monde.", SV2: "Le sens et la contribution comptent plus pour moi que l'argent ou le rang.",
+    CH1: "Je suis le plus heureux(se) en m'attaquant aux problèmes les plus difficiles, ceux qui semblent impossibles.", CH2: "Je recherche des défis ardus et la compétition pour gagner.",
+    LS1: "Je veux que ma carrière s'inscrive dans une vie équilibrée, pas qu'elle la domine.", LS2: "Intégrer le travail à la famille et à la vie personnelle est non négociable pour moi.",
+  },
+};
+const COPE_ES: InstrumentTranslation = {
+  name: "Estilos de afrontamiento", shortName: "Afrontamiento",
+  tagline: "Cómo manejas el estrés: resolver, reencuadrar, apoyarte o evitar.",
+  description: "Cuando llega el estrés, cada persona echa mano de herramientas distintas. A partir del Brief-COPE de Carver, este perfilador agrupa el afrontamiento en cuatro estilos —centrado en el problema, centrado en la emoción, búsqueda de apoyo y evitativo— y nombra tu recurso habitual. El afrontamiento más sano no es un solo estilo, sino la flexibilidad: ajustar la herramienta a si la situación se puede cambiar.",
+  scales: {
+    PROB: { name: "Centrado en el problema", description: "Actuar directamente para cambiar el estresor.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "activo/a, planificador/a y orientado/a a la solución", lowDescriptor: "menos inclinado/a a afrontar los estresores de frente" },
+    EMO: { name: "Centrado en la emoción", description: "Gestionar los sentimientos con reencuadre y aceptación.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "que reencuadra, acepta y construye sentido", lowDescriptor: "menos inclinado/a a trabajar tu respuesta interior" },
+    SUP: { name: "Búsqueda de apoyo", description: "Recurrir a los demás en busca de consuelo y ayuda.", poles: { low: "Poco usado", high: "Distintivo" }, highDescriptor: "que busca apoyo y consejo", lowDescriptor: "más propenso/a a afrontar en solitario" },
+    AVO: { name: "Evitativo", description: "Distracción, negación y escape.", poles: { low: "Rara vez", high: "A menudo" }, highDescriptor: "que se apoya en la distracción y el escape", lowDescriptor: "que rara vez evita o escapa de los estresores" },
+  },
+  items: {
+    P1: "Doy pasos activos para resolver el problema.", P2: "Hago un plan de acción y lo voy ejecutando.", P3: "Centro mi energía en lo que de verdad puedo hacer al respecto.", P4: "Me concentro a fondo en resolverlo.",
+    E1: "Intento ver la situación bajo una luz más positiva.", E2: "Acepto la realidad de lo que ha pasado.", E3: "Busco sentido o crecimiento en la experiencia.", E4: "Me recuerdo que las cosas podrían ser peores.",
+    S1: "Recurro a los demás en busca de consuelo emocional.", S2: "Pido a la gente consejo o ayuda práctica.", S3: "Hablo con alguien sobre cómo me siento.", S4: "Me apoyo en amigos o familia para salir adelante.",
+    A1: "Me distraigo para no tener que pensar en ello.", A2: "Me digo que no está pasando de verdad.", A3: "Renuncio a intentar lidiar con ello.", A4: "Uso la comida, la bebida u otros escapes para sentirme mejor.",
+  },
+};
+const COPE_FR: InstrumentTranslation = {
+  name: "Styles de coping", shortName: "Coping",
+  tagline: "Comment vous gérez le stress : résoudre, recadrer, vous appuyer ou éviter.",
+  description: "Quand le stress survient, chacun saisit des outils différents. À partir du Brief-COPE de Carver, ce profileur regroupe le coping en quatre styles — centré sur le problème, centré sur l'émotion, recherche de soutien et évitant — et nomme votre recours habituel. Le coping le plus sain n'est pas un seul style mais la flexibilité : adapter l'outil selon que la situation peut être changée.",
+  scales: {
+    PROB: { name: "Centré sur le problème", description: "Agir directement pour changer le facteur de stress.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "actif(ve), planificateur(trice) et orienté(e) solution", lowDescriptor: "moins enclin(e) à affronter les stresseurs de front" },
+    EMO: { name: "Centré sur l'émotion", description: "Gérer les sentiments par le recadrage et l'acceptation.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "qui recadre, accepte et donne du sens", lowDescriptor: "moins enclin(e) à travailler votre réponse intérieure" },
+    SUP: { name: "Recherche de soutien", description: "Se tourner vers les autres pour réconfort et aide.", poles: { low: "Peu utilisé", high: "Signature" }, highDescriptor: "qui cherche soutien et conseils", lowDescriptor: "plus enclin(e) à faire face seul(e)" },
+    AVO: { name: "Évitant", description: "Distraction, déni et fuite.", poles: { low: "Rarement", high: "Souvent" }, highDescriptor: "qui s'appuie sur la distraction et la fuite", lowDescriptor: "qui évite ou fuit rarement les stresseurs" },
+  },
+  items: {
+    P1: "Je prends des mesures actives pour résoudre le problème.", P2: "Je fais un plan d'action et je le déroule.", P3: "Je concentre mon énergie sur ce que je peux réellement faire.", P4: "Je me concentre intensément pour le résoudre.",
+    E1: "J'essaie de voir la situation sous un jour plus positif.", E2: "J'accepte la réalité de ce qui est arrivé.", E3: "Je cherche du sens ou de la croissance dans l'expérience.", E4: "Je me rappelle que les choses pourraient être pires.",
+    S1: "Je me tourne vers les autres pour du réconfort émotionnel.", S2: "Je demande aux gens des conseils ou une aide pratique.", S3: "Je parle à quelqu'un de ce que je ressens.", S4: "Je m'appuie sur des amis ou la famille pour tenir le coup.",
+    A1: "Je me distrais pour ne pas avoir à y penser.", A2: "Je me dis que ça n'arrive pas vraiment.", A3: "J'abandonne l'idée d'y faire face.", A4: "J'utilise la nourriture, la boisson ou d'autres échappatoires pour me sentir mieux.",
+  },
+};
+const ADHD_ES: InstrumentTranslation = {
+  name: "Rasgos de TDAH (cribado educativo)", shortName: "Rasgos TDAH",
+  tagline: "Reflexiona sobre los rasgos de atención e hiperactividad: comprensión, no diagnóstico.",
+  description: "Un cribado educativo de autorreflexión sobre rasgos asociados al TDAH, en dos facetas: inatención e hiperactividad/impulsividad. Puede ayudarte a entender tus patrones y a decidir si buscar una evaluación adecuada. NO es una herramienta diagnóstica: solo un/a profesional cualificado/a puede diagnosticar el TDAH.",
+  scales: {
+    INATT: { name: "Inatención", description: "Dificultades con el foco, la organización, la memoria y el seguimiento.", poles: { low: "Concentrado", high: "Distraíble" }, highDescriptor: "con frecuencia distraído/a, desorganizado/a y propenso/a a perder el foco", lowDescriptor: "por lo general concentrado/a y organizado/a" },
+    HYP: { name: "Hiperactividad / Impulsividad", description: "Inquietud, impulsividad e impaciencia.", poles: { low: "Tranquilo", high: "Inquieto" }, highDescriptor: "inquieto/a, impulsivo/a y rápido/a para actuar", lowDescriptor: "por lo general tranquilo/a y reflexivo/a" },
+  },
+  items: {
+    IN1: "Me cuesta mantener la atención en tareas o en la lectura.", IN2: "Me distraigo con facilidad por lo que me rodea o por mis propios pensamientos.", IN3: "Pierdo cosas u olvido citas y detalles cotidianos.", IN4: "Aplazo y me cuesta empezar o terminar tareas que me aburren.", IN5: "Mi mente divaga, incluso en mitad de una conversación.", IN6: "Me resulta difícil organizar tareas y gestionar mi tiempo.",
+    HY1: "Me siento inquieto/a y me cuesta quedarme quieto/a mucho rato.", HY2: "Actúo o hablo por impulso antes de pensarlo bien.", HY3: "Interrumpo a la gente o termino sus frases.", HY4: "Me cuesta esperar mi turno o tener paciencia.", HY5: "A menudo estoy 'en marcha', como impulsado/a por un motor.", HY6: "Tomo decisiones rápidas de las que a veces me arrepiento.",
+  },
+};
+const ADHD_FR: InstrumentTranslation = {
+  name: "Traits du TDAH (dépistage éducatif)", shortName: "Traits TDAH",
+  tagline: "Réfléchissez aux traits d'attention et d'hyperactivité — comprendre, pas diagnostiquer.",
+  description: "Un dépistage éducatif d'auto-réflexion sur les traits associés au TDAH, selon deux facettes : inattention et hyperactivité/impulsivité. Il peut vous aider à comprendre vos schémas et à décider de chercher une évaluation appropriée. Ce n'est PAS un outil diagnostique : seul(e) un(e) professionnel(le) qualifié(e) peut diagnostiquer le TDAH.",
+  scales: {
+    INATT: { name: "Inattention", description: "Difficultés de concentration, d'organisation, de mémoire et de suivi.", poles: { low: "Concentré", high: "Distrait" }, highDescriptor: "souvent distrait(e), désorganisé(e) et enclin(e) à perdre le fil", lowDescriptor: "généralement concentré(e) et organisé(e)" },
+    HYP: { name: "Hyperactivité / Impulsivité", description: "Agitation, impulsivité et impatience.", poles: { low: "Calme", high: "Agité" }, highDescriptor: "agité(e), impulsif(ve) et prompt(e) à agir", lowDescriptor: "généralement calme et réfléchi(e)" },
+  },
+  items: {
+    IN1: "J'ai du mal à maintenir mon attention sur les tâches ou la lecture.", IN2: "Je suis facilement distrait(e) par mon environnement ou mes propres pensées.", IN3: "Je perds des objets ou j'oublie des rendez-vous et des détails du quotidien.", IN4: "Je remets à plus tard et j'ai du mal à commencer ou à finir les tâches qui m'ennuient.", IN5: "Mon esprit vagabonde, même au milieu d'une conversation.", IN6: "J'ai du mal à organiser les tâches et à gérer mon temps.",
+    HY1: "Je me sens agité(e) et j'ai du mal à rester en place longtemps.", HY2: "J'agis ou je parle sur un coup de tête avant d'avoir réfléchi.", HY3: "J'interromps les gens ou je termine leurs phrases.", HY4: "J'ai du mal à attendre mon tour ou à être patient(e).", HY5: "Je suis souvent « en mouvement », comme propulsé(e) par un moteur.", HY6: "Je prends des décisions rapides que je regrette parfois.",
+  },
+};
+const AUTISM_ES: InstrumentTranslation = {
+  name: "Rasgos autistas (cribado educativo)", shortName: "Rasgos autistas",
+  tagline: "Explora cómo está cableada tu mente: una reflexión que afirma la neurodiversidad.",
+  description: "Un cribado educativo y afirmativo de autorreflexión sobre rasgos asociados al autismo, en tres facetas: comunicación social, foco y detalle, y rutina y sensorialidad. Los rasgos autistas son diferencias en cómo funcionan las mentes, no carencias. NO es una herramienta diagnóstica: solo un/a profesional cualificado/a puede evaluar el autismo.",
+  scales: {
+    SOCIAL: { name: "Comunicación social", description: "Cómo se sienten para ti la interacción social y leer a los demás.", poles: { low: "Intuición social", high: "Esfuerzo social" }, highDescriptor: "que encuentra costosas las señales sociales y cómoda la soledad", lowDescriptor: "socialmente intuitivo/a y a gusto" },
+    DETAIL: { name: "Foco y detalle", description: "Atención al detalle, los patrones y los intereses profundos.", poles: { low: "Visión global", high: "Centrado en el detalle" }, highDescriptor: "centrado/a en el detalle, sistemático/a y absorto/a en sus intereses", lowDescriptor: "más de visión global que de detalle" },
+    ROUTINE: { name: "Rutina y sensorialidad", description: "Preferencia por la rutina y sensibilidad a los estímulos sensoriales.", poles: { low: "Flexible", high: "Busca rutina" }, highDescriptor: "amante de la rutina y sensorialmente sensible", lowDescriptor: "flexible ante el cambio y menos sensible a lo sensorial" },
+  },
+  items: {
+    SC1: "Las situaciones sociales y la charla trivial a menudo se sienten confusas o agotadoras.", SC2: "Leer entre líneas y captar las emociones de los demás no me sale de forma natural.", SC3: "Por lo general prefiero hacer las cosas solo/a antes que con otros.", SC4: "Me han dicho que soy directo/a o que se me escapan las señales sociales.",
+    DT1: "Noto detalles y patrones minúsculos que a otros se les escapan.", DT2: "Me concentro intensamente en los temas que me fascinan.", DT3: "Me encanta coleccionar, categorizar o sistematizar a fondo la información.", DT4: "Me atrae más cómo funcionan los sistemas que el lado social de las cosas.",
+    RT1: "Prefiero con fuerza las rutinas y me desazono cuando los planes cambian.", RT2: "Soy sensible a ciertos sonidos, texturas, luces o sensaciones.", RT3: "Me gusta hacer las mismas cosas de la misma manera y me disgusta la disrupción.", RT4: "El cambio inesperado me resulta estresante y difícil de manejar.",
+  },
+};
+const AUTISM_FR: InstrumentTranslation = {
+  name: "Traits autistiques (dépistage éducatif)", shortName: "Traits autistiques",
+  tagline: "Explorez comment votre esprit est câblé — une réflexion qui affirme la neurodiversité.",
+  description: "Un dépistage éducatif et affirmatif d'auto-réflexion sur les traits associés à l'autisme, selon trois facettes : communication sociale, focalisation et détail, routine et sensorialité. Les traits autistiques sont des différences dans le fonctionnement des esprits, pas des déficits. Ce n'est PAS un outil diagnostique : seul(e) un(e) professionnel(le) qualifié(e) peut évaluer l'autisme.",
+  scales: {
+    SOCIAL: { name: "Communication sociale", description: "Comment l'interaction sociale et la lecture des autres se vivent pour vous.", poles: { low: "Intuition sociale", high: "Effort social" }, highDescriptor: "trouvant les codes sociaux exigeants et la solitude confortable", lowDescriptor: "socialement intuitif(ve) et à l'aise" },
+    DETAIL: { name: "Focalisation et détail", description: "Attention au détail, aux motifs et aux intérêts profonds.", poles: { low: "Vue d'ensemble", high: "Axé sur le détail" }, highDescriptor: "axé(e) sur le détail, systématique et absorbé(e) par ses intérêts", lowDescriptor: "plus porté(e) sur la vue d'ensemble que sur le détail" },
+    ROUTINE: { name: "Routine et sensorialité", description: "Préférence pour la routine et sensibilité aux stimuli sensoriels.", poles: { low: "Flexible", high: "Cherche la routine" }, highDescriptor: "amateur(trice) de routine et sensoriellement sensible", lowDescriptor: "souple face au changement et moins sensible au sensoriel" },
+  },
+  items: {
+    SC1: "Les situations sociales et le bavardage me semblent souvent confus ou épuisants.", SC2: "Lire entre les lignes et percevoir les émotions des autres ne me vient pas naturellement.", SC3: "Je préfère généralement faire les choses seul(e) plutôt qu'avec d'autres.", SC4: "On m'a dit que je suis direct(e) ou que je rate les signaux sociaux.",
+    DT1: "Je remarque de minuscules détails et motifs qui échappent aux autres.", DT2: "Je me concentre intensément sur les sujets qui me fascinent.", DT3: "J'adore collectionner, catégoriser ou systématiser en profondeur l'information.", DT4: "Le fonctionnement des systèmes m'attire plus que le côté social des choses.",
+    RT1: "Je préfère fortement les routines et je suis déstabilisé(e) quand les plans changent.", RT2: "Je suis sensible à certains sons, textures, lumières ou sensations.", RT3: "J'aime faire les mêmes choses de la même manière et je n'aime pas la perturbation.", RT4: "Le changement inattendu est stressant et difficile à gérer pour moi.",
+  },
+};
+const DARKTETRAD_ES: InstrumentTranslation = {
+  name: "Tétrada oscura", shortName: "Tétrada oscura",
+  tagline: "La tríada oscura más el sadismo cotidiano: tu lado aversivo, visto con honestidad.",
+  description: "La tétrada oscura amplía la tríada oscura —maquiavelismo, narcisismo y psicopatía— con el sadismo cotidiano. Son tendencias subclínicas, dentro del rango normal, que todo el mundo tiene en alguna medida. Verlas con claridad no es un veredicto; es el primer paso para evitar que las corrientes más oscuras dirijan en silencio tus decisiones.",
+  scales: {
+    MACH: { name: "Maquiavelismo", description: "Manipulación estratégica y cinismo.", poles: { low: "Franco", high: "Calculador" }, highDescriptor: "calculador/a, estratégico/a y reservado/a", lowDescriptor: "directo/a, abierto/a y confiado/a" },
+    NARC: { name: "Narcisismo", description: "Grandiosidad y necesidad de admiración.", poles: { low: "Humilde", high: "Grandioso" }, highDescriptor: "autoensalzador/a y en busca de estatus", lowDescriptor: "modesto/a y discreto/a" },
+    PSY: { name: "Psicopatía", description: "Insensibilidad, audacia e impulsividad (subclínica).", poles: { low: "Sensible", high: "Insensible" }, highDescriptor: "frío/a, intrépido/a y con poca culpa", lowDescriptor: "cauto/a, empático/a y concienzudo/a" },
+    SAD: { name: "Sadismo cotidiano", description: "Disfrute del malestar ajeno.", poles: { low: "Amable", high: "Sádico" }, highDescriptor: "atraído/a por la confrontación y el malestar ajeno", lowDescriptor: "reacio/a a causar o presenciar daño" },
+  },
+  items: {
+    M1: "Es inteligente reservarse cierta información para usarla más tarde.", M2: "Estoy dispuesto/a a manejar una situación entre bastidores para salir ganando.", M3: "Evito mostrar mis verdaderas intenciones cuando me conviene.", M4: "A casi todo el mundo se le puede influir con el enfoque adecuado.",
+    N1: "Merezco más reconocimiento del que suelo recibir.", N2: "Me gusta ser el centro de atención.", N3: "Soy más capaz que la mayoría de quienes me rodean.", N4: "Espero que los demás noten lo especial que soy.",
+    P1: "Rara vez me siento culpable tras hacer daño a alguien.", P2: "Asumo riesgos aunque otros puedan salir perjudicados.", P3: "Tiendo a actuar primero y a preocuparme por las consecuencias después.", P4: "Los sentimientos de los demás no influyen mucho en mis decisiones.",
+    S1: "Admito que puede haber cierta emoción en ver a alguien incómodo.", S2: "A veces disfruto burlándome o menospreciando a la gente.", S3: "Me resulta satisfactorio dominar a alguien que me ha molestado.", S4: "El entretenimiento intenso o violento me atrae.",
+  },
+};
+const DARKTETRAD_FR: InstrumentTranslation = {
+  name: "Tétrade noire", shortName: "Tétrade noire",
+  tagline: "La triade noire plus le sadisme ordinaire — votre côté aversif, vu honnêtement.",
+  description: "La tétrade noire étend la triade noire — machiavélisme, narcissisme et psychopathie — avec le sadisme ordinaire. Ce sont des tendances sous-cliniques, dans la plage normale, que tout le monde possède à quelque degré. Les voir clairement n'est pas un verdict ; c'est le premier pas pour empêcher les courants plus sombres de diriger discrètement vos choix.",
+  scales: {
+    MACH: { name: "Machiavélisme", description: "Manipulation stratégique et cynisme.", poles: { low: "Franc", high: "Calculateur" }, highDescriptor: "calculateur(trice), stratégique et sur la réserve", lowDescriptor: "direct(e), ouvert(e) et confiant(e)" },
+    NARC: { name: "Narcissisme", description: "Grandiosité et besoin d'admiration.", poles: { low: "Humble", high: "Grandiose" }, highDescriptor: "auto-valorisant(e) et en quête de statut", lowDescriptor: "modeste et effacé(e)" },
+    PSY: { name: "Psychopathie", description: "Insensibilité, audace et impulsivité (sous-clinique).", poles: { low: "Sensible", high: "Insensible" }, highDescriptor: "froid(e), intrépide et peu enclin(e) à la culpabilité", lowDescriptor: "prudent(e), empathique et consciencieux(se)" },
+    SAD: { name: "Sadisme ordinaire", description: "Plaisir pris au malaise d'autrui.", poles: { low: "Doux", high: "Sadique" }, highDescriptor: "attiré(e) par la confrontation et le malaise d'autrui", lowDescriptor: "réticent(e) à causer ou voir du mal" },
+  },
+  items: {
+    M1: "Il est malin de garder certaines informations pour les utiliser plus tard.", M2: "Je suis prêt(e) à gérer une situation en coulisses pour m'en sortir gagnant(e).", M3: "J'évite de montrer mes véritables intentions quand cela m'arrange.", M4: "On peut influencer presque tout le monde avec la bonne approche.",
+    N1: "Je mérite plus de reconnaissance que je n'en reçois d'habitude.", N2: "J'aime être le centre de l'attention.", N3: "Je suis plus capable que la plupart des gens autour de moi.", N4: "J'attends des autres qu'ils remarquent à quel point je suis spécial(e).",
+    P1: "Je me sens rarement coupable après avoir blessé quelqu'un.", P2: "Je prends des risques même si d'autres pourraient être blessés.", P3: "J'ai tendance à agir d'abord et à me soucier des conséquences ensuite.", P4: "Les sentiments des autres n'influencent pas beaucoup mes décisions.",
+    S1: "J'admets qu'il peut y avoir un certain frisson à voir quelqu'un mal à l'aise.", S2: "Il m'arrive d'aimer me moquer des gens ou les rabaisser.", S3: "Je trouve satisfaisant de dominer quelqu'un qui m'a agacé(e).", S4: "Les divertissements intenses ou violents m'attirent.",
+  },
+};
+const SOCIONICS_ES: InstrumentTranslation = {
+  name: "Tipo de Socionics", shortName: "Socionics",
+  tagline: "El primo de Europa del Este del MBTI: dieciséis tipos y cuatro cuadras.",
+  description: "Socionics es una tipología junguiana desarrollada en Europa del Este. Como el MBTI, da dieciséis tipos, pero con su propio modelo de 'funciones' mentales, códigos distintivos de tres letras (ILE, SEI, LIE…) y cuatro 'cuadras' de tipos afines. Este perfilador resuelve tu tipo a partir de cuatro dicotomías: una fascinante mirada alternativa para entusiastas de la tipología.",
+  scales: {
+    ATT: { name: "Actitud", description: "Energía extratim (hacia fuera) frente a introtim (hacia dentro).", poles: { low: "Introtim", high: "Extratim" }, highDescriptor: "extratim: con energía del mundo exterior", lowDescriptor: "introtim: con energía desde dentro" },
+    PER: { name: "Percepción", description: "Intuición frente a sensación.", poles: { low: "Sensación", high: "Intuición" }, highDescriptor: "intuitivo/a: patrones y posibilidad", lowDescriptor: "sensorial: lo concreto y tangible" },
+    JUD: { name: "Juicio", description: "Lógica frente a ética.", poles: { low: "Ética", high: "Lógica" }, highDescriptor: "lógico/a: análisis impersonal", lowDescriptor: "ético/a: personas y valores" },
+    ORG: { name: "Organización", description: "Racional (guiado por el juicio) frente a irracional (guiado por la percepción).", poles: { low: "Irracional", high: "Racional" }, highDescriptor: "racional: planificador/a y decidido/a", lowDescriptor: "irracional: flexible y emergente" },
+  },
+  items: {
+    AT1: "Mi energía fluye hacia fuera: hacia las personas, la acción y el mundo exterior.", AT2: "Pienso mejor en voz alta y con otros alrededor.", AT3: "Prefiero iniciar y participar antes que observar desde el margen.", AT4: "Necesito mucho tiempo tranquilo y a solas para sentirme yo mismo/a.",
+    PE1: "Me atraen los patrones, las posibilidades y lo que podría ser.", PE2: "A menudo vivo en las ideas y el futuro más que en el presente.", PE3: "Las conexiones abstractas me llegan con más facilidad que los detalles concretos.", PE4: "Estoy anclado/a en hechos concretos, sensaciones y el aquí y ahora.",
+    JU1: "Decido por lógica impersonal y coherencia.", JU2: "Valoro tener razón y ser racional por encima de ser agradable.", JU3: "Analizo sistemas con más naturalidad que leo emociones.", JU4: "Sintonizo primero con los sentimientos y las relaciones de la gente.",
+    OR1: "Me gustan las cosas planificadas, decididas y resueltas de antemano.", OR2: "Me siento más tranquilo/a una vez tomada una decisión y fijado el camino.", OR3: "Mantengo mi vida estructurada y según un horario.", OR4: "Prefiero mantenerme flexible y adaptarme a medida que las cosas se desarrollan.",
+  },
+};
+const SOCIONICS_FR: InstrumentTranslation = {
+  name: "Type Socionics", shortName: "Socionics",
+  tagline: "Le cousin d'Europe de l'Est du MBTI — seize types et quatre quadras.",
+  description: "La Socionics est une typologie jungienne développée en Europe de l'Est. Comme le MBTI, elle donne seize types, mais avec son propre modèle de « fonctions » mentales, des codes distinctifs à trois lettres (ILE, SEI, LIE…) et quatre « quadras » de types apparentés. Ce profileur résout votre type à partir de quatre dichotomies — un angle alternatif fascinant pour les passionnés de typologie.",
+  scales: {
+    ATT: { name: "Attitude", description: "Énergie extratim (vers l'extérieur) vs. introtim (vers l'intérieur).", poles: { low: "Introtim", high: "Extratim" }, highDescriptor: "extratim : énergisé(e) par le monde extérieur", lowDescriptor: "introtim : énergisé(e) de l'intérieur" },
+    PER: { name: "Perception", description: "Intuition vs. sensation.", poles: { low: "Sensation", high: "Intuition" }, highDescriptor: "intuitif(ve) : motifs et possibilités", lowDescriptor: "sensoriel(le) : concret et tangible" },
+    JUD: { name: "Jugement", description: "Logique vs. éthique.", poles: { low: "Éthique", high: "Logique" }, highDescriptor: "logique : analyse impersonnelle", lowDescriptor: "éthique : les gens et les valeurs" },
+    ORG: { name: "Organisation", description: "Rationnel (guidé par le jugement) vs. irrationnel (guidé par la perception).", poles: { low: "Irrationnel", high: "Rationnel" }, highDescriptor: "rationnel : planificateur et décidé", lowDescriptor: "irrationnel : flexible et émergent" },
+  },
+  items: {
+    AT1: "Mon énergie va vers l'extérieur : vers les gens, l'action et le monde extérieur.", AT2: "Je pense mieux à voix haute et entouré(e).", AT3: "Je préfère initier et m'engager plutôt qu'observer de côté.", AT4: "J'ai besoin de beaucoup de temps calme et solitaire pour me sentir moi-même.",
+    PE1: "Je suis attiré(e) par les motifs, les possibilités et ce qui pourrait être.", PE2: "Je vis souvent dans les idées et l'avenir plus que dans le présent.", PE3: "Les connexions abstraites me viennent plus facilement que les détails concrets.", PE4: "Je suis ancré(e) dans des faits concrets, des sensations et l'ici et maintenant.",
+    JU1: "Je décide par une logique impersonnelle et la cohérence.", JU2: "Je préfère avoir raison et être rationnel(le) plutôt qu'agréable.", JU3: "J'analyse les systèmes plus naturellement que je ne lis les émotions.", JU4: "Je me connecte d'abord aux sentiments et aux relations des gens.",
+    OR1: "J'aime que les choses soient planifiées, décidées et réglées à l'avance.", OR2: "Je me sens plus calme une fois la décision prise et la voie fixée.", OR3: "Je garde ma vie structurée et organisée.", OR4: "Je préfère rester flexible et m'adapter au fil des choses.",
+  },
+};
+/** Strength → English virtue key (for building localized scale descriptions). */
+const VIA_VKEY: Record<string, string> = {
+  CREAT: "Wisdom", CURIO: "Wisdom", JUDGE: "Wisdom", LEARN: "Wisdom", PERSP: "Wisdom",
+  BRAVE: "Courage", PERSV: "Courage", HONES: "Courage", ZEST: "Courage",
+  LOVE: "Humanity", KIND: "Humanity", SOCIN: "Humanity",
+  TEAM: "Justice", FAIR: "Justice", LEAD: "Justice",
+  FORGV: "Temperance", HUMIL: "Temperance", PRUD: "Temperance", SELFR: "Temperance",
+  BEAUT: "Transcendence", GRAT: "Transcendence", HOPE: "Transcendence", HUMOR: "Transcendence", SPIRIT: "Transcendence",
+};
+const VIA_NAMES_ES: Record<string, string> = {
+  CREAT: "Creatividad", CURIO: "Curiosidad", JUDGE: "Juicio", LEARN: "Amor por el aprendizaje", PERSP: "Perspectiva",
+  BRAVE: "Valentía", PERSV: "Perseverancia", HONES: "Honestidad", ZEST: "Vitalidad",
+  LOVE: "Amor", KIND: "Amabilidad", SOCIN: "Inteligencia social",
+  TEAM: "Trabajo en equipo", FAIR: "Justicia", LEAD: "Liderazgo",
+  FORGV: "Perdón", HUMIL: "Humildad", PRUD: "Prudencia", SELFR: "Autorregulación",
+  BEAUT: "Apreciación de la belleza", GRAT: "Gratitud", HOPE: "Esperanza", HUMOR: "Humor", SPIRIT: "Espiritualidad",
+};
+const VIA_NAMES_FR: Record<string, string> = {
+  CREAT: "Créativité", CURIO: "Curiosité", JUDGE: "Discernement", LEARN: "Amour de l'apprentissage", PERSP: "Recul",
+  BRAVE: "Courage", PERSV: "Persévérance", HONES: "Honnêteté", ZEST: "Entrain",
+  LOVE: "Amour", KIND: "Bonté", SOCIN: "Intelligence sociale",
+  TEAM: "Travail d'équipe", FAIR: "Équité", LEAD: "Leadership",
+  FORGV: "Pardon", HUMIL: "Humilité", PRUD: "Prudence", SELFR: "Autorégulation",
+  BEAUT: "Appréciation de la beauté", GRAT: "Gratitude", HOPE: "Espoir", HUMOR: "Humour", SPIRIT: "Spiritualité",
+};
+const VIA_VIRTUE_ES: Record<string, string> = { Wisdom: "Sabiduría", Courage: "Coraje", Humanity: "Humanidad", Justice: "Justicia", Temperance: "Templanza", Transcendence: "Trascendencia" };
+const VIA_VIRTUE_FR: Record<string, string> = { Wisdom: "Sagesse", Courage: "Courage", Humanity: "Humanité", Justice: "Justice", Temperance: "Tempérance", Transcendence: "Transcendance" };
+const VIA_DESC_ES: Record<string, string> = {
+  CREAT: "inventivo/a y original", CURIO: "curioso/a y explorador/a", JUDGE: "de mente abierta y criterio", LEARN: "ávido/a de aprender y dominar", PERSP: "sabio/a y que aporta perspectiva",
+  BRAVE: "valiente y con principios", PERSV: "persistente y trabajador/a", HONES: "honesto/a y auténtico/a", ZEST: "enérgico/a y lleno/a de vitalidad",
+  LOVE: "cálido/a y cariñoso/a", KIND: "amable y generoso/a", SOCIN: "perceptivo/a y sintonizado/a socialmente",
+  TEAM: "leal y con mentalidad de equipo", FAIR: "justo/a y ecuánime", LEAD: "organizador/a y líder natural",
+  FORGV: "indulgente y misericordioso/a", HUMIL: "humilde y modesto/a", PRUD: "cuidadoso/a y prudente", SELFR: "autodisciplinado/a y sereno/a",
+  BEAUT: "conmovido/a por la belleza y la excelencia", GRAT: "agradecido/a y apreciativo/a", HOPE: "esperanzado/a y optimista", HUMOR: "juguetón/a y de buen humor", SPIRIT: "guiado/a por el propósito y conectado/a con el sentido",
+};
+const VIA_DESC_FR: Record<string, string> = {
+  CREAT: "inventif(ve) et original(e)", CURIO: "curieux(se) et explorateur(trice)", JUDGE: "ouvert(e) d'esprit et perspicace", LEARN: "avide d'apprendre et de maîtriser", PERSP: "sage et porteur(se) de recul",
+  BRAVE: "courageux(se) et de principes", PERSV: "persévérant(e) et travailleur(se)", HONES: "honnête et authentique", ZEST: "énergique et plein(e) d'entrain",
+  LOVE: "chaleureux(se) et aimant(e)", KIND: "bienveillant(e) et généreux(se)", SOCIN: "perspicace et à l'écoute sur le plan social",
+  TEAM: "loyal(e) et tourné(e) vers l'équipe", FAIR: "juste et impartial(e)", LEAD: "organisateur(trice) et leader naturel(le)",
+  FORGV: "indulgent(e) et clément(e)", HUMIL: "humble et modeste", PRUD: "prudent(e) et avisé(e)", SELFR: "discipliné(e) et posé(e)",
+  BEAUT: "touché(e) par la beauté et l'excellence", GRAT: "reconnaissant(e) et appréciatif(ve)", HOPE: "plein(e) d'espoir et optimiste", HUMOR: "joueur(se) et de bonne humeur", SPIRIT: "guidé(e) par le sens et relié(e) à quelque chose de plus grand",
+};
+/** Build the 24 localized strength scales from the name/virtue/descriptor maps. */
+function viaScales(names: Record<string, string>, virtues: Record<string, string>, descs: Record<string, string>, lowD: string, sep: (v: string, n: string) => string): NonNullable<InstrumentTranslation["scales"]> {
+  const out: NonNullable<InstrumentTranslation["scales"]> = {};
+  for (const id of Object.keys(names)) out[id] = { name: names[id], description: sep(virtues[VIA_VKEY[id]], names[id]), highDescriptor: descs[id], lowDescriptor: lowD };
+  return out;
+}
+const VIA_ES: InstrumentTranslation = {
+  name: "Fortalezas del carácter (VIA-24)", shortName: "Fortalezas",
+  tagline: "Descubre tus fortalezas distintivas: lo mejor de quien eres.",
+  description: "La Clasificación VIA identifica 24 fortalezas del carácter agrupadas en seis virtudes universales. Este perfilador mide las 24 y revela tus 'fortalezas distintivas' principales: las que se sienten más esencialmente tuyas. Décadas de investigación muestran que usar tus fortalezas distintivas de formas nuevas mejora el bienestar de forma fiable.",
+  scales: viaScales(VIA_NAMES_ES, VIA_VIRTUE_ES, VIA_DESC_ES, "más discreta aquí que en tus fortalezas distintivas", (v, n) => `${v} — tu ${n.toLowerCase()}.`),
+  items: {
+    CREAT1: "A menudo se me ocurren formas nuevas y originales de hacer las cosas.", CREAT2: "La gente me ve como imaginativo/a e inventivo/a.",
+    CURIO1: "Siento curiosidad por casi todo y me encanta explorar.", CURIO2: "Siempre estoy haciendo preguntas y buscando experiencias nuevas.",
+    JUDGE1: "Reflexiono y sopeso la evidencia antes de decidir.", JUDGE2: "Estoy dispuesto/a a cambiar de opinión cuando los hechos lo exigen.",
+    LEARN1: "Me encanta dominar nuevas habilidades y temas por sí mismos.", LEARN2: "Aprender algo nuevo me produce una emoción genuina.",
+    PERSP1: "La gente acude a mí en busca de consejo sabio y perspectiva.", PERSP2: "Veo el panorama general y ayudo a otros a darle sentido a las cosas.",
+    BRAVE1: "Defiendo lo que es correcto, aunque sea difícil o arriesgado.", BRAVE2: "No me amedrento ante los desafíos, las amenazas o el dolor.",
+    PERSV1: "Termino lo que empiezo, aunque se ponga difícil.", PERSV2: "Trabajo duro y no me rindo con facilidad.",
+    HONES1: "Soy honesto/a y me muestro de forma genuina ante los demás.", HONES2: "Asumo la responsabilidad de mis actos y mis sentimientos.",
+    ZEST1: "Afronto la vida con emoción y energía.", ZEST2: "Me siento vivo/a, vital y entusiasta la mayor parte del tiempo.",
+    LOVE1: "Valoro las relaciones cercanas y cariñosas y las cuido.", LOVE2: "Me siento a gusto tanto dando como recibiendo amor y cuidado.",
+    KIND1: "Hago un esfuerzo extra por ayudar y ser generoso/a con los demás.", KIND2: "Hacer cosas amables por la gente me anima de verdad.",
+    SOCIN1: "Se me da bien percibir lo que otros sienten y qué les mueve.", SOCIN2: "Sé cómo hacer que la gente se sienta cómoda y comprendida.",
+    TEAM1: "Soy un miembro leal y fiable de cualquier equipo en el que esté.", TEAM2: "Hago mi parte y trabajo bien por las metas comunes.",
+    FAIR1: "Trato a todas las personas con justicia y doy a cada cual una oportunidad justa.", FAIR2: "No dejo que mis sentimientos sesguen cómo juzgo o trato a los demás.",
+    LEAD1: "Se me da bien organizar a la gente y lograr que las cosas se hagan en grupo.", LEAD2: "La gente naturalmente me busca para liderar.",
+    FORGV1: "Perdono a quienes me han hecho daño y suelto los rencores.", FORGV2: "Doy con facilidad una segunda oportunidad a la gente.",
+    HUMIL1: "Dejo que mis logros hablen por sí solos en lugar de buscar protagonismo.", HUMIL2: "No me considero más especial que los demás.",
+    PRUD1: "Soy cuidadoso/a y evito hacer cosas de las que luego pueda arrepentirme.", PRUD2: "Pienso antes de actuar y me mantengo alejado/a de riesgos innecesarios.",
+    SELFR1: "Tengo buen control sobre mis emociones e impulsos.", SELFR2: "Soy disciplinado/a con mis hábitos y rutinas.",
+    BEAUT1: "A menudo me conmueve la belleza de la naturaleza, el arte o una ejecución magistral.", BEAUT2: "Noto y aprecio la excelencia en muchos ámbitos de la vida.",
+    GRAT1: "Siento y expreso gratitud por las cosas buenas de mi vida.", GRAT2: "Con regularidad me tomo un tiempo para contar mis bendiciones.",
+    HOPE1: "Espero lo mejor y trabajo para que ocurra.", HOPE2: "Me mantengo optimista sobre el futuro, incluso en tiempos difíciles.",
+    HUMOR1: "Me encanta reír y aportar ligereza y juego a las situaciones.", HUMOR2: "Uso el humor para conectar con la gente y levantar el ánimo.",
+    SPIRIT1: "Tengo un sentido claro de propósito y significado en mi vida.", SPIRIT2: "Me siento conectado/a con algo más grande que yo.",
+  },
+};
+const VIA_FR: InstrumentTranslation = {
+  name: "Forces de caractère (VIA-24)", shortName: "Forces",
+  tagline: "Découvrez vos forces de signature — le meilleur de qui vous êtes.",
+  description: "La Classification VIA identifie 24 forces de caractère regroupées sous six vertus universelles. Ce profileur mesure les 24 et révèle vos principales « forces de signature » — celles qui vous semblent les plus essentiellement vôtres. Des décennies de recherche montrent qu'utiliser vos forces de signature de façons nouvelles améliore le bien-être de manière fiable.",
+  scales: viaScales(VIA_NAMES_FR, VIA_VIRTUE_FR, VIA_DESC_FR, "plus discrète ici que dans vos forces de signature", (v, n) => `${v} — votre ${n.toLowerCase()}.`),
+  items: {
+    CREAT1: "Je trouve souvent des façons nouvelles et originales de faire les choses.", CREAT2: "Les gens me voient comme imaginatif(ve) et inventif(ve).",
+    CURIO1: "Je suis curieux(se) de presque tout et j'adore explorer.", CURIO2: "Je pose sans cesse des questions et recherche de nouvelles expériences.",
+    JUDGE1: "Je réfléchis et pèse les preuves avant de décider.", JUDGE2: "Je suis prêt(e) à changer d'avis quand les faits l'exigent.",
+    LEARN1: "J'adore maîtriser de nouvelles compétences et de nouveaux sujets pour eux-mêmes.", LEARN2: "Apprendre quelque chose de nouveau me procure un vrai frisson.",
+    PERSP1: "Les gens viennent me chercher pour des conseils avisés et du recul.", PERSP2: "Je vois la vue d'ensemble et j'aide les autres à donner du sens aux choses.",
+    BRAVE1: "Je défends ce qui est juste, même quand c'est difficile ou risqué.", BRAVE2: "Je ne recule pas devant les défis, les menaces ou la douleur.",
+    PERSV1: "Je termine ce que je commence, même quand ça devient dur.", PERSV2: "Je travaille dur et je n'abandonne pas facilement.",
+    HONES1: "Je suis honnête et je me présente de façon authentique aux autres.", HONES2: "J'assume la responsabilité de mes actes et de mes sentiments.",
+    ZEST1: "J'aborde la vie avec enthousiasme et énergie.", ZEST2: "Je me sens vivant(e), plein(e) de vitalité et enthousiaste la plupart du temps.",
+    LOVE1: "Je valorise les relations proches et aimantes et je les entretiens.", LOVE2: "Je suis à l'aise pour donner comme pour recevoir amour et soin.",
+    KIND1: "Je fais des efforts pour aider et être généreux(se) envers les autres.", KIND2: "Faire des choses gentilles pour les gens me met vraiment du baume au cœur.",
+    SOCIN1: "Je sais bien percevoir ce que ressentent les autres et ce qui les anime.", SOCIN2: "Je sais mettre les gens à l'aise et les faire se sentir compris.",
+    TEAM1: "Je suis un membre loyal et fiable de toute équipe dont je fais partie.", TEAM2: "Je fais ma part et je travaille bien vers des buts communs.",
+    FAIR1: "Je traite tout le monde équitablement et je donne à chacun une chance juste.", FAIR2: "Je ne laisse pas mes sentiments biaiser ma façon de juger ou de traiter les autres.",
+    LEAD1: "Je sais bien organiser les gens et faire avancer les choses en groupe.", LEAD2: "Les gens se tournent naturellement vers moi pour mener.",
+    FORGV1: "Je pardonne à ceux qui m'ont fait du tort et je lâche les rancunes.", FORGV2: "J'accorde volontiers une seconde chance aux gens.",
+    HUMIL1: "Je laisse mes accomplissements parler d'eux-mêmes plutôt que de chercher les projecteurs.", HUMIL2: "Je ne me considère pas plus spécial(e) que les autres.",
+    PRUD1: "Je suis prudent(e) et j'évite de faire des choses que je pourrais regretter.", PRUD2: "Je réfléchis avant d'agir et j'évite les risques inutiles.",
+    SELFR1: "J'ai un bon contrôle sur mes émotions et mes impulsions.", SELFR2: "Je suis discipliné(e) dans mes habitudes et mes routines.",
+    BEAUT1: "Je suis souvent ému(e) par la beauté de la nature, de l'art ou d'une performance magistrale.", BEAUT2: "Je remarque et j'apprécie l'excellence dans de nombreux domaines de la vie.",
+    GRAT1: "Je ressens et j'exprime de la gratitude pour les bonnes choses de ma vie.", GRAT2: "Je prends régulièrement le temps de compter mes bienfaits.",
+    HOPE1: "J'espère le meilleur et je travaille à le faire advenir.", HOPE2: "Je reste optimiste quant à l'avenir, même dans les moments difficiles.",
+    HUMOR1: "J'adore rire et apporter légèreté et jeu aux situations.", HUMOR2: "J'utilise l'humour pour me connecter aux gens et remonter le moral.",
+    SPIRIT1: "J'ai un sens clair du but et du sens dans ma vie.", SPIRIT2: "Je me sens relié(e) à quelque chose de plus grand que moi.",
+  },
+};
+const COUPLECOMM_ES: InstrumentTranslation = {
+  name: "Comunicación y conflicto en pareja", shortName: "Pareja",
+  tagline: "Cómo tú y tu pareja hablan, reparan y discuten: los patrones que hacen o deshacen el amor.",
+  description: "Décadas de investigación muestran que las relaciones se sostienen o se rompen menos por lo que las parejas discuten que por CÓMO se comunican. Este perfilador lee seis de los patrones más predictivos: arranque suave, comunicación constructiva, reparación y aceptar la influencia, capacidad de respuesta y acercamiento, los 'Cuatro Jinetes' (crítica, desprecio, actitud defensiva y evasión) y el ciclo de demanda–retirada. Más alto es más sano en los cuatro primeros; los dos últimos son patrones de riesgo que conviene suavizar. Un espejo para crecer, en cualquier relación comprometida.",
+  scales: {
+    GENTLE: { name: "Arranque suave", description: "Plantear temas difíciles con suavidad, como una queja concreta y no como un ataque personal.", poles: { low: "Arranque brusco", high: "Arranque suave" }, highDescriptor: "suave y concreto/a al abrir conversaciones difíciles", lowDescriptor: "propenso/a a arranques bruscos y acusadores" },
+    CONSTR: { name: "Comunicación constructiva", description: "Hablar abiertamente, expresar sentimientos y negociar los problemas juntos.", poles: { low: "Evasivo", high: "Constructivo" }, highDescriptor: "abierto/a, expresivo/a y colaborador/a ante los problemas", lowDescriptor: "evasivo/a o cerrado/a ante los problemas" },
+    REPAIR: { name: "Reparación y aceptar la influencia", description: "Desescalar, asumir la responsabilidad, calmarse y dejar que tu pareja te influya.", poles: { low: "Escala", high: "Repara" }, highDescriptor: "rápido/a para reparar, asumir responsabilidad y aceptar la influencia", lowDescriptor: "a la defensiva y lento/a para desescalar" },
+    RESPOND: { name: "Capacidad de respuesta y acercamiento", description: "Notar los gestos de conexión, celebrar las buenas noticias y expresar aprecio.", poles: { low: "Se aleja", high: "Se acerca" }, highDescriptor: "cálidamente receptivo/a y rápido/a para acercarte a tu pareja", lowDescriptor: "a menudo distraído/a o que se aleja de los gestos de conexión" },
+    HORSE: { name: "Los Cuatro Jinetes", description: "Crítica, desprecio, actitud defensiva y evasión: las conductas más corrosivas en el conflicto.", poles: { low: "Raros", high: "Frecuentes" }, highDescriptor: "los patrones corrosivos aparecen a menudo (conviene suavizarlos)", lowDescriptor: "prácticamente libre de los patrones corrosivos" },
+    DEMWD: { name: "Demanda–retirada", description: "El ciclo de perseguir y distanciarse y la evitación mutua que intensifican el conflicto.", poles: { low: "Equilibrado", high: "Demanda–retirada" }, highDescriptor: "atrapado/a en perseguir-retirarse o en la evitación mutua", lowDescriptor: "capaz de abordar los problemas sin el ciclo" },
+  },
+  items: {
+    GEN1: "Cuando algo me molesta, lo planteo con suavidad en lugar de con reproches.", GEN2: "Describo cómo me siento y qué necesito en vez de atacar a mi pareja.", GEN3: "Abro las conversaciones delicadas con una queja sobre el tema, no con una crítica a mi pareja.", GEN4: "Empiezo las conversaciones difíciles con una acusación o una pulla.",
+    CON1: "Hablamos de nuestros problemas abiertamente e intentamos entendernos.", CON2: "Expreso mis sentimientos con honestidad cuando discrepamos.", CON3: "Trabajamos juntos para negociar y resolver el problema.", CON4: "Cuando surge un problema, lo evito o cambio de tema.",
+    REP1: "Cuando las cosas se calientan, hago un esfuerzo por calmarme y desescalar.", REP2: "Asumo mi parte de responsabilidad en lugar de ponerme a la defensiva.", REP3: "Acepto la influencia de mi pareja y dejo que me haga cambiar de opinión.", REP4: "Una vez que empieza una pelea, ninguno de los dos puede pararla hasta que se agota.",
+    RES1: "Cuando mi pareja comparte buenas noticias, respondo con entusiasmo genuino.", RES2: "Noto y respondo a los pequeños gestos de atención y afecto de mi pareja.", RES3: "Le hago saber a mi pareja que la valoro y la aprecio.", RES4: "Cuando mi pareja quiere conectar, estoy demasiado ocupado/a o distraído/a para responder.",
+    HOR1: "En el conflicto, critico el carácter de mi pareja, no solo su conducta.", HOR2: "Muestro desprecio: sarcasmo, poner los ojos en blanco o hablarle con superioridad.", HOR3: "Cuando me critican, me defiendo y niego mi responsabilidad en vez de escuchar.", HOR4: "Me cierro, me quedo en silencio o me retiro para terminar una conversación difícil.",
+    DEM1: "Uno de los dos presiona para hablar del problema mientras el otro se aparta.", DEM2: "Insisto o presiono a mi pareja mientras evita el tema o se cierra.", DEM3: "Cuando planteo un tema, mi pareja se retira; o cuando lo plantea, lo hago yo.", DEM4: "Ambos evitamos los temas difíciles y dejamos que los problemas se enquisten.",
+  },
+};
+const COUPLECOMM_FR: InstrumentTranslation = {
+  name: "Communication et conflit en couple", shortName: "Couple",
+  tagline: "Comment vous et votre partenaire parlez, réparez et vous disputez — les schémas qui font ou défont l'amour.",
+  description: "Des décennies de recherche montrent que les relations tiennent ou s'effritent moins selon ce dont les couples se disputent que selon la FAÇON dont ils communiquent. Ce profileur lit six des schémas les plus prédictifs : démarrage en douceur, communication constructive, réparation et acceptation de l'influence, réactivité et fait de se tourner vers l'autre, les « Quatre Cavaliers » (critique, mépris, attitude défensive et mur du silence) et le cycle exigence–retrait. Plus c'est élevé, plus c'est sain pour les quatre premiers ; les deux derniers sont des schémas à risque à adoucir. Un miroir pour grandir, dans toute relation engagée.",
+  scales: {
+    GENTLE: { name: "Démarrage en douceur", description: "Aborder les sujets difficiles en douceur, comme une plainte précise et non une attaque personnelle.", poles: { low: "Démarrage brusque", high: "Démarrage en douceur" }, highDescriptor: "doux et précis(e) pour ouvrir les conversations difficiles", lowDescriptor: "enclin(e) aux démarrages brusques et accusateurs" },
+    CONSTR: { name: "Communication constructive", description: "Discuter ouvertement, exprimer ses sentiments et négocier les problèmes ensemble.", poles: { low: "Évitant", high: "Constructif" }, highDescriptor: "ouvert(e), expressif(ve) et collaboratif(ve) face aux problèmes", lowDescriptor: "évitant(e) ou fermé(e) face aux problèmes" },
+    REPAIR: { name: "Réparation et acceptation de l'influence", description: "Désamorcer, assumer sa part, se calmer et laisser votre partenaire vous influencer.", poles: { low: "Escalade", high: "Répare" }, highDescriptor: "prompt(e) à réparer, assumer et accepter l'influence", lowDescriptor: "sur la défensive et lent(e) à désamorcer" },
+    RESPOND: { name: "Réactivité et fait de se tourner vers l'autre", description: "Remarquer les appels à la connexion, fêter les bonnes nouvelles et exprimer de la reconnaissance.", poles: { low: "Se détourne", high: "Se tourne vers" }, highDescriptor: "chaleureusement réactif(ve) et prompt(e) à vous tourner vers votre partenaire", lowDescriptor: "souvent distrait(e) ou se détournant des appels à la connexion" },
+    HORSE: { name: "Les Quatre Cavaliers", description: "Critique, mépris, attitude défensive et mur du silence — les comportements les plus corrosifs en conflit.", poles: { low: "Rares", high: "Fréquents" }, highDescriptor: "les schémas corrosifs apparaissent souvent (à adoucir)", lowDescriptor: "largement exempt(e) des schémas corrosifs" },
+    DEMWD: { name: "Exigence–retrait", description: "Le cycle poursuite-distance et l'évitement mutuel qui intensifient le conflit.", poles: { low: "Équilibré", high: "Exigence–retrait" }, highDescriptor: "pris(e) dans la poursuite-retrait ou l'évitement mutuel", lowDescriptor: "capable d'aborder les problèmes sans le cycle" },
+  },
+  items: {
+    GEN1: "Quand quelque chose me dérange, je l'aborde en douceur plutôt qu'avec des reproches.", GEN2: "Je décris ce que je ressens et ce dont j'ai besoin au lieu d'attaquer mon/ma partenaire.", GEN3: "J'ouvre les conversations délicates par une plainte sur le sujet, pas par une critique de mon/ma partenaire.", GEN4: "Je commence les conversations difficiles par une accusation ou une pique.",
+    CON1: "Nous discutons ouvertement de nos problèmes et essayons de nous comprendre.", CON2: "J'exprime honnêtement mes sentiments quand nous ne sommes pas d'accord.", CON3: "Nous travaillons ensemble pour négocier et résoudre le problème.", CON4: "Quand un problème surgit, je l'évite ou je change de sujet.",
+    REP1: "Quand le ton monte, je fais un effort pour me calmer et désamorcer.", REP2: "J'assume ma part de responsabilité au lieu de me mettre sur la défensive.", REP3: "J'accepte l'influence de mon/ma partenaire et je le/la laisse me faire changer d'avis.", REP4: "Une fois qu'une dispute commence, aucun de nous ne peut l'arrêter avant qu'elle ne s'épuise.",
+    RES1: "Quand mon/ma partenaire partage une bonne nouvelle, je réagis avec un enthousiasme sincère.", RES2: "Je remarque et réponds aux petits appels à l'attention et à l'affection de mon/ma partenaire.", RES3: "Je fais savoir à mon/ma partenaire que je l'apprécie et que je tiens à lui/elle.", RES4: "Quand mon/ma partenaire veut se connecter, je suis trop occupé(e) ou distrait(e) pour répondre.",
+    HOR1: "En conflit, je critique le caractère de mon/ma partenaire, pas seulement son comportement.", HOR2: "Je montre du mépris — sarcasme, yeux levés au ciel ou ton condescendant.", HOR3: "Quand on me critique, je me défends et nie ma responsabilité au lieu d'écouter.", HOR4: "Je me ferme, me tais ou me retire pour mettre fin à une conversation difficile.",
+    DEM1: "L'un de nous pousse à parler du problème tandis que l'autre s'éloigne.", DEM2: "J'insiste ou je presse mon/ma partenaire pendant qu'il/elle évite le sujet ou se mure.", DEM3: "Quand je soulève un sujet, mon/ma partenaire se retire — ou l'inverse.", DEM4: "Nous évitons tous les deux les sujets difficiles et laissons les problèmes s'envenimer.",
+  },
+};
+const TEAMCOMM_ES: InstrumentTranslation = {
+  name: "Comunicación y conflicto en equipo", shortName: "Equipo",
+  tagline: "Cómo tu equipo alza la voz, debate y resuelve la fricción: qué hace productivo al conflicto.",
+  description: "El conflicto puede volver más agudo a un equipo o envenenarlo en silencio; la diferencia está en cómo se comunica. Este perfilador lee seis dimensiones respaldadas por la investigación: seguridad psicológica (¿es seguro alzar la voz?), comunicación abierta y franca, debate constructivo de tareas, fricción relacional, coordinación y claridad de roles, y resolución de conflictos. Los equipos más sanos combinan alta seguridad, apertura y debate productivo con poca fricción personal, y resuelven los problemas en lugar de enterrarlos.",
+  scales: {
+    SAFETY: { name: "Seguridad psicológica", description: "La sensación compartida de que es seguro asumir riesgos interpersonales: alzar la voz, admitir errores, pedir ayuda.", poles: { low: "Recelo", high: "Seguro" }, highDescriptor: "alta: es seguro alzar la voz y ser uno mismo", lowDescriptor: "baja: hablar se siente arriesgado" },
+    OPEN: { name: "Comunicación abierta", description: "Franqueza, transparencia y retroalimentación directa en el equipo.", poles: { low: "Reservada", high: "Franca" }, highDescriptor: "franca, transparente y directa", lowDescriptor: "reservada, con cosas que quedan sin decir" },
+    TASK: { name: "Debate constructivo de tareas", description: "Desacuerdo sano sobre las ideas y el trabajo en sí.", poles: { low: "Reprimido", high: "Debate sano" }, highDescriptor: "debate las ideas abiertamente para hallar la mejor respuesta", lowDescriptor: "reprime el desacuerdo sobre el trabajo" },
+    FRICTION: { name: "Fricción relacional", description: "Tensión personal y emocional y choques entre personas (no sobre el trabajo).", poles: { low: "Armonioso", high: "Fricción" }, highDescriptor: "notable tensión personal y choques (conviene aliviarlos)", lowDescriptor: "prácticamente sin fricción personal" },
+    COORD: { name: "Coordinación y claridad de roles", description: "Claridad sobre quién hace qué y cómo encaja el trabajo.", poles: { low: "Confuso", high: "Claro" }, highDescriptor: "roles claros y coordinación fluida", lowDescriptor: "roles confusos y fricción en los procesos" },
+    RESOLVE: { name: "Resolución de conflictos", description: "Sacar a la luz y trabajar los desacuerdos hacia soluciones que todos puedan aceptar.", poles: { low: "Se enquista", high: "Se resuelve" }, highDescriptor: "aborda y resuelve el conflicto de forma constructiva", lowDescriptor: "deja que el conflicto se enquiste sin abordarlo" },
+  },
+  items: {
+    SAF1: "En mi equipo es seguro asumir un riesgo o lanzar una idea a medio formar.", SAF2: "Si cometo un error en este equipo, se me echa en cara.", SAF3: "Puedo plantear problemas y temas difíciles sin miedo.", SAF4: "El equipo valora mis habilidades y mi perspectiva únicas.",
+    OPN1: "En mi equipo la gente dice lo que de verdad piensa, no solo lo que es seguro.", OPN2: "La información se comparte abiertamente en lugar de quedar en compartimentos.", OPN3: "Nos damos retroalimentación directa y honesta.", OPN4: "La gente se calla en las reuniones y luego se desahoga aparte.",
+    TSK1: "Debatimos ideas y enfoques abiertamente para llegar a la mejor respuesta.", TSK2: "El desacuerdo sobre el trabajo es bienvenido, no se silencia.", TSK3: "Podemos discutir con fuerza sobre el problema respetando a la persona.", TSK4: "Aquí la gente evita discrepar aunque vea una forma mejor.",
+    FRC1: "Hay verdadera fricción de personalidades y tensión en este equipo.", FRC2: "Los conflictos aquí se vuelven personales en vez de quedarse en el trabajo.", FRC3: "Algunas personas del equipo simplemente no se llevan bien.", FRC4: "Los choques emocionales agotan la energía del equipo.",
+    COR1: "Los roles y las responsabilidades están claros para todos.", COR2: "Nos ponemos de acuerdo en quién debe hacer qué y para cuándo.", COR3: "Perdemos tiempo discutiendo cómo repartir el trabajo.", COR4: "Las entregas y la coordinación entre nosotros fluyen sin problemas.",
+    RSV1: "Cuando surge un conflicto, lo abordamos directamente y lo resolvemos.", RSV2: "Buscamos soluciones que satisfagan las necesidades de fondo de todos.", RSV3: "Los desacuerdos se resuelven en lugar de dejarse enquistar.", RSV4: "Escondemos los conflictos bajo la alfombra y esperamos que desaparezcan.",
+  },
+};
+const TEAMCOMM_FR: InstrumentTranslation = {
+  name: "Communication et conflit en équipe", shortName: "Équipe",
+  tagline: "Comment votre équipe prend la parole, débat et résout les frictions — ce qui rend le conflit productif.",
+  description: "Le conflit peut rendre une équipe plus fine ou l'empoisonner en silence ; la différence tient à sa façon de communiquer. Ce profileur lit six dimensions étayées par la recherche : sécurité psychologique (peut-on prendre la parole sans risque ?), communication ouverte et franche, débat de tâches constructif, friction relationnelle, coordination et clarté des rôles, et résolution des conflits. Les équipes les plus saines associent une forte sécurité, de l'ouverture et un débat productif à une faible friction personnelle — et résolvent les problèmes au lieu de les enterrer.",
+  scales: {
+    SAFETY: { name: "Sécurité psychologique", description: "Le sentiment partagé qu'il est sûr de prendre des risques interpersonnels : s'exprimer, admettre ses erreurs, demander de l'aide.", poles: { low: "Méfiance", high: "Sûr" }, highDescriptor: "élevée — sûr de s'exprimer et d'être soi-même", lowDescriptor: "faible — s'exprimer semble risqué" },
+    OPEN: { name: "Communication ouverte", description: "Franchise, transparence et retours directs dans l'équipe.", poles: { low: "Réservée", high: "Franche" }, highDescriptor: "franche, transparente et directe", lowDescriptor: "réservée, avec des non-dits" },
+    TASK: { name: "Débat de tâches constructif", description: "Désaccord sain sur les idées et le travail lui-même.", poles: { low: "Réprimé", high: "Débat sain" }, highDescriptor: "débat les idées ouvertement pour trouver la meilleure réponse", lowDescriptor: "réprime le désaccord sur le travail" },
+    FRICTION: { name: "Friction relationnelle", description: "Tension personnelle et émotionnelle et heurts entre personnes (pas sur le travail).", poles: { low: "Harmonieux", high: "Friction" }, highDescriptor: "tension personnelle et heurts notables (à apaiser)", lowDescriptor: "largement sans friction personnelle" },
+    COORD: { name: "Coordination et clarté des rôles", description: "Clarté sur qui fait quoi et comment le travail s'emboîte.", poles: { low: "Confus", high: "Clair" }, highDescriptor: "rôles clairs et coordination fluide", lowDescriptor: "rôles confus et friction de processus" },
+    RESOLVE: { name: "Résolution des conflits", description: "Faire émerger et traiter les désaccords vers des solutions acceptables pour tous.", poles: { low: "S'envenime", high: "Se résout" }, highDescriptor: "aborde et résout le conflit de façon constructive", lowDescriptor: "laisse le conflit s'envenimer sans le traiter" },
+  },
+  items: {
+    SAF1: "Dans mon équipe, il est sûr de prendre un risque ou de lancer une idée à demi formée.", SAF2: "Si je fais une erreur dans cette équipe, on me la reproche.", SAF3: "Je peux soulever des problèmes et des sujets difficiles sans crainte.", SAF4: "L'équipe valorise mes compétences et ma perspective uniques.",
+    OPN1: "Dans mon équipe, les gens disent ce qu'ils pensent vraiment, pas seulement ce qui est prudent.", OPN2: "L'information est partagée ouvertement plutôt que cloisonnée.", OPN3: "Nous nous donnons des retours directs et honnêtes.", OPN4: "Les gens se taisent en réunion et se défoulent ensuite ailleurs.",
+    TSK1: "Nous débattons ouvertement des idées et des approches pour trouver la meilleure réponse.", TSK2: "Le désaccord sur le travail est bienvenu, pas étouffé.", TSK3: "Nous pouvons débattre fermement du problème tout en respectant la personne.", TSK4: "Ici, les gens évitent de ne pas être d'accord même quand ils voient mieux.",
+    FRC1: "Il y a une vraie friction de personnalités et de la tension dans cette équipe.", FRC2: "Les conflits ici deviennent personnels au lieu de rester sur le travail.", FRC3: "Certaines personnes de l'équipe ne s'entendent tout simplement pas.", FRC4: "Les heurts émotionnels épuisent l'énergie de l'équipe.",
+    COR1: "Les rôles et les responsabilités sont clairs pour tout le monde.", COR2: "Nous nous accordons sur qui doit faire quoi, et pour quand.", COR3: "Nous perdons du temps à débattre de la répartition du travail.", COR4: "Les passations et la coordination entre nous se déroulent sans accroc.",
+    RSV1: "Quand un conflit surgit, nous l'abordons directement et le réglons.", RSV2: "Nous cherchons des solutions qui répondent aux besoins de fond de chacun.", RSV3: "Les désaccords se règlent au lieu d'être laissés à s'envenimer.", RSV4: "Nous balayons les conflits sous le tapis en espérant qu'ils disparaissent.",
+  },
+};
+const COMMSTYLE_ES: InstrumentTranslation = {
+  name: "Estilo de comunicación y conflicto", shortName: "Estilo comunic.",
+  tagline: "Tus habilidades comunicativas esenciales en toda relación: expresar, escuchar, mantener la calma, resolver.",
+  description: "Una lectura general de las competencias comunicativas que moldean toda relación: con parejas, compañeros, amigos y familia. Mide seis habilidades detrás de manejar bien la fricción: expresión asertiva, escucha activa, empatía y toma de perspectiva, compostura bajo presión, resolución colaborativa (ganar-ganar) y si abordas o evitas. Complementa el test de estilo de conflicto (Thomas-Kilmann): ese nombra el modo que eliges; este, las habilidades que aportas.",
+  scales: {
+    ASSERT: { name: "Expresión asertiva", description: "Expresar necesidades y opiniones con claridad y respeto, ni pasivo ni agresivo.", poles: { low: "Pasivo", high: "Asertivo" }, highDescriptor: "claro/a, directo/a y respetuoso/a al expresarte", lowDescriptor: "pasivo/a o indirecto/a con tus necesidades" },
+    LISTEN: { name: "Escucha activa", description: "Escuchar para comprender: reflejar, aclarar y atender plenamente.", poles: { low: "Escucha a medias", high: "Escucha activa" }, highDescriptor: "oyente atento/a y reflexivo/a", lowDescriptor: "propenso/a a escuchar a medias o a ensayar tu respuesta" },
+    EMPATH: { name: "Empatía y toma de perspectiva", description: "Ver y validar el punto de vista y los sentimientos del otro.", poles: { low: "Centrado en sí", high: "Empático" }, highDescriptor: "rápido/a para adoptar la perspectiva ajena y validar emociones", lowDescriptor: "más centrado/a en ti en los desacuerdos" },
+    REGUL: { name: "Compostura en el conflicto", description: "Mantener la calma y la regulación en vez de desbordarte o reaccionar.", poles: { low: "Reactivo", high: "Sereno" }, highDescriptor: "sereno/a y firme bajo presión", lowDescriptor: "fácil de desbordar o reactivo/a cuando te alteras" },
+    COLLAB: { name: "Resolución colaborativa", description: "Buscar soluciones ganar-ganar atendiendo a los intereses de fondo, no a posiciones fijas.", poles: { low: "Ganar-perder", high: "Ganar-ganar" }, highDescriptor: "centrado/a en soluciones compartidas basadas en intereses", lowDescriptor: "más de ganar-perder o posicional" },
+    ENGAGE: { name: "Aborda frente a evita", description: "Disposición a abordar los temas directamente en vez de evitarlos o retirarte.", poles: { low: "Evita", high: "Aborda" }, highDescriptor: "aborda los temas pronto y de frente", lowDescriptor: "inclinado/a a evitar o posponer las conversaciones difíciles" },
+  },
+  items: {
+    ASR1: "Expreso mis necesidades y opiniones con claridad y de forma directa.", ASR2: "Puedo decir que no sin sentirme culpable ni dar excusas.", ASR3: "Expreso mi desacuerdo con respeto en lugar de ceder para no romper la paz.", ASR4: "Insinúo lo que quiero, o me callo, en vez de decirlo abiertamente.",
+    LIS1: "Escucho para entender del todo antes de responder.", LIS2: "Repito con mis palabras lo que oí para asegurarme de haberlo captado bien.", LIS3: "Hago preguntas para entender el punto de vista del otro.", LIS4: "Ya estoy preparando mi respuesta mientras la otra persona aún habla.",
+    EMP1: "Intento ver la situación desde la perspectiva del otro.", EMP2: "Reconozco los sentimientos del otro, incluso cuando no estoy de acuerdo.", EMP3: "Doy por hecho la buena intención en lugar de pensar lo peor.", EMP4: "En una disputa me centro en mi propio caso y desatiendo el suyo.",
+    REG1: "Me mantengo tranquilo/a y sereno/a cuando una conversación se calienta.", REG2: "Respiro o me tomo una pausa breve en vez de reaccionar en caliente.", REG3: "Digo cosas de las que me arrepiento cuando estoy alterado/a.", REG4: "Las emociones fuertes me secuestran durante el conflicto.",
+    COL1: "Busco soluciones que funcionen para todos, no solo para mí.", COL2: "Me centro en las necesidades de fondo de una disputa, no solo en las posiciones declaradas.", COL3: "Estoy dispuesto/a a ceder y a encontrar un punto medio.", COL4: "Ganar la discusión me importa más que la relación.",
+    ENG1: "Abordo los temas directamente en lugar de dejarlos pasar.", ENG2: "Planteo los problemas pronto en vez de guardármelos.", ENG3: "Evito las conversaciones difíciles siempre que puedo.", ENG4: "Prefiero hablar un problema a fondo antes que dejarlo de lado.",
+  },
+};
+const COMMSTYLE_FR: InstrumentTranslation = {
+  name: "Style de communication et de conflit", shortName: "Style comm.",
+  tagline: "Vos compétences de communication essentielles dans toute relation : exprimer, écouter, garder son calme, résoudre.",
+  description: "Une lecture générale des compétences de communication qui façonnent toute relation — avec partenaires, coéquipiers, amis et famille. Elle mesure six compétences derrière une bonne gestion des frictions : expression assertive, écoute active, empathie et prise de perspective, sang-froid sous pression, résolution collaborative (gagnant-gagnant) et le fait d'aborder ou d'éviter. Elle complète le test de style de conflit (Thomas-Kilmann) : celui-ci nomme le mode que vous choisissez ; celle-ci, les compétences que vous apportez.",
+  scales: {
+    ASSERT: { name: "Expression assertive", description: "Énoncer ses besoins et ses avis avec clarté et respect — ni passif ni agressif.", poles: { low: "Passif", high: "Assertif" }, highDescriptor: "clair(e), direct(e) et respectueux(se) dans l'expression", lowDescriptor: "passif(ve) ou indirect(e) sur vos besoins" },
+    LISTEN: { name: "Écoute active", description: "Écouter pour comprendre : reformuler, clarifier et être pleinement attentif.", poles: { low: "Écoute distraite", high: "Écoute active" }, highDescriptor: "auditeur(trice) attentif(ve) et réflexif(ve)", lowDescriptor: "enclin(e) à écouter à moitié ou à préparer sa réponse" },
+    EMPATH: { name: "Empathie et prise de perspective", description: "Voir et valider le point de vue et les sentiments de l'autre.", poles: { low: "Centré sur soi", high: "Empathique" }, highDescriptor: "prompt(e) à adopter la perspective de l'autre et à valider ses émotions", lowDescriptor: "plus centré(e) sur soi dans les désaccords" },
+    REGUL: { name: "Sang-froid en conflit", description: "Rester calme et régulé plutôt que submergé ou réactif.", poles: { low: "Réactif", high: "Posé" }, highDescriptor: "posé(e) et stable sous pression", lowDescriptor: "facilement submergé(e) ou réactif(ve) quand contrarié(e)" },
+    COLLAB: { name: "Résolution collaborative", description: "Chercher des solutions gagnant-gagnant en traitant les intérêts de fond, pas des positions figées.", poles: { low: "Gagnant-perdant", high: "Gagnant-gagnant" }, highDescriptor: "centré(e) sur des solutions partagées fondées sur les intérêts", lowDescriptor: "plus gagnant-perdant ou positionnel(le)" },
+    ENGAGE: { name: "Aborde ou évite", description: "Disposition à aborder les sujets directement plutôt qu'à éviter ou se retirer.", poles: { low: "Évite", high: "Aborde" }, highDescriptor: "aborde les sujets tôt et directement", lowDescriptor: "enclin(e) à éviter ou repousser les conversations difficiles" },
+  },
+  items: {
+    ASR1: "J'énonce mes besoins et mes avis clairement et directement.", ASR2: "Je peux dire non sans culpabiliser ni me justifier.", ASR3: "J'exprime mon désaccord avec respect au lieu de céder pour préserver la paix.", ASR4: "Je laisse entendre ce que je veux, ou je me tais, plutôt que de le dire franchement.",
+    LIS1: "J'écoute pour bien comprendre avant de répondre.", LIS2: "Je reformule ce que j'ai entendu pour être sûr(e) d'avoir bien compris.", LIS3: "Je pose des questions pour comprendre le point de vue de l'autre.", LIS4: "Je prépare déjà ma réponse pendant que l'autre parle encore.",
+    EMP1: "J'essaie de voir la situation du point de vue de l'autre.", EMP2: "Je reconnais les sentiments de l'autre, même quand je ne suis pas d'accord.", EMP3: "Je présume la bonne intention plutôt que le pire.", EMP4: "Dans un différend, je me concentre sur mon propre cas et néglige le sien.",
+    REG1: "Je reste calme et posé(e) quand une conversation s'échauffe.", REG2: "Je respire ou je fais une courte pause au lieu de réagir à chaud.", REG3: "Je dis des choses que je regrette quand je suis contrarié(e).", REG4: "Les émotions fortes me submergent pendant un conflit.",
+    COL1: "Je cherche des solutions qui conviennent à tous, pas seulement à moi.", COL2: "Je me concentre sur les besoins de fond d'un différend, pas seulement sur les positions affichées.", COL3: "Je suis prêt(e) à faire des compromis et à trouver un terrain d'entente.", COL4: "Gagner la discussion compte plus pour moi que la relation.",
+    ENG1: "J'aborde les sujets directement au lieu de les laisser filer.", ENG2: "Je soulève les problèmes tôt au lieu de les garder pour moi.", ENG3: "J'évite les conversations difficiles dès que je peux.", ENG4: "Je préfère discuter un problème à fond plutôt que de l'écarter.",
+  },
+};
+
+const MONEY_ES: InstrumentTranslation = {
+  name: "Guiones del dinero", shortName: "Dinero",
+  tagline: "Las creencias ocultas sobre el dinero que dirigen en silencio cómo ganas, gastas y ahorras.",
+  description: "Gran parte de nuestra conducta con el dinero la dirigen los 'guiones del dinero': creencias sobre el dinero, normalmente absorbidas en la infancia, que rara vez examinamos. La investigación de Brad Klontz mapea cuatro: evitación del dinero (el dinero es malo o inmerecido), adoración del dinero (más dinero lo arreglará todo), estatus del dinero (autoestima = patrimonio) y vigilancia del dinero (alerta, cuidadoso, reservado). Tres de los cuatro predicen tensión financiera; la vigilancia es el más sano. Este perfilador saca a la luz tu guion dominante para que no lleve él las riendas.",
+  scales: {
+    AVOID: { name: "Evitación del dinero", description: "Creencia de que el dinero es malo, corruptor o inmerecido.", poles: { low: "A gusto", high: "Evitativo" }, highDescriptor: "receloso/a del dinero y propenso/a a descuidarlo", lowDescriptor: "a gusto con el lugar del dinero en tu vida" },
+    WORSHIP: { name: "Adoración del dinero", description: "Creencia de que más dinero trae felicidad y resuelve problemas.", poles: { low: "Conforme", high: "Adorador" }, highDescriptor: "convencido/a de que más dinero es la respuesta; nunca es suficiente", lowDescriptor: "tranquilo/a con que el dinero no es la clave de la felicidad" },
+    STATUS: { name: "Estatus del dinero", description: "Ligar la autoestima y la identidad al éxito financiero.", poles: { low: "Autoestima ≠ patrimonio", high: "Guiado por el estatus" }, highDescriptor: "que liga el valor y el estatus a la riqueza y al éxito visible", lowDescriptor: "con la autoestima separada del patrimonio" },
+    VIGIL: { name: "Vigilancia del dinero", description: "Atención, cuidado, frugalidad y discreción con el dinero (el guion más sano).", poles: { low: "Despreocupado", high: "Vigilante" }, highDescriptor: "alerta, frugal y cuidadoso/a con el dinero", lowDescriptor: "relajado/a, a veces descuidado/a, con el dinero" },
+  },
+  items: {
+    AV1: "El dinero es, en el fondo, la causa de mucho de lo que va mal en el mundo.", AV2: "Hay una verdadera virtud en vivir con menos dinero.", AV3: "No merezco tener mucho dinero cuando otros tienen tan poco.", AV4: "Las personas ricas tienden a ser codiciosas o a haber hecho trampas para llegar.", AV5: "Evito pensar en mi dinero o lidiar con él.",
+    WO1: "Las cosas me irían mejor si tuviera más dinero.", WO2: "Más dinero me haría más feliz.", WO3: "Es difícil ser pobre y feliz a la vez.", WO4: "Por mucho que tenga, nunca hay suficiente dinero.", WO5: "El dinero resolvería la mayoría de mis problemas.",
+    ST1: "Tu autoestima está estrechamente ligada a tu patrimonio.", ST2: "Las personas tienen tanto éxito como el dinero que ganan.", ST3: "Quiero poder mostrarle a la gente que tengo dinero.", ST4: "Si algo es lo más caro, probablemente sea lo mejor.", ST5: "Admiro a quienes poseen cosas caras y quiero lo mismo.",
+    VG1: "Vigilo mis finanzas de cerca y con cuidado.", VG2: "Es importante ahorrar para un día difícil.", VG3: "Prefiero no decir a los demás cuánto dinero tengo o gano.", VG4: "Me siento intranquilo/a si no soy cuidadoso/a y frugal con el dinero.", VG5: "Siempre quiero saber exactamente a dónde va mi dinero.",
+  },
+};
+const MONEY_FR: InstrumentTranslation = {
+  name: "Scripts monétaires", shortName: "Argent",
+  tagline: "Les croyances cachées sur l'argent qui dirigent en silence votre façon de gagner, dépenser et épargner.",
+  description: "Une grande partie de notre comportement avec l'argent est dirigée par des « scripts monétaires » : des croyances sur l'argent, le plus souvent absorbées dans l'enfance, que nous examinons rarement. Les travaux de Brad Klontz en cartographient quatre : l'évitement (l'argent est mauvais ou immérité), le culte (plus d'argent réglera tout), le statut (estime de soi = patrimoine) et la vigilance (attentif, prudent, discret). Trois des quatre prédisent des difficultés financières ; la vigilance est le plus sain. Ce profileur révèle votre script dominant pour qu'il ne mène pas la danse.",
+  scales: {
+    AVOID: { name: "Évitement de l'argent", description: "Croyance que l'argent est mauvais, corrupteur ou immérité.", poles: { low: "À l'aise", high: "Évitant" }, highDescriptor: "méfiant(e) envers l'argent et enclin(e) à le négliger", lowDescriptor: "à l'aise avec la place de l'argent dans votre vie" },
+    WORSHIP: { name: "Culte de l'argent", description: "Croyance que plus d'argent apporte le bonheur et résout les problèmes.", poles: { low: "Satisfait", high: "Adorateur" }, highDescriptor: "convaincu(e) que plus d'argent est la réponse ; jamais assez", lowDescriptor: "serein(e) sur le fait que l'argent n'est pas la clé du bonheur" },
+    STATUS: { name: "Statut par l'argent", description: "Lier l'estime de soi et l'identité à la réussite financière.", poles: { low: "Estime ≠ patrimoine", high: "Guidé par le statut" }, highDescriptor: "liant la valeur et le statut à la richesse et au succès visible", lowDescriptor: "avec une estime de soi distincte du patrimoine" },
+    VIGIL: { name: "Vigilance financière", description: "Attention, prudence, frugalité et discrétion avec l'argent (le script le plus sain).", poles: { low: "Insouciant", high: "Vigilant" }, highDescriptor: "attentif(ve), frugal(e) et prudent(e) avec l'argent", lowDescriptor: "détendu(e), parfois négligent(e), avec l'argent" },
+  },
+  items: {
+    AV1: "L'argent est, au fond, la cause d'une grande partie de ce qui ne va pas dans le monde.", AV2: "Il y a une vraie vertu à vivre avec moins d'argent.", AV3: "Je ne mérite pas beaucoup d'argent quand d'autres en ont si peu.", AV4: "Les gens riches ont tendance à être cupides ou à avoir triché pour y arriver.", AV5: "J'évite de penser à mon argent ou de m'en occuper.",
+    WO1: "Les choses iraient mieux pour moi si j'avais plus d'argent.", WO2: "Plus d'argent me rendrait plus heureux(se).", WO3: "Il est difficile d'être pauvre et heureux à la fois.", WO4: "Quoi que j'aie, il n'y a jamais tout à fait assez d'argent.", WO5: "L'argent résoudrait la plupart de mes problèmes.",
+    ST1: "Votre estime de soi est étroitement liée à votre patrimoine.", ST2: "Les gens réussissent à la hauteur de l'argent qu'ils gagnent.", ST3: "Je veux pouvoir montrer aux gens que j'ai de l'argent.", ST4: "Si une chose est la plus chère, c'est sans doute la meilleure.", ST5: "J'admire ceux qui possèdent des choses chères, et je veux la même chose.",
+    VG1: "Je surveille mes finances de près et avec soin.", VG2: "Il est important d'épargner pour les jours difficiles.", VG3: "Je préfère ne pas dire aux autres combien d'argent j'ai ou je gagne.", VG4: "Je me sens mal à l'aise si je ne suis pas prudent(e) et frugal(e) avec l'argent.", VG5: "Je veux toujours savoir exactement où va mon argent.",
+  },
+};
+const SCS_ES: InstrumentTranslation = {
+  name: "Autocompasión", shortName: "Autocompasión",
+  tagline: "Con cuánta amabilidad —o cuánta dureza— te tratas cuando la vida se pone difícil.",
+  description: "La autocompasión es cómo te relacionas contigo mismo/a en los momentos de dificultad, fracaso o dolor. El modelo de Kristin Neff mapea tres pares: autobondad frente a autojuicio (calidez frente a dureza), humanidad compartida frente a aislamiento («todos luchan» frente a «solo yo») y atención plena frente a sobreidentificación (conciencia equilibrada frente a dejarse arrastrar). Una mayor autocompasión es uno de los amortiguadores con más respaldo frente a la ansiedad y el agotamiento y, a diferencia de la autoestima, no depende de tener éxito ni de compararte bien. Este perfilador muestra dónde tu voz interior es cálida, dónde es dura y la faceta donde la amabilidad crece más rápido.",
+  scales: {
+    SK: { name: "Autobondad", description: "Recibir tu propio dolor con calidez y comprensión.", poles: { low: "Retraído", high: "Amable" }, highDescriptor: "amable y comprensivo/a contigo cuando luchas", lowDescriptor: "que rara vez se ofrece calidez en los momentos difíciles" },
+    SJ: { name: "Autojuicio", description: "Ser duro/a, crítico/a y reprobador/a contigo mismo/a.", poles: { low: "Comprensivo", high: "Autocrítico" }, highDescriptor: "rápido/a en criticar y condenar tus defectos", lowDescriptor: "capaz de aceptar tus defectos sin dureza" },
+    CH: { name: "Humanidad compartida", description: "Ver tus luchas como parte de la experiencia humana común.", poles: { low: "Solo", high: "Conectado" }, highDescriptor: "consciente de que todos luchan, así que no te sientes señalado/a", lowDescriptor: "propenso/a a sentir que tus dificultades son solo tuyas" },
+    IS: { name: "Aislamiento", description: "Sentirte aislado/a y solo/a cuando sufres.", poles: { low: "Conectado", high: "Aislado" }, highDescriptor: "que se siente apartado/a y solo/a en tus luchas", lowDescriptor: "que se siente conectado/a con los demás incluso en los malos momentos" },
+    MI: { name: "Atención plena", description: "Sostener los sentimientos dolorosos en una conciencia equilibrada y clara.", poles: { low: "Desbordado", high: "Equilibrado" }, highDescriptor: "capaz de afrontar los sentimientos difíciles con perspectiva y apertura", lowDescriptor: "más propenso/a a evitar o a verse desbordado/a por los sentimientos difíciles" },
+    OI: { name: "Sobreidentificación", description: "Dejarte arrastrar y llevar por las emociones dolorosas.", poles: { low: "Sereno", high: "Arrastrado" }, highDescriptor: "que se deja consumir y arrastrar por lo que va mal", lowDescriptor: "capaz de sentir dolor sin verse engullido/a por él" },
+  },
+  items: {
+    SK1: "Cuando atravieso un momento difícil, me trato con cuidado y ternura.", SK2: "Intento ser comprensivo/a y paciente con las partes de mí que no me gustan.", SK3: "Cuando sufro, me doy la amabilidad que le ofrecería a un buen amigo.", SK4: "Soy amable conmigo cuando estoy luchando o sufriendo.",
+    SJ1: "Soy reprobador/a y crítico/a con mis propios defectos y carencias.", SJ2: "Cuando fracaso en algo que importa, soy duro/a conmigo.", SJ3: "Puedo ser frío/a y áspero/a conmigo cuando estoy sufriendo.", SJ4: "Soy impaciente e intolerante con las partes de mí que me disgustan.",
+    CH1: "Cuando las cosas van mal, me recuerdo que los reveses son parte de ser humano.", CH2: "Veo mis dificultades como algo por lo que pasa casi todo el mundo, no solo yo.", CH3: "Cuando me siento insuficiente, recuerdo que muchas otras personas se sienten así también.", CH4: "Intento ver mis fracasos como parte de la experiencia humana común.",
+    IS1: "Cuando estoy muy decaído/a, siento que la mayoría de la gente probablemente es más feliz que yo.", IS2: "Cuando fracaso en algo, me siento solo/a y apartado/a en mi fracaso.", IS3: "Cuando estoy luchando, tiendo a sentir que los demás lo tienen más fácil que yo.", IS4: "Mis momentos difíciles me hacen sentir separado/a y aislado/a de los demás.",
+    MI1: "Cuando ocurre algo doloroso, intento ver la situación de forma equilibrada.", MI2: "Cuando me siento mal, intento observar mis emociones con apertura y claridad.", MI3: "Puedo sostener un sentimiento difícil en la conciencia sin verme desbordado/a por él.", MI4: "Cuando estoy alterado/a, mantengo algo de perspectiva en lugar de perderme en ello.",
+    OI1: "Cuando fracaso en algo, me consumen los sentimientos de insuficiencia.", OI2: "Cuando algo me altera, me dejo llevar por mis sentimientos.", OI3: "Cuando estoy decaído/a, tiendo a fijarme y obsesionarme con todo lo que está mal.", OI4: "Los sentimientos dolorosos tienden a arrastrarme y apoderarse de mí.",
+  },
+};
+const SCS_FR: InstrumentTranslation = {
+  name: "Autocompassion", shortName: "Autocompassion",
+  tagline: "Avec quelle bienveillance — ou quelle dureté — vous vous traitez quand la vie devient difficile.",
+  description: "L'autocompassion, c'est la façon dont vous vous traitez dans les moments de difficulté, d'échec ou de douleur. Le modèle de Kristin Neff cartographie trois paires : bienveillance envers soi contre auto-jugement (chaleur contre dureté), humanité commune contre isolement (« tout le monde lutte » contre « seulement moi ») et pleine conscience contre suridentification (conscience équilibrée contre se laisser emporter). Une autocompassion plus élevée est l'un des remparts les mieux étayés contre l'anxiété et l'épuisement et, contrairement à l'estime de soi, elle ne dépend pas de la réussite ni des comparaisons favorables. Ce profileur montre où votre voix intérieure est chaleureuse, où elle est dure, et la facette où la bienveillance grandit le plus vite.",
+  scales: {
+    SK: { name: "Bienveillance envers soi", description: "Accueillir sa propre douleur avec chaleur et compréhension.", poles: { low: "Distant", high: "Bienveillant" }, highDescriptor: "doux(ce) et soutenant(e) envers vous-même quand vous luttez", lowDescriptor: "offrant rarement de la chaleur dans les moments difficiles" },
+    SJ: { name: "Auto-jugement", description: "Être dur(e), critique et désapprobateur(trice) envers soi-même.", poles: { low: "Accueillant", high: "Autocritique" }, highDescriptor: "prompt(e) à critiquer et à condamner vos défauts", lowDescriptor: "capable d'accepter vos défauts sans dureté" },
+    CH: { name: "Humanité commune", description: "Voir ses luttes comme partie de l'expérience humaine partagée.", poles: { low: "Seul", high: "Relié" }, highDescriptor: "conscient(e) que tout le monde lutte, donc sans vous sentir visé(e)", lowDescriptor: "enclin(e) à sentir que vos difficultés n'appartiennent qu'à vous" },
+    IS: { name: "Isolement", description: "Se sentir coupé(e) et seul(e) quand on souffre.", poles: { low: "Relié", high: "Isolé" }, highDescriptor: "qui se sent à part et seul(e) dans ses luttes", lowDescriptor: "qui se sent relié(e) aux autres même dans les moments difficiles" },
+    MI: { name: "Pleine conscience", description: "Tenir les sentiments douloureux dans une conscience équilibrée et claire.", poles: { low: "Submergé", high: "Équilibré" }, highDescriptor: "capable d'affronter les sentiments difficiles avec recul et ouverture", lowDescriptor: "plus enclin(e) à éviter les sentiments difficiles ou à en être submergé(e)" },
+    OI: { name: "Suridentification", description: "Se laisser emporter et envahir par les émotions douloureuses.", poles: { low: "Posé", high: "Emporté" }, highDescriptor: "qui se laisse consumer et emporter par ce qui ne va pas", lowDescriptor: "capable de ressentir la douleur sans en être englouti(e)" },
+  },
+  items: {
+    SK1: "Quand je traverse une période difficile, je me traite avec soin et tendresse.", SK2: "J'essaie d'être compréhensif(ve) et patient(e) envers les parties de moi que je n'aime pas.", SK3: "Quand je souffre, je m'offre la bienveillance que j'offrirais à un bon ami.", SK4: "Je suis doux(ce) envers moi-même quand je lutte ou que je souffre.",
+    SJ1: "Je suis désapprobateur(trice) et critique envers mes propres défauts et lacunes.", SJ2: "Quand j'échoue à quelque chose qui compte, je suis dur(e) envers moi-même.", SJ3: "Je peux être froid(e) et rude envers moi-même quand je souffre.", SJ4: "Je suis impatient(e) et intolérant(e) envers les parties de moi que je n'aime pas.",
+    CH1: "Quand les choses tournent mal, je me rappelle que les revers font partie de la condition humaine.", CH2: "Je vois mes difficultés comme quelque chose que traversent la plupart des gens, pas seulement moi.", CH3: "Quand je me sens insuffisant(e), je me rappelle que beaucoup d'autres ressentent cela aussi.", CH4: "J'essaie de voir mes échecs comme partie de l'expérience humaine commune.",
+    IS1: "Quand je suis vraiment au plus bas, j'ai l'impression que la plupart des gens sont sans doute plus heureux que moi.", IS2: "Quand j'échoue à quelque chose, je me sens seul(e) et à part dans mon échec.", IS3: "Quand je lutte, j'ai tendance à sentir que les autres ont la vie plus facile que moi.", IS4: "Mes moments difficiles me donnent le sentiment d'être séparé(e) et coupé(e) des autres.",
+    MI1: "Quand quelque chose de douloureux arrive, j'essaie d'avoir une vue équilibrée de la situation.", MI2: "Quand je me sens mal, j'essaie d'observer mes émotions avec ouverture et clarté.", MI3: "Je peux tenir un sentiment difficile dans ma conscience sans en être submergé(e).", MI4: "Quand je suis contrarié(e), je garde un peu de recul au lieu de m'y perdre.",
+    OI1: "Quand j'échoue à quelque chose, je suis consumé(e) par un sentiment d'insuffisance.", OI2: "Quand quelque chose me contrarie, je me laisse emporter par mes sentiments.", OI3: "Quand je suis au plus bas, j'ai tendance à me fixer et à ruminer tout ce qui ne va pas.", OI4: "Les sentiments douloureux ont tendance à m'emporter et à prendre le dessus.",
+  },
+};
+const TIME_ES: InstrumentTranslation = {
+  name: "Perspectiva temporal", shortName: "Tiempo",
+  tagline: "Cómo tu relación con el pasado, el presente y el futuro moldea en silencio tu vida.",
+  description: "La perspectiva temporal es la forma —casi siempre inconsciente— en que clasificas la experiencia en pasado, presente y futuro, y dirige mucho más de lo que crees: tus decisiones, estados de ánimo, riesgos y metas. El modelo de Philip Zimbardo mapea cinco marcos: pasado negativo, pasado positivo, presente hedonista, presente fatalista y futuro. El giro de la investigación es que ningún marco es el ideal: el perfil más feliz y sano es una perspectiva temporal equilibrada que se adapta al momento. Este perfilador muestra tu marco dominante, tu perfil completo y qué tan cerca estás de ese equilibrio.",
+  scales: {
+    PN: { name: "Pasado negativo", description: "Un foco aversivo y lleno de arrepentimiento sobre el pasado.", poles: { low: "En paz", high: "Cargado" }, highDescriptor: "atormentado/a por heridas y arrepentimientos del pasado", lowDescriptor: "en gran medida en paz con tu pasado" },
+    PP: { name: "Pasado positivo", description: "Una relación cálida, nostálgica y arraigada con el pasado.", poles: { low: "Desapegado", high: "Nostálgico" }, highDescriptor: "cálidamente conectado/a con recuerdos, tradiciones y raíces", lowDescriptor: "menos atraído/a por la nostalgia o el pasado" },
+    PH: { name: "Presente hedonista", description: "Búsqueda de placer, espontaneidad y vivir el ahora.", poles: { low: "Mesurado", high: "Hedonista" }, highDescriptor: "espontáneo/a, buscador/a de placer y viviendo el momento", lowDescriptor: "más mesurado/a y menos impulsivo/a con el placer" },
+    PF: { name: "Presente fatalista", description: "Una visión fatalista de que las decisiones no importan.", poles: { low: "Con control", high: "Fatalista" }, highDescriptor: "sintiendo que la vida la moldean fuerzas fuera de tu control", lowDescriptor: "con un fuerte sentido de agencia sobre tu vida" },
+    FU: { name: "Futuro", description: "Planificación, metas y postergar la gratificación.", poles: { low: "Centrado en el presente", high: "Planificador" }, highDescriptor: "planificador/a, orientado/a a metas y capaz de postergar la gratificación", lowDescriptor: "más centrado/a en el presente y menos guiado/a por planes a largo plazo" },
+  },
+  items: {
+    PN1: "A menudo pienso en las cosas malas que me han pasado.", PN2: "Las experiencias dolorosas del pasado se repiten en mi mente.", PN3: "Me cuesta olvidar escenas desagradables de mi pasado.", PN4: "Cuando miro atrás, veo más decepciones que buenos momentos.",
+    PP1: "Los recuerdos felices de los buenos tiempos me vuelven con facilidad.", PP2: "Las rutinas y rituales familiares de mi pasado me reconfortan.", PP3: "Me encanta volver a lugares antiguos y las sensaciones que traen.", PP4: "Mirando atrás, me siento contento/a con buena parte de cómo ha ido mi vida.",
+    PH1: "Tomo cada día como viene en lugar de planificar con antelación.", PH2: "Hago cosas por impulso si suenan divertidas.", PH3: "Prefiero disfrutar el momento que preocuparme por lo que viene.", PH4: "Un poco de riesgo y emoción evita que la vida se vuelva aburrida.",
+    PF1: "No tiene mucho sentido planificar, porque mucho está fuera de mis manos.", PF2: "Mi vida la moldean en gran medida fuerzas que no puedo controlar.", PF3: "Lo que tenga que ser, será; mis decisiones cambian poco.", PF4: "Tiene poco sentido preocuparse por el futuro; el destino lo decidirá.",
+    FU1: "Hago listas de tareas y las voy completando.", FU2: "Cumplo mis plazos y obligaciones a tiempo.", FU3: "Renuncio al disfrute de ahora por una recompensa mayor más adelante.", FU4: "Antes de decidir, sopeso cómo afectará a mi futuro.",
+  },
+};
+const TIME_FR: InstrumentTranslation = {
+  name: "Perspective temporelle", shortName: "Temps",
+  tagline: "Comment votre rapport au passé, au présent et au futur façonne en silence votre vie.",
+  description: "La perspective temporelle est la façon — le plus souvent inconsciente — dont vous classez l'expérience en passé, présent et futur, et elle dirige bien plus que vous ne le pensez : vos décisions, vos humeurs, vos risques et vos objectifs. Le modèle de Philip Zimbardo cartographie cinq cadres : passé négatif, passé positif, présent hédoniste, présent fataliste et futur. La surprise de la recherche, c'est qu'aucun cadre n'est idéal : le profil le plus heureux et le plus sain est une perspective temporelle équilibrée qui s'adapte au moment. Ce profileur montre votre cadre dominant, votre profil complet et votre proximité avec cet équilibre.",
+  scales: {
+    PN: { name: "Passé négatif", description: "Une attention aversive et pleine de regrets envers le passé.", poles: { low: "En paix", high: "Accablé" }, highDescriptor: "hanté(e) par les blessures et regrets du passé", lowDescriptor: "globalement en paix avec votre passé" },
+    PP: { name: "Passé positif", description: "Un rapport chaleureux, nostalgique et enraciné au passé.", poles: { low: "Détaché", high: "Nostalgique" }, highDescriptor: "chaleureusement relié(e) aux souvenirs, traditions et racines", lowDescriptor: "moins attiré(e) par la nostalgie ou le passé" },
+    PH: { name: "Présent hédoniste", description: "Recherche de plaisir, spontanéité et vivre l'instant.", poles: { low: "Mesuré", high: "Hédoniste" }, highDescriptor: "spontané(e), en quête de plaisir et vivant l'instant", lowDescriptor: "plus mesuré(e) et moins impulsif(ve) face au plaisir" },
+    PF: { name: "Présent fataliste", description: "Une vision fataliste selon laquelle les choix ne comptent pas.", poles: { low: "Aux commandes", high: "Fataliste" }, highDescriptor: "sentant que la vie est façonnée par des forces hors de votre contrôle", lowDescriptor: "avec un fort sentiment d'agir sur votre vie" },
+    FU: { name: "Futur", description: "Planification, objectifs et report de la gratification.", poles: { low: "Centré sur le présent", high: "Planificateur" }, highDescriptor: "planificateur(trice), orienté(e) objectifs et capable de différer la gratification", lowDescriptor: "plus centré(e) sur le présent et moins guidé(e) par des plans à long terme" },
+  },
+  items: {
+    PN1: "Je pense souvent aux mauvaises choses qui me sont arrivées.", PN2: "Les expériences douloureuses du passé repassent dans mon esprit.", PN3: "J'ai du mal à oublier des scènes désagréables de mon passé.", PN4: "Quand je regarde en arrière, je vois plus de déceptions que de bons moments.",
+    PP1: "Les souvenirs heureux des bons moments me reviennent facilement.", PP2: "Les routines et rituels familiers de mon passé me réconfortent.", PP3: "J'aime retourner dans des lieux anciens et les sensations qu'ils ramènent.", PP4: "En regardant en arrière, je suis content(e) d'une bonne partie de ma vie.",
+    PH1: "Je prends chaque jour comme il vient plutôt que de planifier à l'avance.", PH2: "Je fais des choses sur un coup de tête si elles semblent amusantes.", PH3: "Je préfère profiter de l'instant que m'inquiéter de la suite.", PH4: "Un peu de risque et d'excitation empêche la vie de devenir ennuyeuse.",
+    PF1: "Cela n'a pas beaucoup de sens de planifier, car tant de choses m'échappent.", PF2: "Ma vie est largement façonnée par des forces que je ne peux pas contrôler.", PF3: "Ce qui doit arriver arrivera — mes choix n'y changent pas grand-chose.", PF4: "Il sert à peu de s'inquiéter de l'avenir ; le destin en décidera.",
+    FU1: "Je fais des listes de choses à faire et je les accomplis une à une.", FU2: "Je respecte mes échéances et mes obligations à temps.", FU3: "Je renonce au plaisir immédiat pour une plus grande récompense plus tard.", FU4: "Avant de décider, je pèse l'effet sur mon avenir.",
+  },
+};
+const MEANING_ES: InstrumentTranslation = {
+  name: "Sentido de la vida", shortName: "Sentido",
+  tagline: "Dos hilos del sentido: cuánto lo sientes y cuánto lo buscas.",
+  description: "El sentido de la vida tiene dos caras y, según la investigación de Michael Steger, se mueven de forma bastante independiente: la presencia de sentido —sentir que tu vida tiene propósito y significado— y la búsqueda de sentido —buscarlo o profundizarlo activamente—. Puedes tener mucho sentido y seguir explorando, o buscar uno que aún no sientes. Este perfilador lee ambos y te sitúa en el paisaje de presencia × búsqueda, con una mirada compasiva y orientada al crecimiento sobre la combinación que sea la tuya ahora.",
+  scales: {
+    PRES: { name: "Presencia de sentido", description: "Sentir que tu vida tiene sentido, propósito y significado.", poles: { low: "Poco claro", high: "Claro" }, highDescriptor: "con una sensación clara y sentida de que tu vida tiene sentido", lowDescriptor: "menos seguro/a, por ahora, de qué da sentido a tu vida" },
+    SRCH: { name: "Búsqueda de sentido", description: "Buscar, construir o profundizar activamente un sentido.", poles: { low: "En reposo", high: "En búsqueda" }, highDescriptor: "buscando o profundizando activamente tu sentido", lowDescriptor: "sin una búsqueda activa de sentido en este momento" },
+  },
+  items: {
+    P1: "Entiendo qué hace que mi vida tenga sentido.", P2: "Mi vida tiene un propósito claro.", P3: "He descubierto un propósito satisfactorio para mi vida.", P4: "Tengo una buena idea de qué hace que mi vida valga la pena.", P5: "Cuando pienso en mi vida, veo qué le da sentido.",
+    S1: "Busco algo que haga que mi vida se sienta significativa.", S2: "Busco un propósito o una misión para mi vida.", S3: "Siempre intento descubrir de qué trata mi vida.", S4: "Busco un sentido más profundo en mi vida.", S5: "Estoy atento/a a lo que de verdad me importa.",
+  },
+};
+const MEANING_FR: InstrumentTranslation = {
+  name: "Sens de la vie", shortName: "Sens",
+  tagline: "Deux fils du sens : à quel point vous le ressentez, et à quel point vous le cherchez.",
+  description: "Le sens de la vie a deux faces et, selon les travaux de Michael Steger, elles évoluent de façon assez indépendante : la présence de sens — sentir que votre vie a un but et de l'importance — et la quête de sens — la chercher ou l'approfondir activement. Vous pouvez être riche de sens et continuer d'explorer, ou chercher un sens que vous ne ressentez pas encore. Ce profileur lit les deux et vous situe dans le paysage présence × quête, avec un regard bienveillant et tourné vers la croissance sur la combinaison qui est la vôtre aujourd'hui.",
+  scales: {
+    PRES: { name: "Présence de sens", description: "Sentir que votre vie a du sens, un but et de l'importance.", poles: { low: "Flou", high: "Clair" }, highDescriptor: "avec le sentiment clair et vécu que votre vie a du sens", lowDescriptor: "moins sûr(e), pour l'instant, de ce qui donne du sens à votre vie" },
+    SRCH: { name: "Quête de sens", description: "Chercher, construire ou approfondir activement un sens.", poles: { low: "Au repos", high: "En quête" }, highDescriptor: "cherchant ou approfondissant activement votre sens", lowDescriptor: "sans quête active de sens en ce moment" },
+  },
+  items: {
+    P1: "Je comprends ce qui donne du sens à ma vie.", P2: "Ma vie a un but clair.", P3: "J'ai découvert un but satisfaisant pour ma vie.", P4: "J'ai une bonne idée de ce qui rend ma vie utile.", P5: "Quand je considère ma vie, je vois ce qui lui donne du sens.",
+    S1: "Je cherche quelque chose qui rende ma vie significative.", S2: "Je cherche un but ou une mission pour ma vie.", S3: "J'essaie toujours de comprendre de quoi parle ma vie.", S4: "Je cherche un sens plus profond à ma vie.", S5: "Je reste attentif(ve) à ce qui compte vraiment pour moi.",
+  },
+};
+const MINDFUL_ES: InstrumentTranslation = {
+  name: "Atención plena (cinco facetas)", shortName: "Atención plena",
+  tagline: "La conciencia del momento presente, en sus cinco facetas distintas.",
+  description: "La atención plena —prestar atención al presente, a propósito y sin juzgar— no es una sola cosa. Este perfilador, basado en el Cuestionario de las Cinco Facetas de la Atención Plena, mapea cinco: Observar (notar la experiencia interna y externa), Describir (ponerla en palabras), Actuar con conciencia (estar presente en vez de en piloto automático), No juzgar (una actitud amable y no evaluativa hacia tu mundo interior) y No reactividad (dejar que pensamientos y emociones vayan y vengan). Muestra dónde tu atención es fuerte, dónde se dispersa y la faceta donde la práctica rinde más rápido. La atención plena se entrena: esto es un punto de partida, no un veredicto.",
+  scales: {
+    OBS: { name: "Observar", description: "Notar y atender la experiencia interna y externa.", poles: { low: "Desconectado", high: "Sintonizado" }, highDescriptor: "atento/a a sensaciones, imágenes, sonidos y señales internas", lowDescriptor: "menos sintonizado/a con la experiencia momento a momento" },
+    DES: { name: "Describir", description: "Poner en palabras la experiencia interior.", poles: { low: "Sin palabras", high: "Articulado" }, highDescriptor: "capaz de nombrar y articular lo que piensas y sientes", lowDescriptor: "con dificultad para poner los sentimientos en palabras" },
+    AWA: { name: "Actuar con conciencia", description: "Estar presente en lo que haces en lugar de en piloto automático.", poles: { low: "Piloto automático", high: "Presente" }, highDescriptor: "presente y atento/a en lo que haces", lowDescriptor: "a menudo en piloto automático, con la atención en otra parte" },
+    NJ: { name: "No juzgar", description: "Adoptar una actitud no evaluativa hacia pensamientos y emociones.", poles: { low: "Juzgador", high: "Aceptante" }, highDescriptor: "que acepta tu experiencia interior sin juicios duros", lowDescriptor: "rápido/a en juzgar tus propios pensamientos y emociones" },
+    NR: { name: "No reactividad", description: "Dejar que pensamientos y emociones vayan y vengan sin arrastrarte.", poles: { low: "Arrastrado", high: "Sereno" }, highDescriptor: "capaz de notar emociones difíciles sin dejarte llevar", lowDescriptor: "que se deja atrapar y arrastrar fácilmente por la experiencia interior" },
+  },
+  items: {
+    OB1: "Noto los olores y aromas de las cosas.", OB2: "Presto atención a sensaciones físicas: el viento en el pelo, el sol en la cara.", OB3: "Noto cómo la comida y la bebida afectan a mis pensamientos, mi cuerpo y mi ánimo.", OB4: "Noto detalles visuales en el arte o la naturaleza: colores, formas y luz.",
+    DE1: "Se me da bien encontrar palabras para describir mis sentimientos.", DE2: "Normalmente puedo poner en palabras mis creencias y expectativas.", DE3: "Incluso cuando estoy muy alterado/a, encuentro la manera de ponerlo en palabras.", DE4: "Puedo describir con detalle, y con facilidad, lo que estoy pensando.",
+    AW1: "Hago las actividades a toda prisa, sin estar realmente atento/a a ellas.", AW2: "Hago tareas de forma automática, sin ser consciente de lo que hago.", AW3: "Me descubro haciendo cosas sin prestar atención.", AW4: "Me enredo tanto en pensamientos sobre el pasado o el futuro que me pierdo el presente.",
+    NJ1: "Me critico por tener emociones irracionales o inapropiadas.", NJ2: "Me digo que no debería sentir lo que siento.", NJ3: "Pienso que algunos sentimientos son malos o incorrectos y que no debería tenerlos.", NJ4: "Hago juicios duros sobre si mis pensamientos son buenos o malos.",
+    NR1: "Observo mis sentimientos sin dejarme llevar por ellos.", NR2: "Cuando tengo pensamientos angustiosos, puedo notarlos sin reaccionar.", NR3: "En momentos difíciles, puedo hacer una pausa antes de responder.", NR4: "Puedo observar pensamientos y emociones desagradables y dejarlos pasar.",
+  },
+};
+const MINDFUL_FR: InstrumentTranslation = {
+  name: "Pleine conscience (cinq facettes)", shortName: "Pleine conscience",
+  tagline: "La conscience de l'instant présent, à travers ses cinq facettes.",
+  description: "La pleine conscience — prêter attention au présent, volontairement et sans juger — n'est pas une seule chose. Ce profileur, fondé sur le Questionnaire des Cinq Facettes de la Pleine Conscience, en cartographie cinq : Observer (remarquer l'expérience interne et externe), Décrire (la mettre en mots), Agir en conscience (être présent plutôt qu'en pilote automatique), Non-jugement (une posture bienveillante et non évaluative envers votre monde intérieur) et Non-réactivité (laisser pensées et émotions aller et venir). Il montre où votre attention est forte, où elle se disperse, et la facette où la pratique paie le plus vite. La pleine conscience s'entraîne : c'est un point de départ, pas un verdict.",
+  scales: {
+    OBS: { name: "Observer", description: "Remarquer et accueillir l'expérience interne et externe.", poles: { low: "Déconnecté", high: "À l'écoute" }, highDescriptor: "attentif(ve) aux sensations, images, sons et signaux internes", lowDescriptor: "moins à l'écoute de l'expérience instant après instant" },
+    DES: { name: "Décrire", description: "Mettre en mots l'expérience intérieure.", poles: { low: "Sans mots", high: "Éloquent" }, highDescriptor: "capable de nommer et d'exprimer ce que vous pensez et ressentez", lowDescriptor: "ayant du mal à mettre vos émotions en mots" },
+    AWA: { name: "Agir en conscience", description: "Être présent dans vos activités plutôt qu'en pilote automatique.", poles: { low: "Pilote automatique", high: "Présent" }, highDescriptor: "présent(e) et attentif(ve) à ce que vous faites", lowDescriptor: "souvent en pilote automatique, l'attention ailleurs" },
+    NJ: { name: "Non-jugement", description: "Adopter une posture non évaluative envers pensées et émotions.", poles: { low: "Jugeant", high: "Accueillant" }, highDescriptor: "accueillant votre vie intérieure sans jugement dur", lowDescriptor: "prompt(e) à juger vos propres pensées et émotions" },
+    NR: { name: "Non-réactivité", description: "Laisser pensées et émotions aller et venir sans se laisser emporter.", poles: { low: "Emporté", high: "Posé" }, highDescriptor: "capable de remarquer des émotions difficiles sans vous laisser emporter", lowDescriptor: "facilement happé(e) et emporté(e) par l'expérience intérieure" },
+  },
+  items: {
+    OB1: "Je remarque les odeurs et les arômes des choses.", OB2: "Je prête attention aux sensations physiques — le vent dans les cheveux, le soleil sur le visage.", OB3: "Je remarque comment ce que je mange et bois affecte mes pensées, mon corps et mon humeur.", OB4: "Je remarque les détails visuels dans l'art ou la nature — couleurs, formes et lumière.",
+    DE1: "Je trouve facilement les mots pour décrire mes émotions.", DE2: "Je peux d'ordinaire mettre en mots mes convictions et mes attentes.", DE3: "Même très bouleversé(e), je trouve un moyen de le mettre en mots.", DE4: "Je peux décrire en détail, et facilement, ce que je pense.",
+    AW1: "Je fais les activités à toute vitesse, sans y être vraiment attentif(ve).", AW2: "Je fais des tâches automatiquement, sans être conscient(e) de ce que je fais.", AW3: "Je me surprends à faire des choses sans y prêter attention.", AW4: "Je me perds tellement dans des pensées sur le passé ou l'avenir que je rate le présent.",
+    NJ1: "Je me critique d'avoir des émotions irrationnelles ou inappropriées.", NJ2: "Je me dis que je ne devrais pas ressentir ce que je ressens.", NJ3: "Je pense que certaines émotions sont mauvaises ou déplacées et que je ne devrais pas les avoir.", NJ4: "Je porte des jugements durs sur le fait que mes pensées soient bonnes ou mauvaises.",
+    NR1: "J'observe mes émotions sans me laisser emporter par elles.", NR2: "Quand j'ai des pensées pénibles, je peux les remarquer sans réagir.", NR3: "Dans les moments difficiles, je peux faire une pause avant de répondre.", NR4: "Je peux observer des pensées et émotions désagréables et les laisser passer.",
+  },
+};
+
+export const TRANSLATIONS: Record<string, Record<string, InstrumentTranslation>> = {
+  es: {
+    "big-five-ipip50": BIG_FIVE_ES, "disc-4": DISC_ES, "enneagram-9": ENNEAGRAM_ES,
+    "perma-flourishing": PERMA_ES, "life-satisfaction-swls": SWLS_ES, "brief-resilience": RESILIENCE_ES,
+    "self-esteem-rses": SELFESTEEM_ES, "mood-checkin": MOOD_ES, "hexaco-24": HEXACO_ES, "dark-triad-18": DARKTRIAD_ES,
+    "jung-16-types": JUNG_ES, "optimism-lotr": OPTIMISM_ES, "hope-scale": HOPE_ES, "curiosity-cei": CURIOSITY_ES,
+    "procrastination-pps": PROCRAST_ES, "perfectionism-2f": PERFECT_ES, "gratitude-gq6": GRATITUDE_ES,
+    "self-efficacy-gse": SELFEFF_ES, "emotion-regulation-erq": EMOREG_ES, "self-control-bscs": SELFCTRL_ES,
+    "grit-resilience": GRIT_ES, "need-for-cognition": NFC_ES, "mindset-dweck": MINDSET_ES, "emotional-intelligence": EQ_ES, "riasec-careers": RIASEC_ES, "empathy-iri": EMPATHY_ES,
+    "eysenck-pen": EYSENCK_ES, "perceived-stress": PSS_ES, "worry-checkin": WORRY_ES,
+    "zkpq-alt5": ZKPQ_ES, "tci-cloninger": TCI_ES, "sensation-seeking": SENSATION_ES,
+    "panas-affect": PANAS_ES, "ryff-wellbeing": RYFF_ES, "burnout-mbi": BURNOUT_ES,
+    "locus-of-control": LOCUS_ES, "self-monitoring": SELFMON_ES, "moral-foundations": MORAL_ES,
+    "big-five-aspects": BFAS_ES, "career-derailers": DERAIL_ES, "pid5-maladaptive": PID5_ES, "rokeach-values": ROKEACH_ES,
+    "schwartz-values": SCHWARTZ_ES, "sixteen-pf": SIXTEENPF_ES, "attachment-styles": ATTACH_ES, "love-languages": LOVELANG_ES, "conflict-style": CONFLICT_ES,
+    "kolb-learning": KOLB_ES, "vark-learning": VARK_ES, "chronotype": CHRONO_ES, "four-temperaments": FOURTEMP_ES, "color-styles": COLOR_ES, "keirsey-temperaments": KEIRSEY_ES,
+    "leadership-styles": LEADERSHIP_ES, "mcclelland-needs": MCCLELLAND_ES, "career-anchors": ANCHORS_ES, "coping-styles": COPE_ES,
+    "adhd-traits": ADHD_ES, "autism-traits": AUTISM_ES, "dark-tetrad-18": DARKTETRAD_ES, "socionics-16": SOCIONICS_ES, "via-24": VIA_ES,
+    "couple-communication": COUPLECOMM_ES, "team-communication": TEAMCOMM_ES, "communication-style": COMMSTYLE_ES,
+    "money-scripts": MONEY_ES, "self-compassion-scs": SCS_ES, "time-perspective-ztpi": TIME_ES, "meaning-mlq": MEANING_ES, "mindfulness-ffmq": MINDFUL_ES,
+  },
+  fr: {
+    "big-five-ipip50": BIG_FIVE_FR, "disc-4": DISC_FR, "enneagram-9": ENNEAGRAM_FR,
+    "perma-flourishing": PERMA_FR, "life-satisfaction-swls": SWLS_FR, "brief-resilience": RESILIENCE_FR,
+    "self-esteem-rses": SELFESTEEM_FR, "mood-checkin": MOOD_FR, "hexaco-24": HEXACO_FR, "dark-triad-18": DARKTRIAD_FR,
+    "jung-16-types": JUNG_FR, "optimism-lotr": OPTIMISM_FR, "hope-scale": HOPE_FR, "curiosity-cei": CURIOSITY_FR,
+    "procrastination-pps": PROCRAST_FR, "perfectionism-2f": PERFECT_FR, "gratitude-gq6": GRATITUDE_FR,
+    "self-efficacy-gse": SELFEFF_FR, "emotion-regulation-erq": EMOREG_FR, "self-control-bscs": SELFCTRL_FR,
+    "grit-resilience": GRIT_FR, "need-for-cognition": NFC_FR, "mindset-dweck": MINDSET_FR, "emotional-intelligence": EQ_FR, "riasec-careers": RIASEC_FR, "empathy-iri": EMPATHY_FR,
+    "eysenck-pen": EYSENCK_FR, "perceived-stress": PSS_FR, "worry-checkin": WORRY_FR,
+    "zkpq-alt5": ZKPQ_FR, "tci-cloninger": TCI_FR, "sensation-seeking": SENSATION_FR,
+    "panas-affect": PANAS_FR, "ryff-wellbeing": RYFF_FR, "burnout-mbi": BURNOUT_FR,
+    "locus-of-control": LOCUS_FR, "self-monitoring": SELFMON_FR, "moral-foundations": MORAL_FR,
+    "big-five-aspects": BFAS_FR, "career-derailers": DERAIL_FR, "pid5-maladaptive": PID5_FR, "rokeach-values": ROKEACH_FR,
+    "schwartz-values": SCHWARTZ_FR, "sixteen-pf": SIXTEENPF_FR, "attachment-styles": ATTACH_FR, "love-languages": LOVELANG_FR, "conflict-style": CONFLICT_FR,
+    "kolb-learning": KOLB_FR, "vark-learning": VARK_FR, "chronotype": CHRONO_FR, "four-temperaments": FOURTEMP_FR, "color-styles": COLOR_FR, "keirsey-temperaments": KEIRSEY_FR,
+    "leadership-styles": LEADERSHIP_FR, "mcclelland-needs": MCCLELLAND_FR, "career-anchors": ANCHORS_FR, "coping-styles": COPE_FR,
+    "adhd-traits": ADHD_FR, "autism-traits": AUTISM_FR, "dark-tetrad-18": DARKTETRAD_FR, "socionics-16": SOCIONICS_FR, "via-24": VIA_FR,
+    "couple-communication": COUPLECOMM_FR, "team-communication": TEAMCOMM_FR, "communication-style": COMMSTYLE_FR,
+    "money-scripts": MONEY_FR, "self-compassion-scs": SCS_FR, "time-perspective-ztpi": TIME_FR, "meaning-mlq": MEANING_FR, "mindfulness-ffmq": MINDFUL_FR,
+  },
+};
+
+/* ── Typological result-card translations (DISC + Enneagram) ──
+   resolveType bakes its strings into the output, so we give those two instruments a
+   locale-keyed string bundle. The English default lives in each instrument file
+   (so this module stays cycle-free); these provide es/fr, or undefined to fall back. */
+
+export interface DiscTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { primary: string; secondary: string; pattern: string; fullOrder: string };
+  blend: string; // "{a}/{b} blend"
+  clear: string; // "Clear {a}"
+  blendDetail: string;
+  clearDetail: string;
+}
+
+const DISC_TYPE_ES: DiscTypeBundle = {
+  meta: {
+    D: { name: "Dominancia", title: "El Impulsor", desc: "directo, decidido, orientado a resultados", summary: "Directo y decidido, te mueves por resultados y no temes tomar el mando." },
+    I: { name: "Influencia", title: "El Inspirador", desc: "extrovertido, entusiasta, persuasivo", summary: "Extrovertido y entusiasta, conectas con la gente y la inspiras a actuar." },
+    S: { name: "Estabilidad", title: "El Apoyo", desc: "paciente, fiable, cooperativo", summary: "Paciente y fiable, aportas calma, lealtad y estabilidad al equipo." },
+    C: { name: "Cumplimiento", title: "El Analista", desc: "preciso, analítico, centrado en la calidad", summary: "Preciso y analítico, valoras la exactitud, la estructura y hacer las cosas bien." },
+  },
+  labels: { primary: "Estilo principal", secondary: "Estilo secundario", pattern: "Patrón", fullOrder: "Orden completo" },
+  blend: "mezcla {a}/{b}", clear: "{a} claro",
+  blendDetail: "dos estilos van muy parejos", clearDetail: "un estilo destaca con claridad",
+};
+
+const DISC_TYPE_FR: DiscTypeBundle = {
+  meta: {
+    D: { name: "Dominance", title: "Le Meneur", desc: "direct, décidé, orienté résultats", summary: "Direct et décidé, vous visez les résultats et n'avez pas peur de prendre les commandes." },
+    I: { name: "Influence", title: "L'Inspirateur", desc: "sociable, enthousiaste, persuasif", summary: "Sociable et enthousiaste, vous reliez les gens et les incitez à agir." },
+    S: { name: "Stabilité", title: "Le Soutien", desc: "patient, fiable, coopératif", summary: "Patient et fiable, vous apportez calme, loyauté et stabilité à l'équipe." },
+    C: { name: "Conformité", title: "L'Analyste", desc: "précis, analytique, axé sur la qualité", summary: "Précis et analytique, vous valorisez l'exactitude, la structure et le travail bien fait." },
+  },
+  labels: { primary: "Style principal", secondary: "Style secondaire", pattern: "Profil", fullOrder: "Ordre complet" },
+  blend: "mélange {a}/{b}", clear: "{a} net",
+  blendDetail: "deux styles sont au coude à coude", clearDetail: "un style se détache nettement",
+};
+
+export function discTypeStrings(locale?: string): DiscTypeBundle | undefined {
+  return locale === "es" ? DISC_TYPE_ES : locale === "fr" ? DISC_TYPE_FR : undefined;
+}
+
+export interface EnneaTypeBundle {
+  typeWord: string;
+  meta: Record<number, { name: string; short: string; title: string; desire: string; fear: string; passion: string; virtue: string; summary: string }>;
+  center: { Body: string; Heart: string; Head: string };
+  centerDetail: { Body: string; Heart: string; Head: string };
+  labels: { core: string; wing: string; center: string; desire: string; fear: string; passionVirtue: string; resonances: string };
+  flavored: string; // "flavored by Type {w} ({name})"
+}
+
+const ENNEA_TYPE_ES: EnneaTypeBundle = {
+  typeWord: "Tipo",
+  meta: {
+    1: { name: "El Reformador", short: "Reformador", title: "Íntegro, con propósito, autocontrolado", desire: "ser bueno, correcto y equilibrado", fear: "ser corrupto, defectuoso o estar equivocado", passion: "ira (contenida como resentimiento)", virtue: "serenidad", summary: "Un idealista concienzudo impulsado a mejorarse a sí mismo y al mundo." },
+    2: { name: "El Ayudador", short: "Ayudador", title: "Cariñoso, generoso, complaciente", desire: "sentirse amado y necesitado", fear: "no ser querido o no merecer amor", passion: "orgullo", virtue: "humildad", summary: "Una presencia cálida y entregada, atenta a las necesidades de los demás." },
+    3: { name: "El Triunfador", short: "Triunfador", title: "Adaptable, ambicioso, consciente de su imagen", desire: "sentirse valioso y digno", fear: "no valer nada o ser un fracaso", passion: "engaño (de la autoimagen)", virtue: "autenticidad", summary: "Un ejecutor ambicioso y eficiente centrado en el éxito y el reconocimiento." },
+    4: { name: "El Individualista", short: "Individualista", title: "Sensible, expresivo, introspectivo", desire: "ser uno mismo y encontrar su identidad", fear: "no tener significado ni identidad", passion: "envidia", virtue: "ecuanimidad", summary: "Un buscador emocionalmente honesto de profundidad, sentido y autenticidad." },
+    5: { name: "El Investigador", short: "Investigador", title: "Perceptivo, cerebral, autosuficiente", desire: "ser capaz y competente", fear: "ser inútil, incapaz o verse desbordado", passion: "avaricia (de energía)", virtue: "desapego", summary: "Un pensador reservado y perspicaz que domina el conocimiento para sentirse seguro." },
+    6: { name: "El Leal", short: "Leal", title: "Comprometido, vigilante, en busca de seguridad", desire: "tener seguridad y apoyo", fear: "quedarse sin guía ni apoyo", passion: "miedo (ansiedad)", virtue: "coraje", summary: "Un aliado fiable y alerta que se prepara para lo que podría salir mal." },
+    7: { name: "El Entusiasta", short: "Entusiasta", title: "Espontáneo, versátil, optimista", desire: "estar satisfecho y contento", fear: "verse privado, atrapado o con dolor", passion: "gula (de experiencias)", virtue: "sobriedad", summary: "Un aventurero ágil y animado que persigue posibilidades y estímulos." },
+    8: { name: "El Desafiador", short: "Desafiador", title: "Decidido, poderoso, protector", desire: "protegerse y mantener el control de su vida", fear: "ser dañado, controlado o violado", passion: "lujuria (intensidad)", virtue: "inocencia", summary: "Un protector fuerte y firme que afronta la vida de frente." },
+    9: { name: "El Pacificador", short: "Pacificador", title: "Receptivo, tranquilizador, apacible", desire: "tener paz interior y exterior", fear: "la pérdida, la separación y el conflicto", passion: "pereza (olvido de sí)", virtue: "acción correcta", summary: "Una presencia serena y acogedora que aporta calma y busca la armonía." },
+  },
+  center: { Body: "Cuerpo", Heart: "Corazón", Head: "Cabeza" },
+  centerDetail: { Body: "el centro visceral/instintivo (ira)", Heart: "el centro del corazón/sentimiento (vergüenza)", Head: "el centro mental/del pensamiento (miedo)" },
+  labels: { core: "Tipo principal", wing: "Ala", center: "Centro de inteligencia", desire: "Deseo básico", fear: "Miedo básico", passionVirtue: "Pasión → Virtud", resonances: "Mayores resonancias" },
+  flavored: "matizado por el Tipo {w} ({name})",
+};
+
+const ENNEA_TYPE_FR: EnneaTypeBundle = {
+  typeWord: "Type",
+  meta: {
+    1: { name: "Le Réformateur", short: "Réformateur", title: "Intègre, déterminé, maître de soi", desire: "être bon, juste et équilibré", fear: "d'être corrompu, défectueux ou dans l'erreur", passion: "la colère (retenue en ressentiment)", virtue: "la sérénité", summary: "Un idéaliste consciencieux poussé à s'améliorer et à améliorer le monde." },
+    2: { name: "L'Altruiste", short: "Altruiste", title: "Attentionné, généreux, désireux de plaire", desire: "se sentir aimé et nécessaire", fear: "d'être indésirable ou indigne d'amour", passion: "l'orgueil", virtue: "l'humilité", summary: "Une présence chaleureuse et généreuse, attentive aux besoins des autres." },
+    3: { name: "Le Battant", short: "Battant", title: "Adaptable, ambitieux, soucieux de son image", desire: "se sentir précieux et utile", fear: "de ne rien valoir ou d'échouer", passion: "la tromperie (de l'image de soi)", virtue: "l'authenticité", summary: "Un performeur ambitieux et efficace, centré sur la réussite et la reconnaissance." },
+    4: { name: "L'Individualiste", short: "Individualiste", title: "Sensible, expressif, introspectif", desire: "être pleinement soi-même et trouver son identité", fear: "de n'avoir ni importance ni identité", passion: "l'envie", virtue: "l'équanimité", summary: "Un chercheur émotionnellement honnête de profondeur, de sens et d'authenticité." },
+    5: { name: "L'Investigateur", short: "Investigateur", title: "Perspicace, cérébral, autonome", desire: "être capable et compétent", fear: "d'être inutile, incapable ou dépassé", passion: "l'avarice (de son énergie)", virtue: "le détachement", summary: "Un penseur discret et perspicace qui maîtrise le savoir pour se sentir en sécurité." },
+    6: { name: "Le Loyaliste", short: "Loyaliste", title: "Engagé, vigilant, en quête de sécurité", desire: "avoir de la sécurité et du soutien", fear: "de se retrouver sans repère ni soutien", passion: "la peur (l'anxiété)", virtue: "le courage", summary: "Un allié fiable et vigilant qui se prépare à ce qui pourrait mal tourner." },
+    7: { name: "L'Épicurien", short: "Épicurien", title: "Spontané, polyvalent, optimiste", desire: "être satisfait et comblé", fear: "d'être privé, piégé ou dans la souffrance", passion: "la gourmandise (d'expériences)", virtue: "la sobriété", summary: "Un aventurier vif et enjoué à la poursuite des possibles et des stimulations." },
+    8: { name: "Le Meneur", short: "Meneur", title: "Décidé, puissant, protecteur", desire: "se protéger et garder la maîtrise de sa vie", fear: "d'être blessé, contrôlé ou violé", passion: "l'excès (l'intensité)", virtue: "l'innocence", summary: "Un protecteur fort et affirmé qui affronte la vie de face." },
+    9: { name: "Le Médiateur", short: "Médiateur", title: "Réceptif, rassurant, accommodant", desire: "avoir la paix intérieure et extérieure", fear: "de la perte, de la séparation et du conflit", passion: "la paresse (l'oubli de soi)", virtue: "l'action juste", summary: "Une présence sereine et accueillante qui apporte le calme et recherche l'harmonie." },
+  },
+  center: { Body: "Corps", Heart: "Cœur", Head: "Tête" },
+  centerDetail: { Body: "le centre instinctif/viscéral (colère)", Heart: "le centre du cœur/du ressenti (honte)", Head: "le centre mental/de la pensée (peur)" },
+  labels: { core: "Type principal", wing: "Aile", center: "Centre d'intelligence", desire: "Désir fondamental", fear: "Peur fondamentale", passionVirtue: "Passion → Vertu", resonances: "Plus fortes résonances" },
+  flavored: "teinté par le Type {w} ({name})",
+};
+
+export function enneaTypeStrings(locale?: string): EnneaTypeBundle | undefined {
+  return locale === "es" ? ENNEA_TYPE_ES : locale === "fr" ? ENNEA_TYPE_FR : undefined;
+}
+
+export interface JungTypeBundle {
+  types: Record<string, { title: string; summary: string }>;
+  functions: Record<string, string>;
+  clarity: { veryClear: string; clear: string; moderate: string; slight: string };
+  axisValues: Record<string, string>; // E,I,N,S,F,T,J,P → display
+  labels: { energy: string; information: string; decisions: string; structure: string; stack: string };
+  stackPos: [string, string, string, string];
+  pref: string; // "{c} preference"
+}
+
+const JUNG_TYPE_ES: JungTypeBundle = {
+  types: {
+    ISTJ: { title: "El Inspector", summary: "Fiable, metódico/a y leal a sus compromisos y estándares." },
+    ISFJ: { title: "El Protector", summary: "Cálido/a, concienzudo/a y discretamente entregado/a a cuidar de los demás." },
+    INFJ: { title: "El Consejero", summary: "Perspicaz y con principios, guiado/a por una visión privada de lo que podría ser." },
+    INTJ: { title: "El Arquitecto", summary: "Estratégico/a e independiente, construye sistemas de largo alcance hacia una meta." },
+    ISTP: { title: "El Artesano", summary: "Solucionador/a práctico/a que domina cómo funcionan realmente las cosas." },
+    ISFP: { title: "El Compositor", summary: "Amable, centrado/a en el presente y guiado/a por valores personales muy arraigados." },
+    INFP: { title: "El Mediador", summary: "Idealista e imaginativo/a, anclado/a a una fuerte brújula moral interior." },
+    INTP: { title: "El Lógico", summary: "Analítico/a e inventivo/a, movido/a a comprender la lógica que subyace a las cosas." },
+    ESTP: { title: "El Dinamizador", summary: "Audaz y pragmático/a, prospera con la acción y la resolución en tiempo real." },
+    ESFP: { title: "El Animador", summary: "Espontáneo/a y cálido/a, aporta energía y deleite al momento presente." },
+    ENFP: { title: "El Inspirador", summary: "Entusiasta e imaginativo/a, ve posibilidad y potencial en las personas." },
+    ENTP: { title: "El Visionario", summary: "Ágil e inventivo/a debatiendo, le encanta generar y poner a prueba ideas nuevas." },
+    ESTJ: { title: "El Supervisor", summary: "Organizado/a y decidido/a, moviliza personas y recursos para lograr resultados." },
+    ESFJ: { title: "El Proveedor", summary: "Sociable y cumplidor/a, atento/a a las necesidades de los demás y a la armonía del grupo." },
+    ENFJ: { title: "El Maestro", summary: "Carismático/a y empático/a, saca lo mejor de quienes le rodean." },
+    ENTJ: { title: "El Comandante", summary: "Líder estratégico/a que organiza el mundo hacia una visión ambiciosa." },
+  },
+  functions: {
+    Ni: "Intuición introvertida", Ne: "Intuición extravertida", Si: "Sensación introvertida", Se: "Sensación extravertida",
+    Ti: "Pensamiento introvertido", Te: "Pensamiento extravertido", Fi: "Sentimiento introvertido", Fe: "Sentimiento extravertido",
+  },
+  clarity: { veryClear: "muy clara", clear: "clara", moderate: "moderada", slight: "leve" },
+  axisValues: { E: "Extraversión", I: "Introversión", N: "Intuición", S: "Sensación", F: "Sentimiento", T: "Pensamiento", J: "Juicio", P: "Percepción" },
+  labels: { energy: "Energía", information: "Información", decisions: "Decisiones", structure: "Estructura", stack: "Pila de funciones cognitivas" },
+  stackPos: ["dominante", "auxiliar", "terciaria", "inferior"],
+  pref: "preferencia {c}",
+};
+
+const JUNG_TYPE_FR: JungTypeBundle = {
+  types: {
+    ISTJ: { title: "L'Inspecteur", summary: "Fiable, méthodique et loyal(e) envers ses engagements et ses standards." },
+    ISFJ: { title: "Le Protecteur", summary: "Chaleureux(se), consciencieux(se) et discrètement dévoué(e) à prendre soin des autres." },
+    INFJ: { title: "Le Conseiller", summary: "Perspicace et intègre, guidé(e) par une vision intime de ce qui pourrait être." },
+    INTJ: { title: "L'Architecte", summary: "Stratège et indépendant(e), bâtit des systèmes à long terme vers un objectif." },
+    ISTP: { title: "L'Artisan", summary: "Résolveur(se) pragmatique qui maîtrise le fonctionnement réel des choses." },
+    ISFP: { title: "Le Compositeur", summary: "Doux(ce), ancré(e) dans le présent et guidé(e) par des valeurs personnelles profondes." },
+    INFP: { title: "Le Médiateur", summary: "Idéaliste et imaginatif(ve), ancré(e) à une forte boussole morale intérieure." },
+    INTP: { title: "Le Logicien", summary: "Analytique et inventif(ve), poussé(e) à comprendre la logique sous-jacente des choses." },
+    ESTP: { title: "Le Fonceur", summary: "Audacieux(se) et pragmatique, s'épanouit dans l'action et la résolution en temps réel." },
+    ESFP: { title: "L'Amuseur", summary: "Spontané(e) et chaleureux(se), apporte énergie et plaisir à l'instant présent." },
+    ENFP: { title: "L'Inspirateur", summary: "Enthousiaste et imaginatif(ve), voit la possibilité et le potentiel chez les gens." },
+    ENTP: { title: "Le Visionnaire", summary: "Vif(ve) et inventif(ve) dans le débat, adore générer et tester des idées nouvelles." },
+    ESTJ: { title: "Le Superviseur", summary: "Organisé(e) et décidé(e), mobilise gens et ressources pour obtenir des résultats." },
+    ESFJ: { title: "Le Pourvoyeur", summary: "Sociable et dévoué(e), attentif(ve) aux besoins des autres et à l'harmonie du groupe." },
+    ENFJ: { title: "Le Mentor", summary: "Charismatique et empathique, révèle le meilleur de son entourage." },
+    ENTJ: { title: "Le Commandant", summary: "Leader stratège qui organise le monde vers une vision ambitieuse." },
+  },
+  functions: {
+    Ni: "Intuition introvertie", Ne: "Intuition extravertie", Si: "Sensation introvertie", Se: "Sensation extravertie",
+    Ti: "Pensée introvertie", Te: "Pensée extravertie", Fi: "Sentiment introverti", Fe: "Sentiment extraverti",
+  },
+  clarity: { veryClear: "très nette", clear: "nette", moderate: "modérée", slight: "légère" },
+  axisValues: { E: "Extraversion", I: "Introversion", N: "Intuition", S: "Sensation", F: "Sentiment", T: "Pensée", J: "Jugement", P: "Perception" },
+  labels: { energy: "Énergie", information: "Information", decisions: "Décisions", structure: "Structure", stack: "Pile de fonctions cognitives" },
+  stackPos: ["dominante", "auxiliaire", "tertiaire", "inférieure"],
+  pref: "préférence {c}",
+};
+
+export function jungTypeStrings(locale?: string): JungTypeBundle | undefined {
+  return locale === "es" ? JUNG_TYPE_ES : locale === "fr" ? JUNG_TYPE_FR : undefined;
+}
+
+/* ── Attachment styles (typological; type card localized separately) ── */
+export interface AttachmentTypeBundle {
+  meta: Record<string, { title: string; summary: string }>;
+  labels: { anxiety: string; avoidance: string; style: string; security: string };
+  higher: string;
+  lower: string;
+  band: { high: string; moderate: string; low: string };
+  securityValue: string;
+  securityHint: string;
+}
+const ATTACH_TYPE_ES: AttachmentTypeBundle = {
+  meta: {
+    secure: { title: "Apego seguro", summary: "Te sientes a gusto tanto con la intimidad como con la independencia: en general confiado/a y poco alterado/a por la cercanía o la distancia." },
+    anxious: { title: "Ansioso-preocupado", summary: "Valoras profundamente la cercanía y puedes preocuparte por el amor y la disponibilidad de tu pareja, ansiando reafirmación." },
+    avoidant: { title: "Evitativo-rechazante", summary: "Valoras la independencia y la autosuficiencia, y tiendes a mantener cierta distancia emocional incluso en la cercanía." },
+    fearful: { title: "Temeroso-evitativo", summary: "Anhelas la cercanía pero también la temes: dividido/a entre querer conexión y protegerte." },
+  },
+  labels: { anxiety: "Ansiedad del apego", avoidance: "Evitación del apego", style: "Estilo", security: "Hacia la seguridad" },
+  higher: "Más alta", lower: "Más baja",
+  band: { high: "alta", moderate: "moderada", low: "baja" },
+  securityValue: "menos ansiedad + menos evitación", securityHint: "hacia donde suele encaminarse el crecimiento",
+};
+const ATTACH_TYPE_FR: AttachmentTypeBundle = {
+  meta: {
+    secure: { title: "Attachement sécure", summary: "Vous êtes à l'aise avec l'intimité comme avec l'indépendance — globalement confiant(e), peu déstabilisé(e) par la proximité ou la distance." },
+    anxious: { title: "Anxieux-préoccupé", summary: "Vous valorisez profondément la proximité et pouvez vous inquiéter de l'amour et de la disponibilité de votre partenaire, en quête de réassurance." },
+    avoidant: { title: "Détaché-évitant", summary: "Vous prisez l'indépendance et l'autonomie, et tendez à garder une certaine distance émotionnelle même dans la proximité." },
+    fearful: { title: "Craintif-évitant", summary: "Vous aspirez à la proximité tout en la craignant — tiraillé(e) entre le désir de lien et la protection de soi." },
+  },
+  labels: { anxiety: "Anxiété d'attachement", avoidance: "Évitement d'attachement", style: "Style", security: "Vers la sécurité" },
+  higher: "Élevé(e)", lower: "Faible",
+  band: { high: "élevé(e)", moderate: "modéré(e)", low: "faible" },
+  securityValue: "moins d'anxiété + moins d'évitement", securityHint: "là où la croissance tend à se diriger",
+};
+export function attachmentTypeStrings(locale?: string): AttachmentTypeBundle | undefined {
+  return locale === "es" ? ATTACH_TYPE_ES : locale === "fr" ? ATTACH_TYPE_FR : undefined;
+}
+
+/* ── Love Languages (typological; type card localized separately) ── */
+export interface LoveLangTypeBundle {
+  meta: Record<string, { name: string; summary: string }>;
+  primary: string;
+  secondary: string;
+  ranking: string;
+  tipLabel: string;
+  primaryPrefix: string;
+  tip: (name: string) => string;
+}
+const LOVE_TYPE_ES: LoveLangTypeBundle = {
+  meta: {
+    WORDS: { name: "Palabras de afirmación", summary: "Te sientes más amado/a a través del aprecio hablado y escrito: cumplidos, ánimo y 'te quiero'." },
+    TIME: { name: "Tiempo de calidad", summary: "Te sientes más amado/a a través de la atención plena y sin distracciones y la presencia compartida." },
+    SERVICE: { name: "Actos de servicio", summary: "Te sientes más amado/a cuando los demás hacen cosas útiles por ti: hechos más que palabras." },
+    GIFTS: { name: "Recibir regalos", summary: "Te sientes más amado/a a través de regalos pensados y significativos que dicen 'pensaba en ti'." },
+    TOUCH: { name: "Contacto físico", summary: "Te sientes más amado/a a través de la cercanía física afectuosa: abrazos, tomarse de la mano y calidez." },
+  },
+  primary: "Lenguaje principal", secondary: "Lenguaje secundario", ranking: "Clasificación completa", tipLabel: "Consejo",
+  primaryPrefix: "Principal: ",
+  tip: (name) => `Pide a tus seres queridos más ${name}, y aprende a 'hablar' el suyo también.`,
+};
+const LOVE_TYPE_FR: LoveLangTypeBundle = {
+  meta: {
+    WORDS: { name: "Paroles valorisantes", summary: "Vous vous sentez le plus aimé(e) par l'appréciation dite et écrite — compliments, encouragements et « je t'aime »." },
+    TIME: { name: "Moments de qualité", summary: "Vous vous sentez le plus aimé(e) par une attention pleine et entière et une présence partagée." },
+    SERVICE: { name: "Services rendus", summary: "Vous vous sentez le plus aimé(e) quand les autres font des choses utiles pour vous — les actes plutôt que les mots." },
+    GIFTS: { name: "Cadeaux reçus", summary: "Vous vous sentez le plus aimé(e) par des cadeaux réfléchis et significatifs qui disent « je pensais à toi »." },
+    TOUCH: { name: "Contact physique", summary: "Vous vous sentez le plus aimé(e) par une proximité physique affectueuse — câlins, main dans la main et chaleur." },
+  },
+  primary: "Langage principal", secondary: "Langage secondaire", ranking: "Classement complet", tipLabel: "Conseil",
+  primaryPrefix: "Principal : ",
+  tip: (name) => `Demandez à vos proches davantage de ${name}, et apprenez à « parler » le leur aussi.`,
+};
+export function loveLangTypeStrings(locale?: string): LoveLangTypeBundle | undefined {
+  return locale === "es" ? LOVE_TYPE_ES : locale === "fr" ? LOVE_TYPE_FR : undefined;
+}
+
+/* ── Conflict Style / Thomas–Kilmann (typological; type card localized separately) ── */
+export interface ConflictTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { primary: string; backup: string; order: string; grow: string };
+  growTip: string;
+}
+const CONFLICT_TYPE_ES: ConflictTypeBundle = {
+  meta: {
+    COMPETE: { name: "Competir", title: "El Director", desc: "firme y orientado a objetivos", summary: "Persigues lo que crees correcto: decidido/a y dispuesto/a a mantenerte firme. Genial en una crisis; cuida no ganar batallas y perder relaciones." },
+    COLLAB: { name: "Colaborar", title: "El Solucionador", desc: "firme y cooperativo", summary: "Trabajas para satisfacer las necesidades reales de todos y resolver el problema de fondo. El modo más rico; solo ten en cuenta que no todo conflicto merece el tiempo que requiere." },
+    COMPROMISE: { name: "Comprometer", title: "El Negociador", desc: "toma y daca equilibrado", summary: "Encuentras rápido un punto medio justo. Pragmático/a y eficiente; solo asegúrate de no conformarte cuando había una solución más completa." },
+    AVOID: { name: "Evitar", title: "El Esquivador", desc: "discreto y reacio al conflicto", summary: "Esquivas o aplazas el conflicto para mantener la calma. Útil en momentos triviales o acalorados; costoso cuando quedan problemas reales sin abordar." },
+    ACCOMM: { name: "Ceder", title: "El Armonizador", desc: "generoso y buscador de armonía", summary: "Cedes para preservar la relación. Generoso/a y amable; cuida que ceder de forma crónica no entierre tus propias necesidades." },
+  },
+  labels: { primary: "Estilo principal", backup: "Estilo de reserva", order: "Orden completo", grow: "Crecer" },
+  growTip: "El modo que menos usas suele ser el que vale la pena practicar para las situaciones difíciles.",
+};
+const CONFLICT_TYPE_FR: ConflictTypeBundle = {
+  meta: {
+    COMPETE: { name: "Rivaliser", title: "Le Directeur", desc: "affirmé et orienté objectifs", summary: "Vous poursuivez ce que vous croyez juste — décidé(e) et prêt(e) à tenir bon. Excellent en cas de crise ; veillez à ne pas gagner des batailles en perdant des relations." },
+    COLLAB: { name: "Collaborer", title: "Le Résolveur", desc: "affirmé et coopératif", summary: "Vous cherchez à satisfaire les vrais besoins de chacun et à résoudre le problème de fond. Le mode le plus riche — gardez en tête que tout conflit ne vaut pas le temps qu'il prend." },
+    COMPROMISE: { name: "Compromis", title: "Le Négociateur", desc: "donnant-donnant équilibré", summary: "Vous trouvez vite un juste milieu. Pragmatique et efficace ; assurez-vous seulement de ne pas vous contenter de peu alors qu'une solution plus complète existait." },
+    AVOID: { name: "Éviter", title: "L'Esquiveur", desc: "discret et réfractaire au conflit", summary: "Vous esquivez ou différez le conflit pour garder le calme. Utile pour les moments anodins ou houleux ; coûteux quand de vrais problèmes restent sans réponse." },
+    ACCOMM: { name: "Accommoder", title: "L'Harmonisateur", desc: "généreux et en quête d'harmonie", summary: "Vous cédez pour préserver la relation. Généreux(se) et gracieux(se) ; veillez à ce que céder sans cesse n'enterre pas vos propres besoins." },
+  },
+  labels: { primary: "Style principal", backup: "Style de secours", order: "Ordre complet", grow: "Grandir" },
+  growTip: "Le mode que vous utilisez le moins est souvent celui qu'il vaut la peine de travailler pour les situations difficiles.",
+};
+export function conflictTypeStrings(locale?: string): ConflictTypeBundle | undefined {
+  return locale === "es" ? CONFLICT_TYPE_ES : locale === "fr" ? CONFLICT_TYPE_FR : undefined;
+}
+
+/* ── Kolb Learning Style (typological; type card localized separately) ── */
+export interface KolbTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { style: string; grasping: string; transforming: string; clarity: string };
+  abstract: { value: string; detail: string };
+  concrete: { value: string; detail: string };
+  active: { value: string; detail: string };
+  reflective: { value: string; detail: string };
+  clarityDetail: string;
+}
+const KOLB_TYPE_ES: KolbTypeBundle = {
+  meta: {
+    Diverging: { name: "Divergente", title: "El Divergente", desc: "sentir + observar", summary: "Aprendes sintiendo y reflexionando: imaginativo/a y atento/a a las personas, ves las situaciones desde muchos ángulos y brillas generando ideas." },
+    Assimilating: { name: "Asimilador", title: "El Asimilador", desc: "pensar + observar", summary: "Aprendes pensando y reflexionando: lógico/a y conciso/a, das lo mejor con conceptos, modelos e ideas bien organizadas." },
+    Converging: { name: "Convergente", title: "El Convergente", desc: "pensar + hacer", summary: "Aprendes pensando y haciendo: solucionador/a práctico/a, destacas aplicando ideas a retos reales y técnicos." },
+    Accommodating: { name: "Acomodador", title: "El Acomodador", desc: "sentir + hacer", summary: "Aprendes sintiendo y haciendo: práctico/a e intuitivo/a, te crece la energía con experiencias nuevas y te adaptas rápido sobre la marcha." },
+  },
+  labels: { style: "Estilo", grasping: "Captar", transforming: "Transformar", clarity: "Claridad" },
+  abstract: { value: "Abstracto (pensar)", detail: "ideas y análisis" },
+  concrete: { value: "Concreto (sentir)", detail: "experiencia directa" },
+  active: { value: "Activo (hacer)", detail: "experimentar y actuar" },
+  reflective: { value: "Reflexivo (observar)", detail: "observar y reflexionar" },
+  clarityDetail: "con qué decisión se inclinaron ambos ejes",
+};
+const KOLB_TYPE_FR: KolbTypeBundle = {
+  meta: {
+    Diverging: { name: "Divergent", title: "Le Divergent", desc: "ressentir + observer", summary: "Vous apprenez en ressentant et en réfléchissant : imaginatif(ve) et attentif(ve) aux autres, vous voyez les situations sous de multiples angles et excellez à générer des idées." },
+    Assimilating: { name: "Assimilateur", title: "L'Assimilateur", desc: "penser + observer", summary: "Vous apprenez en pensant et en réfléchissant : logique et concis(e), vous êtes au mieux avec les concepts, les modèles et les idées bien organisées." },
+    Converging: { name: "Convergent", title: "Le Convergent", desc: "penser + faire", summary: "Vous apprenez en pensant et en faisant : résolveur(se) pratique, vous excellez à appliquer les idées à des défis réels et techniques." },
+    Accommodating: { name: "Accommodateur", title: "L'Accommodateur", desc: "ressentir + faire", summary: "Vous apprenez en ressentant et en faisant : concret(ète) et intuitif(ve), vous vous épanouissez dans les expériences nouvelles et vous adaptez vite sur le moment." },
+  },
+  labels: { style: "Style", grasping: "Saisir", transforming: "Transformer", clarity: "Clarté" },
+  abstract: { value: "Abstrait (penser)", detail: "idées et analyse" },
+  concrete: { value: "Concret (ressentir)", detail: "expérience directe" },
+  active: { value: "Actif (faire)", detail: "expérimenter et agir" },
+  reflective: { value: "Réflexif (observer)", detail: "observer et réfléchir" },
+  clarityDetail: "avec quelle netteté les deux axes ont penché",
+};
+export function kolbTypeStrings(locale?: string): KolbTypeBundle | undefined {
+  return locale === "es" ? KOLB_TYPE_ES : locale === "fr" ? KOLB_TYPE_FR : undefined;
+}
+
+/* ── VARK Learning Preferences (typological; type card localized separately) ── */
+export interface VarkTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  multimodalTitle: string;
+  multimodalSummary: string;
+  labels: { lead: string; support: string; order: string; pattern: string };
+  orderHint: string;
+  multimodalBlend: string;
+  clear: (name: string) => string;
+  multimodalDetail: string;
+  clearDetail: string;
+}
+const VARK_TYPE_ES: VarkTypeBundle = {
+  meta: {
+    VIS: { name: "Visual", title: "El Visualizador", desc: "diagramas, gráficos y ver", summary: "Te inclinas a lo Visual: diagramas, mapas y ver cómo encajan las cosas te ayudan más. (Una preferencia, no un límite.)" },
+    AUR: { name: "Auditivo", title: "El Oyente", desc: "escuchar y conversar", summary: "Te inclinas a lo Auditivo: escuchar, hablar y conversar te ayudan más. (Una preferencia, no un límite.)" },
+    RDW: { name: "Lectura/Escritura", title: "El Escritor", desc: "leer y escribir", summary: "Te inclinas a Lectura/Escritura: el texto, las notas y escribir las cosas te ayudan más. (Una preferencia, no un límite.)" },
+    KIN: { name: "Kinestésico", title: "El Hacedor", desc: "práctica manual", summary: "Te inclinas a lo Kinestésico: la práctica directa y los ejemplos reales te ayudan más. (Una preferencia, no un límite.)" },
+  },
+  multimodalTitle: "El Aprendiz Multimodal",
+  multimodalSummary: "Tus preferencias están bastante repartidas: eres multimodal, cómodo/a recibiendo la información de más de una forma.",
+  labels: { lead: "Preferencia principal", support: "Preferencia de apoyo", order: "Orden", pattern: "Patrón" },
+  orderHint: "tus canales, del más fuerte al más débil",
+  multimodalBlend: "Mezcla multimodal",
+  clear: (name) => `${name} claro`,
+  multimodalDetail: "ningún canal domina",
+  clearDetail: "un canal destaca",
+};
+const VARK_TYPE_FR: VarkTypeBundle = {
+  meta: {
+    VIS: { name: "Visuel", title: "Le Visualiseur", desc: "schémas, graphiques et voir", summary: "Vous penchez vers le Visuel : schémas, cartes et voir comment les choses s'agencent vous aident le plus. (Une préférence, pas une limite.)" },
+    AUR: { name: "Auditif", title: "L'Auditeur", desc: "écouter et discuter", summary: "Vous penchez vers l'Auditif : écouter, parler et discuter vous aident le plus. (Une préférence, pas une limite.)" },
+    RDW: { name: "Lecture/Écriture", title: "Le Rédacteur", desc: "lire et écrire", summary: "Vous penchez vers Lecture/Écriture : le texte, les notes et écrire les choses vous aident le plus. (Une préférence, pas une limite.)" },
+    KIN: { name: "Kinesthésique", title: "Le Praticien", desc: "pratique manuelle", summary: "Vous penchez vers le Kinesthésique : la pratique directe et les exemples concrets vous aident le plus. (Une préférence, pas une limite.)" },
+  },
+  multimodalTitle: "L'Apprenant Multimodal",
+  multimodalSummary: "Vos préférences sont assez réparties : vous êtes multimodal(e), à l'aise pour recevoir l'information de plusieurs façons.",
+  labels: { lead: "Préférence principale", support: "Préférence d'appoint", order: "Ordre", pattern: "Profil" },
+  orderHint: "vos canaux, du plus fort au plus faible",
+  multimodalBlend: "Mélange multimodal",
+  clear: (name) => `${name} net`,
+  multimodalDetail: "aucun canal ne domine",
+  clearDetail: "un canal se détache",
+};
+export function varkTypeStrings(locale?: string): VarkTypeBundle | undefined {
+  return locale === "es" ? VARK_TYPE_ES : locale === "fr" ? VARK_TYPE_FR : undefined;
+}
+
+/* ── Chronotype (typological; type card localized separately) ── */
+export interface ChronotypeTypeBundle {
+  meta: Record<string, { title: string; summary: string; peak: string; best: string }>;
+  labels: { chronotype: string; peak: string; best: string; watch: string };
+  watch: string;
+}
+const CHRONO_TYPE_ES: ChronotypeTypeBundle = {
+  meta: {
+    Lark: { title: "El Madrugador (Alondra)", summary: "Estás hecho/a para la mañana: despierto/a temprano, más agudo/a antes del mediodía y listo/a para desconectar por la noche.", peak: "la mañana (aprox. 8–12 h)", best: "Protege tus mañanas para tu trabajo más difícil e importante." },
+    Owl: { title: "El Búho Nocturno", summary: "Estás hecho/a para la noche: arrancas despacio, pero te concentras y te vuelves creativo/a cuando el día decae.", peak: "de la tarde a la noche", best: "Defiende tu concentración de última hora; evita programar trabajo exigente a las 9 de la mañana si puedes." },
+    Hummingbird: { title: "El Colibrí (Intermedio)", summary: "Eres flexible: ni marcadamente matutino/a ni nocturno/a, capaz de adaptar tu pico a tu horario.", peak: "el mediodía, y adaptable", best: "Observa tu curva de energía diaria y coloca el trabajo profundo en tu pico real." },
+  },
+  labels: { chronotype: "Cronotipo", peak: "Tus horas pico", best: "Mejor jugada", watch: "Ojo" },
+  watch: "Pelear contra tu cronotipo a base de estimulantes y fuerza de voluntad funciona un tiempo, y luego pasa factura al sueño, el ánimo y la salud.",
+};
+const CHRONO_TYPE_FR: ChronotypeTypeBundle = {
+  meta: {
+    Lark: { title: "Le Lève-tôt (Alouette)", summary: "Vous êtes câblé(e) pour le matin : alerte tôt, le plus vif(ve) avant midi, et prêt(e) à lever le pied le soir.", peak: "le matin (environ 8 h–midi)", best: "Protégez vos matinées pour votre travail le plus difficile et le plus important." },
+    Owl: { title: "Le Couche-tard", summary: "Vous êtes câblé(e) pour le soir : lent(e) à démarrer, mais concentré(e) et créatif(ve) une fois la journée déclinante.", peak: "de la fin d'après-midi à la nuit", best: "Défendez votre concentration de fin de journée ; évitez de planifier un travail exigeant à 9 h si possible." },
+    Hummingbird: { title: "Le Colibri (Intermédiaire)", summary: "Vous êtes flexible : ni franchement du matin ni du soir, capable d'adapter votre pic à votre emploi du temps.", peak: "le milieu de journée, et adaptable", best: "Observez votre courbe d'énergie quotidienne et placez le travail de fond à votre vrai pic." },
+  },
+  labels: { chronotype: "Chronotype", peak: "Vos heures de pointe", best: "Meilleur choix", watch: "Attention" },
+  watch: "Lutter contre son chronotype à coups de stimulants et de volonté marche un temps, puis pèse sur le sommeil, l'humeur et la santé.",
+};
+export function chronotypeTypeStrings(locale?: string): ChronotypeTypeBundle | undefined {
+  return locale === "es" ? CHRONO_TYPE_ES : locale === "fr" ? CHRONO_TYPE_FR : undefined;
+}
+
+/* ── Four Temperaments (typological; type card localized separately) ── */
+export interface FourTempTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { primary: string; secondary: string; blend: string; order: string };
+  strong: (name: string) => string;
+  blendSummary: (summary: string, a: string, b: string) => string;
+}
+const FOURTEMP_TYPE_ES: FourTempTypeBundle = {
+  meta: {
+    SANG: { name: "Sanguíneo", title: "La Chispa", desc: "sociable, vivaz, optimista", summary: "Cálido/a, entusiasta y amante de la gente: aportas energía y diversión, y vives el momento." },
+    CHOL: { name: "Colérico", title: "El Impulsor", desc: "ambicioso, decidido, audaz", summary: "Decidido/a, resolutivo/a y líder por naturaleza: te fijas grandes metas y vas a por ellas." },
+    MEL: { name: "Melancólico", title: "El Pensador Profundo", desc: "analítico, sensible, preciso", summary: "Reflexivo/a, profundo/a y atento/a al detalle: sientes con intensidad y mantienes estándares altos." },
+    PHLEG: { name: "Flemático", title: "El Estable", desc: "tranquilo, leal, pacífico", summary: "Tranquilo/a, paciente y fiable: mantienes la paz y aportas una estabilidad serena." },
+  },
+  labels: { primary: "Temperamento principal", secondary: "Temperamento secundario", blend: "Mezcla", order: "Orden completo" },
+  strong: (name) => `${name} marcado`,
+  blendSummary: (summary, a, b) => `${summary} Eres una clara mezcla ${a}–${b}.`,
+};
+const FOURTEMP_TYPE_FR: FourTempTypeBundle = {
+  meta: {
+    SANG: { name: "Sanguin", title: "L'Étincelle", desc: "sociable, vif, optimiste", summary: "Chaleureux(se), enthousiaste et tourné(e) vers les autres : vous apportez énergie et plaisir, et vivez l'instant." },
+    CHOL: { name: "Colérique", title: "Le Meneur", desc: "ambitieux, décidé, audacieux", summary: "Déterminé(e), décidé(e) et meneur(se) né(e) : vous visez grand et foncez." },
+    MEL: { name: "Mélancolique", title: "Le Penseur Profond", desc: "analytique, sensible, précis", summary: "Réfléchi(e), profond(e) et attentif(ve) au détail : vous ressentez intensément et tenez des standards élevés." },
+    PHLEG: { name: "Flegmatique", title: "Le Stable", desc: "calme, loyal, paisible", summary: "Calme, patient(e) et fiable : vous préservez la paix et offrez une stabilité tranquille." },
+  },
+  labels: { primary: "Tempérament principal", secondary: "Tempérament secondaire", blend: "Mélange", order: "Ordre complet" },
+  strong: (name) => `${name} marqué`,
+  blendSummary: (summary, a, b) => `${summary} Vous êtes un mélange ${a}–${b} net.`,
+};
+export function fourTempTypeStrings(locale?: string): FourTempTypeBundle | undefined {
+  return locale === "es" ? FOURTEMP_TYPE_ES : locale === "fr" ? FOURTEMP_TYPE_FR : undefined;
+}
+
+/* ── Four Color Styles (typological; type card localized separately) ── */
+export interface ColorTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { lead: string; support: string; spectrum: string; pattern: string };
+  spectrumHint: string;
+  blend: string;
+  clear: (name: string) => string;
+  blendDetail: string;
+  clearDetail: string;
+}
+const COLOR_TYPE_ES: ColorTypeBundle = {
+  meta: {
+    GOLD: { name: "Dorado", title: "El Organizador", desc: "responsable, estructurado, fiable", summary: "El Dorado lidera en ti: responsable, organizado/a y leal. Construyes la estructura y el cumplimiento en los que otros confían." },
+    BLUE: { name: "Azul", title: "El Conector", desc: "cálido, empático, en busca de sentido", summary: "El Azul lidera en ti: cálido/a, auténtico/a y centrado/a en las personas. Cultivas la armonía, el sentido y el crecimiento de quienes te rodean." },
+    GREEN: { name: "Verde", title: "El Pensador", desc: "analítico, curioso, movido por la competencia", summary: "El Verde lidera en ti: lógico/a, curioso/a y de cabeza fría. Dominas ideas y sistemas y valoras la competencia." },
+    ORANGE: { name: "Naranja", title: "El Aventurero", desc: "espontáneo, enérgico, audaz", summary: "El Naranja lidera en ti: espontáneo/a, amante de la acción y adaptable. Aportas energía, valentía y un sentido del juego." },
+  },
+  labels: { lead: "Color principal", support: "Color de apoyo", spectrum: "Espectro", pattern: "Patrón" },
+  spectrumHint: "tus colores, del más brillante al más tenue",
+  blend: "Una mezcla de dos colores",
+  clear: (name) => `${name} claro`,
+  blendDetail: "dos colores van muy parejos",
+  clearDetail: "un color destaca con claridad",
+};
+const COLOR_TYPE_FR: ColorTypeBundle = {
+  meta: {
+    GOLD: { name: "Or", title: "L'Organisateur", desc: "responsable, structuré, fiable", summary: "L'Or domine chez vous : responsable, organisé(e) et loyal(e). Vous bâtissez la structure et le suivi sur lesquels les autres comptent." },
+    BLUE: { name: "Bleu", title: "Le Connecteur", desc: "chaleureux, empathique, en quête de sens", summary: "Le Bleu domine chez vous : chaleureux(se), authentique et tourné(e) vers les gens. Vous cultivez l'harmonie, le sens et la croissance de votre entourage." },
+    GREEN: { name: "Vert", title: "Le Penseur", desc: "analytique, curieux, porté sur la compétence", summary: "Le Vert domine chez vous : logique, curieux(se) et de sang-froid. Vous maîtrisez les idées et les systèmes et prisez la compétence." },
+    ORANGE: { name: "Orange", title: "L'Aventurier", desc: "spontané, énergique, audacieux", summary: "L'Orange domine chez vous : spontané(e), amateur(trice) d'action et adaptable. Vous apportez énergie, courage et sens du jeu." },
+  },
+  labels: { lead: "Couleur principale", support: "Couleur d'appoint", spectrum: "Spectre", pattern: "Profil" },
+  spectrumHint: "vos couleurs, de la plus vive à la plus pâle",
+  blend: "Un mélange de deux couleurs",
+  clear: (name) => `${name} net`,
+  blendDetail: "deux couleurs sont au coude à coude",
+  clearDetail: "une couleur se détache nettement",
+};
+export function colorTypeStrings(locale?: string): ColorTypeBundle | undefined {
+  return locale === "es" ? COLOR_TYPE_ES : locale === "fr" ? COLOR_TYPE_FR : undefined;
+}
+
+/* ── Keirsey Temperaments (typological; type card localized separately) ── */
+export interface KeirseyTypeBundle {
+  meta: Record<string, { name: string; title: string; family: string; summary: string }>;
+  labels: { temperament: string; communication: string; action: string; clarity: string };
+  abstract: { value: string; detail: string };
+  concrete: { value: string; detail: string };
+  utilitarian: { value: string; detail: string };
+  cooperative: { value: string; detail: string };
+  clarityDetail: string;
+}
+const KEIRSEY_TYPE_ES: KeirseyTypeBundle = {
+  meta: {
+    Guardian: { name: "Guardián", title: "El Guardián", family: "Sensación–Juicio (SJ)", summary: "Fiable, cumplidor/a y con los pies en la tierra: mantienes a las personas, los planes y las instituciones estables y bien cuidados." },
+    Artisan: { name: "Artesano", title: "El Artesano", family: "Sensación–Percepción (SP)", summary: "Adaptable, práctico/a y audaz: lees el momento y haces que las cosas funcionen, a menudo con estilo y soltura." },
+    Idealist: { name: "Idealista", title: "El Idealista", family: "Intuición–Sentimiento (NF)", summary: "Empático/a, en busca de sentido y auténtico/a: cultivas el crecimiento, la armonía y el potencial de las personas." },
+    Rational: { name: "Racional", title: "El Racional", family: "Intuición–Pensamiento (NT)", summary: "Estratégico/a, inventivo/a y movido/a por la competencia: dominas sistemas, ideas y problemas de largo alcance." },
+  },
+  labels: { temperament: "Temperamento", communication: "Comunicación", action: "Acción", clarity: "Claridad" },
+  abstract: { value: "Abstracta", detail: "ideas, patrones, posibilidades" },
+  concrete: { value: "Concreta", detail: "hechos, el aquí y ahora tangible" },
+  utilitarian: { value: "Utilitaria", detail: "hacer lo que funciona" },
+  cooperative: { value: "Cooperativa", detail: "hacer lo que es correcto" },
+  clarityDetail: "con qué decisión se inclinaron ambos ejes",
+};
+const KEIRSEY_TYPE_FR: KeirseyTypeBundle = {
+  meta: {
+    Guardian: { name: "Gardien", title: "Le Gardien", family: "Sensation–Jugement (SJ)", summary: "Fiable, consciencieux(se) et les pieds sur terre : vous maintenez les gens, les plans et les institutions stables et bien encadrés." },
+    Artisan: { name: "Artisan", title: "L'Artisan", family: "Sensation–Perception (SP)", summary: "Adaptable, concret(ète) et audacieux(se) : vous lisez l'instant et faites en sorte que les choses marchent, souvent avec style et aisance." },
+    Idealist: { name: "Idéaliste", title: "L'Idéaliste", family: "Intuition–Sentiment (NF)", summary: "Empathique, en quête de sens et authentique : vous cultivez la croissance, l'harmonie et le potentiel des gens." },
+    Rational: { name: "Rationnel", title: "Le Rationnel", family: "Intuition–Pensée (NT)", summary: "Stratège, inventif(ve) et porté(e) sur la compétence : vous maîtrisez les systèmes, les idées et les problèmes de longue haleine." },
+  },
+  labels: { temperament: "Tempérament", communication: "Communication", action: "Action", clarity: "Clarté" },
+  abstract: { value: "Abstraite", detail: "idées, motifs, possibilités" },
+  concrete: { value: "Concrète", detail: "faits, l'ici et maintenant tangible" },
+  utilitarian: { value: "Utilitaire", detail: "faire ce qui marche" },
+  cooperative: { value: "Coopérative", detail: "faire ce qui est correct" },
+  clarityDetail: "avec quelle netteté les deux axes ont penché",
+};
+export function keirseyTypeStrings(locale?: string): KeirseyTypeBundle | undefined {
+  return locale === "es" ? KEIRSEY_TYPE_ES : locale === "fr" ? KEIRSEY_TYPE_FR : undefined;
+}
+
+/* ── Ranked-triad type cards (Leadership Styles, McClelland's Needs) ──
+   Both rank three categories and report dominant/secondary/range/profile, so they
+   share one bundle shape. */
+export interface RankedStyleBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { dominant: string; secondary: string; range: string; profile: string };
+  lead: string;
+  blend: string;
+  profileDetail: string;
+}
+const LEADERSHIP_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    TFM: { name: "Transformacional", title: "El Visionario", desc: "inspirar, desarrollar, elevar", summary: "Tu estilo dominante es transformacional: lideras inspirando una visión compartida, desarrollando a las personas y elevándolas más allá de su interés propio. El estilo más eficaz de forma constante, cuando se acompaña de cumplimiento." },
+    TRN: { name: "Transaccional", title: "El Gestor", desc: "claridad, intercambio, supervisión", summary: "Tu estilo dominante es transaccional: lideras fijando expectativas claras, recompensando resultados y gestionando el desempeño. Fiable y justo; más potente cuando se complementa con visión." },
+    LFR: { name: "Laissez-faire", title: "El Líder Distante", desc: "evitativo, sin supervisión", summary: "Tu estilo dominante es pasivo/laissez-faire: tiendes a no intervenir. A veces es una delegación sana; a menudo deja un vacío de liderazgo. Es el estilo que la investigación vincula con los peores resultados." },
+  },
+  labels: { dominant: "Estilo dominante", secondary: "Estilo secundario", range: "Rango completo", profile: "Perfil" },
+  lead: "un estilo lidera", blend: "una mezcla de estilos", profileDetail: "los mejores líderes alternan transformacional + transaccional",
+};
+const LEADERSHIP_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    TFM: { name: "Transformationnel", title: "Le Visionnaire", desc: "inspirer, développer, élever", summary: "Votre style dominant est transformationnel : vous dirigez en inspirant une vision partagée, en développant les gens et en les élevant au-delà de leur intérêt propre. Le style le plus constamment efficace, lorsqu'il s'accompagne de suivi." },
+    TRN: { name: "Transactionnel", title: "Le Gestionnaire", desc: "clarté, échange, supervision", summary: "Votre style dominant est transactionnel : vous dirigez en fixant des attentes claires, en récompensant les résultats et en gérant la performance. Fiable et juste ; plus puissant lorsqu'il est complété par une vision." },
+    LFR: { name: "Laissez-faire", title: "Le Leader en Retrait", desc: "évitant, sans supervision", summary: "Votre style dominant est passif/laissez-faire : vous avez tendance à ne pas intervenir. Parfois une délégation saine ; souvent un vide de leadership. C'est le style que la recherche associe aux résultats les plus faibles." },
+  },
+  labels: { dominant: "Style dominant", secondary: "Style secondaire", range: "Gamme complète", profile: "Profil" },
+  lead: "un style domine", blend: "un mélange de styles", profileDetail: "les meilleurs leaders alternent transformationnel + transactionnel",
+};
+export function leadershipTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? LEADERSHIP_TYPE_ES : locale === "fr" ? LEADERSHIP_TYPE_FR : undefined;
+}
+const MCCLELLAND_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    ACH: { name: "Logro", title: "El Realizador", desc: "maestría, metas, excelencia", summary: "Tu motivo dominante es el Logro: te impulsa fijar metas exigentes, medir el progreso y destacar. Prosperas con el logro personal y los estándares claros de éxito." },
+    AFF: { name: "Afiliación", title: "El Conector", desc: "pertenencia, calidez, armonía", summary: "Tu motivo dominante es la Afiliación: las relaciones cercanas y cálidas y el sentido de pertenencia son lo que más te importa. Te llena la conexión y la armonía." },
+    POW: { name: "Poder", title: "El Influyente", desc: "impacto, influencia, liderar", summary: "Tu motivo dominante es el Poder: te llena la influencia y el impacto. Dirigido hacia los demás (poder socializado), da lugar a un liderazgo fuerte que empodera." },
+  },
+  labels: { dominant: "Motivo dominante", secondary: "Motivo secundario", range: "Perfil de motivos", profile: "Equilibrio" },
+  lead: "un motivo lidera con claridad", blend: "dos motivos van muy parejos", profileDetail: "cuán dominante es tu motivo principal",
+};
+const MCCLELLAND_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    ACH: { name: "Accomplissement", title: "Le Réalisateur", desc: "maîtrise, objectifs, excellence", summary: "Votre motif dominant est l'Accomplissement : vous êtes poussé(e) à fixer des objectifs exigeants, à mesurer vos progrès et à exceller. Vous vous épanouissez dans la réussite personnelle et des critères de succès clairs." },
+    AFF: { name: "Affiliation", title: "Le Connecteur", desc: "appartenance, chaleur, harmonie", summary: "Votre motif dominant est l'Affiliation : des relations proches et chaleureuses et un sentiment d'appartenance comptent le plus pour vous. La connexion et l'harmonie vous stimulent." },
+    POW: { name: "Pouvoir", title: "L'Influenceur", desc: "impact, influence, diriger", summary: "Votre motif dominant est le Pouvoir : l'influence et l'impact vous stimulent. Orienté vers les autres (pouvoir socialisé), il donne un leadership fort et émancipateur." },
+  },
+  labels: { dominant: "Motif dominant", secondary: "Motif secondaire", range: "Profil des motifs", profile: "Équilibre" },
+  lead: "un motif domine nettement", blend: "deux motifs sont au coude à coude", profileDetail: "à quel point votre motif principal domine",
+};
+export function mcclellandTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? MCCLELLAND_TYPE_ES : locale === "fr" ? MCCLELLAND_TYPE_FR : undefined;
+}
+const ANCHORS_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    TF: { name: "Técnico/Funcional", title: "El Experto", desc: "dominio de un oficio", summary: "Tu ancla es la pericia profunda: das lo mejor dominando un oficio y siendo realmente bueno/a en algo específico." },
+    GM: { name: "Dirección general", title: "El Líder", desc: "liderar e integrar", summary: "Tu ancla es la dirección: te atrae liderar personas, integrar funciones y asumir la responsabilidad de los resultados." },
+    AU: { name: "Autonomía", title: "El Independiente", desc: "libertad y autodirección", summary: "Tu ancla es la autonomía: la libertad de trabajar a tu manera te importa más que el rango, la estructura o la seguridad." },
+    SE: { name: "Seguridad/Estabilidad", title: "El Ancla", desc: "estabilidad y previsibilidad", summary: "Tu ancla es la seguridad: valoras un camino estable y fiable y la tranquilidad por encima del riesgo y el cambio rápido." },
+    EC: { name: "Creatividad emprendedora", title: "El Fundador", desc: "construir algo nuevo", summary: "Tu ancla es crear: te impulsa construir algo propio, una empresa o producto que lleve tu sello." },
+    SV: { name: "Servicio/Dedicación", title: "El Servidor", desc: "una causa que merece servir", summary: "Tu ancla es el servicio: el trabajo debe servir a una causa y significar algo; la contribución pesa más que el dinero y el estatus." },
+    CH: { name: "Puro desafío", title: "El Retador", desc: "problemas difíciles que ganar", summary: "Tu ancla es el desafío: vives por los problemas difíciles y la competencia dura, y los necesitas para sentirte vivo/a en el trabajo." },
+    LS: { name: "Estilo de vida", title: "El Integrador", desc: "una vida equilibrada y completa", summary: "Tu ancla es el estilo de vida: quieres una carrera que encaje en una vida equilibrada, integrando trabajo, familia y persona." },
+  },
+  labels: { dominant: "Ancla principal", secondary: "Ancla secundaria", range: "Las tres primeras", profile: "Claridad" },
+  lead: "un claro líder", blend: "las anclas van parejas", profileDetail: "con qué decisión lidera un ancla",
+};
+const ANCHORS_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    TF: { name: "Technique/Fonctionnel", title: "L'Expert", desc: "maîtrise d'un métier", summary: "Votre ancre est l'expertise profonde : vous êtes au mieux en maîtrisant un métier et en étant vraiment bon(ne) dans un domaine précis." },
+    GM: { name: "Direction générale", title: "Le Leader", desc: "diriger et intégrer", summary: "Votre ancre est la direction : vous êtes attiré(e) par le fait de diriger des gens, d'intégrer des fonctions et d'assumer la responsabilité des résultats." },
+    AU: { name: "Autonomie", title: "L'Indépendant", desc: "liberté et autodétermination", summary: "Votre ancre est l'autonomie : la liberté de travailler à votre façon compte plus que le rang, la structure ou la sécurité." },
+    SE: { name: "Sécurité/Stabilité", title: "L'Ancre", desc: "stabilité et prévisibilité", summary: "Votre ancre est la sécurité : vous valorisez un parcours stable et fiable et la tranquillité d'esprit plutôt que le risque et le changement rapide." },
+    EC: { name: "Créativité entrepreneuriale", title: "Le Fondateur", desc: "bâtir du neuf", summary: "Votre ancre est la création : vous êtes poussé(e) à bâtir quelque chose qui vous appartient, une entreprise ou un produit qui porte votre marque." },
+    SV: { name: "Service/Dévouement", title: "Le Serviteur", desc: "une cause qui mérite d'être servie", summary: "Votre ancre est le service : le travail doit servir une cause et avoir du sens ; la contribution prime sur l'argent et le statut." },
+    CH: { name: "Pur défi", title: "Le Challengeur", desc: "des problèmes difficiles à gagner", summary: "Votre ancre est le défi : vous vivez pour les problèmes difficiles et la compétition rude, et il vous les faut pour vous sentir vivant(e) au travail." },
+    LS: { name: "Style de vie", title: "L'Intégrateur", desc: "une vie équilibrée et entière", summary: "Votre ancre est le style de vie : vous voulez une carrière qui s'inscrit dans une vie équilibrée, intégrant travail, famille et soi." },
+  },
+  labels: { dominant: "Ancre principale", secondary: "Ancre secondaire", range: "Les trois premières", profile: "Clarté" },
+  lead: "une tête nette", blend: "les ancres sont au coude à coude", profileDetail: "avec quelle netteté une ancre domine",
+};
+export function anchorsTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? ANCHORS_TYPE_ES : locale === "fr" ? ANCHORS_TYPE_FR : undefined;
+}
+const COPE_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    PROB: { name: "Centrado en el problema", title: "El Solucionador", desc: "afrontamiento activo, planificación", summary: "Tu estilo habitual es centrado en el problema: afrontas el estrés de frente, haces planes y cambias lo que puedes. Potente cuando la situación es controlable; agotador cuando no lo es." },
+    EMO: { name: "Centrado en la emoción", title: "El Reencuadrador", desc: "reencuadre, aceptación, sentido", summary: "Tu estilo habitual es centrado en la emoción: gestionas el clima interior mediante el reencuadre, la aceptación y el sentido. Inestimable para lo que no se puede cambiar; arriesgado si se vuelve evitación de la acción." },
+    SUP: { name: "Búsqueda de apoyo", title: "El Conector", desc: "apoyo emocional y práctico", summary: "Tu estilo habitual es buscar apoyo: recurres a los demás en busca de consuelo y consejo. Una verdadera fortaleza, siempre que complemente (y no sustituya) actuar sobre el problema." },
+    AVO: { name: "Evitativo", title: "El Evitador", desc: "distracción, negación, escape", summary: "Tu estilo habitual tiende a la evitación: distracción, negación o escape. Puede dar alivio a corto plazo, pero como hábito tiende a prolongar el estrés. Vale la pena desplazarse con suavidad hacia los otros tres." },
+  },
+  labels: { dominant: "Estilo dominante", secondary: "Estilo secundario", range: "Orden completo", profile: "Flexibilidad" },
+  lead: "un claro recurso", blend: "un repertorio equilibrado", profileDetail: "recurrir a varios estilos es en sí una fortaleza",
+};
+const COPE_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    PROB: { name: "Centré sur le problème", title: "Le Résolveur", desc: "coping actif, planification", summary: "Votre style de prédilection est centré sur le problème : vous affrontez le stress de face, faites des plans et changez ce que vous pouvez. Puissant quand la situation est contrôlable ; épuisant quand elle ne l'est pas." },
+    EMO: { name: "Centré sur l'émotion", title: "Le Recadreur", desc: "recadrage, acceptation, sens", summary: "Votre style de prédilection est centré sur l'émotion : vous gérez la météo intérieure par le recadrage, l'acceptation et le sens. Inestimable pour ce qui ne peut être changé ; risqué s'il devient évitement de l'action." },
+    SUP: { name: "Recherche de soutien", title: "Le Connecteur", desc: "soutien émotionnel et pratique", summary: "Votre style de prédilection est de chercher du soutien : vous vous tournez vers les autres pour du réconfort et des conseils. Une vraie force, tant qu'elle complète (et ne remplace pas) l'action sur le problème." },
+    AVO: { name: "Évitant", title: "L'Évitant", desc: "distraction, déni, fuite", summary: "Votre style de prédilection penche vers l'évitement : distraction, déni ou fuite. Cela peut soulager à court terme, mais en habitude cela tend à prolonger le stress. À déplacer en douceur vers les trois autres." },
+  },
+  labels: { dominant: "Style dominant", secondary: "Style secondaire", range: "Ordre complet", profile: "Flexibilité" },
+  lead: "un recours net", blend: "un répertoire équilibré", profileDetail: "puiser dans plusieurs styles est en soi une force",
+};
+export function copeTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? COPE_TYPE_ES : locale === "fr" ? COPE_TYPE_FR : undefined;
+}
+const MONEY_TYPE_ES: RankedStyleBundle = {
+  meta: {
+    AVOID: { name: "Evitación del dinero", title: "El Evitador", desc: "el dinero se siente malo o inmerecido", summary: "Tu guion de dinero dominante es la evitación: la sensación de que el dinero es malo, corruptor o inmerecido. Puede mantenerte íntegro/a y poco materialista, pero cuidado con descuidar tus finanzas o sabotear tu propio éxito." },
+    WORSHIP: { name: "Adoración del dinero", title: "El Buscador", desc: "más dinero = felicidad", summary: "Tu guion de dinero dominante es la adoración: la creencia de que más dinero resolverá los problemas y traerá felicidad. Puede impulsar la ambición, pero deriva en gastar de más, trabajar en exceso y sentir que nunca es suficiente." },
+    STATUS: { name: "Estatus del dinero", title: "El Buscador de estatus", desc: "autoestima ligada al patrimonio", summary: "Tu guion de dinero dominante es el estatus: ligar la autoestima al patrimonio y al éxito visible. Puede impulsar el logro, pero arriesga gastar para impresionar y una autoestima que sube y baja con tu saldo." },
+    VIGIL: { name: "Vigilancia del dinero", title: "El Vigilante", desc: "alerta, cuidadoso, reservado", summary: "Tu guion de dinero dominante es la vigilancia: alerta, cuidadoso/a y reservado/a con el dinero. Es el más sano de los cuatro y protege de la deuda, siempre que no derive en ansiedad ni en no permitirte disfrutar de lo que tienes." },
+  },
+  labels: { dominant: "Guion dominante", secondary: "Guion secundario", range: "Clasificación completa", profile: "Equilibrio" },
+  lead: "un guion lidera con claridad", blend: "dos guiones van muy parejos", profileDetail: "La vigilancia del dinero es el más sano de los cuatro; la evitación, la adoración y el estatus conviene reequilibrarlos con suavidad.",
+};
+const MONEY_TYPE_FR: RankedStyleBundle = {
+  meta: {
+    AVOID: { name: "Évitement de l'argent", title: "L'Évitant", desc: "l'argent semble mauvais ou immérité", summary: "Votre script monétaire dominant est l'évitement : le sentiment que l'argent est mauvais, corrupteur ou immérité. Cela peut vous garder intègre et peu matérialiste, mais attention à ne pas négliger vos finances ni saboter votre réussite." },
+    WORSHIP: { name: "Culte de l'argent", title: "Le Chercheur", desc: "plus d'argent = bonheur", summary: "Votre script monétaire dominant est le culte : la croyance que plus d'argent résoudra les problèmes et apportera le bonheur. Cela peut nourrir l'ambition, mais bascule dans la surdépense, le surmenage et le sentiment que ce n'est jamais assez." },
+    STATUS: { name: "Statut par l'argent", title: "Le Chercheur de statut", desc: "estime de soi liée au patrimoine", summary: "Votre script monétaire dominant est le statut : lier l'estime de soi au patrimoine et à la réussite visible. Cela peut stimuler l'accomplissement, mais risque la dépense pour impressionner et une estime de soi qui monte et descend avec le solde." },
+    VIGIL: { name: "Vigilance financière", title: "Le Vigilant", desc: "attentif, prudent, discret", summary: "Votre script monétaire dominant est la vigilance : attentif(ve), prudent(e) et discret(ète) avec l'argent. C'est le plus sain des quatre et il protège de la dette, tant qu'il ne bascule pas dans l'anxiété ou le refus de profiter de ce qu'on a." },
+  },
+  labels: { dominant: "Script dominant", secondary: "Script secondaire", range: "Classement complet", profile: "Équilibre" },
+  lead: "un script domine nettement", blend: "deux scripts sont au coude à coude", profileDetail: "La vigilance financière est le plus sain des quatre ; l'évitement, le culte et le statut méritent d'être rééquilibrés en douceur.",
+};
+export function moneyTypeStrings(locale?: string): RankedStyleBundle | undefined {
+  return locale === "es" ? MONEY_TYPE_ES : locale === "fr" ? MONEY_TYPE_FR : undefined;
+}
+
+/** Self-Compassion banded type card (the warm / growing / harsh bands + facets). */
+export interface SelfCompassionTypeBundle {
+  bands: Record<"warm" | "growing" | "harsh", { title: string; summary: string }>;
+  labels: { overall: string; strength: string; growth: string; critic: string };
+  facets: Record<"SK" | "SJ" | "CH" | "IS" | "MI" | "OI", string>;
+}
+const SCS_TYPE_ES: SelfCompassionTypeBundle = {
+  bands: {
+    warm: { title: "Una voz interior cálida", summary: "Recibes tus propias dificultades con verdadera amabilidad: te tratas como tratarías a un buen amigo, recuerdas que no estás solo/a y sostienes los sentimientos difíciles sin ahogarte en ellos. Esta calidez interior es uno de los mejores amortiguadores que existen frente a la ansiedad, el agotamiento y la autocrítica dura." },
+    growing: { title: "Cultivando la autocompasión", summary: "Puedes ser amable contigo, pero una voz crítica todavía toma la palabra cuando algo sale mal. Estás en un punto intermedio, que es donde está la mayoría. Reforzar tu faceta más cálida y suavizar la más dura es la vía más rápida hacia un bienestar más estable." },
+    harsh: { title: "Un crítico interior severo", summary: "Cuando luchas o te quedas corto/a, tiendes a volverte contra ti: con juicio, con la sensación de estar solo/a en ello, o con emociones que te desbordan. Ese crítico interior agota, y rara vez ayuda a hacerlo mejor. La buena noticia: la autocompasión es una habilidad que se aprende, y aquí los pequeños cambios rinden rápido." },
+  },
+  labels: { overall: "Autocompasión global", strength: "Mayor fortaleza", growth: "Palanca de crecimiento", critic: "Crítico interior más fuerte" },
+  facets: { SK: "Autobondad", SJ: "Autojuicio", CH: "Humanidad compartida", IS: "Aislamiento", MI: "Atención plena", OI: "Sobreidentificación" },
+};
+const SCS_TYPE_FR: SelfCompassionTypeBundle = {
+  bands: {
+    warm: { title: "Une voix intérieure bienveillante", summary: "Vous accueillez vos propres difficultés avec une réelle bienveillance : vous vous traitez comme vous traiteriez un bon ami, vous vous rappelez que vous n'êtes pas seul(e) et vous tenez les sentiments difficiles sans vous y noyer. Cette chaleur intérieure est l'un des meilleurs remparts qui soient contre l'anxiété, l'épuisement et l'autocritique dure." },
+    growing: { title: "Cultiver la bienveillance", summary: "Vous savez être doux(ce) envers vous-même, mais une voix critique prend encore la parole quand les choses tournent mal. Vous êtes entre les deux, là où se trouve la plupart des gens. Renforcer votre facette la plus chaleureuse et adoucir la plus dure est le chemin le plus rapide vers un bien-être plus stable." },
+    harsh: { title: "Un critique intérieur sévère", summary: "Quand vous luttez ou échouez, vous avez tendance à vous retourner contre vous-même : par le jugement, par le sentiment d'être seul(e) dans l'épreuve, ou par des émotions qui vous submergent. Ce critique intérieur épuise, et il aide rarement à faire mieux. La bonne nouvelle : l'autocompassion est une compétence qui s'apprend, et ici de petits changements paient vite." },
+  },
+  labels: { overall: "Autocompassion globale", strength: "Plus grande force", growth: "Levier de croissance", critic: "Critique intérieur le plus fort" },
+  facets: { SK: "Bienveillance envers soi", SJ: "Auto-jugement", CH: "Humanité commune", IS: "Isolement", MI: "Pleine conscience", OI: "Suridentification" },
+};
+export function selfCompassionTypeStrings(locale?: string): SelfCompassionTypeBundle | undefined {
+  return locale === "es" ? SCS_TYPE_ES : locale === "fr" ? SCS_TYPE_FR : undefined;
+}
+
+/** Time Perspective type card — the five frames plus the balanced ideal (BAL). */
+export interface TimeTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { dominant: string; secondary: string; range: string; balance: string };
+  balanceBands: { balanced: string; moderate: string; skewed: string };
+  balanceDetail: string;
+}
+const TIME_TYPE_ES: TimeTypeBundle = {
+  meta: {
+    PN: { name: "Pasado negativo", title: "El Cargado", desc: "el pasado aún te pesa", summary: "Tu marco temporal más fuerte es el pasado negativo: viejas heridas y arrepentimientos todavía pesan. Puede hacerte cauto/a y profundo/a, pero sin atenderlo alimenta la rumiación y el ánimo bajo. De los cinco marcos, es el que más conviene (y más se puede) suavizar, mediante reencuadre, autocompasión y, a veces, apoyo." },
+    PP: { name: "Pasado positivo", title: "El Nostálgico", desc: "calidez y raíces en el pasado", summary: "Tu marco temporal más fuerte es el pasado positivo: extraes calidez, identidad y consuelo de los buenos recuerdos, las tradiciones y las raíces. Es una verdadera fortaleza ligada al bienestar; solo cuida que no derive en vivir en el pasado a costa del presente y el futuro." },
+    PH: { name: "Presente hedonista", title: "El Aventurero", desc: "el placer y el ahora", summary: "Tu marco temporal más fuerte es el presente hedonista: vives el momento, buscas el disfrute y abrazas la espontaneidad. Trae alegría, energía y entusiasmo; con un poco de orientación al futuro es maravilloso, pero sin freno puede desplazar la planificación y las metas a largo plazo." },
+    PF: { name: "Presente fatalista", title: "El Fatalista", desc: "la vida se siente fuera de tus manos", summary: "Tu marco temporal más fuerte es el presente fatalista: la sensación de que tus decisiones cambian poco y la vida la moldean fuerzas ajenas a ti. Puede traer cierta aceptación, pero tiende a minar la motivación y la agencia. Reconstruir la sensación de que tus actos importan es aquí la clave del crecimiento." },
+    FU: { name: "Futuro", title: "El Planificador", desc: "las metas y el camino por delante", summary: "Tu marco temporal más fuerte es el futuro: planificas, fijas metas y cambias el disfrute de ahora por una recompensa mayor después. Impulsa el logro y los hábitos saludables; solo cuídate de no vivir tan adelantado/a que pierdas el presente, y acompáñalo de calidez hacia el pasado." },
+    BAL: { name: "Perspectiva temporal equilibrada", title: "El Equilibrado en el Tiempo", desc: "una mezcla flexible entre tiempos", summary: "Tus marcos se acercan a la perspectiva temporal equilibrada que Zimbardo asocia con el mayor bienestar: cálido/a con el pasado, presente en el ahora, planificador/a del futuro y bajo/a en los marcos negativo y fatalista. En lugar de regirte por un solo marco, sabes flexibilizarte hacia el que pide cada momento: el perfil más sano de todos." },
+  },
+  labels: { dominant: "Marco temporal principal", secondary: "Marco secundario", range: "Perfil completo", balance: "Equilibrio temporal" },
+  balanceBands: { balanced: "cerca del ideal equilibrado", moderate: "moderadamente equilibrado", skewed: "dominado por uno o dos marcos" },
+  balanceDetail: "El bienestar depende más del equilibrio entre marcos que de uno solo: pasado cálido, presente presente, futuro planificado, poca negatividad.",
+};
+const TIME_TYPE_FR: TimeTypeBundle = {
+  meta: {
+    PN: { name: "Passé négatif", title: "L'Accablé", desc: "le passé pèse encore sur vous", summary: "Votre cadre temporel le plus fort est le passé négatif : d'anciennes blessures et regrets pèsent encore. Cela peut vous rendre prudent(e) et profond(e), mais sans soin il nourrit la rumination et l'humeur basse. Des cinq cadres, c'est celui qu'il vaut le plus (et qu'on peut le mieux) adoucir, par le recadrage, l'autocompassion et parfois du soutien." },
+    PP: { name: "Passé positif", title: "Le Nostalgique", desc: "chaleur et racines dans le passé", summary: "Votre cadre temporel le plus fort est le passé positif : vous puisez chaleur, identité et réconfort dans les bons souvenirs, les traditions et les racines. C'est une vraie force liée au bien-être ; veillez seulement à ne pas glisser vers vivre dans le passé au détriment du présent et de l'avenir." },
+    PH: { name: "Présent hédoniste", title: "L'Aventurier", desc: "le plaisir et l'instant", summary: "Votre cadre temporel le plus fort est le présent hédoniste : vous vivez l'instant, recherchez le plaisir et embrassez la spontanéité. Cela apporte joie, énergie et entrain ; avec un peu d'orientation vers l'avenir c'est merveilleux, mais sans frein cela peut évincer la planification et les objectifs à long terme." },
+    PF: { name: "Présent fataliste", title: "Le Fataliste", desc: "la vie semble hors de vos mains", summary: "Votre cadre temporel le plus fort est le présent fataliste : le sentiment que vos choix changent peu et que la vie est façonnée par des forces qui vous dépassent. Cela peut apporter une certaine acceptation, mais tend à saper la motivation et l'agentivité. Reconstruire le sentiment que vos actes comptent est ici le grand levier de croissance." },
+    FU: { name: "Futur", title: "Le Planificateur", desc: "les objectifs et la route à venir", summary: "Votre cadre temporel le plus fort est le futur : vous planifiez, fixez des objectifs et échangez le plaisir immédiat contre une plus grande récompense plus tard. Cela alimente la réussite et les comportements de santé ; gardez-vous seulement de vivre si loin devant que vous perdez le présent, et associez-le à de la chaleur envers le passé." },
+    BAL: { name: "Perspective temporelle équilibrée", title: "L'Équilibré dans le Temps", desc: "un mélange souple entre les temps", summary: "Vos cadres s'approchent de la perspective temporelle équilibrée que Zimbardo associe au plus grand bien-être : chaleureux(se) envers le passé, présent(e) dans l'instant, planificateur(trice) de l'avenir et bas(se) sur les cadres négatif et fataliste. Plutôt que d'être gouverné(e) par un seul cadre, vous savez vous adapter à celui que le moment réclame — le profil le plus sain de tous." },
+  },
+  labels: { dominant: "Cadre temporel principal", secondary: "Cadre secondaire", range: "Profil complet", balance: "Équilibre temporel" },
+  balanceBands: { balanced: "proche de l'idéal équilibré", moderate: "modérément équilibré", skewed: "dominé par un ou deux cadres" },
+  balanceDetail: "Le bien-être dépend plus de l'équilibre entre les cadres que d'un seul : passé chaleureux, présent engagé, futur planifié, peu de négativité.",
+};
+export function timeTypeStrings(locale?: string): TimeTypeBundle | undefined {
+  return locale === "es" ? TIME_TYPE_ES : locale === "fr" ? TIME_TYPE_FR : undefined;
+}
+
+/** Meaning in Life type card — the presence × search quadrants. */
+export interface MeaningTypeBundle {
+  quads: Record<string, { title: string; summary: string }>;
+  labels: { presence: string; search: string; profile: string };
+  levels: { high: string; low: string };
+}
+const MEANING_TYPE_ES: MeaningTypeBundle = {
+  quads: {
+    HP_LS: { title: "Anclado en el sentido", summary: "Sientes con claridad y serenidad que tu vida tiene sentido, y no lo buscas con inquietud. Es el perfil más asociado de forma constante con el bienestar: una base estable. Síguelo viviendo a través de lo que te importa y mantente abierto/a a que se profundice con el tiempo." },
+    HP_HS: { title: "Profundizando el sentido", summary: "Ya sientes que tu vida tiene sentido y, además, lo exploras y profundizas activamente. Esa actitud curiosa y comprometida suele ir con el crecimiento, la apertura y una vida interior rica. El arte está en disfrutar la búsqueda sin perder de vista el sentido que ya has encontrado." },
+    LP_HS: { title: "En busca de sentido", summary: "Buscas activamente un sentido más fuerte que aún no sientes del todo. Buscar es una parte normal —y a menudo fértil— de la vida, sobre todo en las transiciones, aunque puede sentirse inestable. Pequeños pasos hacia lo que importa y la conexión real con otros suelen convertir la búsqueda en presencia." },
+    LP_LS: { title: "Horizonte abierto", summary: "Ahora mismo ni sientes un sentido fuerte ni lo buscas activamente. Es un lugar común y sin presión, y también una invitación abierta. Probar cosas que te importan, contribuir a los demás y notar qué te conmueve son las vías más fiables para que el sentido eche raíces." },
+  },
+  labels: { presence: "Presencia de sentido", search: "Búsqueda de sentido", profile: "Tu perfil de sentido" },
+  levels: { high: "alta", low: "baja" },
+};
+const MEANING_TYPE_FR: MeaningTypeBundle = {
+  quads: {
+    HP_LS: { title: "Ancré dans le sens", summary: "Vous ressentez clairement et sereinement que votre vie a du sens, sans le chercher avec inquiétude. C'est le profil le plus constamment lié au bien-être — une base stable. Continuez à le vivre à travers ce qui compte pour vous, et restez ouvert(e) à ce qu'il s'approfondisse avec le temps." },
+    HP_HS: { title: "Approfondir le sens", summary: "Vous ressentez déjà que votre vie a du sens — et vous continuez à l'explorer et à l'approfondir activement. Cette posture curieuse et engagée va souvent de pair avec la croissance, l'ouverture et une vie intérieure riche. L'art est de savourer la quête sans perdre de vue le sens déjà trouvé." },
+    LP_HS: { title: "En quête de sens", summary: "Vous cherchez activement un sens plus fort que vous ne ressentez pas encore pleinement. Chercher est une part normale — souvent fertile — de la vie, surtout dans les transitions, même si cela peut sembler instable. De petits pas vers ce qui compte et une vraie connexion aux autres transforment souvent la quête en présence." },
+    LP_LS: { title: "Horizon ouvert", summary: "Pour l'instant, vous ne ressentez pas un sens fort et vous ne le cherchez pas activement. C'est un endroit courant et sans pression — et une invitation ouverte. Essayer des choses qui vous tiennent à cœur, contribuer aux autres et remarquer ce qui vous touche sont les moyens les plus fiables pour que le sens prenne racine." },
+  },
+  labels: { presence: "Présence de sens", search: "Quête de sens", profile: "Votre profil de sens" },
+  levels: { high: "élevée", low: "faible" },
+};
+export function meaningTypeStrings(locale?: string): MeaningTypeBundle | undefined {
+  return locale === "es" ? MEANING_TYPE_ES : locale === "fr" ? MEANING_TYPE_FR : undefined;
+}
+
+/** Five Facet Mindfulness type card (the mindful / growing / autopilot bands + facets). */
+export interface MindfulnessTypeBundle {
+  bands: Record<"mindful" | "growing" | "autopilot", { title: string; summary: string }>;
+  labels: { overall: string; strength: string; growth: string; everyday: string };
+  facets: Record<"OBS" | "DES" | "AWA" | "NJ" | "NR", string>;
+  levels: { high: string; mid: string; low: string };
+}
+const MINDFUL_TYPE_ES: MindfulnessTypeBundle = {
+  bands: {
+    mindful: { title: "El Presente", summary: "Afrontas la vida con bastante conciencia del momento presente: notas lo que hay, lo nombras, te quedas en lo que haces y dejas pasar pensamientos y emociones sin que te arrastren. Esta actitud atenta es uno de los apoyos con más respaldo para la calma, el foco y el equilibrio emocional. Mantenla viva con una práctica pequeña y regular." },
+    growing: { title: "El que se Asienta", summary: "Eres consciente en algunos momentos y vas en piloto automático en otros, que es donde vive la mayoría. Algunas facetas te salen con facilidad; otras se escapan cuando hay prisa o estrés. Reforzar tu faceta más débil con un poco de práctica diaria es la vía más rápida hacia una atención más estable y reacciones más serenas." },
+    autopilot: { title: "En Piloto Automático", summary: "Buena parte de tu vida va ahora en piloto automático: la atención dispersa, el crítico interior alto o emociones que te arrastran enseguida. Es muy común y muy trabajable: la atención plena es una habilidad que se entrena, y unos minutos al día de práctica del presente la construyen de forma fiable. Tu faceta más débil es el punto de partida." },
+  },
+  labels: { overall: "Atención plena global", strength: "Faceta más fuerte", growth: "Palanca de crecimiento", everyday: "Presencia cotidiana" },
+  facets: { OBS: "Observar", DES: "Describir", AWA: "Actuar con conciencia", NJ: "No juzgar", NR: "No reactividad" },
+  levels: { high: "fuerte", mid: "moderada", low: "en desarrollo" },
+};
+const MINDFUL_TYPE_FR: MindfulnessTypeBundle = {
+  bands: {
+    mindful: { title: "Le Présent", summary: "Vous abordez la vie avec une bonne conscience de l'instant présent : vous remarquez ce qui est là, vous le nommez, vous restez dans ce que vous faites et vous laissez passer pensées et émotions sans vous laisser emporter. Cette posture attentive est l'un des soutiens les mieux étayés pour le calme, la concentration et l'équilibre émotionnel. Entretenez-la par une petite pratique régulière." },
+    growing: { title: "Celui qui s'Ancre", summary: "Vous êtes attentif(ve) par moments et en pilote automatique à d'autres — là où vit la plupart des gens. Certaines facettes viennent facilement ; d'autres s'échappent quand vous êtes pressé(e) ou stressé(e). Renforcer votre facette la plus faible par un peu de pratique quotidienne est le chemin le plus rapide vers une attention plus stable et des réactions plus posées." },
+    autopilot: { title: "En Pilote Automatique", summary: "Une grande partie de votre vie tourne en pilote automatique en ce moment : attention dispersée, critique intérieur fort, ou émotions qui vous emportent vite. C'est très courant et tout à fait travaillable : la pleine conscience est une compétence qui s'entraîne, et quelques minutes par jour de pratique du présent la construisent de façon fiable. Votre facette la plus faible est le point de départ." },
+  },
+  labels: { overall: "Pleine conscience globale", strength: "Facette la plus forte", growth: "Levier de croissance", everyday: "Présence au quotidien" },
+  facets: { OBS: "Observer", DES: "Décrire", AWA: "Agir en conscience", NJ: "Non-jugement", NR: "Non-réactivité" },
+  levels: { high: "forte", mid: "modérée", low: "en développement" },
+};
+export function mindfulnessTypeStrings(locale?: string): MindfulnessTypeBundle | undefined {
+  return locale === "es" ? MINDFUL_TYPE_ES : locale === "fr" ? MINDFUL_TYPE_FR : undefined;
+}
+
+/* ── ADHD / Autism educational screeners (typological; type card localized) ── */
+export interface AdhdTypeBundle {
+  levels: { high: string; mid: string; low: string };
+  titles: { many: string; some: string; few: string };
+  summary: (lvl: string, high: boolean) => string;
+  labels: { inatt: string; hyp: string; overall: string; important: string };
+  importantNote: string;
+}
+const ADHD_TYPE_ES: AdhdTypeBundle = {
+  levels: { high: "elevado", mid: "moderado", low: "bajo" },
+  titles: { many: "Muchos rasgos asociados al TDAH", some: "Algunos rasgos asociados al TDAH", few: "Pocos rasgos asociados al TDAH" },
+  summary: (lvl, high) =>
+    `Este es un cribado educativo, no un diagnóstico. Has reportado un nivel ${lvl} de rasgos asociados al TDAH. ` +
+    (high
+      ? "Si estos rasgos afectan de forma significativa a tu trabajo, tus relaciones o tu bienestar, plantéate hablar con un/a profesional cualificado/a para una evaluación adecuada."
+      : "Mucha gente tiene algunos de estos rasgos; solo importan clínicamente cuando son persistentes y limitantes."),
+  labels: { inatt: "Inatención", hyp: "Hiperactividad / impulsividad", overall: "Nivel global de rasgos", important: "Importante" },
+  importantNote: "Solo un/a profesional autorizado/a puede diagnosticar el TDAH. Este cribado no puede.",
+};
+const ADHD_TYPE_FR: AdhdTypeBundle = {
+  levels: { high: "élevé", mid: "modéré", low: "faible" },
+  titles: { many: "De nombreux traits associés au TDAH", some: "Quelques traits associés au TDAH", few: "Peu de traits associés au TDAH" },
+  summary: (lvl, high) =>
+    `Ceci est un dépistage éducatif, pas un diagnostic. Vous avez rapporté un niveau ${lvl} de traits associés au TDAH. ` +
+    (high
+      ? "Si ces traits affectent nettement votre travail, vos relations ou votre bien-être, envisagez d'en parler à un(e) clinicien(ne) qualifié(e) pour une évaluation appropriée."
+      : "Beaucoup de gens présentent certains de ces traits ; ils ne comptent cliniquement que lorsqu'ils sont persistants et handicapants."),
+  labels: { inatt: "Inattention", hyp: "Hyperactivité / impulsivité", overall: "Niveau global des traits", important: "Important" },
+  importantNote: "Seul(e) un(e) professionnel(le) habilité(e) peut diagnostiquer le TDAH. Ce dépistage ne le peut pas.",
+};
+export function adhdTypeStrings(locale?: string): AdhdTypeBundle | undefined {
+  return locale === "es" ? ADHD_TYPE_ES : locale === "fr" ? ADHD_TYPE_FR : undefined;
+}
+
+export interface AutismTypeBundle {
+  levels: { high: string; mid: string; low: string };
+  titles: { many: string; some: string; few: string };
+  summary: (lvl: string, high: boolean) => string;
+  labels: { social: string; detail: string; routine: string; important: string };
+  importantNote: string;
+}
+const AUTISM_TYPE_ES: AutismTypeBundle = {
+  levels: { high: "muchos", mid: "algunos", low: "pocos" },
+  titles: { many: "Muchos rasgos autistas", some: "Algunos rasgos autistas", few: "Pocos rasgos autistas" },
+  summary: (lvl, high) =>
+    `Este es un cribado educativo, no un diagnóstico, y los rasgos autistas son diferencias, no carencias. Has reportado ${lvl} rasgos asociados al autismo. ` +
+    (high
+      ? "Si te resuena y quieres claridad o apoyo, un/a clínico/a con experiencia en autismo adulto puede ofrecerte una evaluación adecuada."
+      : "Mucha gente comparte algunos de estos rasgos; son simplemente parte de la rica variación en cómo funcionan las mentes."),
+  labels: { social: "Comunicación social", detail: "Foco y detalle", routine: "Rutina y sensorialidad", important: "Importante" },
+  importantNote: "Solo un/a profesional cualificado/a puede evaluar el autismo. Este cribado no puede.",
+};
+const AUTISM_TYPE_FR: AutismTypeBundle = {
+  levels: { high: "de nombreux", mid: "quelques", low: "peu de" },
+  titles: { many: "De nombreux traits autistiques", some: "Quelques traits autistiques", few: "Peu de traits autistiques" },
+  summary: (lvl, high) =>
+    `Ceci est un dépistage éducatif, pas un diagnostic — et les traits autistiques sont des différences, pas des déficits. Vous avez rapporté ${lvl} traits associés à l'autisme. ` +
+    (high
+      ? "Si cela résonne et que vous souhaitez de la clarté ou du soutien, un(e) clinicien(ne) expérimenté(e) en autisme adulte peut proposer une évaluation appropriée."
+      : "Beaucoup de gens partagent certains de ces traits ; ils font simplement partie de la riche variation des façons dont les esprits fonctionnent."),
+  labels: { social: "Communication sociale", detail: "Focalisation et détail", routine: "Routine et sensorialité", important: "Important" },
+  importantNote: "Seul(e) un(e) professionnel(le) qualifié(e) peut évaluer l'autisme. Ce dépistage ne le peut pas.",
+};
+export function autismTypeStrings(locale?: string): AutismTypeBundle | undefined {
+  return locale === "es" ? AUTISM_TYPE_ES : locale === "fr" ? AUTISM_TYPE_FR : undefined;
+}
+
+/* ── Dark Tetrad (typological; type card localized separately) ── */
+export interface DarkTetradTypeBundle {
+  meta: Record<string, { name: string; title: string; desc: string; summary: string }>;
+  labels: { dominant: string; load: string; profile: string; lightest: string };
+  loadHigh: string;
+  loadMid: string;
+  loadLow: string;
+  profileHint: string;
+  lightestHint: string;
+}
+const DARKTETRAD_TYPE_ES: DarkTetradTypeBundle = {
+  meta: {
+    MACH: { name: "Maquiavelismo", title: "El Estratega", desc: "calculador, controlador, pragmático", summary: "Tu rasgo oscuro más pronunciado es la manipulación estratégica: leer los ángulos, guardarte las cartas y dirigir los resultados. Usado con ética, es astucia política; sin freno, erosiona la confianza." },
+    NARC: { name: "Narcisismo", title: "El Foco", desc: "grandioso, en busca de estatus, autoensalzador", summary: "Tu rasgo oscuro más pronunciado es el narcisismo: hambre de reconocimiento y sensación de ser excepcional. Puede alimentar la ambición y el carisma, pero deriva en sensación de merecimiento y orgullo frágil." },
+    PSY: { name: "Psicopatía", title: "El Temerario", desc: "audaz, insensible, impulsivo", summary: "Tu rasgo oscuro más pronunciado es la psicopatía subclínica: frialdad ante la amenaza, apetito de riesgo y poca culpa. Aporta intrepidez, pero puede percibirse como frío o imprudente." },
+    SAD: { name: "Sadismo", title: "El Antagonista", desc: "confrontador, disfruta el malestar ajeno", summary: "Tu rasgo oscuro más pronunciado es el sadismo cotidiano: una atracción hacia el malestar ajeno. Nombrarlo con honestidad es justo cómo evitas que dirija tu conducta." },
+  },
+  labels: { dominant: "Rasgo dominante", load: "Carga oscura global", profile: "Perfil", lightest: "Rasgo más leve" },
+  loadHigh: "elevada: merece una reflexión honesta", loadMid: "en torno a la media", loadLow: "baja: estas tendencias están atenuadas en ti",
+  profileHint: "tus cuatro rasgos, del más fuerte al más débil", lightestHint: "donde estas tendencias son más débiles",
+};
+const DARKTETRAD_TYPE_FR: DarkTetradTypeBundle = {
+  meta: {
+    MACH: { name: "Machiavélisme", title: "Le Stratège", desc: "calculateur, contrôlant, pragmatique", summary: "Votre trait sombre le plus marqué est la manipulation stratégique : lire les angles, garder ses cartes et orienter les résultats. Utilisé avec éthique, c'est du sens politique ; sans frein, cela érode la confiance." },
+    NARC: { name: "Narcissisme", title: "Le Projecteur", desc: "grandiose, en quête de statut, auto-valorisant", summary: "Votre trait sombre le plus marqué est le narcissisme : une faim de reconnaissance et un sentiment d'être exceptionnel. Il peut nourrir l'ambition et le charisme, mais bascule dans le sentiment de dû et l'orgueil fragile." },
+    PSY: { name: "Psychopathie", title: "Le Casse-cou", desc: "audacieux, insensible, impulsif", summary: "Votre trait sombre le plus marqué est la psychopathie sous-clinique : sang-froid face à la menace, appétit du risque et peu de culpabilité. Elle apporte l'intrépidité, mais peut paraître froide ou imprudente." },
+    SAD: { name: "Sadisme", title: "L'Antagoniste", desc: "conflictuel, savoure le malaise d'autrui", summary: "Votre trait sombre le plus marqué est le sadisme ordinaire : une attirance vers le malaise d'autrui. Le nommer honnêtement est précisément ce qui l'empêche de diriger votre comportement." },
+  },
+  labels: { dominant: "Trait dominant", load: "Charge sombre globale", profile: "Profil", lightest: "Trait le plus léger" },
+  loadHigh: "élevée — mérite une réflexion honnête", loadMid: "autour de la moyenne", loadLow: "faible — ces tendances sont atténuées chez vous",
+  profileHint: "vos quatre traits, du plus fort au plus faible", lightestHint: "là où ces tendances sont les plus faibles",
+};
+export function darkTetradTypeStrings(locale?: string): DarkTetradTypeBundle | undefined {
+  return locale === "es" ? DARKTETRAD_TYPE_ES : locale === "fr" ? DARKTETRAD_TYPE_FR : undefined;
+}
+
+/* ── Socionics (typological; type card localized — codes & quadras stay canonical) ── */
+interface SocPole { v: string; d: string; w: string }
+export interface SocionicsTypeBundle {
+  nick: Record<string, string>;
+  quadraLabel: (q: string) => string;
+  labels: { type: string; attitude: string; perception: string; judgment: string; organization: string };
+  att: { hi: SocPole; lo: SocPole };
+  per: { hi: SocPole; lo: SocPole };
+  jud: { hi: SocPole; lo: SocPole };
+  org: { hi: SocPole; lo: SocPole };
+  summary: (code: string, nick: string, quadra: string, w: [string, string, string, string]) => string;
+}
+const SOCIONICS_TYPE_ES: SocionicsTypeBundle = {
+  nick: { ILE: "el Buscador", SEI: "el Mediador", ESE: "el Entusiasta", LII: "el Analista", EIE: "el Mentor", LSI: "el Inspector", SLE: "el Conquistador", IEI: "el Lírico", SEE: "el Embajador", ILI: "el Crítico", LIE: "el Pionero", ESI: "el Guardián", LSE: "el Administrador", EII: "el Humanista", IEE: "el Psicólogo", SLI: "el Artesano" },
+  quadraLabel: (q) => `cuadra ${q}`,
+  labels: { type: "Tipo", attitude: "Actitud", perception: "Percepción", judgment: "Juicio", organization: "Organización" },
+  att: { hi: { v: "Extratim (E)", d: "energía dirigida al exterior", w: "extratim" }, lo: { v: "Introtim (I)", d: "energía dirigida al interior", w: "introtim" } },
+  per: { hi: { v: "Intuición (N)", d: "posibilidades y patrones", w: "intuitivo" }, lo: { v: "Sensación (S)", d: "lo concreto y tangible", w: "sensorial" } },
+  jud: { hi: { v: "Lógica (T)", d: "análisis impersonal", w: "lógico" }, lo: { v: "Ética (F)", d: "personas y valores", w: "ético" } },
+  org: { hi: { v: "Racional", d: "planificador, guiado por el juicio", w: "racional" }, lo: { v: "Irracional", d: "flexible, guiado por la percepción", w: "irracional" } },
+  summary: (code, nick, quadra, w) => `En Socionics resultas ${code} (${nick}), miembro de la cuadra ${quadra}: ${w[0]}, ${w[1]}, ${w[2]} y ${w[3]}.`,
+};
+const SOCIONICS_TYPE_FR: SocionicsTypeBundle = {
+  nick: { ILE: "le Chercheur", SEI: "le Médiateur", ESE: "l'Enthousiaste", LII: "l'Analyste", EIE: "le Mentor", LSI: "l'Inspecteur", SLE: "le Conquérant", IEI: "le Lyrique", SEE: "l'Ambassadeur", ILI: "le Critique", LIE: "le Pionnier", ESI: "le Gardien", LSE: "l'Administrateur", EII: "l'Humaniste", IEE: "le Psychologue", SLI: "l'Artisan" },
+  quadraLabel: (q) => `quadra ${q}`,
+  labels: { type: "Type", attitude: "Attitude", perception: "Perception", judgment: "Jugement", organization: "Organisation" },
+  att: { hi: { v: "Extratim (E)", d: "énergie tournée vers l'extérieur", w: "extratim" }, lo: { v: "Introtim (I)", d: "énergie tournée vers l'intérieur", w: "introtim" } },
+  per: { hi: { v: "Intuition (N)", d: "possibilités et motifs", w: "intuitif" }, lo: { v: "Sensation (S)", d: "le concret et le tangible", w: "sensoriel" } },
+  jud: { hi: { v: "Logique (T)", d: "analyse impersonnelle", w: "logique" }, lo: { v: "Éthique (F)", d: "les gens et les valeurs", w: "éthique" } },
+  org: { hi: { v: "Rationnel", d: "planificateur, guidé par le jugement", w: "rationnel" }, lo: { v: "Irrationnel", d: "flexible, guidé par la perception", w: "irrationnel" } },
+  summary: (code, nick, quadra, w) => `En Socionics, vous ressortez ${code} (${nick}), membre de la quadra ${quadra} — ${w[0]}, ${w[1]}, ${w[2]} et ${w[3]}.`,
+};
+export function socionicsTypeStrings(locale?: string): SocionicsTypeBundle | undefined {
+  return locale === "es" ? SOCIONICS_TYPE_ES : locale === "fr" ? SOCIONICS_TYPE_FR : undefined;
+}
+
+/* ── VIA Character Strengths (24) — type card + 24 strength scales localized ── */
+export interface ViaTypeBundle {
+  names: Record<string, string>;
+  virtues: Record<string, string>;
+  labels: { top: string; signature: string; virtue: string; use: string };
+  signaturePrefix: string;
+  summary: (names: string[]) => string;
+  useTip: (name: string) => string;
+}
+const VIA_TYPE_ES: ViaTypeBundle = {
+  names: VIA_NAMES_ES, virtues: VIA_VIRTUE_ES,
+  labels: { top: "Fortaleza n.º 1", signature: "Fortalezas distintivas", virtue: "Virtud principal", use: "Úsala bien" },
+  signaturePrefix: "Fortaleza distintiva: ",
+  summary: (n) => `Tus fortalezas distintivas son ${n.join(", ")}. Usarlas de formas nuevas es uno de los caminos más seguros hacia una vida más plena.`,
+  useTip: (name) => `Encuentra una forma nueva de usar tu ${name} esta semana.`,
+};
+const VIA_TYPE_FR: ViaTypeBundle = {
+  names: VIA_NAMES_FR, virtues: VIA_VIRTUE_FR,
+  labels: { top: "Force n°1", signature: "Forces de signature", virtue: "Vertu dominante", use: "Bien l'utiliser" },
+  signaturePrefix: "Force de signature : ",
+  summary: (n) => `Vos forces de signature sont ${n.join(", ")}. Les utiliser de façons nouvelles est l'un des chemins les plus sûrs vers une vie plus pleine.`,
+  useTip: (name) => `Trouvez une nouvelle façon d'utiliser votre ${name} cette semaine.`,
+};
+export function viaTypeStrings(locale?: string): ViaTypeBundle | undefined {
+  return locale === "es" ? VIA_TYPE_ES : locale === "fr" ? VIA_TYPE_FR : undefined;
+}
+
+/** Return a locale-translated clone of the instrument (English fallback per field). */
+export function localizeInstrument(inst: Instrument, locale: string): Instrument {
+  const tr = TRANSLATIONS[locale]?.[inst.id];
+  if (!tr) return inst;
+  return {
+    ...inst,
+    name: tr.name ?? inst.name,
+    shortName: tr.shortName ?? inst.shortName,
+    tagline: tr.tagline ?? inst.tagline,
+    description: tr.description ?? inst.description,
+    scales: inst.scales.map((s) => {
+      const st = tr.scales?.[s.id];
+      return st
+        ? {
+            ...s,
+            name: st.name ?? s.name,
+            description: st.description ?? s.description,
+            poles: st.poles ?? s.poles,
+            highDescriptor: st.highDescriptor ?? s.highDescriptor,
+            lowDescriptor: st.lowDescriptor ?? s.lowDescriptor,
+          }
+        : s;
+    }),
+    items: tr.items || tr.options ? inst.items.map((i) => {
+      const text = tr.items?.[i.id] ?? i.text;
+      const optTexts = tr.options?.[i.id];
+      const options = optTexts && i.options ? i.options.map((o, idx) => ({ ...o, text: optTexts[idx] ?? o.text })) : i.options;
+      return text !== i.text || options !== i.options ? { ...i, text, options } : i;
+    }) : inst.items,
+    // Bind the locale into resolveType so the resolved type card (title/summary/components)
+    // is localized too. Instruments that don't translate their type ignore the locale.
+    resolveType: inst.resolveType ? (scales) => inst.resolveType!(scales, locale) : undefined,
+  };
+}
+
+/** True if any translation exists for this instrument in the locale. */
+export function hasTranslation(instrumentId: string, locale: string): boolean {
+  return !!TRANSLATIONS[locale]?.[instrumentId];
+}

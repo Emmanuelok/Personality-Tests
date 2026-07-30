@@ -1,4 +1,4 @@
-import type { Level, TypeResolution } from "../types";
+import type { Level, ScaleStanding, TypeResolution } from "../types";
 
 export interface ReportSection {
   id: string;
@@ -10,7 +10,10 @@ export interface ReportSection {
 export interface TraitInsight {
   scaleId: string;
   name: string;
-  percentile: number;
+  /** Local position within the instrument's response range. */
+  standing: ScaleStanding;
+  /** Localized, user-facing description of `standing`. */
+  standingLabel: string;
   normalized: number;
   mean: number;
   level: Level;
@@ -50,6 +53,10 @@ export interface GenerateOptions {
    * omitted, a fresh high-entropy seed is used so the report is unique.
    */
   seed?: number;
+  /** The user's name, woven into the prose for a personal report. */
+  name?: string;
+  /** Locale for the composed prose (default "en"). Falls back to English per-bank. */
+  locale?: string;
   /** Optional AI provider; when supplied and available it composes the prose. */
   llm?: LLMProvider | null;
   /** Wall-clock used in the seed and timestamps (injectable for tests). */

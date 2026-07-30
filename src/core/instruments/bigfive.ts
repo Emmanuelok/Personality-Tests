@@ -77,12 +77,13 @@ export const bigFive: Instrument = {
   name: "Big Five Personality (IPIP-50)",
   shortName: "Big Five",
   kind: "dimensional",
+  category: "core",
   tagline: "The scientific gold standard: five broad dimensions of personality.",
   description:
     "The Five-Factor Model is the most empirically validated framework in personality science. " +
-    "This version uses Goldberg's public-domain IPIP Big-Five Factor Markers (50 items) to estimate " +
-    "your standing on Openness, Conscientiousness, Extraversion, Agreeableness, and Neuroticism, each " +
-    "scored against approximate population norms.",
+    "This version uses Goldberg's public-domain IPIP Big-Five Factor Markers (50 items) to describe " +
+    "where your keyed responses fall within the answer range for Openness, Conscientiousness, " +
+    "Extraversion, Agreeableness, and Neuroticism.",
   estMinutes: 8,
   responseFormat: L,
   itemProvenance:
@@ -142,7 +143,7 @@ export const bigFive: Instrument = {
   items,
   caveats: [
     "Scores are estimates from self-report, not a clinical diagnosis.",
-    "Percentiles are approximate, derived from large IPIP community samples rather than a census-representative norm.",
+    "Scale positions describe this instrument's response range; they are not population rankings.",
     "Traits describe tendencies, not destiny — context and growth meaningfully shape behavior.",
   ],
   citations: [
@@ -161,7 +162,7 @@ export const bigFive: Instrument = {
     },
     {
       ref: "John, O. P., & Srivastava, S. (1999). The Big Five trait taxonomy. In Handbook of Personality (2nd ed., pp. 102–138). Guilford.",
-      note: "Authoritative synthesis of the Five-Factor Model.",
+      note: "Reference overview of the Five-Factor Model.",
     },
   ],
 };

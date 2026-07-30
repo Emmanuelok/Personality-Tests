@@ -6,9 +6,27 @@
 
 export * from "./types";
 export { Rng, cyrb53, hashHex, nonce, seedFrom } from "./prng";
-export { scoreAssessment } from "./scoring";
+export {
+  resolveScaleStanding,
+  responseRangePosition,
+  scoreAssessment,
+  scoreAssessmentSubmission,
+} from "./scoring";
+export type { AssessmentSubmission, ScoreAssessmentOptions } from "./scoring";
+export * from "./timing";
+export * from "./evidence";
+export * from "./learner";
+export * from "./catalogPolicy";
+export { recommendNext, recommendNextFromEvidence } from "./recommend";
+export type { Recommendation, RecommendationOptions } from "./recommend";
+export { dailyNudge, dailyNudgeFromEvidence } from "./daily";
+export type { DailyEvidenceOptions, DailyNudge } from "./daily";
+export { autopilotNext, autopilotNextFromEvidence } from "./autopilot";
+export type { AutopilotOptions, AutopilotPick } from "./autopilot";
 
-export { INSTRUMENTS, getInstrument, bigFive, jungTypes, enneagram } from "./instruments";
+export { INSTRUMENTS, getInstrument, instrumentsByCategory } from "./instruments";
+export { CATEGORIES, getCategory } from "./categories";
+export type { Category } from "./categories";
 
 export {
   composeReport,
@@ -23,6 +41,20 @@ export type {
   GenerateOptions,
   LLMProvider,
 } from "./report";
+
+export {
+  computeCompatibility,
+  toSummary,
+  encodeSummary,
+  decodeSummary,
+} from "./compatibility";
+export type { CompatibilityReport, CompatDimension, ResultSummary } from "./compatibility";
+
+export { askCompanion, suggestedQuestions, buildReportKnowledge, buildIntegratedKnowledge } from "./companion";
+export type { CompanionKnowledge, CompanionAnswer, KnowledgeScale } from "./companion";
+
+export { buildIntegratedProfile, dailyInsight } from "./synthesis";
+export type { IntegratedProfile, ThemeHit, Tension, OperatingNote, SynthEntry, DailyInsight } from "./synthesis";
 
 export { buildGrowthPlan } from "./improvement/plan";
 export type {

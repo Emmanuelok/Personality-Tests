@@ -32,11 +32,13 @@ export function RadarChart({ data, size = 340 }: { data: RadarDatum[]; size?: nu
         const [x, y] = pointAt(i, 1);
         return <line key={i} className="axis" x1={cx} y1={cy} x2={x} y2={y} />;
       })}
-      <polygon className="poly" points={poly} />
-      {data.map((d, i) => {
-        const [x, y] = pointAt(i, Math.max(0, Math.min(1, d.value / 100)));
-        return <circle key={i} className="dot" cx={x} cy={y} r={3.5} />;
-      })}
+      <g className="radar-anim">
+        <polygon className="poly" points={poly} />
+        {data.map((d, i) => {
+          const [x, y] = pointAt(i, Math.max(0, Math.min(1, d.value / 100)));
+          return <circle key={i} className="dot" cx={x} cy={y} r={3.5} />;
+        })}
+      </g>
       {data.map((d, i) => {
         const [x, y] = pointAt(i, 1.18);
         const anchor = Math.abs(x - cx) < 8 ? "middle" : x > cx ? "start" : "end";
@@ -47,6 +49,38 @@ export function RadarChart({ data, size = 340 }: { data: RadarDatum[]; size?: nu
         );
       })}
     </svg>
+  );
+}
+
+/** A circular gauge (donut) for a single 0..100 figure — used for typing clarity. */
+export function Gauge({ value, label, size = 132 }: { value: number; label?: string; size?: number }) {
+  const v = Math.max(0, Math.min(100, value));
+  const stroke = 9;
+  const r = (size - stroke) / 2 - 2;
+  const c = 2 * Math.PI * r;
+  const cx = size / 2;
+  return (
+    <div className="gauge">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`${Math.round(v)}%`}>
+        <circle className="gauge-track" cx={cx} cy={cx} r={r} fill="none" strokeWidth={stroke} />
+        <circle
+          className="gauge-fill"
+          cx={cx}
+          cy={cx}
+          r={r}
+          fill="none"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - v / 100)}
+          transform={`rotate(-90 ${cx} ${cx})`}
+        />
+        <text className="gauge-num" x={cx} y={cx} textAnchor="middle" dominantBaseline="central">
+          {Math.round(v)}%
+        </text>
+      </svg>
+      {label && <span className="gauge-label">{label}</span>}
+    </div>
   );
 }
 

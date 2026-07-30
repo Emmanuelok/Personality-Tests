@@ -1,6 +1,7 @@
-import type { AssessmentResult, Citation, Instrument, ScaleScore } from "../types";
+import type { AssessmentResult, Citation, Instrument, ScaleDef, ScaleScore } from "../types";
 import { Rng, nonce, seedFrom } from "../prng";
-import { ordinal, round1, sentence } from "../variation";
+import { resolveScaleStanding } from "../scoring";
+import { clamp, round1, sentence } from "../variation";
 
 export interface GrowthTarget {
   scaleId: string;
@@ -40,6 +41,58 @@ export interface GrowthPlan {
 
 /** A meaningful gap; below this we treat the target as "maintain". */
 const GAP_THRESHOLD = 8;
+
+/** Wellbeing instruments grow toward flourishing rather than toward the midpoint. */
+const WELLBEING_IDS = new Set(["perma-flourishing", "brief-resilience", "self-esteem-rses", "mood-checkin", "life-satisfaction-swls", "mindfulness-ffmq"]);
+
+/**
+ * Suggest sensible default growth targets so a plan can be shown (and put into the
+ * PDF) before the user customizes anything. For the Big Five we nudge toward the
+ * directions most associated with well-being and effectiveness in the literature;
+ * for typologies we gently encourage developing the less-used side. These are
+ * starting points, explicitly meant to be adjusted to the user's own goals.
+ */
+export function suggestTargets(instrument: Instrument, result: AssessmentResult): GrowthTarget[] {
+  const scales = instrument.scales.filter((s) => result.scales[s.id]);
+  const shown =
+    scales.length > 6
+      ? [...scales].sort((a, b) => result.scales[b.id].normalized - result.scales[a.id].normalized).slice(0, 6)
+      : scales;
+  return shown.map((s) => {
+    const cur = result.scales[s.id].normalized;
+    let target = cur;
+    if (instrument.id === "big-five-ipip50") {
+      const nudge: Record<string, number> = { C: 12, A: 8, O: 6, E: cur < 50 ? 10 : 0, N: -14 };
+      target = clamp(cur + (nudge[s.id] ?? 0), 5, 95);
+    } else if (instrument.id === "hexaco-24") {
+      const up: Record<string, number> = { H: 14, A: 8, C: 8, O: 6, X: cur < 50 ? 8 : 0, E: 0 };
+      target = clamp(cur + (up[s.id] ?? 0), 5, 95);
+    } else if (instrument.id === "dark-triad-18") {
+      target = cur > 45 ? clamp(cur - 16, 10, 90) : cur; // soften elevated dark traits
+    } else if (instrument.id === "attachment-styles") {
+      target = clamp(cur - 18, 8, 92); // move toward security: lower anxiety & avoidance
+    } else if (instrument.id === "self-compassion-scs") {
+      // Grow the warmer facets; soften the harsher three (self-judgment, isolation, over-identification).
+      const harsher = new Set(["SJ", "IS", "OI"]);
+      target = harsher.has(s.id)
+        ? clamp(cur - (cur > 30 ? 14 : 6), 5, 95)
+        : clamp(cur + (cur < 70 ? 12 : 6), 5, 95);
+    } else if (instrument.id === "time-perspective-ztpi") {
+      // Soften Past-Negative & Present-Fatalistic; grow Past-Positive & Future; keep Present-Hedonistic (moderate only if very high).
+      if (s.id === "PN" || s.id === "PF") target = clamp(cur - (cur > 30 ? 14 : 6), 5, 95);
+      else if (s.id === "PP" || s.id === "FU") target = clamp(cur + (cur < 70 ? 12 : 6), 5, 95);
+      else target = cur > 65 ? cur - 10 : cur;
+    } else if (WELLBEING_IDS.has(instrument.id)) {
+      target = clamp(cur + (cur < 70 ? 12 : 6), 5, 95); // grow toward flourishing, not the middle
+    } else {
+      // DISC and other typologies: gently moderate extremes.
+      if (cur > 60) target = Math.max(50, cur - 12);
+      else if (cur < 40) target = Math.min(50, cur + 12);
+      else target = cur;
+    }
+    return { scaleId: s.id, target: Math.round(target) };
+  });
+}
 
 /**
  * Evidence-based change strategies per Big Five factor and direction. Grounded in
@@ -123,43 +176,202 @@ function levelWord(n: number): string {
   return "very high";
 }
 
-function genericSteps(rng: Rng, name: string, direction: GrowthDirection): GrowthStep[] {
-  if (direction === "maintain") return [];
-  const verb = direction === "increase" ? "strengthen" : "soften";
-  return [
-    {
-      title: `Define one concrete behavior that would ${verb} your ${name}`,
-      detail: `Translate the goal into a single observable action you can do this week — vague intentions don’t move traits; specific repeated behaviors do.`,
-      cadence: "Weekly",
-      evidence: "Hudson & Fraley (2015)",
-    },
-    {
-      title: `Track it and review`,
-      detail: `Log the behavior daily and review weekly. What gets measured, and reflected on, tends to shift.`,
-      cadence: "Daily / weekly review",
-      evidence: "Roberts et al. (2017)",
-    },
-  ].map((s) => ({ ...s, title: rng.chance(0.5) ? s.title : s.title }));
+/** Protect-the-strength steps for areas already at their target. */
+const MAINTAIN_STEPS: GrowthStep[] = [
+  { title: "Name what keeps this steady", detail: "Write down the specific habits and conditions that hold this where you want it, so you protect them deliberately rather than by luck.", cadence: "Once, then revisit monthly", evidence: "Self-monitoring; relapse-prevention principles" },
+  { title: "Guard against quiet drift", detail: "Strengths erode silently under stress and busyness. A simple monthly check-in catches early slippage before it compounds.", cadence: "Monthly", evidence: "Roberts et al. (2017)" },
+  { title: "Put it to work on something you care about", detail: "Point this strength at a real project, relationship, or community. Strengths grow through deliberate use, not preservation under glass.", cadence: "Ongoing", evidence: "Seligman et al. (2005), using signature strengths" },
+];
+
+function maintainSteps(rng: Rng): GrowthStep[] {
+  return rng.sample(MAINTAIN_STEPS, 2);
 }
+
+/**
+ * Universal, evidence-based change techniques, tailored to the specific scale and
+ * direction. Used for any instrument without a hand-written strategy bank, so every
+ * plan — for all 50+ instruments — is concrete and substantive rather than a stub.
+ */
+function genericSteps(rng: Rng, scaleDef: ScaleDef, direction: GrowthDirection): GrowthStep[] {
+  if (direction === "maintain") return maintainSteps(rng);
+  const lower = scaleDef.name.toLowerCase();
+  const verb = direction === "increase" ? "strengthen" : "soften";
+  const toward =
+    direction === "increase" ? scaleDef.poles?.high ?? "that side" : scaleDef.poles?.low ?? "that side";
+  const pool: GrowthStep[] = [
+    { title: "Turn the goal into an if-then plan", detail: `Write an implementation intention: “When [a specific recurring situation] happens, I will [a concrete action that leans toward ${toward}].” Naming the cue and the response roughly doubles follow-through versus a vague resolve.`, cadence: "One per recurring situation", evidence: "Gollwitzer (1999); Gollwitzer & Sheeran (2006)" },
+    { title: "Stack the new behavior onto an old one", detail: `Anchor one small ${lower}-building action immediately after a routine you already do without fail, so the established habit becomes its trigger.`, cadence: "Daily", evidence: "Wood & Neal (2007); Clear (2018)" },
+    { title: "Run a one-week behavioral experiment", detail: `Pick a single concrete behavior that expresses the ${toward} side of your ${lower}, do it deliberately for a week, and note what shifted. Acting “as if” — rather than waiting to feel different — is how traits actually move.`, cadence: "Weekly", evidence: "Hudson & Fraley (2015); Fleeson (2001)" },
+    { title: "Adopt the identity, not just the task", detail: `Frame it as “I’m becoming someone who ${verb}s their ${lower},” not a one-off fix. Identity-based goals outlast outcome-based ones.`, cadence: "Ongoing", evidence: "Clear (2018); Oyserman et al. (2015)" },
+    { title: "Design the environment around it", detail: `Make the ${toward} choice the easy one: strip cues and friction from the old pattern, and add cues and convenience for the new one.`, cadence: "Weekly setup", evidence: "Duckworth, Gendler & Gross (2016)" },
+    { title: "Track it and review weekly", detail: `Log the target behavior daily and review it every week. What gets measured — and honestly reflected on — is what tends to change.`, cadence: "Daily log / weekly review", evidence: "Roberts et al. (2017)" },
+  ];
+  return rng.sample(pool, 4);
+}
+
+/**
+ * Evidence-based positive-psychology interventions for the wellbeing instruments,
+ * keyed by scale. Wellbeing is almost always grown (increase); the decrease side
+ * falls back to the generic techniques.
+ */
+type DirSteps = Partial<Record<"increase" | "decrease", GrowthStep[]>>;
+
+const PERMA_STRATEGIES: Record<string, DirSteps> = {
+  POS: { increase: [
+    { title: "Run a daily gratitude practice", detail: "Each evening note three specific good things from the day and why each happened. One of the most replicated ways to raise positive emotion and lower low mood.", cadence: "Daily, 5 min", evidence: "Emmons & McCullough (2003); Seligman et al. (2005)" },
+    { title: "Savor deliberately", detail: "Pick one pleasant moment a day and stretch it — attend fully, replay it, share it. Savoring turns ordinary experiences into lasting positive feeling.", cadence: "Daily", evidence: "Bryant & Veroff (2007)" },
+    { title: "Schedule what lifts you", detail: "Put two activities you know reliably brighten your mood on the calendar this week, and do them even if motivation is low.", cadence: "Weekly", evidence: "Behavioral activation (Jacobson et al., 1996)" },
+  ] },
+  ENG: { increase: [
+    { title: "Engineer flow", detail: "Match one challenging-but-doable task to an uninterrupted block, kill distractions, and set a clear goal. Flow appears where challenge meets skill.", cadence: "Several times a week", evidence: "Csikszentmihalyi (1990)" },
+    { title: "Use a signature strength in a new way", detail: "Identify a top strength and deploy it on a fresh task each week — a reliable, tested lift to engagement and well-being.", cadence: "Weekly", evidence: "Seligman et al. (2005)" },
+    { title: "Protect one block of single-tasking", detail: "Defend a daily stretch of full absorption in something that matters, with no switching. Attention is the raw material of engagement.", cadence: "Daily", evidence: "Attention-and-flow research" },
+  ] },
+  REL: { increase: [
+    { title: "Respond actively and constructively", detail: "When someone shares good news, react with genuine, enthusiastic interest. How you celebrate others' wins predicts bond strength more than how you handle their setbacks.", cadence: "In conversation", evidence: "Gable et al. (2004), capitalization" },
+    { title: "Invest in one tie a week", detail: "Reach out deliberately to one person — a call, a meet-up, a real message. Connection grows from frequency and depth, not chance.", cadence: "Weekly", evidence: "Social-connection research" },
+    { title: "Perform small acts of kindness", detail: "Do a few deliberate kind acts for others each week; giving reliably raises the giver's well-being and strengthens relationships.", cadence: "Weekly", evidence: "Lyubomirsky et al. (2005)" },
+  ] },
+  MEA: { increase: [
+    { title: "Connect daily tasks to a bigger why", detail: "Write one sentence linking your routine work to something beyond yourself you care about. Reframing toward purpose raises meaning and resilience.", cadence: "Weekly", evidence: "Steger (2012); job-crafting research" },
+    { title: "Contribute to something larger", detail: "Give time to a cause, community, or person beyond your own circle. Meaning grows most through contribution.", cadence: "Ongoing", evidence: "Eudaimonic well-being research" },
+    { title: "Clarify and act on your values", detail: "Name your top values and one concrete action this week that expresses each. Values clarity anchors a sense of meaning.", cadence: "Monthly review", evidence: "Acceptance & Commitment Therapy (Hayes et al., 1999)" },
+  ] },
+  ACC: { increase: [
+    { title: "Set specific, hard-but-reachable goals", detail: "Replace vague aims with one specific, measurable, slightly stretching goal and a deadline. Specific challenging goals beat 'do your best.'", cadence: "Per goal", evidence: "Locke & Latham (2002)" },
+    { title: "Track small wins", detail: "Log incremental progress daily; visible forward motion is itself one of the strongest motivators.", cadence: "Daily", evidence: "Amabile & Kramer (2011), the progress principle" },
+    { title: "Reduce each goal to its next action", detail: "Define the single next physical step for every goal. Momentum comes from finishing small, concrete actions.", cadence: "Ongoing", evidence: "Goal-striving research" },
+  ] },
+};
+
+const STRATEGY_BANKS: Record<string, Record<string, DirSteps>> = {
+  "big-five-ipip50": BIG_FIVE_STRATEGIES,
+  "perma-flourishing": PERMA_STRATEGIES,
+  "brief-resilience": {
+    RES: { increase: [
+      { title: "Build your reappraisal skill", detail: "After a setback, deliberately reframe it — 'what can I learn or control here?' Cognitive reappraisal is the engine of bouncing back.", cadence: "After setbacks", evidence: "Gross (2002); Southwick & Charney (2018)" },
+      { title: "Strengthen your support network", detail: "Identify two people you can genuinely lean on and stay in real contact. Social support is the single most robust predictor of resilience.", cadence: "Ongoing", evidence: "Southwick & Charney (2018)" },
+      { title: "Practice self-compassion", detail: "In hard moments, speak to yourself as you would to a good friend. Self-compassion speeds recovery where self-criticism prolongs it.", cadence: "In the moment", evidence: "Neff (2003)" },
+      { title: "Keep the physical basics steady", detail: "Protect sleep, movement, and routine — the physiological floor recovery stands on.", cadence: "Daily", evidence: "Stress-recovery & exercise research" },
+    ] },
+  },
+  "self-esteem-rses": {
+    EST: { increase: [
+      { title: "Catch and challenge the inner critic", detail: "Notice harsh self-talk, write it down, and answer it with the evidence you'd offer a friend. CBT-style restructuring durably lifts self-worth.", cadence: "Daily", evidence: "Fennell (1999); Beck (1979)" },
+      { title: "Favor self-compassion over esteem-chasing", detail: "Treat yourself kindly regardless of performance; this gives steadier self-worth than esteem that rides on winning.", cadence: "Daily", evidence: "Neff (2003)" },
+      { title: "Build an evidence trail", detail: "Do small things that align with who you want to be and log them. Self-worth grows from a track record, not affirmations alone.", cadence: "Weekly", evidence: "Behavioral self-esteem research" },
+    ] },
+  },
+  "mood-checkin": {
+    MOOD: { increase: [
+      { title: "Schedule rewarding activity", detail: "Plan and do small, rewarding or meaningful activities even when motivation is low. Behavioral activation is a frontline, evidence-based lift for low mood.", cadence: "Daily", evidence: "Behavioral activation (Dimidjian et al., 2006)" },
+      { title: "Challenge bleak, absolute thoughts", detail: "When your mind says something dark and all-or-nothing, write it down and find the more balanced, accurate version.", cadence: "As needed", evidence: "Cognitive therapy (Beck, 1979)" },
+      { title: "Reach out — you don't have to do it alone", detail: "Tell one trusted person how you've been. If low mood lasts beyond two weeks or affects daily life, talk to a doctor or therapist.", cadence: "This week", evidence: "Social support; clinical guidance" },
+    ] },
+    ENRG: { increase: [
+      { title: "Anchor a consistent sleep schedule", detail: "Same wake time daily, morning light, screens down at night. Regular sleep is the foundation of energy and mood.", cadence: "Daily", evidence: "Sleep-hygiene research" },
+      { title: "Move your body regularly", detail: "Even short, regular aerobic activity reliably raises energy and lifts mood.", cadence: "Most days", evidence: "Exercise–affect literature" },
+    ] },
+  },
+  "life-satisfaction-swls": {
+    SWL: { increase: [
+      { title: "Practice gratitude and savoring", detail: "Regularly note what's going well and stretch good moments. Both reliably raise the reflective judgment that life is going well.", cadence: "Weekly", evidence: "Emmons & McCullough (2003); Bryant & Veroff (2007)" },
+      { title: "Align your time with your values", detail: "Audit where your week actually goes and shift one recurring block toward what you most value. Satisfaction tracks living by your own standards.", cadence: "Monthly", evidence: "Self-concordance (Sheldon & Elliot, 1999)" },
+      { title: "Invest in close ties and a meaningful goal", detail: "Put deliberate effort into your closest relationships and one goal that matters; both are among the strongest correlates of life satisfaction.", cadence: "Ongoing", evidence: "Diener & Seligman (2002)" },
+    ] },
+  },
+  "self-compassion-scs": {
+    SK: { increase: [
+      { title: "Take a self-compassion break", detail: "When you're struggling, pause for the three-part practice: name it ('this is a hard moment'), normalize it ('hard moments are part of being human'), and offer yourself a kind phrase ('may I be gentle with myself'). The core, most-tested self-compassion exercise.", cadence: "In hard moments", evidence: "Neff & Germer (2013), MSC program" },
+      { title: "Write yourself a compassionate letter", detail: "Write to yourself about a current struggle from the voice of a wise, unconditionally caring friend. Re-read it when the critic is loud.", cadence: "Weekly", evidence: "Shapira & Mongrain (2010)" },
+      { title: "Try a soothing-touch gesture", detail: "A hand over the heart or a gentle self-hug activates the body's care system and calms the threat response — surprisingly physical, surprisingly effective.", cadence: "In the moment", evidence: "Neff (2011), Self-Compassion" },
+    ] },
+    SJ: { decrease: [
+      { title: "Name and externalize the inner critic", detail: "Give the critical voice a name and notice when it speaks. Seeing it as one voice — not the truth, not you — loosens its grip.", cadence: "Daily", evidence: "Gilbert (2009), Compassion-Focused Therapy" },
+      { title: "Find the critic's kinder intention", detail: "The critic usually wants to keep you safe or improving. Acknowledge that aim, thank it, then restate the message the way a supportive coach would.", cadence: "As it arises", evidence: "Gilbert (2009), CFT" },
+      { title: "Talk to yourself as you would a friend", detail: "Catch the harsh line, then ask: 'what would I say to someone I love in this exact spot?' Say that to yourself instead.", cadence: "Daily", evidence: "Neff (2003)" },
+    ] },
+    CH: { increase: [
+      { title: "Remember the 'me too'", detail: "When you feel singled out by a struggle, deliberately recall that countless people feel exactly this. Suffering shared is suffering halved.", cadence: "In hard moments", evidence: "Neff (2003), common humanity" },
+      { title: "Trade comparison for connection", detail: "Notice compare-and-despair scrolling or thinking, and replace it with one honest conversation about real struggles. Authentic contact dissolves the illusion that you're uniquely flawed.", cadence: "Weekly", evidence: "Common-humanity research" },
+    ] },
+    IS: { decrease: [
+      { title: "Reach toward, not away", detail: "Isolation says 'withdraw'; do the opposite in a small way — text one person, sit near others. Acting against the pull-to-hide is how it loosens.", cadence: "When low", evidence: "Behavioral activation; social-connection research" },
+      { title: "Normalize out loud", detail: "Say the quiet part to someone safe: 'I've been struggling with…'. Naming it almost always surfaces a 'me too' you couldn't see alone.", cadence: "As needed", evidence: "Neff (2003)" },
+    ] },
+    MI: { increase: [
+      { title: "Label the feeling to tame it", detail: "Put painful emotion into words — 'this is anxiety,' 'this is grief.' Affect labeling measurably calms the brain's threat response.", cadence: "In the moment", evidence: "Lieberman et al. (2007)" },
+      { title: "Ground in the senses (5-4-3-2-1)", detail: "When feelings escalate, name five things you see, four you hear, three you feel, two you smell, one you taste. It anchors you in the present instead of the spiral.", cadence: "When overwhelmed", evidence: "Mindfulness-based grounding" },
+    ] },
+    OI: { decrease: [
+      { title: "Watch thoughts like weather", detail: "Picture difficult thoughts as clouds passing through a wide sky — you are the sky, not the weather. Observing feelings pass keeps them from becoming your whole identity.", cadence: "Daily, briefly", evidence: "Mindfulness; cognitive defusion (ACT)" },
+      { title: "Add a pause before the spiral", detail: "At the first sign of being swept up, take three slow breaths and name 'I'm getting pulled in.' The pause restores enough distance to choose your next move.", cadence: "As it arises", evidence: "Emotion-regulation research" },
+    ] },
+  },
+  "time-perspective-ztpi": {
+    PN: { decrease: [
+      { title: "Reframe the past narrative", detail: "Write about a hard chapter, then write what it taught you and the strengths it built. Expressive, meaning-making writing reliably loosens a painful past's hold.", cadence: "Weekly", evidence: "Pennebaker (1997); Zimbardo & Boyd (2008)" },
+      { title: "Build a positive-memory archive", detail: "Collect photos, notes, and small mementos of good times in one place and revisit them. It rebalances a memory that over-weights the negative.", cadence: "Ongoing", evidence: "Sword et al. (2014), time-perspective therapy" },
+      { title: "Practice self-forgiveness", detail: "Name a regret you still carry, acknowledge it honestly, and deliberately release it — you did what you could with what you knew then.", cadence: "As needed", evidence: "Self-forgiveness research; time-perspective therapy" },
+    ] },
+    PF: { decrease: [
+      { title: "Run small agency experiments", detail: "Pick one thing you can control today and act on it. Repeated proof that your choices change outcomes is the antidote to fatalism.", cadence: "Daily", evidence: "Learned optimism (Seligman, 1991)" },
+      { title: "Sort what's in vs. out of your control", detail: "Split a worry into two columns — controllable and not — and put your energy only in the first. It rebuilds a sense of agency where helplessness crept in.", cadence: "As needed", evidence: "Stoic 'dichotomy of control'; CBT" },
+    ] },
+    PP: { increase: [
+      { title: "Keep a nostalgia and gratitude journal", detail: "Regularly record good memories and what you're grateful for. Deliberately tending the positive past strengthens this warm, wellbeing-linked frame.", cadence: "Weekly", evidence: "Sword et al. (2014); Emmons & McCullough (2003)" },
+      { title: "Strengthen rituals and roots", detail: "Invest in traditions, reunions, and the relationships that carry your story forward. Positive continuity is built, not just remembered.", cadence: "Ongoing", evidence: "Time-perspective research" },
+    ] },
+    FU: { increase: [
+      { title: "Make goals vivid and time-bound", detail: "Turn 'someday' into a specific, dated goal with a defined next step. Concrete future goals pull present behavior forward.", cadence: "Per goal", evidence: "Locke & Latham (2002)" },
+      { title: "Meet your future self", detail: "Vividly picture — or even write a letter from — yourself years ahead. Feeling connected to your future self increases patience, saving, and planning.", cadence: "Monthly", evidence: "Hershfield (2011), future-self continuity" },
+      { title: "Bind it with if-then plans", detail: "Pre-commit with 'When X happens, I will do Y' for the actions your future depends on. Implementation intentions roughly double follow-through.", cadence: "Ongoing", evidence: "Gollwitzer (1999)" },
+    ] },
+  },
+  "mindfulness-ffmq": {
+    OBS: { increase: [
+      { title: "Run a daily body scan", detail: "Spend a few minutes moving your attention slowly through the body, noticing sensations as they are without trying to change them. The classic way to train Observing.", cadence: "Daily, 5–10 min", evidence: "Kabat-Zinn (1990), MBSR" },
+      { title: "Do a 5-4-3-2-1 senses check", detail: "Deliberately name five things you see, four you hear, three you feel, two you smell, and one you taste. A fast way to drop into direct experience.", cadence: "Daily", evidence: "Sensory grounding (MBSR)" },
+      { title: "Take a one-sense minute", detail: "Once a day, give 60 seconds of full attention to a single sense — the taste of your coffee, the sounds in the room. Small, repeatable, real.", cadence: "Daily", evidence: "Informal mindfulness practice" },
+    ] },
+    DES: { increase: [
+      { title: "Name the feeling precisely", detail: "Put what you feel into specific words ('disappointed,' 'apprehensive') rather than 'bad.' Precise labeling — affect labeling — calms the brain's threat response.", cadence: "In the moment", evidence: "Lieberman et al. (2007); Barrett (2017)" },
+      { title: "Keep a two-line feelings log", detail: "Each evening, write the main feeling you had and the situation around it. Naming builds the vocabulary that makes inner life legible.", cadence: "Daily", evidence: "Expressive writing (Pennebaker, 1997)" },
+      { title: "Widen your emotion vocabulary", detail: "When you're stuck on 'fine' or 'stressed,' consult a feelings wheel to find the more exact word. Granularity is a learnable skill.", cadence: "As needed", evidence: "Emotional granularity research" },
+    ] },
+    AWA: { increase: [
+      { title: "Single-task on purpose", detail: "Do one thing at a time, fully — phone away, other tabs closed. Acting with awareness is mostly the absence of autopilot multitasking.", cadence: "Daily", evidence: "Attention research; MBSR" },
+      { title: "Three breaths at transitions", detail: "Between activities, take three conscious breaths before starting the next thing. It re-enters the present and breaks the autopilot chain.", cadence: "At transitions", evidence: "Informal MBSR practice" },
+      { title: "Choose one daily activity to do mindfully", detail: "Pick a routine — a shower, a walk, washing up — and do it with full attention to the senses each day. Everyday life becomes the practice.", cadence: "Daily", evidence: "Kabat-Zinn (1990)" },
+    ] },
+    NJ: { increase: [
+      { title: "Notice and name 'judging'", detail: "When you catch a verdict on your own thoughts or feelings, silently note 'judging' and return to the experience itself. Seeing the judge loosens it.", cadence: "Daily", evidence: "MBCT (Segal, Williams & Teasdale, 2002)" },
+      { title: "Add 'and that's okay'", detail: "When a hard feeling shows up, let it be there without ruling it wrong. Acceptance reduces the second layer of suffering judgment adds.", cadence: "In the moment", evidence: "Acceptance & Commitment Therapy (Hayes et al., 1999)" },
+      { title: "Speak to yourself as a friend", detail: "Swap the harsh inner verdict for what you'd say to someone you care about in the same spot. Kindness is a trainable default.", cadence: "Daily", evidence: "Neff (2003), self-compassion" },
+    ] },
+    NR: { increase: [
+      { title: "Surf the urge", detail: "When a strong feeling or impulse hits, watch it rise, peak, and fall like a wave instead of acting on it. Urges pass faster than they promise to.", cadence: "When triggered", evidence: "Urge surfing (Marlatt); DBT (Linehan)" },
+      { title: "Put a pause between trigger and response", detail: "Build a deliberate gap — three slow breaths — before you react. The gap is where choice lives.", cadence: "When triggered", evidence: "Emotion-regulation research" },
+      { title: "Watch thoughts like clouds", detail: "Picture difficult thoughts drifting across a wide sky — you are the sky, not the weather. Decentering keeps feelings from becoming facts.", cadence: "Daily, briefly", evidence: "Cognitive defusion (ACT); MBCT decentering" },
+    ] },
+  },
+};
 
 function strategiesFor(
   rng: Rng,
   instrument: Instrument,
-  scaleId: string,
-  name: string,
+  scaleDef: ScaleDef,
   direction: GrowthDirection,
 ): GrowthStep[] {
-  if (direction === "maintain") return [];
-  const bank = instrument.id === "big-five-ipip50" ? BIG_FIVE_STRATEGIES[scaleId]?.[direction] : undefined;
-  if (bank && bank.length) {
-    return rng.sample(bank, Math.min(3, bank.length));
-  }
-  return genericSteps(rng, name, direction);
+  if (direction === "maintain") return maintainSteps(rng);
+  const bank = STRATEGY_BANKS[instrument.id]?.[scaleDef.id]?.[direction];
+  if (bank && bank.length) return rng.sample(bank, Math.min(3, bank.length));
+  return genericSteps(rng, scaleDef, direction);
 }
 
 /**
- * Build a personalized, evidence-based growth plan from current scores and the
- * user's targets (where they want to be on each scale). Deterministic per seed.
+ * Build a goal-linked practice plan from current observations and the user's
+ * targets (where they want to be on each scale). Deterministic per seed.
  */
 export function buildGrowthPlan(
   instrument: Instrument,
@@ -179,6 +391,7 @@ export function buildGrowthPlan(
     if (!score || !scaleDef) continue;
 
     const current = round1(score.normalized);
+    const standing = resolveScaleStanding(score, scaleDef, instrument.format);
     const target = round1(t.target);
     const gap = round1(target - current);
     const direction: GrowthDirection = gap > GAP_THRESHOLD ? "increase" : gap < -GAP_THRESHOLD ? "decrease" : "maintain";
@@ -194,7 +407,7 @@ export function buildGrowthPlan(
       direction === "maintain"
         ? sentence(
             rng.pick([
-              `You’re near your target on ${scaleDef.name} (currently ${ordinal(Math.round(score.percentile))} percentile). The work here is protection, not change — keep doing what keeps this steady.`,
+              `You’re near your target on ${scaleDef.name} (currently ${Math.round(standing.position)}/100 within this instrument’s response range). The work here is protection, not change — keep doing what keeps this steady.`,
               `Your ${scaleDef.name} already sits about where you want it. Treat this as a strength to maintain rather than a gap to close.`,
             ]),
           )
@@ -213,7 +426,7 @@ export function buildGrowthPlan(
       gap,
       direction,
       rationale,
-      steps: strategiesFor(rng, instrument, t.scaleId, scaleDef.name, direction),
+      steps: strategiesFor(rng, instrument, scaleDef, direction),
     });
   }
 

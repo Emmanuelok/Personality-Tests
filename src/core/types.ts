@@ -19,17 +19,32 @@ export interface LikertScale {
 /** Direction an item is keyed: +1 loads positively on its scale, -1 is reverse-scored. */
 export type KeyDirection = 1 | -1;
 
+/** One selectable answer on a multiple-choice item; the chosen option votes for its scale. */
+export interface ItemOption {
+  /** Option text shown to the respondent. */
+  text: string;
+  /** Id of the {@link ScaleDef} this option loads on when chosen. */
+  scale: string;
+  /** Pole direction for forced-choice on a bipolar scale: +1 votes the high pole, -1 the low.
+   *  Omit (defaults to +1) for categorical choices where each option is its own scale. */
+  keyed?: KeyDirection;
+}
+
 /** A single questionnaire item. */
 export interface Item {
   id: string;
-  /** The statement shown to the respondent. */
+  /** The statement (Likert) or question stem (multiple-choice) shown to the respondent. */
   text: string;
-  /** Id of the {@link ScaleDef} this item loads on. */
+  /** Id of the {@link ScaleDef} this item loads on. For a multiple-choice item this is the
+   *  primary/representative scale; scoring uses the chosen option's scale via {@link options}. */
   scale: string;
-  /** Keying direction relative to the scale's high pole. */
+  /** Keying direction relative to the scale's high pole (Likert items). */
   keyed: KeyDirection;
   /** Optional finer-grained facet id within the scale. */
   facet?: string;
+  /** When present, this is a single-select multiple-choice item: the response value is the
+   *  index of the chosen option, and that option's scale receives one vote. */
+  options?: ItemOption[];
 }
 
 /** Definition of a measured dimension (a factor, dichotomy pole group, or type axis). */
@@ -46,9 +61,15 @@ export interface ScaleDef {
   poles?: { low: string; high: string };
   /** Optional facets that roll up into this scale. */
   facets?: FacetDef[];
-  /** Approximate population mean of the item-mean (1..max), used for norming when no table exists. */
+  /**
+   * Legacy approximate mean retained with instrument metadata for compatibility.
+   * It is not provenance-qualified and must not be used for population ranking.
+   */
   normMean?: number;
-  /** Approximate population SD of the item-mean, used for norming when no table exists. */
+  /**
+   * Legacy approximate SD retained with instrument metadata for compatibility.
+   * It is not provenance-qualified and must not be used for population ranking.
+   */
   normSd?: number;
 }
 
@@ -74,6 +95,11 @@ export interface Instrument {
   name: string;
   shortName: string;
   kind: InstrumentKind;
+  /** Response model: "likert" (default — rate each statement) or "choice" (pick one option
+   *  per question, each option voting for a scale). Items carry their own {@link Item.options}. */
+  format?: "likert" | "choice";
+  /** Theme/construct category id (see core/categories.ts) used to group the catalog. */
+  category: string;
   /** One-line hook for listings. */
   tagline: string;
   /** Paragraph describing what the instrument measures and its lineage. */
@@ -84,8 +110,10 @@ export interface Instrument {
   scales: ScaleDef[];
   items: Item[];
   citations: Citation[];
-  /** Resolve a categorical type from continuous scale scores (typological instruments). */
-  resolveType?: (scaleScores: Record<string, ScaleScore>) => TypeResolution;
+  /** Resolve a categorical type from continuous scale scores (typological instruments).
+   *  Accepts an optional locale so the resolved title/summary/components can be localized;
+   *  instruments that don't translate their type simply ignore it and return English. */
+  resolveType?: (scaleScores: Record<string, ScaleScore>, locale?: string) => TypeResolution;
   /** Honest limitations and ethical framing surfaced to the user. */
   caveats?: string[];
   /** Provenance of the item wording (public-domain set vs. original to this platform). */
@@ -108,6 +136,24 @@ export interface FacetScore {
   itemCount: number;
 }
 
+/**
+ * What a 0..100 score means.
+ *
+ * A response-range position is purely within this instrument's answer scale:
+ * 0 is the low-keyed end and 100 is the high-keyed end. It says nothing about
+ * how the person compares with a population.
+ *
+ * Local scoring always uses this response-range meaning. Population or
+ * community comparisons require a separately sourced, thresholded reference
+ * and are never embedded in the local score.
+ */
+export type ScaleStanding = {
+  kind: "response-range";
+  value: number;
+  position: number;
+  basis: "instrument-response-range";
+};
+
 export interface ScaleScore {
   scaleId: string;
   name: string;
@@ -117,8 +163,8 @@ export interface ScaleScore {
   mean: number;
   /** 0..100 position within the raw response range (range-relative). */
   normalized: number;
-  /** 0..100 percentile vs. an approximate population norm (when norm params exist). */
-  percentile: number;
+  /** Explicit interpretation of the score's standing. */
+  standing: ScaleStanding;
   level: Level;
   itemCount: number;
   facets: Record<string, FacetScore>;

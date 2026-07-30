@@ -1,4 +1,5 @@
 import type { Instrument, Item, ScaleScore, TypeResolution } from "../types";
+import { jungTypeStrings, type JungTypeBundle } from "./i18n";
 
 /**
  * Jungian Type Profiler — 16 psychological types across four dichotomies.
@@ -86,23 +87,49 @@ const TYPES: Record<string, TypeMeta> = {
   ENTJ: { title: "The Commander", stack: ["Te", "Ni", "Se", "Fi"], summary: "Strategic leader who organizes the world toward an ambitious vision." },
 };
 
-const FUNCTION_NAMES: Record<string, string> = {
-  Ni: "Introverted Intuition", Ne: "Extraverted Intuition",
-  Si: "Introverted Sensing", Se: "Extraverted Sensing",
-  Ti: "Introverted Thinking", Te: "Extraverted Thinking",
-  Fi: "Introverted Feeling", Fe: "Extraverted Feeling",
+/** English default; es/fr live in core/instruments/i18n.ts (jungTypeStrings). */
+const JUNG_TYPE_EN: JungTypeBundle = {
+  types: {
+    ISTJ: { title: "The Inspector", summary: "Dependable, methodical, and loyal to commitments and standards." },
+    ISFJ: { title: "The Protector", summary: "Warm, conscientious, and quietly devoted to caring for others." },
+    INFJ: { title: "The Counselor", summary: "Insightful and principled, guided by a private vision of what could be." },
+    INTJ: { title: "The Architect", summary: "Strategic and independent, building long-range systems toward a goal." },
+    ISTP: { title: "The Craftsman", summary: "Practical problem-solver who masters how things actually work." },
+    ISFP: { title: "The Composer", summary: "Gentle, present-focused, and guided by deeply held personal values." },
+    INFP: { title: "The Mediator", summary: "Idealistic and imaginative, anchored to a strong inner moral compass." },
+    INTP: { title: "The Logician", summary: "Analytical and inventive, driven to understand the underlying logic of things." },
+    ESTP: { title: "The Dynamo", summary: "Bold and pragmatic, thriving on action and real-time problem solving." },
+    ESFP: { title: "The Performer", summary: "Spontaneous and warm, bringing energy and delight to the present moment." },
+    ENFP: { title: "The Champion", summary: "Enthusiastic and imaginative, seeing possibility and potential in people." },
+    ENTP: { title: "The Visionary", summary: "Quick, inventive debater who loves generating and testing new ideas." },
+    ESTJ: { title: "The Supervisor", summary: "Organized and decisive, marshaling people and resources to get results." },
+    ESFJ: { title: "The Provider", summary: "Sociable and dutiful, attentive to others' needs and group harmony." },
+    ENFJ: { title: "The Teacher", summary: "Charismatic and empathic, drawing the best out of the people around them." },
+    ENTJ: { title: "The Commander", summary: "Strategic leader who organizes the world toward an ambitious vision." },
+  },
+  functions: {
+    Ni: "Introverted Intuition", Ne: "Extraverted Intuition", Si: "Introverted Sensing", Se: "Extraverted Sensing",
+    Ti: "Introverted Thinking", Te: "Extraverted Thinking", Fi: "Introverted Feeling", Fe: "Extraverted Feeling",
+  },
+  clarity: { veryClear: "very clear", clear: "clear", moderate: "moderate", slight: "slight" },
+  axisValues: { E: "Extraversion", I: "Introversion", N: "Intuition", S: "Sensing", F: "Feeling", T: "Thinking", J: "Judging", P: "Perceiving" },
+  labels: { energy: "Energy", information: "Information", decisions: "Decisions", structure: "Structure", stack: "Cognitive function stack" },
+  stackPos: ["dominant", "auxiliary", "tertiary", "inferior"],
+  pref: "{c} preference",
 };
 
 const MID = 3; // midpoint of the 1..5 range
 
-function clarityLabel(distance: number): string {
-  if (distance >= 1.3) return "very clear";
+type ClarityKey = "veryClear" | "clear" | "moderate" | "slight";
+function clarityLabel(distance: number): ClarityKey {
+  if (distance >= 1.3) return "veryClear";
   if (distance >= 0.8) return "clear";
   if (distance >= 0.35) return "moderate";
   return "slight";
 }
 
-function resolveType(s: Record<string, ScaleScore>): TypeResolution {
+function resolveType(s: Record<string, ScaleScore>, locale?: string): TypeResolution {
+  const T = jungTypeStrings(locale) ?? JUNG_TYPE_EN;
   const axis = (id: string, hi: string, lo: string) => {
     const mean = s[id].mean;
     const dist = Math.abs(mean - MID);
@@ -115,6 +142,7 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
 
   const code = `${e.letter}${n.letter}${f.letter}${j.letter}`;
   const meta = TYPES[code];
+  const typeText = T.types[code];
 
   // Confidence = how decisively the four axes fell away from the midpoint.
   const confidence = Math.min(1, ((e.dist + n.dist + f.dist + j.dist) / 4) / 2);
@@ -128,20 +156,19 @@ function resolveType(s: Record<string, ScaleScore>): TypeResolution {
   flipped[flipIdx] = flips[letters[flipIdx]][1];
   const secondary = flipped.join("");
 
-  const stack = meta.stack
-    .map((fn, i) => `${["dominant", "auxiliary", "tertiary", "inferior"][i]} ${fn} (${FUNCTION_NAMES[fn]})`)
-    .join(", ");
+  const stack = meta.stack.map((fn, i) => `${T.stackPos[i]} ${fn} (${T.functions[fn]})`).join(", ");
+  const pref = (c: ClarityKey) => T.pref.replace("{c}", T.clarity[c]);
 
   return {
     code,
-    title: meta.title,
-    summary: meta.summary,
+    title: typeText.title,
+    summary: typeText.summary,
     components: [
-      { label: "Energy", value: e.letter === "E" ? "Extraversion" : "Introversion", detail: `${e.clarity} preference` },
-      { label: "Information", value: n.letter === "N" ? "Intuition" : "Sensing", detail: `${n.clarity} preference` },
-      { label: "Decisions", value: f.letter === "F" ? "Feeling" : "Thinking", detail: `${f.clarity} preference` },
-      { label: "Structure", value: j.letter === "J" ? "Judging" : "Perceiving", detail: `${j.clarity} preference` },
-      { label: "Cognitive function stack", value: stack },
+      { label: T.labels.energy, value: T.axisValues[e.letter], detail: pref(e.clarity) },
+      { label: T.labels.information, value: T.axisValues[n.letter], detail: pref(n.clarity) },
+      { label: T.labels.decisions, value: T.axisValues[f.letter], detail: pref(f.clarity) },
+      { label: T.labels.structure, value: T.axisValues[j.letter], detail: pref(j.clarity) },
+      { label: T.labels.stack, value: stack },
     ],
     confidence,
     secondary: secondary !== code ? secondary : undefined,
@@ -153,6 +180,7 @@ export const jungTypes: Instrument = {
   name: "Jungian Type Profiler (16 Types)",
   shortName: "16 Types",
   kind: "typological",
+  category: "types",
   tagline: "Four dichotomies, sixteen types — the Jungian map of the mind.",
   description:
     "Based on Carl Jung's theory of psychological types and the four-dichotomy framework popularized by " +
