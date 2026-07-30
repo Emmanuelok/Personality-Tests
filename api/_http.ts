@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "./_vercel-types";
 import { ConfigurationError } from "./_runtime";
 import { isPlainObject, ValidationError, type JsonObject } from "./_validation";
 

@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "./_vercel-types";
 import { parseAskRequest } from "./_ask-schema";
 import {
   methodAllowed,
