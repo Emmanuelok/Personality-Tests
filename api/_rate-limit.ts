@@ -1,5 +1,5 @@
 import { createHash, createHmac, randomBytes } from "node:crypto";
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "./_vercel-types";
 import { isKvConfigured, KvUnavailableError, kvEval } from "./_kv";
 
 interface RateLimitSpec {

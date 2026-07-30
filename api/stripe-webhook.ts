@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "./_vercel-types";
 import {
   methodAllowed,
   prepareResponse,

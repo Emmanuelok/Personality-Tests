@@ -33,24 +33,9 @@
     "@types/node": "^25.9.2",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "@vercel/node": "^5.8.26",
     "@vitejs/plugin-react": "^6.0.4",
     "typescript": "^5.5.4",
     "vite": "^8.1.5",
     "vitest": "^4.1.10"
-  },
-  "overrides": {
-    "@vercel/static-config": {
-      "ajv": "8.20.0"
-    },
-    "@vercel/python-analysis": {
-      "js-yaml": "4.3.0",
-      "minimatch": "10.2.5",
-      "smol-toml": "1.7.0"
-    },
-    "@vercel/node": {
-      "path-to-regexp": "6.3.0",
-      "undici": "6.27.0"
-    }
   }
 }
