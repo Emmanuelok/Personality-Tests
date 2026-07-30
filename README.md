@@ -151,17 +151,21 @@ requirements before accepting real learner or payment data.
 
 ## Visual system
 
-The landing page and workspace use five original, optimized WebP scenes:
+The public landing page and workspace use eight original, optimized WebP scenes:
 
-- `atlas-learning-hero.webp`
-- `atlas-pathways.webp`
-- `atlas-study-together.webp`
-- `atlas-insight-landscape.webp`
-- `atlas-connection-map.webp`
+- `psyche-hero-cinematic.webp`
+- `psyche-reflection.webp`
+- `psyche-explore.webp`
+- `psyche-cognition.webp`
+- `psyche-growth.webp`
+- `psyche-study.webp`
+- `psyche-connection.webp`
+- `psyche-direction.webp`
 
-The scenes share recurring connected pathways, evidence-light motifs, and an
-indigo/cyan/coral/amber palette, so imagery reinforces the product architecture
-instead of decorating unrelated tools.
+Each scene represents a distinct product experience with a different person,
+environment, wardrobe, composition, and color story. Midnight indigo, optical
+glass, restrained cyan light, and human-scale editorial photography keep the
+system coherent without repeating one generic portrait across the platform.
 
 ## Architecture
 

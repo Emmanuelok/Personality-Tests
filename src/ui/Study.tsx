@@ -141,13 +141,17 @@ export function Study({
   /* ── list ──────────────────────────────────────────────────────────── */
   return (
     <div className="container view-enter">
-      <div className="iep-hero">
-        <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{s.title}</div>
-        <h1>{s.title}</h1>
-        <div className="subtitle" style={{ color: "var(--text-dim)", maxWidth: 640, margin: "8px auto 0" }}>{s.sub}</div>
-      </div>
-      <div className="row-actions" style={{ justifyContent: "center", margin: "8px 0 22px" }}>
-        <button className="btn primary" onClick={() => setCreating(true)}>{s.create}</button>
+      <div className="iep-hero cinematic-page-hero study-page-hero">
+        <img src="/images/psyche-study.webp" width="1536" height="1024" loading="eager" decoding="async" alt="" aria-hidden="true" />
+        <div className="cinematic-page-hero-shade" aria-hidden="true" />
+        <div className="cinematic-page-hero-copy">
+          <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{s.title}</div>
+          <h1>{s.title}</h1>
+          <div className="subtitle">{s.sub}</div>
+          <div className="row-actions" style={{ justifyContent: "flex-start", marginTop: 24 }}>
+            <button className="btn primary" onClick={() => setCreating(true)}>{s.create}</button>
+          </div>
+        </div>
       </div>
       <h2 className="section-title">{s.myRooms}</h2>
       {rooms.length === 0 ? (

@@ -180,7 +180,7 @@ export function IntegratedProfile({ ip, entries = [], onBack, onBrowse, cognitiv
         )}
 
         {coach.state === "ready" && coach.practices.length > 0 && (
-          <section className="panel coach-panel">
+          <section className="panel wellbeing-plan-panel">
             <h3 style={{ marginTop: 0, fontFamily: "var(--serif)", fontSize: 24 }}>{t("iep.coach")}</h3>
             <p style={{ color: "var(--text-dim)", marginTop: 0 }}>{t("iep.coachSub")}</p>
             {coach.focusDimensionName && (

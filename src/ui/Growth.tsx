@@ -69,10 +69,14 @@ export function Growth({ profile, onBrowse, onBack, onBattery, onImport, onOpenR
 
   return (
     <div className="container view-enter">
-      <div className="iep-hero">
-        <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{t("jr.eyebrow")}</div>
-        <h1>{t("jr.title")}</h1>
-        <div className="subtitle" style={{ color: "var(--text-dim)" }}>{t("jr.sub")}</div>
+      <div className="iep-hero cinematic-page-hero journey-page-hero">
+        <img src="/images/psyche-growth.webp" width="1536" height="1024" loading="eager" decoding="async" alt="" aria-hidden="true" />
+        <div className="cinematic-page-hero-shade" aria-hidden="true" />
+        <div className="cinematic-page-hero-copy">
+          <div className="sub" style={{ textTransform: "uppercase", fontSize: 12.5, letterSpacing: 2 }}>{t("jr.eyebrow")}</div>
+          <h1>{t("jr.title")}</h1>
+          <div className="subtitle">{t("jr.sub")}</div>
+        </div>
       </div>
 
       <div className="report-grid stagger">

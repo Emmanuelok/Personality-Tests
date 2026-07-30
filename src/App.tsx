@@ -8,6 +8,7 @@ import { localizeInstrument } from "@core/instruments/i18n";
 import { buildIntegratedProfile, type IntegratedProfile as IP, type SynthEntry } from "@core/synthesis";
 import { adaptivePack } from "@core/starter";
 import { Home } from "./ui/Home";
+import { Landing } from "./ui/Landing";
 import { Onboarding } from "./ui/Onboarding";
 import { CoachDock } from "./ui/CoachDock";
 import { Settings } from "./ui/Settings";
@@ -132,9 +133,18 @@ const storedCognitiveView = (stored: CognitiveStoredResult): View =>
             ? "adaptive"
             : "creativity";
 
+const ROUTED_QUERY_KEYS = ["paid", "canceled", "admin", "study", "study-topic", "study-find", "topic", "find"] as const;
+const hasRoutedQuery = (search: string) => {
+  const params = new URLSearchParams(search);
+  return ROUTED_QUERY_KEYS.some((key) => params.has(key));
+};
+
 export default function App() {
   const { t, locale } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(() => loadProfile());
+  const [landingDismissed, setLandingDismissed] = useState(() => {
+    return hasRoutedQuery(window.location.search) || routeFromHash(window.location.hash) !== "home";
+  });
   const [skipOnb, setSkipOnb] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [joinRoom, setJoinRoom] = useState<StudyRoom | null>(null);
@@ -264,9 +274,7 @@ export default function App() {
     };
 
     if (!routeInitialized.current) {
-      const params = new URLSearchParams(window.location.search);
-      const queryOwnsInitialRoute = ["paid", "canceled", "admin", "study", "study-topic", "study-find", "topic", "find"]
-        .some((key) => params.has(key));
+      const queryOwnsInitialRoute = hasRoutedQuery(window.location.search);
       if (!window.location.hash && !queryOwnsInitialRoute) setRoute("#/today", true);
       else applyRoute();
       routeInitialized.current = true;
@@ -734,6 +742,7 @@ export default function App() {
   const resetAll = () => {
     resetProfile();
     setProfile(null);
+    setLandingDismissed(false);
     setSettingsOpen(false);
     setSkipOnb(false);
     setRoute("#/today", true);
@@ -883,7 +892,34 @@ export default function App() {
     return () => window.cancelAnimationFrame(frame);
   }, [view, showChrome]);
 
-  // First-run: a goal-based onboarding wizard that previews the personalized roadmap.
+  // First-run: a public cinematic story leads into the existing private,
+  // goal-based onboarding flow. Deep links and query-driven entry points keep
+  // their previous behavior and do not get intercepted by the landing page.
+  if (!profile && !skipOnb && view === "home" && !landingDismissed) {
+    return (
+      <>
+        <a className="skip-link" href="#main-content">{t("a11y.skip")}</a>
+        <Landing
+          onBegin={() => {
+            setLandingDismissed(true);
+            top();
+          }}
+          onBrowse={() => {
+            setLandingDismissed(true);
+            setSkipOnb(true);
+            goExplore();
+          }}
+          onRelationships={() => {
+            setLandingDismissed(true);
+            setSkipOnb(true);
+            goCompat();
+          }}
+        />
+      </>
+    );
+  }
+
+  // After the public story, personalize the journey in three short steps.
   if (!profile && !skipOnb && view === "home") {
     return (
       <>
