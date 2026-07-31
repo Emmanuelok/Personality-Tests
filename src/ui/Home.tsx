@@ -241,9 +241,9 @@ export function Home({
         <div className="hero-aurora" aria-hidden="true" />
         <img
           className="hero-learning-image"
-          src="/images/psyche-hero-cinematic.webp"
-          width="1672"
-          height="941"
+          src="/images/psyche-hero-cinematic-v2.webp"
+          width="1920"
+          height="1080"
           loading="eager"
           decoding="async"
           alt=""
@@ -277,9 +277,9 @@ export function Home({
           <div className="foryou-aura" aria-hidden="true" />
           <img
             className="foryou-image"
-            src="/images/psyche-hero-cinematic.webp"
-            width="1672"
-            height="941"
+            src="/images/psyche-hero-cinematic-v2.webp"
+            width="1920"
+            height="1080"
             loading="eager"
             decoding="async"
             alt=""

@@ -153,7 +153,7 @@ requirements before accepting real learner or payment data.
 
 The public landing page and workspace use eight original, optimized WebP scenes:
 
-- `psyche-hero-cinematic.webp`
+- `psyche-hero-cinematic-v2.webp`
 - `psyche-reflection.webp`
 - `psyche-explore.webp`
 - `psyche-cognition.webp`

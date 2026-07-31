@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { INSTRUMENTS } from "@core/instruments";
 import { LanguageSwitcher, useI18n } from "../i18n";
-import { shouldLoadLandingVideo } from "./landingMedia";
+import {
+  getLandingScrollProgress,
+  getLandingVideoTime,
+  LANDING_VIDEO_FPS,
+  shouldLoadLandingVideo,
+} from "./landingMedia";
 import { ThemeToggle } from "./theme";
 import { toLoc, type Loc } from "./goals";
 
@@ -593,28 +598,19 @@ interface NetworkInformationLike {
 }
 
 function CinematicHeroMedia({
-  motionPlay,
-  motionPause,
-  paused,
-  onPausedChange,
-  onFilmPlayingChange,
+  sequenceRef,
+  onScrubAvailabilityChange,
 }: {
-  motionPlay: string;
-  motionPause: string;
-  paused: boolean;
-  onPausedChange: (paused: boolean) => void;
-  onFilmPlayingChange: (playing: boolean) => void;
+  sequenceRef: { current: HTMLDivElement | null };
+  onScrubAvailabilityChange: (available: boolean) => void;
 }) {
   const mediaRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const playAttemptRef = useRef(0);
+  const latestTargetRef = useRef(0);
+  const videoVisibleRef = useRef(false);
   const [eligible, setEligible] = useState(false);
-  const [canPlay, setCanPlay] = useState(false);
+  const [mediaReady, setMediaReady] = useState(false);
   const [videoVisible, setVideoVisible] = useState(false);
-  const [inViewport, setInViewport] = useState(true);
-  const [pageVisible, setPageVisible] = useState(() => (
-    typeof document === "undefined" || !document.hidden
-  ));
   const [sourceFailed, setSourceFailed] = useState(false);
 
   useEffect(() => {
@@ -629,10 +625,11 @@ function CinematicHeroMedia({
         effectiveType: connection?.effectiveType,
       });
       setEligible(nextEligible);
+      onScrubAvailabilityChange(nextEligible);
       if (!nextEligible) {
-        setCanPlay(false);
+        setMediaReady(false);
         setVideoVisible(false);
-        onFilmPlayingChange(false);
+        videoVisibleRef.current = false;
       }
     };
     const onChange = syncEligibility as EventListener;
@@ -666,57 +663,250 @@ function CinematicHeroMedia({
       removeQueryListener(dataQuery);
       connection?.removeEventListener?.("change", onChange);
     };
-  }, [onFilmPlayingChange]);
-
-  useEffect(() => {
-    const media = mediaRef.current;
-    if (!media || !("IntersectionObserver" in window)) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setInViewport(entry?.isIntersecting ?? true);
-    }, { threshold: 0.08 });
-    observer.observe(media);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const onVisibility = () => setPageVisible(!document.hidden);
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, []);
+  }, [onScrubAvailabilityChange]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-    const attempt = ++playAttemptRef.current;
-    if (!eligible || !canPlay || paused || !inViewport || !pageVisible) {
-      video.pause();
+    const sequence = sequenceRef.current;
+    const stage = sequence?.querySelector<HTMLElement>(".landing-hero");
+    const resetStage = () => {
+      stage?.style.removeProperty("--hero-progress");
+      stage?.style.removeProperty("--hero-media-x");
+      stage?.style.removeProperty("--hero-plane-shift");
+      stage?.style.removeProperty("--hero-plane-shift-reverse");
+      stage?.style.removeProperty("--hero-plane-shift-soft");
+      stage?.style.removeProperty("--hero-copy-lift");
+      stage?.style.removeProperty("--hero-copy-opacity");
+      stage?.style.removeProperty("--hero-media-shift");
+    };
+    if (!sequence || !stage) {
+      resetStage();
+      onScrubAvailabilityChange(false);
       return;
     }
-    void video.play().catch((error: unknown) => {
-      if (playAttemptRef.current !== attempt) return;
-      const errorName = error instanceof DOMException ? error.name : "";
-      if (errorName === "AbortError") return;
-      if (errorName === "NotAllowedError") {
-        onPausedChange(true);
-      }
-    });
-    return () => {
-      if (playAttemptRef.current === attempt) playAttemptRef.current += 1;
-    };
-  }, [canPlay, eligible, inViewport, onPausedChange, pageVisible, paused]);
-
-  const toggleMotion = () => {
-    const nextPaused = !paused;
-    if (!nextPaused && eligible && canPlay) {
-      void videoRef.current?.play().catch((error: unknown) => {
-        const errorName = error instanceof DOMException ? error.name : "";
-        if (errorName === "NotAllowedError") onPausedChange(true);
-      });
+    if (!eligible) {
+      resetStage();
+      return;
     }
-    onPausedChange(nextPaused);
-  };
+    if (sourceFailed) {
+      resetStage();
+      const rect = sequence.getBoundingClientRect();
+      const sequenceTop = rect.top + window.scrollY;
+      const preserveEnteredRunway = window.scrollY > sequenceTop + 1 && rect.bottom > 0;
+      onScrubAvailabilityChange(preserveEnteredRunway);
+      if (!preserveEnteredRunway) return;
 
-  const poster = "/images/psyche-hero-cinematic.webp";
+      let releaseFrame = 0;
+      let released = false;
+      const releaseRunway = () => {
+        releaseFrame = 0;
+        if (released) return;
+
+        const currentRect = sequence.getBoundingClientRect();
+        const currentTop = currentRect.top + window.scrollY;
+        const exitedAbove = window.scrollY <= currentTop + 1;
+        const exitedBelow = currentRect.bottom <= 0;
+        if (!exitedAbove && !exitedBelow) return;
+
+        released = true;
+        const nextSection = exitedBelow
+          ? sequence.nextElementSibling as HTMLElement | null
+          : null;
+        const nextSectionTop = nextSection?.getBoundingClientRect().top;
+        const scrollYAtCollapse = window.scrollY;
+        onScrubAvailabilityChange(false);
+
+        if (nextSection && nextSectionTop !== undefined) {
+          window.requestAnimationFrame(() => {
+            if (!nextSection.isConnected) return;
+            if (Math.abs(window.scrollY - scrollYAtCollapse) > 1) return;
+            const layoutShift = nextSection.getBoundingClientRect().top - nextSectionTop;
+            if (Math.abs(layoutShift) > 0.5) {
+              window.scrollBy({ top: layoutShift, left: 0, behavior: "auto" });
+            }
+          });
+        }
+      };
+      const scheduleRelease = () => {
+        if (releaseFrame || released) return;
+        releaseFrame = window.requestAnimationFrame(releaseRunway);
+      };
+
+      window.addEventListener("scroll", scheduleRelease, { passive: true });
+      window.addEventListener("resize", scheduleRelease);
+      window.addEventListener("orientationchange", scheduleRelease);
+      window.addEventListener("pageshow", scheduleRelease);
+      scheduleRelease();
+
+      return () => {
+        window.cancelAnimationFrame(releaseFrame);
+        window.removeEventListener("scroll", scheduleRelease);
+        window.removeEventListener("resize", scheduleRelease);
+        window.removeEventListener("orientationchange", scheduleRelease);
+        window.removeEventListener("pageshow", scheduleRelease);
+      };
+    }
+    onScrubAvailabilityChange(true);
+    if (!video) {
+      resetStage();
+      return;
+    }
+    if (!mediaReady) return;
+
+    video.pause();
+
+    let frame = 0;
+    let sequenceTop = 0;
+    let sequenceHeight = 0;
+    let stageHeight = 0;
+    let waitingForFrame = false;
+    let videoFrameCallback = 0;
+    let fallbackRevealFrame = 0;
+    let inViewport = true;
+    let lastProgress = Number.NaN;
+    const renderAwareVideo = video as HTMLVideoElement & {
+      cancelVideoFrameCallback?: (handle: number) => void;
+      requestVideoFrameCallback?: (callback: () => void) => number;
+    };
+
+    const revealRenderedFrame = () => {
+      if (waitingForFrame) return;
+      waitingForFrame = true;
+      const reveal = () => {
+        videoFrameCallback = 0;
+        fallbackRevealFrame = 0;
+        waitingForFrame = false;
+        videoVisibleRef.current = true;
+        setVideoVisible(true);
+      };
+      if (typeof renderAwareVideo.requestVideoFrameCallback === "function") {
+        videoFrameCallback = renderAwareVideo.requestVideoFrameCallback(reveal);
+      } else {
+        fallbackRevealFrame = window.requestAnimationFrame(reveal);
+      }
+    };
+
+    const refreshGeometry = () => {
+      const rect = sequence.getBoundingClientRect();
+      sequenceTop = rect.top + window.scrollY;
+      sequenceHeight = sequence.offsetHeight;
+      stageHeight = stage.offsetHeight;
+      lastProgress = Number.NaN;
+    };
+
+    const applyScrollFrame = () => {
+      frame = 0;
+      if (document.hidden || !inViewport) return;
+
+      const progress = getLandingScrollProgress({
+        scrollY: window.scrollY,
+        sequenceTop,
+        sequenceHeight,
+        viewportHeight: stageHeight,
+      });
+      const targetTime = getLandingVideoTime(progress, video.duration);
+      latestTargetRef.current = targetTime;
+      const seekEpsilon = 1 / (LANDING_VIDEO_FPS * 2);
+      const progressUnchanged = Number.isFinite(lastProgress)
+        && Math.abs(progress - lastProgress) < 0.0001;
+      if (
+        progressUnchanged
+        && !video.seeking
+        && Math.abs(video.currentTime - targetTime) < seekEpsilon
+      ) {
+        return;
+      }
+      lastProgress = progress;
+
+      const mobileMediaX = 88 - progress * 46;
+      stage.style.setProperty("--hero-progress", progress.toFixed(4));
+      stage.style.setProperty("--hero-media-x", `${window.innerWidth <= 800 ? mobileMediaX : 50}%`);
+      stage.style.setProperty(
+        "--hero-media-shift",
+        `${window.innerWidth <= 800 ? 0 : 260 - progress * 150}px`,
+      );
+      stage.style.setProperty("--hero-plane-shift", `${(progress - 0.5) * 18}px`);
+      stage.style.setProperty("--hero-plane-shift-reverse", `${(0.5 - progress) * 12.6}px`);
+      stage.style.setProperty("--hero-plane-shift-soft", `${(progress - 0.5) * 9.9}px`);
+      stage.style.setProperty("--hero-copy-lift", `${progress * -24}px`);
+      stage.style.setProperty("--hero-copy-opacity", String(Math.max(0.72, 1 - progress * 0.28)));
+
+      if (video.seeking) return;
+      if (Math.abs(video.currentTime - targetTime) >= seekEpsilon) {
+        video.currentTime = targetTime;
+      } else if (!videoVisibleRef.current) {
+        revealRenderedFrame();
+      }
+    };
+
+    const scheduleScrollFrame = () => {
+      if (frame || document.hidden || !inViewport) return;
+      frame = window.requestAnimationFrame(applyScrollFrame);
+    };
+
+    const syncGeometry = () => {
+      refreshGeometry();
+      scheduleScrollFrame();
+    };
+
+    const onSeeked = () => {
+      const seekEpsilon = 1 / (LANDING_VIDEO_FPS * 2);
+      if (Math.abs(video.currentTime - latestTargetRef.current) >= seekEpsilon) {
+        scheduleScrollFrame();
+      } else if (!videoVisibleRef.current) {
+        revealRenderedFrame();
+      }
+    };
+
+    const onVisibility = () => {
+      if (!document.hidden) syncGeometry();
+    };
+
+    const resizeObserver = "ResizeObserver" in window
+      ? new ResizeObserver(syncGeometry)
+      : null;
+    const intersectionObserver = "IntersectionObserver" in window
+      ? new IntersectionObserver(([entry]) => {
+        inViewport = entry?.isIntersecting ?? true;
+        if (inViewport) syncGeometry();
+      }, { threshold: 0 })
+      : null;
+
+    refreshGeometry();
+    video.addEventListener("seeked", onSeeked);
+    window.addEventListener("scroll", scheduleScrollFrame, { passive: true });
+    window.addEventListener("resize", syncGeometry);
+    window.addEventListener("orientationchange", syncGeometry);
+    window.addEventListener("pageshow", syncGeometry);
+    document.addEventListener("visibilitychange", onVisibility);
+    resizeObserver?.observe(sequence);
+    intersectionObserver?.observe(sequence);
+    scheduleScrollFrame();
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(fallbackRevealFrame);
+      if (videoFrameCallback && typeof renderAwareVideo.cancelVideoFrameCallback === "function") {
+        renderAwareVideo.cancelVideoFrameCallback(videoFrameCallback);
+      }
+      video.removeEventListener("seeked", onSeeked);
+      window.removeEventListener("scroll", scheduleScrollFrame);
+      window.removeEventListener("resize", syncGeometry);
+      window.removeEventListener("orientationchange", syncGeometry);
+      window.removeEventListener("pageshow", syncGeometry);
+      document.removeEventListener("visibilitychange", onVisibility);
+      resizeObserver?.disconnect();
+      intersectionObserver?.disconnect();
+    };
+  }, [
+    eligible,
+    mediaReady,
+    onScrubAvailabilityChange,
+    sequenceRef,
+    sourceFailed,
+  ]);
+
+  const poster = "/images/psyche-hero-cinematic-v2.webp";
   const loadVideo = eligible && !sourceFailed;
 
   return (
@@ -729,8 +919,8 @@ function CinematicHeroMedia({
         <img
           className={videoVisible ? "landing-hero-poster is-obscured" : "landing-hero-poster"}
           src={poster}
-          width="1672"
-          height="941"
+          width="1920"
+          height="1080"
           loading="eager"
           decoding="async"
           alt=""
@@ -739,45 +929,32 @@ function CinematicHeroMedia({
           <video
             ref={videoRef}
             className={videoVisible ? "landing-hero-video is-visible" : "landing-hero-video"}
-            autoPlay
             muted
-            loop
             playsInline
-            preload="metadata"
+            preload="auto"
             poster={poster}
             disablePictureInPicture
             tabIndex={-1}
             aria-hidden="true"
-            onCanPlay={() => setCanPlay(true)}
-            onPlaying={() => {
-              setVideoVisible(true);
-              onFilmPlayingChange(true);
+            onLoadedMetadata={() => {
+              videoRef.current?.pause();
+              setMediaReady(true);
             }}
-            onPause={() => onFilmPlayingChange(false)}
             onError={() => {
               setSourceFailed(true);
+              setMediaReady(false);
               setVideoVisible(false);
-              onFilmPlayingChange(false);
+              videoVisibleRef.current = false;
             }}
           >
-            <source src="/video/psyche-atlas-personalities-v1.webm" type="video/webm" />
-            <source src="/video/psyche-atlas-personalities-v1.mp4" type="video/mp4" />
+            <source src="/video/psyche-atlas-personalities-v2.webm" type="video/webm" />
+            <source src="/video/psyche-atlas-personalities-v2.mp4" type="video/mp4" />
           </video>
         ) : null}
         <span className="landing-glass-plane plane-one" />
         <span className="landing-glass-plane plane-two" />
         <span className="landing-glass-plane plane-three" />
       </div>
-      <button
-        className={paused ? "landing-motion-toggle is-paused" : "landing-motion-toggle"}
-        type="button"
-        onClick={toggleMotion}
-        aria-label={paused ? motionPlay : motionPause}
-        title={paused ? motionPlay : motionPause}
-      >
-        <i aria-hidden="true" />
-        <span>{paused ? motionPlay : motionPause}</span>
-      </button>
     </>
   );
 }
@@ -794,8 +971,8 @@ export function Landing({
   const { locale } = useI18n();
   const copy = COPY[toLoc(locale)];
   const experienceCount = String(INSTRUMENTS.length);
-  const [heroPaused, setHeroPaused] = useState(false);
-  const [filmPlaying, setFilmPlaying] = useState(false);
+  const sequenceRef = useRef<HTMLDivElement>(null);
+  const [scrubAvailable, setScrubAvailable] = useState(false);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({
@@ -828,46 +1005,51 @@ export function Landing({
       </header>
 
       <main id="main-content" tabIndex={-1}>
-        <section
-          className={heroPaused ? "landing-hero is-motion-paused" : "landing-hero"}
+        <div
+          className={scrubAvailable
+            ? "landing-hero-sequence is-scrubbable"
+            : "landing-hero-sequence is-static"}
           id="landing-top"
+          ref={sequenceRef}
         >
-          <CinematicHeroMedia
-            motionPlay={copy.hero.motionPlay}
-            motionPause={copy.hero.motionPause}
-            paused={heroPaused}
-            onPausedChange={setHeroPaused}
-            onFilmPlayingChange={setFilmPlaying}
-          />
-          <AtlasField paused={heroPaused || filmPlaying} />
-          <div className="landing-hero-vignette" aria-hidden="true" />
-          <div className="landing-hero-copy">
-            <span className="landing-kicker"><i />{copy.hero.eyebrow}</span>
-            <h1>
-              {copy.hero.title} <em>{copy.hero.accent}</em>
-            </h1>
-            <p>{copy.hero.body}</p>
-            <div className="landing-actions">
-              <button className="landing-button landing-button-primary" type="button" onClick={onBegin}>
-                <span>{copy.hero.begin}</span><i aria-hidden="true">↗</i>
-              </button>
-              <button className="landing-button landing-button-ghost" type="button" onClick={onBrowse}>
-                {copy.hero.browse}
-              </button>
+          <section className="landing-hero">
+            <CinematicHeroMedia
+              sequenceRef={sequenceRef}
+              onScrubAvailabilityChange={setScrubAvailable}
+            />
+            <AtlasField paused />
+            <div className="landing-hero-vignette" aria-hidden="true" />
+            <div className="landing-hero-copy">
+              <span className="landing-kicker"><i />{copy.hero.eyebrow}</span>
+              <h1>
+                {copy.hero.title} <em>{copy.hero.accent}</em>
+              </h1>
+              <p>{copy.hero.body}</p>
+              <div className="landing-actions">
+                <button className="landing-button landing-button-primary" type="button" onClick={onBegin}>
+                  <span>{copy.hero.begin}</span><i aria-hidden="true">↗</i>
+                </button>
+                <button className="landing-button landing-button-ghost" type="button" onClick={onBrowse}>
+                  {copy.hero.browse}
+                </button>
+              </div>
+              <dl className="landing-stats">
+                {copy.stats.map((stat) => (
+                  <div key={stat.label}>
+                    <dt>{stat.value.replace("{n}", experienceCount)}</dt>
+                    <dd>{stat.label}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-            <dl className="landing-stats">
-              {copy.stats.map((stat) => (
-                <div key={stat.label}>
-                  <dt>{stat.value.replace("{n}", experienceCount)}</dt>
-                  <dd>{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <button className="landing-scroll-cue" type="button" onClick={() => scrollTo("landing-method")}>
-            <span>{copy.hero.scroll}</span><i aria-hidden="true" />
-          </button>
-        </section>
+            <div className="landing-scroll-progress" aria-hidden="true">
+              <span />
+            </div>
+            <button className="landing-scroll-cue" type="button" onClick={() => scrollTo("landing-method")}>
+              <span>{copy.hero.scroll}</span><i aria-hidden="true" />
+            </button>
+          </section>
+        </div>
 
         <section className="landing-thesis" id="landing-method">
           <div className="landing-section-intro">
