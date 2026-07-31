@@ -1,6 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { INSTRUMENTS } from "@core/instruments";
 import { LanguageSwitcher, useI18n } from "../i18n";
+import {
+  getLandingScrollProgress,
+  getLandingVideoTime,
+  LANDING_VIDEO_FPS,
+  shouldLoadLandingVideo,
+} from "./landingMedia";
 import { ThemeToggle } from "./theme";
 import { toLoc, type Loc } from "./goals";
 
@@ -20,6 +26,8 @@ interface LandingCopy {
     browse: string;
     imageAlt: string;
     scroll: string;
+    motionPlay: string;
+    motionPause: string;
   };
   stats: Array<{ value: string; label: string }>;
   thesis: {
@@ -85,6 +93,8 @@ const COPY: Record<Loc, LandingCopy> = {
       browse: "Explore every experience",
       imageAlt: "A woman moving through a gallery of reflective portrait planes.",
       scroll: "Scroll to enter",
+      motionPlay: "Play motion",
+      motionPause: "Pause motion",
     },
     stats: [
       { value: "{n}+", label: "guided experiences" },
@@ -201,6 +211,8 @@ const COPY: Record<Loc, LandingCopy> = {
       browse: "Explorar las experiencias",
       imageAlt: "Una mujer recorre una galería de retratos reflectantes.",
       scroll: "Desliza para entrar",
+      motionPlay: "Reproducir movimiento",
+      motionPause: "Pausar movimiento",
     },
     stats: [
       { value: "{n}+", label: "experiencias guiadas" },
@@ -317,6 +329,8 @@ const COPY: Record<Loc, LandingCopy> = {
       browse: "Explorer les expériences",
       imageAlt: "Une femme traverse une galerie de portraits réfléchissants.",
       scroll: "Faites défiler pour entrer",
+      motionPlay: "Relancer l’animation",
+      motionPause: "Mettre en pause",
     },
     stats: [
       { value: "{n}+", label: "expériences guidées" },
@@ -432,7 +446,7 @@ const EXPERIENCE_IMAGES = [
   "/images/psyche-study.webp",
 ] as const;
 
-function AtlasField() {
+function AtlasField({ paused }: { paused: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -534,12 +548,16 @@ function AtlasField() {
       }
       context.restore();
 
-      if (!reducedMotion && pageVisible && inViewport) animationFrame = window.requestAnimationFrame(draw);
+      if (!reducedMotion && !paused && pageVisible && inViewport) {
+        animationFrame = window.requestAnimationFrame(draw);
+      }
     };
 
     const syncAnimation = () => {
       window.cancelAnimationFrame(animationFrame);
-      if (!reducedMotion && pageVisible && inViewport) animationFrame = window.requestAnimationFrame(draw);
+      if (!reducedMotion && !paused && pageVisible && inViewport) {
+        animationFrame = window.requestAnimationFrame(draw);
+      }
     };
 
     const onVisibility = () => {
@@ -567,9 +585,378 @@ function AtlasField() {
       document.removeEventListener("visibilitychange", onVisibility);
       observer?.disconnect();
     };
-  }, []);
+  }, [paused]);
 
   return <canvas ref={canvasRef} className="landing-atlas-field" aria-hidden="true" />;
+}
+
+interface NetworkInformationLike {
+  saveData?: boolean;
+  effectiveType?: string;
+  addEventListener?: (type: "change", listener: EventListener) => void;
+  removeEventListener?: (type: "change", listener: EventListener) => void;
+}
+
+function CinematicHeroMedia({
+  sequenceRef,
+  onScrubAvailabilityChange,
+}: {
+  sequenceRef: { current: HTMLDivElement | null };
+  onScrubAvailabilityChange: (available: boolean) => void;
+}) {
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const latestTargetRef = useRef(0);
+  const videoVisibleRef = useRef(false);
+  const [eligible, setEligible] = useState(false);
+  const [mediaReady, setMediaReady] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [sourceFailed, setSourceFailed] = useState(false);
+
+  useEffect(() => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const dataQuery = window.matchMedia("(prefers-reduced-data: reduce)");
+    const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
+    const syncEligibility = () => {
+      const nextEligible = shouldLoadLandingVideo({
+        reducedMotion: motionQuery.matches,
+        reducedData: dataQuery.matches,
+        saveData: connection?.saveData ?? false,
+        effectiveType: connection?.effectiveType,
+      });
+      setEligible(nextEligible);
+      onScrubAvailabilityChange(nextEligible);
+      if (!nextEligible) {
+        setMediaReady(false);
+        setVideoVisible(false);
+        videoVisibleRef.current = false;
+      }
+    };
+    const onChange = syncEligibility as EventListener;
+    const addQueryListener = (query: MediaQueryList) => {
+      const legacyQuery = query as MediaQueryList & {
+        addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+      };
+      if (typeof legacyQuery.addEventListener === "function") {
+        legacyQuery.addEventListener("change", syncEligibility);
+      } else {
+        legacyQuery.addListener?.(syncEligibility);
+      }
+    };
+    const removeQueryListener = (query: MediaQueryList) => {
+      const legacyQuery = query as MediaQueryList & {
+        removeListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+      };
+      if (typeof legacyQuery.removeEventListener === "function") {
+        legacyQuery.removeEventListener("change", syncEligibility);
+      } else {
+        legacyQuery.removeListener?.(syncEligibility);
+      }
+    };
+
+    syncEligibility();
+    addQueryListener(motionQuery);
+    addQueryListener(dataQuery);
+    connection?.addEventListener?.("change", onChange);
+    return () => {
+      removeQueryListener(motionQuery);
+      removeQueryListener(dataQuery);
+      connection?.removeEventListener?.("change", onChange);
+    };
+  }, [onScrubAvailabilityChange]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const sequence = sequenceRef.current;
+    const stage = sequence?.querySelector<HTMLElement>(".landing-hero");
+    const resetStage = () => {
+      stage?.style.removeProperty("--hero-progress");
+      stage?.style.removeProperty("--hero-media-x");
+      stage?.style.removeProperty("--hero-plane-shift");
+      stage?.style.removeProperty("--hero-plane-shift-reverse");
+      stage?.style.removeProperty("--hero-plane-shift-soft");
+      stage?.style.removeProperty("--hero-copy-lift");
+      stage?.style.removeProperty("--hero-copy-opacity");
+      stage?.style.removeProperty("--hero-media-shift");
+    };
+    if (!sequence || !stage) {
+      resetStage();
+      onScrubAvailabilityChange(false);
+      return;
+    }
+    if (!eligible) {
+      resetStage();
+      return;
+    }
+    if (sourceFailed) {
+      resetStage();
+      const rect = sequence.getBoundingClientRect();
+      const sequenceTop = rect.top + window.scrollY;
+      const preserveEnteredRunway = window.scrollY > sequenceTop + 1 && rect.bottom > 0;
+      onScrubAvailabilityChange(preserveEnteredRunway);
+      if (!preserveEnteredRunway) return;
+
+      let releaseFrame = 0;
+      let released = false;
+      const releaseRunway = () => {
+        releaseFrame = 0;
+        if (released) return;
+
+        const currentRect = sequence.getBoundingClientRect();
+        const currentTop = currentRect.top + window.scrollY;
+        const exitedAbove = window.scrollY <= currentTop + 1;
+        const exitedBelow = currentRect.bottom <= 0;
+        if (!exitedAbove && !exitedBelow) return;
+
+        released = true;
+        const nextSection = exitedBelow
+          ? sequence.nextElementSibling as HTMLElement | null
+          : null;
+        const nextSectionTop = nextSection?.getBoundingClientRect().top;
+        const scrollYAtCollapse = window.scrollY;
+        onScrubAvailabilityChange(false);
+
+        if (nextSection && nextSectionTop !== undefined) {
+          window.requestAnimationFrame(() => {
+            if (!nextSection.isConnected) return;
+            if (Math.abs(window.scrollY - scrollYAtCollapse) > 1) return;
+            const layoutShift = nextSection.getBoundingClientRect().top - nextSectionTop;
+            if (Math.abs(layoutShift) > 0.5) {
+              window.scrollBy({ top: layoutShift, left: 0, behavior: "auto" });
+            }
+          });
+        }
+      };
+      const scheduleRelease = () => {
+        if (releaseFrame || released) return;
+        releaseFrame = window.requestAnimationFrame(releaseRunway);
+      };
+
+      window.addEventListener("scroll", scheduleRelease, { passive: true });
+      window.addEventListener("resize", scheduleRelease);
+      window.addEventListener("orientationchange", scheduleRelease);
+      window.addEventListener("pageshow", scheduleRelease);
+      scheduleRelease();
+
+      return () => {
+        window.cancelAnimationFrame(releaseFrame);
+        window.removeEventListener("scroll", scheduleRelease);
+        window.removeEventListener("resize", scheduleRelease);
+        window.removeEventListener("orientationchange", scheduleRelease);
+        window.removeEventListener("pageshow", scheduleRelease);
+      };
+    }
+    onScrubAvailabilityChange(true);
+    if (!video) {
+      resetStage();
+      return;
+    }
+    if (!mediaReady) return;
+
+    video.pause();
+
+    let frame = 0;
+    let sequenceTop = 0;
+    let sequenceHeight = 0;
+    let stageHeight = 0;
+    let waitingForFrame = false;
+    let videoFrameCallback = 0;
+    let fallbackRevealFrame = 0;
+    let inViewport = true;
+    let lastProgress = Number.NaN;
+    const renderAwareVideo = video as HTMLVideoElement & {
+      cancelVideoFrameCallback?: (handle: number) => void;
+      requestVideoFrameCallback?: (callback: () => void) => number;
+    };
+
+    const revealRenderedFrame = () => {
+      if (waitingForFrame) return;
+      waitingForFrame = true;
+      const reveal = () => {
+        videoFrameCallback = 0;
+        fallbackRevealFrame = 0;
+        waitingForFrame = false;
+        videoVisibleRef.current = true;
+        setVideoVisible(true);
+      };
+      if (typeof renderAwareVideo.requestVideoFrameCallback === "function") {
+        videoFrameCallback = renderAwareVideo.requestVideoFrameCallback(reveal);
+      } else {
+        fallbackRevealFrame = window.requestAnimationFrame(reveal);
+      }
+    };
+
+    const refreshGeometry = () => {
+      const rect = sequence.getBoundingClientRect();
+      sequenceTop = rect.top + window.scrollY;
+      sequenceHeight = sequence.offsetHeight;
+      stageHeight = stage.offsetHeight;
+      lastProgress = Number.NaN;
+    };
+
+    const applyScrollFrame = () => {
+      frame = 0;
+      if (document.hidden || !inViewport) return;
+
+      const progress = getLandingScrollProgress({
+        scrollY: window.scrollY,
+        sequenceTop,
+        sequenceHeight,
+        viewportHeight: stageHeight,
+      });
+      const targetTime = getLandingVideoTime(progress, video.duration);
+      latestTargetRef.current = targetTime;
+      const seekEpsilon = 1 / (LANDING_VIDEO_FPS * 2);
+      const progressUnchanged = Number.isFinite(lastProgress)
+        && Math.abs(progress - lastProgress) < 0.0001;
+      if (
+        progressUnchanged
+        && !video.seeking
+        && Math.abs(video.currentTime - targetTime) < seekEpsilon
+      ) {
+        return;
+      }
+      lastProgress = progress;
+
+      const mobileMediaX = 88 - progress * 46;
+      stage.style.setProperty("--hero-progress", progress.toFixed(4));
+      stage.style.setProperty("--hero-media-x", `${window.innerWidth <= 800 ? mobileMediaX : 50}%`);
+      stage.style.setProperty(
+        "--hero-media-shift",
+        `${window.innerWidth <= 800 ? 0 : 260 - progress * 150}px`,
+      );
+      stage.style.setProperty("--hero-plane-shift", `${(progress - 0.5) * 18}px`);
+      stage.style.setProperty("--hero-plane-shift-reverse", `${(0.5 - progress) * 12.6}px`);
+      stage.style.setProperty("--hero-plane-shift-soft", `${(progress - 0.5) * 9.9}px`);
+      stage.style.setProperty("--hero-copy-lift", `${progress * -24}px`);
+      stage.style.setProperty("--hero-copy-opacity", String(Math.max(0.72, 1 - progress * 0.28)));
+
+      if (video.seeking) return;
+      if (Math.abs(video.currentTime - targetTime) >= seekEpsilon) {
+        video.currentTime = targetTime;
+      } else if (!videoVisibleRef.current) {
+        revealRenderedFrame();
+      }
+    };
+
+    const scheduleScrollFrame = () => {
+      if (frame || document.hidden || !inViewport) return;
+      frame = window.requestAnimationFrame(applyScrollFrame);
+    };
+
+    const syncGeometry = () => {
+      refreshGeometry();
+      scheduleScrollFrame();
+    };
+
+    const onSeeked = () => {
+      const seekEpsilon = 1 / (LANDING_VIDEO_FPS * 2);
+      if (Math.abs(video.currentTime - latestTargetRef.current) >= seekEpsilon) {
+        scheduleScrollFrame();
+      } else if (!videoVisibleRef.current) {
+        revealRenderedFrame();
+      }
+    };
+
+    const onVisibility = () => {
+      if (!document.hidden) syncGeometry();
+    };
+
+    const resizeObserver = "ResizeObserver" in window
+      ? new ResizeObserver(syncGeometry)
+      : null;
+    const intersectionObserver = "IntersectionObserver" in window
+      ? new IntersectionObserver(([entry]) => {
+        inViewport = entry?.isIntersecting ?? true;
+        if (inViewport) syncGeometry();
+      }, { threshold: 0 })
+      : null;
+
+    refreshGeometry();
+    video.addEventListener("seeked", onSeeked);
+    window.addEventListener("scroll", scheduleScrollFrame, { passive: true });
+    window.addEventListener("resize", syncGeometry);
+    window.addEventListener("orientationchange", syncGeometry);
+    window.addEventListener("pageshow", syncGeometry);
+    document.addEventListener("visibilitychange", onVisibility);
+    resizeObserver?.observe(sequence);
+    intersectionObserver?.observe(sequence);
+    scheduleScrollFrame();
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(fallbackRevealFrame);
+      if (videoFrameCallback && typeof renderAwareVideo.cancelVideoFrameCallback === "function") {
+        renderAwareVideo.cancelVideoFrameCallback(videoFrameCallback);
+      }
+      video.removeEventListener("seeked", onSeeked);
+      window.removeEventListener("scroll", scheduleScrollFrame);
+      window.removeEventListener("resize", syncGeometry);
+      window.removeEventListener("orientationchange", syncGeometry);
+      window.removeEventListener("pageshow", syncGeometry);
+      document.removeEventListener("visibilitychange", onVisibility);
+      resizeObserver?.disconnect();
+      intersectionObserver?.disconnect();
+    };
+  }, [
+    eligible,
+    mediaReady,
+    onScrubAvailabilityChange,
+    sequenceRef,
+    sourceFailed,
+  ]);
+
+  const poster = "/images/psyche-hero-cinematic-v2.webp";
+  const loadVideo = eligible && !sourceFailed;
+
+  return (
+    <>
+      <div
+        className={videoVisible ? "landing-hero-photo has-motion" : "landing-hero-photo"}
+        ref={mediaRef}
+        aria-hidden="true"
+      >
+        <img
+          className={videoVisible ? "landing-hero-poster is-obscured" : "landing-hero-poster"}
+          src={poster}
+          width="1920"
+          height="1080"
+          loading="eager"
+          decoding="async"
+          alt=""
+        />
+        {loadVideo ? (
+          <video
+            ref={videoRef}
+            className={videoVisible ? "landing-hero-video is-visible" : "landing-hero-video"}
+            muted
+            playsInline
+            preload="auto"
+            poster={poster}
+            disablePictureInPicture
+            tabIndex={-1}
+            aria-hidden="true"
+            onLoadedMetadata={() => {
+              videoRef.current?.pause();
+              setMediaReady(true);
+            }}
+            onError={() => {
+              setSourceFailed(true);
+              setMediaReady(false);
+              setVideoVisible(false);
+              videoVisibleRef.current = false;
+            }}
+          >
+            <source src="/video/psyche-atlas-personalities-v2.webm" type="video/webm" />
+            <source src="/video/psyche-atlas-personalities-v2.mp4" type="video/mp4" />
+          </video>
+        ) : null}
+        <span className="landing-glass-plane plane-one" />
+        <span className="landing-glass-plane plane-two" />
+        <span className="landing-glass-plane plane-three" />
+      </div>
+    </>
+  );
 }
 
 export function Landing({
@@ -584,6 +971,8 @@ export function Landing({
   const { locale } = useI18n();
   const copy = COPY[toLoc(locale)];
   const experienceCount = String(INSTRUMENTS.length);
+  const sequenceRef = useRef<HTMLDivElement>(null);
+  const [scrubAvailable, setScrubAvailable] = useState(false);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({
@@ -616,49 +1005,51 @@ export function Landing({
       </header>
 
       <main id="main-content" tabIndex={-1}>
-        <section className="landing-hero" id="landing-top">
-          <div className="landing-hero-photo" aria-hidden="true">
-            <img
-              src="/images/psyche-hero-cinematic.webp"
-              width="1672"
-              height="941"
-              loading="eager"
-              decoding="async"
-              alt=""
+        <div
+          className={scrubAvailable
+            ? "landing-hero-sequence is-scrubbable"
+            : "landing-hero-sequence is-static"}
+          id="landing-top"
+          ref={sequenceRef}
+        >
+          <section className="landing-hero">
+            <CinematicHeroMedia
+              sequenceRef={sequenceRef}
+              onScrubAvailabilityChange={setScrubAvailable}
             />
-            <span className="landing-glass-plane plane-one" />
-            <span className="landing-glass-plane plane-two" />
-            <span className="landing-glass-plane plane-three" />
-          </div>
-          <AtlasField />
-          <div className="landing-hero-vignette" aria-hidden="true" />
-          <div className="landing-hero-copy">
-            <span className="landing-kicker"><i />{copy.hero.eyebrow}</span>
-            <h1>
-              {copy.hero.title} <em>{copy.hero.accent}</em>
-            </h1>
-            <p>{copy.hero.body}</p>
-            <div className="landing-actions">
-              <button className="landing-button landing-button-primary" type="button" onClick={onBegin}>
-                <span>{copy.hero.begin}</span><i aria-hidden="true">↗</i>
-              </button>
-              <button className="landing-button landing-button-ghost" type="button" onClick={onBrowse}>
-                {copy.hero.browse}
-              </button>
+            <AtlasField paused />
+            <div className="landing-hero-vignette" aria-hidden="true" />
+            <div className="landing-hero-copy">
+              <span className="landing-kicker"><i />{copy.hero.eyebrow}</span>
+              <h1>
+                {copy.hero.title} <em>{copy.hero.accent}</em>
+              </h1>
+              <p>{copy.hero.body}</p>
+              <div className="landing-actions">
+                <button className="landing-button landing-button-primary" type="button" onClick={onBegin}>
+                  <span>{copy.hero.begin}</span><i aria-hidden="true">↗</i>
+                </button>
+                <button className="landing-button landing-button-ghost" type="button" onClick={onBrowse}>
+                  {copy.hero.browse}
+                </button>
+              </div>
+              <dl className="landing-stats">
+                {copy.stats.map((stat) => (
+                  <div key={stat.label}>
+                    <dt>{stat.value.replace("{n}", experienceCount)}</dt>
+                    <dd>{stat.label}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-            <dl className="landing-stats">
-              {copy.stats.map((stat) => (
-                <div key={stat.label}>
-                  <dt>{stat.value.replace("{n}", experienceCount)}</dt>
-                  <dd>{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <button className="landing-scroll-cue" type="button" onClick={() => scrollTo("landing-method")}>
-            <span>{copy.hero.scroll}</span><i aria-hidden="true" />
-          </button>
-        </section>
+            <div className="landing-scroll-progress" aria-hidden="true">
+              <span />
+            </div>
+            <button className="landing-scroll-cue" type="button" onClick={() => scrollTo("landing-method")}>
+              <span>{copy.hero.scroll}</span><i aria-hidden="true" />
+            </button>
+          </section>
+        </div>
 
         <section className="landing-thesis" id="landing-method">
           <div className="landing-section-intro">
